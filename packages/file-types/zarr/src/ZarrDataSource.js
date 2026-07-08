@@ -55,7 +55,7 @@ export default class ZarrDataSource {
       dirKey = key.substring(0, key.length - 8);
     }
     // `getNode` makes the node-vs-attrs distinction explicit: `null` means the
-    // node genuinely doesn't exist (throw our specific error) 
+    // node genuinely doesn't exist (throw our specific error)
     // any other failure (e.g. an unsupported dtype/codec) is
     // surfaced as `ZarrUnsupportedNodeError`
     const node = await getNode(storeRootToUse, dirKey);

@@ -108,3 +108,58 @@ export function makeV2StoreWithMalformedConsolidated(): MemStore {
   store.put('/.zmetadata', enc({ not: 'a valid consolidated manifest' }));
   return store;
 }
+
+
+/**
+ * A v3 store using the (unratified) inline consolidated-metadata proposal:
+ * a `consolidated_metadata.metadata` object embedded directly in the root's
+ * own `zarr.json`, rather than a v2-style side-car `.zmetadata` file.
+ * zarrita 0.6.1 has no native support for this format; `openListableRoot`
+ * parses it itself (see `tryV3InlineConsolidated` in hierarchy.ts).
+ */
+export function makeV3StoreWithInlineConsolidated(): MemStore {
+  const store = new MemStore();
+  const obsMeta = {
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: OBS_ATTRS,
+  };
+  const umapMeta = {
+    zarr_format: 3,
+    node_type: 'array',
+    shape: [10, 2],
+    chunk_grid: { name: 'regular', configuration: { chunk_shape: [10, 2] } },
+    chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+    data_type: 'float32',
+    fill_value: 0,
+    codecs: [{ name: 'bytes' }],
+    attributes: {},
+  };
+  const xMeta = {
+    zarr_format: 3,
+    node_type: 'array',
+    shape: [10, 5],
+    chunk_grid: { name: 'regular', configuration: { chunk_shape: [10, 5] } },
+    chunk_key_encoding: { name: 'default', configuration: { separator: '/' } },
+    data_type: 'float32',
+    fill_value: 0,
+    codecs: [{ name: 'bytes' }],
+    attributes: {},
+  };
+  const rootMeta = {
+    zarr_format: 3,
+    node_type: 'group',
+    attributes: { foo: 'bar' },
+    consolidated_metadata: {
+      kind: 'inline',
+      must_understand: false,
+      metadata: {
+        obs: obsMeta,
+        'obsm/X_umap': umapMeta,
+        X: xMeta,
+      },
+    },
+  };
+  store.put('/zarr.json', enc(rootMeta));
+  return store;
+}

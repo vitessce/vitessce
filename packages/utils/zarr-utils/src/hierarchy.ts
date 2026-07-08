@@ -28,6 +28,94 @@ function stripLeadingSlash(path: string): string {
 }
 
 /**
+ * Try each metadata key in order, returning the first successfully-parsed
+ * listable store, or `null` if none work. Written recursively rather than as
+ * a loop so each attempt can `await` sequentially (a `.forEach()` callback
+ * can't be awaited in sequence, and can't early-exit at all) without
+ * tripping the no-loop-statements lint rule.
+ */
+async function tryConsolidatedWithKeys(
+    store: Readable,
+    metadataKeys: string[],
+  ): Promise<Listable<Readable> | null> {
+    const [metadataKey, ...rest] = metadataKeys;
+    if (metadataKey === undefined) return null;
+    try {
+      const listable = await tryWithConsolidated(store, { metadataKey });
+      if ('contents' in listable) {
+        return listable as Listable<Readable>;
+      }
+    } catch {
+      // Malformed/unsupported manifest under this key -- try the next one.
+    }
+    return tryConsolidatedWithKeys(store, rest);
+  }
+
+/**
+ * Zarr v3 has a separate, unratified proposal for consolidated metadata
+ * (zarr-specs#309, implemented experimentally by zarr-python): rather than a
+ * side-car file like v2's `.zmetadata`, the root's own `zarr.json` carries a
+ * `consolidated_metadata.metadata` object inline. zarrita 0.6.1's
+ * `tryWithConsolidated` only understands the v2 side-car format, so a v3
+ * store using this convention would otherwise always fall through to plain
+ * node-by-node probing -- silently missing any node whose name isn't on a
+ * caller's fixed candidate list (e.g. a custom obsm embedding name).
+ *
+ * This parses that inline format ourselves and synthesizes a
+ * zarrita-`Listable`-compatible wrapper, so it gets the same fast,
+ * complete-enumeration path as v2 consolidated stores.
+ *
+ * @returns A `Listable<Readable>` if the root has valid v3 inline
+ *   consolidated metadata, or `null` otherwise (including on any parse
+ *   failure -- callers fall back to plain probing in that case).
+ */
+async function tryV3InlineConsolidated(store: Readable): Promise<Listable<Readable> | null> {
+    let bytes;
+    try {
+      bytes = await store.get('/zarr.json');
+    } catch {
+      return null;
+    }
+    if (!bytes) return null;
+  
+    let rootMeta: Record<string, unknown>;
+    try {
+      rootMeta = JSON.parse(new TextDecoder().decode(bytes));
+    } catch {
+      return null;
+    }
+    const inline = rootMeta.consolidated_metadata as { metadata?: Record<string, unknown> } | undefined;
+    if (rootMeta.zarr_format !== 3 || !inline || typeof inline.metadata !== 'object') {
+      return null;
+    }
+  
+    const known: Record<string, unknown> = { '/zarr.json': rootMeta };
+    Object.entries(inline.metadata).forEach(([path, meta]) => {
+      known[`/${path}/zarr.json`] = meta;
+    });
+    const encoder = new TextEncoder();
+  
+    return {
+      async get(key: string, opts?: unknown) {
+        if (key in known) {
+          return encoder.encode(JSON.stringify(known[key]));
+        }
+        return store.get(key as `/${string}`, opts as never);
+      },
+      getRange: store.getRange?.bind(store),
+      contents() {
+        return Object.entries(known)
+          .filter(([key]) => key.endsWith('/zarr.json'))
+          .map(([key, meta]) => {
+            const path = key.slice(0, -'/zarr.json'.length) || '/';
+            const kind = (meta as { node_type?: string }).node_type === 'array' ? 'array' : 'group';
+            return { path, kind };
+          });
+      },
+    } as unknown as Listable<Readable>;
+  }
+
+/**
    * Open a store as a *listable* root when consolidated metadata is present
    * (v2 `.zmetadata` or a v3 consolidated `zarr.json`), falling back to the plain
    * store otherwise. This is the drop-in replacement for manual
@@ -45,15 +133,27 @@ export async function openListableRoot(
   // plain store in that case too, so odd stores fall through to node probing
   // rather than failing outright (matching the historical 404-tolerant behavior).
   let maybeListable: Readable | Listable<Readable> = store;
-  try {
-    maybeListable = await tryWithConsolidated(store);
-  } catch {
-    maybeListable = store;
-  }
-  const contents = 'contents' in maybeListable
+    let listed = false;
+
+    const consolidated = await tryConsolidatedWithKeys(store, ['.zmetadata', 'zmetadata']);
+    if (consolidated) {
+        maybeListable = consolidated;
+        listed = true;
+    } else {
+    // zarrita has no built-in support for Zarr v3's (unratified) inline
+    // consolidated-metadata proposal -- see the doc comment on
+    // `tryV3InlineConsolidated` above.
+    const v3Listable = await tryV3InlineConsolidated(store);
+    if (v3Listable) {
+    maybeListable = v3Listable;
+    listed = true;
+    }
+}
+if (!listed) maybeListable = store;
+const contents = 'contents' in maybeListable
     ? (maybeListable as Listable<Readable>)
-      .contents()
-      .map(({ path, kind }) => ({ path, kind }))
+    .contents()
+    .map(({ path, kind }) => ({ path, kind }))
     : null;
   return { root: root(maybeListable) as Location<Readable>, contents };
 }
@@ -87,8 +187,8 @@ export async function getAttrs(
   } catch (e) {
     if (e instanceof NodeNotFoundError) return {};
     throw new ZarrUnsupportedNodeError(
-    `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
-    { cause: e },
+      `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+      { cause: e },
     );
   }
 }
@@ -109,18 +209,18 @@ export async function getArrayMeta(
     chunks: number[];
     attrs: Record<string, unknown>;
   }> {
-    let arr;
-    try {
-        arr = await open(path ? loc.resolve(path) : loc, { kind: 'array' });
-    } catch (e) {
-        if (e instanceof NodeNotFoundError) {
-        throw new ZarrNodeNotFoundError(`Zarr array not found at "${path ?? loc.path}".`, { cause: e });
-        }
-        throw new ZarrUnsupportedNodeError(
-        `Zarr array at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
-        { cause: e },
-        );
+  let arr;
+  try {
+    arr = await open(path ? loc.resolve(path) : loc, { kind: 'array' });
+  } catch (e) {
+    if (e instanceof NodeNotFoundError) {
+      throw new ZarrNodeNotFoundError(`Zarr array not found at "${path ?? loc.path}".`, { cause: e });
     }
+    throw new ZarrUnsupportedNodeError(
+      `Zarr array at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+      { cause: e },
+    );
+  }
   return {
     dtype: arr.dtype as string,
     shape: [...arr.shape],
@@ -168,8 +268,8 @@ export async function getNode(
   } catch (e) {
     if (e instanceof NodeNotFoundError) return null;
     throw new ZarrUnsupportedNodeError(
-        `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
-        { cause: e },
+      `Zarr node at "${path ?? loc.path}" exists but could not be opened (unsupported dtype or codec?).`,
+      { cause: e },
     );
   }
 }

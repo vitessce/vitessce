@@ -6,12 +6,12 @@ import { FetchStore } from 'zarrita';
 // eslint-disable-next-line import/no-unresolved
 import ZipFileStore from '@zarrita/storage/zip';
 import { transformEntriesForZipFileStore, openListableRoot, getNode } from '@vitessce/zarr-utils';
+import { ZarrUnsupportedNodeError } from '@vitessce/error';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
 import { SpatialDataAutoConfig } from './generate-config-spatialdata.js';
 import { OmeAutoConfig } from './generate-config-ome.js';
-import { ZarrUnsupportedNodeError } from '@vitessce/error';
 
 // TODO: make this a function parameter?
 const FILE_TYPE_DELIM = '$';
