@@ -164,8 +164,12 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const { path: matrix } = this.getOptions();
-      const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
+    // Read shape from array metadata rather than attrs
+      const [numCells, numGenes] = await Promise.all([
+        this._getNumCells(),
+        this._getNumGenes(),
+      ]);
+      const shape = [numCells, numGenes];
       // eslint-disable-next-line prefer-const
       let [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -200,8 +204,11 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const { path: matrix } = this.getOptions();
-      const { shape } = await this.dataSource.getJson(`${matrix}/.zattrs`);
+      const [numCells, numGenes] = await Promise.all([
+        this._getNumCells(),
+        this._getNumGenes(),
+      ]);
+      const shape = [numCells, numGenes];
       // eslint-disable-next-line prefer-const
       let [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {

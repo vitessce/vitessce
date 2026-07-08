@@ -340,12 +340,9 @@ describe('generateConfig', () => {
   });
 
   it('degrades gracefully for Anndata-ZARR file with a malformed consolidated manifest', async () => {
-    // invalidmeta.adata.zarr's .zmetadata is not a valid consolidated-metadata
-    // document ({"hello": "world"}), so tryWithConsolidated() cannot parse it.
-    // openListableRoot() treats that the same as "no consolidated metadata" and
-    // falls back to node-by-node probing, rather than surfacing a
-    // .zmetadata-specific parse error -- consistent with the version-independent
-    // goal of not hard-coding v2 metadata-file assumptions into the failure path.
+    // if a store's .zmetadata file exists but is invalid, instead of crashing it should just treat
+    // it the same as "no consolidated metadata" and
+    // falls back to checking nodes one-by-one.
     // Since the store has no other real nodes on disk, probing finds nothing and
     // the result is the same empty-but-successful config as the emptymeta case.
     const urls = ['http://localhost:4204/@fixtures/zarr/partials/invalidmeta.adata.zarr'];
