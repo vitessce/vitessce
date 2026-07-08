@@ -163,3 +163,42 @@ export function makeV3StoreWithInlineConsolidated(): MemStore {
   store.put('/zarr.json', enc(rootMeta));
   return store;
 }
+
+
+/**
+ * A v3 store shaped like a Zarr pyramid: sequential numeric resolution-level
+ * arrays ('0', '1', '2'), with no consolidated metadata at all. Written with
+ * zarrita's real writer, so this is a genuine (non-hand-built) v3 store.
+ */
+export async function makePyramidStore(numLevels: number): Promise<MemStore> {
+  const store = new MemStore();
+  await create(root(store), { attributes: {} });
+  await Promise.all(Array.from({ length: numLevels }, (_, i) => create(
+    root(store).resolve(String(i)),
+    { shape: [10, 10], chunk_shape: [10, 10], data_type: 'uint8' },
+  )));
+  return store;
+}
+
+/**
+ * A v2 store with one array whose dtype zarrita cannot parse (a structured/
+ * recarray dtype, e.g. as Scanpy's `rank_genes_groups` can produce), built by
+ * hand since zarrita's own writer can't emit this dtype shape either. Used to
+ * exercise the "node exists but fails to open" error path
+ * (ZarrUnsupportedNodeError), distinct from a genuinely missing node.
+ */
+export function makeStoreWithUnsupportedDtype(): MemStore {
+  const store = new MemStore();
+  store.put('/.zgroup', enc({ zarr_format: 2 }));
+  store.put('/weird/.zarray', enc({
+    zarr_format: 2,
+    shape: [2],
+    chunks: [2],
+    dtype: [['f0', '<f4'], ['f1', '<i4']], // structured dtype -- zarrita can't parse this
+    compressor: null,
+    fill_value: 0,
+    order: 'C',
+    filters: null,
+  }));
+  return store;
+}
