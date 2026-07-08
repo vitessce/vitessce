@@ -19,6 +19,7 @@ export {
   getArrayMeta,
   findExistingPaths,
   getNode,
+  discoverPyramidLevels,
 } from './hierarchy.js';
 
 export type { NodeEntry } from './hierarchy.js';

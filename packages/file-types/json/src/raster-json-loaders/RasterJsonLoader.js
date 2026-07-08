@@ -9,7 +9,8 @@ import {
   ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
-import { zarrOpenRoot, zarrOpenStore, openListableRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, zarrOpenStore, openListableRoot,
+  createZarrArrayAdapter, discoverPyramidLevels } from '@vitessce/zarr-utils';
 import { LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -30,12 +31,14 @@ async function initLoader(imageData) {
         if (isPyramid) {
           const store = zarrOpenStore(url, null, { requestInit });
           const { root: listableRoot, contents } = await openListableRoot(store);
-          if (!contents) {
-            throw new Error(`Failed to fetch metadata: no consolidated Zarr metadata found for ${url}`);
+          // Consolidated metadata (when present) is only an optimization --
+          // it isn't required. `discoverPyramidLevels` falls back to checking
+          // sequential resolution-level names ('0', '1', '2', ...) otherwise.
+          const paths = await discoverPyramidLevels(listableRoot, contents);
+          if (paths.length === 0) {
+            throw new Error(`Failed to discover any pyramid resolution levels for ${url}`);
           }
-          const paths = contents
-            .filter(({ kind }) => kind === 'array')
-            .map(({ path }) => path);
+
           const data = await Promise.all(
             paths.map(path => zarrOpen(listableRoot.resolve(path), { kind: 'array' })),
           );

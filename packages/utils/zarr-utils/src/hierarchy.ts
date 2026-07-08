@@ -26,7 +26,6 @@ export interface NodeEntry {
 function stripLeadingSlash(path: string): string {
   return path.startsWith('/') ? path.slice(1) : path;
 }
-
 /**
  * Try each metadata key in order, returning the first successfully-parsed
  * listable store, or `null` if none work. Written recursively rather than as
@@ -35,21 +34,21 @@ function stripLeadingSlash(path: string): string {
  * tripping the no-loop-statements lint rule.
  */
 async function tryConsolidatedWithKeys(
-    store: Readable,
-    metadataKeys: string[],
-  ): Promise<Listable<Readable> | null> {
-    const [metadataKey, ...rest] = metadataKeys;
-    if (metadataKey === undefined) return null;
-    try {
-      const listable = await tryWithConsolidated(store, { metadataKey });
-      if ('contents' in listable) {
-        return listable as Listable<Readable>;
-      }
-    } catch {
-      // Malformed/unsupported manifest under this key -- try the next one.
+  store: Readable,
+  metadataKeys: string[],
+): Promise<Listable<Readable> | null> {
+  const [metadataKey, ...rest] = metadataKeys;
+  if (metadataKey === undefined) return null;
+  try {
+    const listable = await tryWithConsolidated(store, { metadataKey });
+    if ('contents' in listable) {
+      return listable as Listable<Readable>;
     }
-    return tryConsolidatedWithKeys(store, rest);
+  } catch {
+    // Malformed/unsupported manifest under this key -- try the next one.
   }
+  return tryConsolidatedWithKeys(store, rest);
+}
 
 /**
  * Zarr v3 has a separate, unratified proposal for consolidated metadata
@@ -70,50 +69,51 @@ async function tryConsolidatedWithKeys(
  *   failure -- callers fall back to plain probing in that case).
  */
 async function tryV3InlineConsolidated(store: Readable): Promise<Listable<Readable> | null> {
-    let bytes;
-    try {
-      bytes = await store.get('/zarr.json');
-    } catch {
-      return null;
-    }
-    if (!bytes) return null;
-  
-    let rootMeta: Record<string, unknown>;
-    try {
-      rootMeta = JSON.parse(new TextDecoder().decode(bytes));
-    } catch {
-      return null;
-    }
-    const inline = rootMeta.consolidated_metadata as { metadata?: Record<string, unknown> } | undefined;
-    if (rootMeta.zarr_format !== 3 || !inline || typeof inline.metadata !== 'object') {
-      return null;
-    }
-  
-    const known: Record<string, unknown> = { '/zarr.json': rootMeta };
-    Object.entries(inline.metadata).forEach(([path, meta]) => {
-      known[`/${path}/zarr.json`] = meta;
-    });
-    const encoder = new TextEncoder();
-  
-    return {
-      async get(key: string, opts?: unknown) {
-        if (key in known) {
-          return encoder.encode(JSON.stringify(known[key]));
-        }
-        return store.get(key as `/${string}`, opts as never);
-      },
-      getRange: store.getRange?.bind(store),
-      contents() {
-        return Object.entries(known)
-          .filter(([key]) => key.endsWith('/zarr.json'))
-          .map(([key, meta]) => {
-            const path = key.slice(0, -'/zarr.json'.length) || '/';
-            const kind = (meta as { node_type?: string }).node_type === 'array' ? 'array' : 'group';
-            return { path, kind };
-          });
-      },
-    } as unknown as Listable<Readable>;
+  let bytes;
+  try {
+    bytes = await store.get('/zarr.json');
+  } catch {
+    return null;
   }
+  if (!bytes) return null;
+
+  let rootMeta: Record<string, unknown>;
+  try {
+    rootMeta = JSON.parse(new TextDecoder().decode(bytes));
+  } catch {
+    return null;
+  }
+  const inline = rootMeta.consolidated_metadata as { metadata?: Record<string, unknown> }
+    | undefined;
+  if (rootMeta.zarr_format !== 3 || !inline || typeof inline.metadata !== 'object') {
+    return null;
+  }
+
+  const known: Record<string, unknown> = { '/zarr.json': rootMeta };
+  Object.entries(inline.metadata).forEach(([path, meta]) => {
+    known[`/${path}/zarr.json`] = meta;
+  });
+  const encoder = new TextEncoder();
+
+  return {
+    async get(key: string, opts?: unknown) {
+      if (key in known) {
+        return encoder.encode(JSON.stringify(known[key]));
+      }
+      return store.get(key as `/${string}`, opts as never);
+    },
+    getRange: store.getRange?.bind(store),
+    contents() {
+      return Object.entries(known)
+        .filter(([key]) => key.endsWith('/zarr.json'))
+        .map(([key, meta]) => {
+          const path = key.slice(0, -'/zarr.json'.length) || '/';
+          const kind = (meta as { node_type?: string }).node_type === 'array' ? 'array' : 'group';
+          return { path, kind };
+        });
+    },
+  } as unknown as Listable<Readable>;
+}
 
 /**
    * Open a store as a *listable* root when consolidated metadata is present
@@ -133,27 +133,27 @@ export async function openListableRoot(
   // plain store in that case too, so odd stores fall through to node probing
   // rather than failing outright (matching the historical 404-tolerant behavior).
   let maybeListable: Readable | Listable<Readable> = store;
-    let listed = false;
+  let listed = false;
 
-    const consolidated = await tryConsolidatedWithKeys(store, ['.zmetadata', 'zmetadata']);
-    if (consolidated) {
-        maybeListable = consolidated;
-        listed = true;
-    } else {
+  const consolidated = await tryConsolidatedWithKeys(store, ['.zmetadata', 'zmetadata']);
+  if (consolidated) {
+    maybeListable = consolidated;
+    listed = true;
+  } else {
     // zarrita has no built-in support for Zarr v3's (unratified) inline
     // consolidated-metadata proposal -- see the doc comment on
     // `tryV3InlineConsolidated` above.
     const v3Listable = await tryV3InlineConsolidated(store);
     if (v3Listable) {
-    maybeListable = v3Listable;
-    listed = true;
+      maybeListable = v3Listable;
+      listed = true;
     }
-}
-if (!listed) maybeListable = store;
-const contents = 'contents' in maybeListable
+  }
+  if (!listed) maybeListable = store;
+  const contents = 'contents' in maybeListable
     ? (maybeListable as Listable<Readable>)
-    .contents()
-    .map(({ path, kind }) => ({ path, kind }))
+      .contents()
+      .map(({ path, kind }) => ({ path, kind }))
     : null;
   return { root: root(maybeListable) as Location<Readable>, contents };
 }
@@ -272,4 +272,40 @@ export async function getNode(
       { cause: e },
     );
   }
+}
+
+/**
+ * Recursively probes '0', '1', '2', ... stopping at the first missing index.
+ * Written recursively to avoid no-loop-statements lint rule.
+ */
+async function discoverSequentialLevels(loc: Location<Readable>, index: number):
+  Promise<string[]> {
+  const candidate = String(index);
+  const exists = await nodeExists(loc, candidate);
+  if (!exists) return [];
+  const rest = await discoverSequentialLevels(loc, index + 1);
+  return [candidate, ...rest];
+}
+
+/**
+ * Discover Zarr pyramid resolution-level array paths.
+ *
+ * When a consolidated manifest is available, this is a fast in-memory filter
+ * over every array node (matching the historical `.zmetadata`-key-scan
+ * behavior). Otherwise, it probes sequential
+ * numeric names ('0', '1', '2', ...) until one is missing: the general
+ * Zarr/OME-NGFF pyramid-level naming convention, used here as a
+ * non-consolidated correctness baseline. Consolidated metadata is only
+ * an optimization
+ */
+export async function discoverPyramidLevels(
+  loc: Location<Readable>,
+  contents: NodeEntry[] | null = null,
+): Promise<string[]> {
+  if (contents) {
+    return contents
+      .filter(({ kind }) => kind === 'array')
+      .map(({ path }) => stripLeadingSlash(path));
+  }
+  return discoverSequentialLevels(loc, 0);
 }

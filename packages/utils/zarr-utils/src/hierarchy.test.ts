@@ -100,22 +100,23 @@ describe('consolidated metadata handling', () => {
     expect(contents).toBeNull();
   });
 
-  it('reads Zarr v3\'s inline consolidated_metadata extension (zarrita 0.6.1 has no native support for this)', async () => {
-    // zarrita 0.6.1 only understands v2-style side-car `.zmetadata` files; a
-    // v3 store using the separate, unratified inline-consolidation proposal
+  it('reads Zarr v3\'s inline consolidated_metadata extension (no support in zarrita 0.6.1)',
+    async () => {
+    // zarrita 0.6.1 only understands v2-style `.zmetadata` files.
+    // A v3 store using the separate, unratified inline-consolidation proposal
     // (zarr-specs#309) would otherwise silently fall back to plain probing,
     // missing any node not on a caller's fixed candidate list.
-    const store = makeV3StoreWithInlineConsolidated();
-    const { root, contents } = await openListableRoot(store);
-    expect(contents).not.toBeNull();
-    const paths = (contents ?? []).map(c => c.path);
-    expect(paths).toContain('/obsm/X_umap');
-    expect(paths).toContain('/X');
-    const found = await findExistingPaths(
-      root,
-      ['obsm/X_umap', 'obsm/X_pca', 'X'],
-      contents,
-    );
-    expect(found).toEqual(['obsm/X_umap', 'X']);
-  });
+      const store = makeV3StoreWithInlineConsolidated();
+      const { root, contents } = await openListableRoot(store);
+      expect(contents).not.toBeNull();
+      const paths = (contents ?? []).map(c => c.path);
+      expect(paths).toContain('/obsm/X_umap');
+      expect(paths).toContain('/X');
+      const found = await findExistingPaths(
+        root,
+        ['obsm/X_umap', 'obsm/X_pca', 'X'],
+        contents,
+      );
+      expect(found).toEqual(['obsm/X_umap', 'X']);
+    });
 });

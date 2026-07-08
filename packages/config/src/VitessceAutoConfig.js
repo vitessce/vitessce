@@ -257,13 +257,10 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       const store = zarrOpenStore(this.fileUrl, this.fileType);
       const { root, contents } = await openListableRoot(store);
 
-      // obs: the dataframe's own `column-order` attribute is an explicit AnnData
-      // convention (not a v2 file-naming assumption), so we keep validating and
-      // trusting it directly -- mirroring the historical probing-path behavior.
-      // We intentionally don't gate each column on real node existence: some
-      // AnnData-Zarr stores only carry `.zattrs` for a column without a backing
-      // `.zgroup`/`.zarray`, and any spurious column-order entry is filtered out
-      // downstream anyway by the supportedObsSetsKeys check.
+      // we trust `column-order` as-is (because column-order is a real AnnData rule),
+      // https://anndata.readthedocs.io/en/latest/fileformat-prose.html
+      // instead of verifying if each column really exists.
+      // fake ones get filtered out by supportedObsSetsKeys check
       const obsAttrs = await getAttrs(root, 'obs');
       let obsKeys = [];
       if (Object.keys(obsAttrs).length > 0) {
