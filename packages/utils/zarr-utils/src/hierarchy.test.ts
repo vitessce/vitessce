@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { open } from 'zarrita';
+import { ZarrNodeNotFoundError, ZarrUnsupportedNodeError } from '@vitessce/error';
 import {
   openListableRoot,
   nodeExists,
@@ -8,7 +10,6 @@ import {
   findExistingPaths,
   discoverPyramidLevels,
 } from './hierarchy.js';
-import { ZarrNodeNotFoundError, ZarrUnsupportedNodeError } from '@vitessce/error';
 import {
   makeV2AnnDataStore,
   makeV3AnnDataStore,
@@ -16,6 +17,7 @@ import {
   makeV3StoreWithInlineConsolidated,
   makePyramidStore,
   makeStoreWithUnsupportedDtype,
+  makeSpatialDataV3Store,
   type MemStore,
 } from './test-fixtures.js';
 
@@ -195,5 +197,52 @@ describe('differentiated error semantics by failure mode', () => {
     const store = makeStoreWithUnsupportedDtype();
     const { root } = await openListableRoot(store);
     await expect(getAttrs(root, 'does_not_exist')).resolves.toEqual({});
+  });
+});
+
+// test for inline consolidated metadata (issue #2370)
+describe('a real SpatialData-shaped v3 store with inline consolidated metadata', () => {
+  it('discovers every node (images, labels, shapes, tables) via the inline manifest', async () => {
+    const store = await makeSpatialDataV3Store();
+    const { contents } = await openListableRoot(store);
+    expect(contents).not.toBeNull();
+    const paths = (contents ?? []).map(c => c.path);
+    expect(paths).toEqual(expect.arrayContaining([
+      '/images/raw_image',
+      '/labels/segmentation_mask',
+      '/shapes/nucleus_boundaries',
+      '/tables/table',
+      '/tables/table/obs',
+      '/tables/table/X',
+    ]));
+  });
+
+  it('reads attrs for SpatialData-specific and nested AnnData-table conventions', async () => {
+    const store = await makeSpatialDataV3Store();
+    const { root } = await openListableRoot(store);
+    expect(await getAttrs(root)).toMatchObject({ 'spatialdata-attrs': { version: '0.4' } });
+    expect(await getAttrs(root, 'shapes/nucleus_boundaries')).toMatchObject({ 'encoding-type': 'ngff:shapes' });
+    expect(await getAttrs(root, 'tables/table')).toMatchObject({ 'encoding-type': 'anndata' });
+    expect(await getAttrs(root, 'tables/table/obs')).toMatchObject({ 'column-order': ['region'] });
+  });
+
+  it('reads real array metadata for image, label, and table arrays', async () => {
+    const store = await makeSpatialDataV3Store();
+    const { root } = await openListableRoot(store);
+    const image = await getArrayMeta(root, 'images/raw_image');
+    expect(image.dtype).toBe('uint16');
+    expect(image.shape).toEqual([3, 100, 100]);
+    const labels = await getArrayMeta(root, 'labels/segmentation_mask');
+    expect(labels.dtype).toBe('uint32');
+    const x = await getArrayMeta(root, 'tables/table/X');
+    expect(x.shape).toEqual([5, 10]);
+  });
+
+  it('reads real chunk data through the synthesized listable store, not just metadata', async () => {
+    const store = await makeSpatialDataV3Store();
+    const { root: r } = await openListableRoot(store);
+    const arr = await open(r.resolve('images/raw_image'), { kind: 'array' });
+    const chunk = await arr.getChunk([0, 0, 0]);
+    expect(chunk.shape).toEqual([3, 50, 50]);
   });
 });

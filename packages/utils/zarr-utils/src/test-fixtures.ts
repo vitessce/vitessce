@@ -202,3 +202,74 @@ export function makeStoreWithUnsupportedDtype(): MemStore {
   }));
   return store;
 }
+
+
+/**
+ * A SpatialData-shaped v3 store with inline consolidated metadata:
+ * i.e., images, labels, shapes, etc written with zarrita's writer.
+ * The inline `consolidated_metadata` is assembled by
+ * reading back each node's own real `zarr.json` - similar to the issue#2370 scenario.
+ */
+export async function makeSpatialDataV3Store(): Promise<MemStore> {
+  const store = new MemStore();
+  const r = root(store);
+
+  await create(r, { attributes: { 'spatialdata-attrs': { version: '0.4' } } });
+
+  await create(r.resolve('images'), { attributes: {} });
+  await create(r.resolve('images/raw_image'), {
+    shape: [3, 100, 100], chunk_shape: [3, 50, 50], data_type: 'uint16',
+  });
+
+  await create(r.resolve('labels'), { attributes: {} });
+  await create(r.resolve('labels/segmentation_mask'), {
+    shape: [100, 100], chunk_shape: [50, 50], data_type: 'uint32',
+  });
+
+  await create(r.resolve('shapes'), { attributes: {} });
+  await create(r.resolve('shapes/nucleus_boundaries'), {
+    attributes: { 'encoding-type': 'ngff:shapes', 'encoding-version': '0.1' },
+  });
+
+  await create(r.resolve('tables'), { attributes: {} });
+  await create(r.resolve('tables/table'), {
+    attributes: { 'encoding-type': 'anndata', 'encoding-version': '0.1.0' },
+  });
+  await create(r.resolve('tables/table/obs'), {
+    attributes: {
+      'column-order': ['region'],
+      _index: '_index',
+      'encoding-type': 'dataframe',
+      'encoding-version': '0.2.0',
+    },
+  });
+  await create(r.resolve('tables/table/obs/_index'), {
+    shape: [5], chunk_shape: [5], data_type: 'int64',
+  });
+  await create(r.resolve('tables/table/X'), {
+    shape: [5, 10], chunk_shape: [5, 10], data_type: 'float32',
+  });
+
+  const nodePaths = [
+    'images', 'images/raw_image',
+    'labels', 'labels/segmentation_mask',
+    'shapes', 'shapes/nucleus_boundaries',
+    'tables', 'tables/table', 'tables/table/obs', 'tables/table/obs/_index', 'tables/table/X',
+  ];
+  const consolidatedMetadata: Record<string, unknown> = {};
+  await Promise.all(nodePaths.map(async (p) => {
+    const bytes = await store.get(`/${p}/zarr.json`);
+    consolidatedMetadata[p] = JSON.parse(new TextDecoder().decode(bytes));
+  }));
+
+  const rootBytes = await store.get('/zarr.json');
+  const rootMeta = JSON.parse(new TextDecoder().decode(rootBytes)) as Record<string, unknown>;
+  rootMeta.consolidated_metadata = {
+    kind: 'inline',
+    must_understand: false,
+    metadata: consolidatedMetadata,
+  };
+  store.put('/zarr.json', enc(rootMeta));
+
+  return store;
+}
