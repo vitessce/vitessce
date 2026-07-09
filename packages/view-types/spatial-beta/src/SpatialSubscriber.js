@@ -1,7 +1,8 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
+import { mat4, vec4 } from 'gl-matrix';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -58,65 +59,91 @@ const DEFAULT_VIEW_STATE = {
   rotationOrbit: 0,
 };
 const SET_VIEW_STATE_NOOP = () => {};
+const SEGMENTATION_LAYER_PREFIX = 'segmentation-layer-';
 
+/**
+ * Finds the best loaded segmentation tile covering a transformed coordinate.
+ * Prefers highest resolution (least negative z) tile with non-zero data at the coordinate,
+ * falling back to lower resolution if needed.
+ */
+function findBestTile(tiles, transformedCoordinate, tileSize = 512) {
+  if (!tiles || !tiles.length) return null;
 
-function getHoverData(hoverInfo, layerType) {
-  const { coordinate, sourceLayer: layer, tile, index: pointIndex } = hoverInfo;
-  if (layerType === 'segmentation-bitmask' || layerType === 'image' || layerType === 'point') {
-    if (coordinate && layer) {
-      if (layer.id.startsWith('Tiled') && tile) {
-        // Adapted from https://github.com/hms-dbmi/viv/blob/2b28cc1db6ad1dacb44e6b1cd145ae90c46a2ef3/packages/viewers/src/VivViewer.jsx#L209
-        const {
-          content,
-          bbox,
-          index: { z },
-        } = tile;
-        if (content) {
-          if (layerType === 'point' && pointIndex >= 0) {
-            const { src } = content || {};
-            const { x, y, featureIndices } = src || {};
-            return {
-              pointIndex,
-              x: x?.[pointIndex],
-              y: y?.[pointIndex],
-              featureIndex: featureIndices?.[pointIndex],
-            };
-          }
-          const { data, width, height } = content;
-          const {
-            left, right, top, bottom,
-          } = bbox;
-          const bounds = [
-            left,
-            data.height < layer.tileSize ? height : bottom,
-            data.width < layer.tileSize ? width : right,
-            top,
-          ];
-          // Tiled layer needs a custom layerZoomScale.
-          // The zoomed out layer needs to use the fixed zoom at which it is rendered.
-          const layerZoomScale = Math.max(
-            1,
-            2 ** Math.round(-z),
-          );
-          const dataCoords = [
-            Math.floor((coordinate[0] - bounds[0]) / layerZoomScale),
-            Math.floor((coordinate[1] - bounds[3]) / layerZoomScale),
-          ];
-          const coords = dataCoords[1] * width + dataCoords[0];
-          const hoverData = data.map(d => d[coords]);
-          return hoverData;
-        }
-      }
-    }
+  const candidates = tiles.filter((t) => {
+    if (!t.content) return false;
+    const { left, top, right, bottom } = t.bbox;
+    return (
+      transformedCoordinate[0] >= left && transformedCoordinate[0] < right
+      && transformedCoordinate[1] >= top && transformedCoordinate[1] < bottom
+    );
+  });
+
+  if (!candidates.length) return null;
+
+  // Sort by resolution descending (least negative z = highest res)
+  const sorted = [...candidates].sort((a, b) => b.index.z - a.index.z);
+
+  // Prefer highest resolution tile that has non-zero data at the coordinate
+  return sorted.find((t) => {
+    const { content, bbox } = t;
+    const { data, width, height } = content;
+    const { left, top, right, bottom } = bbox;
+
+    const adjustedRight = data.width < tileSize ? left + width : right;
+    const adjustedBottom = data.height < tileSize ? top + height : bottom;
+    const dx = Math.floor(((transformedCoordinate[0] - left) / (adjustedRight - left)) * width);
+    const dy = Math.floor(((transformedCoordinate[1] - top) / (adjustedBottom - top)) * height);
+    return dx >= 0 && dx < width && dy >= 0 && dy < height && data[0][dy * width + dx] > 0;
+  }) ?? sorted[0];
+}
+
+/**
+ * Extracts hover data (pixel values) from a tile at the given coordinate.
+ * Applies inverse model matrix transform when provided (e.g. for scaled segmentation layers).
+ * Accepts optional segmentation tiles to sample directly, bypassing hoverInfo.tile —
+ * used when the image layer intercepts picking before the segmentation layer at high zoom.
+ */
+function getHoverData(hoverInfo, layerType, layerDefModelMatrix, segTiles = null, tileSize = 512) {
+  const { coordinate, sourceLayer: layer, tile } = hoverInfo;
+  if (!coordinate || !layer) return null;
+
+  let transformedCoordinate = coordinate;
+  if (layerDefModelMatrix) {
+    const worldCoord = vec4.fromValues(coordinate[0], coordinate[1], 0, 1);
+    const invModelMatrix = mat4.invert(mat4.create(), layerDefModelMatrix);
+    if (!invModelMatrix) return null;
+    vec4.transformMat4(worldCoord, worldCoord, invModelMatrix);
+    transformedCoordinate = [worldCoord[0], worldCoord[1]];
   }
-  if (layerType === 'segmentation-polygon' || layerType === 'spot' || layerType === 'point') {
-    if (hoverInfo.index) {
-      if (layerType === 'segmentation-polygon') {
-        // To match 'segmentation-bitmask', we return an array of one index per channel.
-        // For 'segmentation-polygon', we assume one channel per layer.
-        return [hoverInfo.index];
-      }
-      return hoverInfo.index;
+  // Use provided segmentation tiles if available, otherwise use hoverInfo tile
+  const activeTile = segTiles
+    ? findBestTile(segTiles, transformedCoordinate, tileSize)
+    : (layer.id.startsWith('Tiled') && tile?.content ? tile : null);
+
+
+  if (activeTile?.content) {
+    const { content, bbox } = activeTile;
+    const { data, width, height } = content;
+    const { left, right, top, bottom } = bbox;
+
+    // Replicated the bounds calculation from renderSubBitmaskLayers
+    const adjustedRight = data.width < tileSize ? left + width : right;
+    const adjustedBottom = data.height < tileSize ? top + height : bottom;
+
+    const bboxWidth = adjustedRight - left;
+    const bboxHeight = adjustedBottom - top;
+    const dataCoords = [
+      Math.floor(((transformedCoordinate[0] - left) / bboxWidth) * width),
+      Math.floor(((transformedCoordinate[1] - top) / bboxHeight) * height),
+    ];
+
+    if (
+      dataCoords[0] >= 0 && dataCoords[0] < width
+      && dataCoords[1] >= 0 && dataCoords[1] < height
+    ) {
+      const coords = dataCoords[1] * width + dataCoords[0];
+      const result = data.map(d => d[coords]);
+      return result;
     }
   }
   return null;
@@ -158,7 +185,7 @@ export function SpatialSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
-
+  const segmentationModelMatrixRef = useRef({});
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -208,6 +235,10 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
+
+  const onSegmentationModelMatrix = useCallback((layerScope, modelMatrix) => {
+    segmentationModelMatrixRef.current[layerScope] = modelMatrix;
+  }, []);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -743,11 +774,10 @@ export function SpatialSubscriber(props) {
    * @param {'spot'|'point'|'segmentation-polygon'|'segmentation-bitmask'|'image'} layerType
    * @param {string} layerScope
    */
-  const delegateHover = useCallback((hoverInfo, layerType, layerScope) => {
+  const delegateHover = useCallback((hoverInfo, layerType, layerScope, layerDefModelMatrix = null) => {
     const { coordinate } = hoverInfo;
     let showAnyTooltip = false;
-
-    const hoverData = getHoverData(hoverInfo, layerType);
+    const hoverData = getHoverData(hoverInfo, layerType, layerDefModelMatrix);
 
     // We always iterate over everything because we want to clear
     // any highlights that are not the current hover.
@@ -761,16 +791,47 @@ export function SpatialSubscriber(props) {
       }
     });
 
+    // At high zoom, the image layer intercepts DeckGL picking before the segmentation layer.
+    // To still detect segmentation hover, we directly sample the segmentation tile data
+    // using the same screen coordinate, applying the segmentation layer's inverse model matrix.
+    const segmentationHoverData = layerType === 'image'
+      ? (() => segmentationLayerScopes.reduce((acc, segLayerScope) => {
+        if (acc) return acc;
+        const segModelMatrix = segmentationModelMatrixRef.current?.[segLayerScope];
+        if (!segModelMatrix) return null;
+        const deck = deckRef?.current?.deck;
+        const segLayer = deck?.props?.layers?.find(l => l?.id === `${SEGMENTATION_LAYER_PREFIX}${segLayerScope}`);
+        const tiledSubLayer = segLayer?.getSubLayers?.()?.find(l => l?.id?.includes('Tiled-Image'));
+        const segTiles = tiledSubLayer?.state?.tileset?._tiles; // eslint-disable-line no-underscore-dangle
+        if (!segTiles) return null;
+        const tileSize = tiledSubLayer?.state?.tileset?.opts?.tileSize ?? 512;
+        return getHoverData(hoverInfo, 'segmentation-bitmask', segModelMatrix, segTiles, tileSize);
+      }, null))()
+      : null;
+
     segmentationLayerScopes?.forEach((segmentationLayerScope) => {
       const channelScopes = segmentationChannelScopesByLayer?.[segmentationLayerScope];
       channelScopes?.forEach((channelScope, channelI) => {
         const { setObsHighlight } = segmentationChannelCoordination[1][segmentationLayerScope][channelScope];
-        if (hoverData && ['segmentation-bitmask', 'segmentation-polygon'].includes(layerType) && layerScope === segmentationLayerScope) {
-          const channelValue = hoverData[channelI];
+        // When segmentationHoverData is derived from an image hover event,
+        // treat it as segmentation-bitmask for the obsId lookup.
+        const effectiveHoverData = (
+          (hoverData && layerType === 'segmentation-bitmask' && layerScope === segmentationLayerScope)
+            ? hoverData
+            : (segmentationHoverData && layerType === 'image')
+              ? segmentationHoverData
+              : null
+        );
+        if (effectiveHoverData) {
+          const channelValue = effectiveHoverData[channelI];
           let obsI = channelValue;
           if (channelValue > 0) {
             let obsId;
-            if (layerType === 'segmentation-bitmask') {
+            const effectiveLayerType = (segmentationHoverData && layerType === 'image')
+              ? 'segmentation-bitmask'
+              : layerType;
+
+            if (effectiveLayerType === 'segmentation-bitmask') {
               const { obsIndex } = segmentationMultiIndicesData?.[segmentationLayerScope]?.[channelScope] || {};
               if (obsIndex && bitmaskValueIsIndex) {
                 obsI -= 1; // We subtract one because we use 0 to represent background.
@@ -1066,6 +1127,7 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            onSegmentationModelMatrix={onSegmentationModelMatrix}
           />
         )
       }
