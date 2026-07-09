@@ -87,7 +87,7 @@ export function transformEntriesForZipFileStore(entries: ZipInfo['entries']) {
   return newEntries;
 }
 
-export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
+export function zarrOpenStore(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
   let store: Readable;
   if (fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, {
@@ -118,6 +118,11 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
     store = new RelaxedFetchStore(url, { overrides: opts?.requestInit });
   }
 
-  // Wrap remote stores in a cache
+  // returns raw store
+  return store;
+}
+
+export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
+  const store = zarrOpenStore(url, fileType, opts);
   return zarrRoot(store);
 }

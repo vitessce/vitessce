@@ -5,7 +5,7 @@ export default class GenomicProfilesZarrLoader extends AbstractTwoStepLoader {
     if (this.attrs) {
       return this.attrs;
     }
-    this.attrs = await this.dataSource.getJson('.zattrs');
+    this.attrs = await this.dataSource.getAttrs('');
     return this.attrs;
   }
 

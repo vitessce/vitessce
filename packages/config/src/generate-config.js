@@ -1,10 +1,12 @@
 // TODO: ts-check
 
 import { FileType } from '@vitessce/constants-internal';
-import { withConsolidated, FetchStore, open as zarrOpen } from 'zarrita';
+import { FetchStore } from 'zarrita';
+
 // eslint-disable-next-line import/no-unresolved
 import ZipFileStore from '@zarrita/storage/zip';
-import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
+import { transformEntriesForZipFileStore, openListableRoot, getNode } from '@vitessce/zarr-utils';
+import { ZarrUnsupportedNodeError } from '@vitessce/error';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
@@ -155,91 +157,73 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     return null;
   }
 
-  let store;
-  let promises = [];
-
-  try {
-    try {
-      store = await withConsolidated(initialStore);
-    } catch {
-      // Try again with `zmetadata` rather than `.zmetadata`.
-      // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
-      store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
-    }
-    // Is consolidated.
-    const contents = store.contents();
-    // Open all entries to get their attributes.
-    const consolidatedRoot = await zarrOpen(store, { kind: 'group' });
-    promises = contents.map(async (value) => {
-      let item;
+  const { root, contents } = await openListableRoot(initialStore);
+  if (contents) {
+    // Consolidated store: read attrs for every manifest entry, in
+    // manifest order. `kind` comes from the manifest itself.
+    return Promise.all(contents.map(async ({ path, kind }) => {
+      let attrs = {};
       try {
-        // Note: if `kind` is not provided,
-        // then zarrita must make extra network requests.
-        // TODO: open issue in Zarrita to avoid network requests for
-        // arrays that lack .zattrs (e.g., OME-NGFF multiscale arrays)
-        // (as determined from omission in consolidated metadata).
-        item = await zarrOpen(
-          consolidatedRoot.resolve(value.path),
-          { kind: value.kind },
-        );
-      } catch {
-        // Opening can fail if the dtype is unsupported,
-        // since zarrita assumes string dtypes
-        // but Scanpy rank_genes_groups can result in recarrays
-        // that have an array of dtypes.
-        item = {
-          attrs: {},
-        };
+        // Opening can fail for reasons other than a missing node (e.g. an
+        // unsupported dtype/codec) -- drop the candidate rather than crashing
+        // the whole call.
+        const node = await getNode(root, path);
+        attrs = node ? node.attrs : {};
+      } catch (e) {
+        if (!(e instanceof ZarrUnsupportedNodeError)) {
+          throw e;
+        }
       }
-      return {
-        ...value,
-        attrs: item.attrs,
-      };
-    });
-  } catch {
-    store = initialStore;
-    // Is not consolidated.
-    const keysToTry = [
-      // Note: OME-NGFF metadata is stored in the root attrs.
-      '/',
-      // AnnData keys
-      '/X',
-      '/layers',
-      '/obs',
-      '/var',
-      '/obsm',
-      '/obsm/spatial',
-      '/obsm/X_spatial',
-      '/obsm/pca',
-      '/obsm/X_pca',
-      '/obsm/tsne',
-      '/obsm/X_tsne',
-      '/obsm/umap',
-      '/obsm/X_umap',
-      // TODO: second round of getting metadata for
-      // columns listed in /obs and /var .attrs['column-order'] ?
-
-      // SpatialData keys
-      // Note: For spatialData, we assume the store is always consolidated.
-      // TODO: throw error if spatialdata + not consolidated?
-    ];
-    const storeRoot = await zarrOpen(store, { kind: 'group' });
-    promises = keysToTry.map(async (k) => {
-      try {
-        const item = await zarrOpen(storeRoot.resolve(k));
-        return {
-          path: k,
-          kind: item.kind,
-          attrs: item.attrs,
-        };
-      } catch {
-        return null;
-      }
-    });
+      return { path, kind, attrs };
+    }));
   }
 
-  return (await Promise.all(promises))
-    .filter(entry => entry !== null);
+  // Not listable: probe the same fixed set of known AnnData/SpatialData paths.
+  const keysToTry = [
+    // Note: OME-NGFF metadata is stored in the root attrs.
+    '/',
+    // AnnData keys
+    '/X',
+    '/layers',
+    '/obs',
+    '/var',
+    '/obsm',
+    '/obsm/spatial',
+    '/obsm/X_spatial',
+    '/obsm/pca',
+    '/obsm/X_pca',
+    '/obsm/tsne',
+    '/obsm/X_tsne',
+    '/obsm/umap',
+    '/obsm/X_umap',
+    // TODO: second round of getting metadata for
+    // columns listed in /obs and /var .attrs['column-order'] ?
+
+    // SpatialData keys
+    // Note: For spatialData, we assume the store is always consolidated.
+    // TODO: throw error if spatialdata + not consolidated?
+  ];
+  const entries = await Promise.all(keysToTry.map(async (path) => {
+    let node;
+    try {
+      node = await getNode(root, path);
+    } catch (e) {
+      // Opening can fail for reasons other than a missing node (e.g. an
+      // unsupported dtype/codec) -- drop the candidate rather than crashing
+      // the whole call, matching historical behavior. Any other kind of
+      // error propagates.
+      if (!(e instanceof ZarrUnsupportedNodeError)) {
+        throw e;
+      }
+      return null;
+    }
+    if (!node) {
+      return null;
+    }
+    return { path, kind: node.kind, attrs: node.attrs };
+  }));
+
+  return entries.filter(entry => entry !== null);
 }
 
 /**
