@@ -113,8 +113,9 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     // If there is not change in the column indexer, then the data is all zeros
     return Promise.all(
       indices.map(async (index) => {
-        const startRowIndex = cols[index];
-        const endRowIndex = cols[index + 1];
+        // cols is bigint sometimes. downcast to number
+        const startRowIndex = Number(cols[index]);
+        const endRowIndex = Number(cols[index + 1]);
         const isColumnAllZeros = startRowIndex === endRowIndex;
         const geneData = new Float32Array(numCells).fill(0);
         if (isColumnAllZeros) {
