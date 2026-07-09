@@ -36,6 +36,7 @@ export default function ChannelSlider(props) {
     minMaxDomain,
     colormapOn,
     theme,
+    minimizedSlider,
   } = props;
 
   const rgbColor = toRgbUIString(colormapOn, color, theme);
@@ -49,9 +50,9 @@ export default function ChannelSlider(props) {
     // auto-initialized using the min/max domain. This can occur
     // upon first load, or when the channel is changed.
     if (!window && !disabled && Array.isArray(minMaxDomain)) {
-      setWindow(minMaxDomain);
+      setWindow(minimizedSlider || minMaxDomain);
     }
-  }, [minMaxDomain, window, disabled]);
+  }, [minMaxDomain, window, disabled, minimizedSlider]);
 
   const [min, max] = (showValueExtent ? minMaxDomain : fullDomain) || [0, 0];
   const step = max - min < 500 && dtype?.startsWith('Float') ? (max - min) / 500 : 1;
