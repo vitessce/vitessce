@@ -164,12 +164,9 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-    // Read shape from array metadata rather than attrs
-      const [numCells, numGenes] = await Promise.all([
-        this._getNumCells(),
-        this._getNumGenes(),
-      ]);
-      const shape = [numCells, numGenes];
+      // `shape` is a spec-mandated attribute of the sparse matrix group, and
+      // `_matrixZattrs` is always already populated by callers.
+      const { shape } = this._matrixZattrs;
       // eslint-disable-next-line prefer-const
       let [rows, cols, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -204,11 +201,9 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       return this._sparseMatrix;
     }
     this._sparseMatrix = this._openSparseArrays().then(async (sparseArrays) => {
-      const [numCells, numGenes] = await Promise.all([
-        this._getNumCells(),
-        this._getNumGenes(),
-      ]);
-      const shape = [numCells, numGenes];
+      // `shape` is a spec-mandated attribute of the sparse matrix group, and
+      // `_matrixZattrs` is always already populated by callers.
+      const { shape } = this._matrixZattrs;
       // eslint-disable-next-line prefer-const
       let [cols, rows, cellXGene] = await Promise.all(
         sparseArrays.map(async (arr) => {
@@ -248,7 +243,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
       initialFeatureFilterPath: matrixGeneFilter,
     } = this.getOptions();
     if (!this._matrixZattrs) {
-      this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
+      this._matrixZattrs = await this.dataSource.getAttrs(matrix);
     }
     const encodingType = this._matrixZattrs['encoding-type'];
     if (!matrixGeneFilter) {
@@ -302,7 +297,7 @@ export default class ObsFeatureMatrixAnndataLoader extends AbstractTwoStepLoader
     const { path: matrix } = this.getOptions();
     const { storeRoot } = this.dataSource;
     if (!this._matrixZattrs) {
-      this._matrixZattrs = await this.dataSource.getJson(`${matrix}/.zattrs`);
+      this._matrixZattrs = await this.dataSource.getAttrs(matrix);
     }
     const encodingType = this._matrixZattrs['encoding-type'];
     let genes;
