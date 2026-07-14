@@ -10,7 +10,6 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { WebGLMultipleRenderTargets } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 
@@ -229,6 +228,7 @@ export function VolumeView(props) {
   // const [lastRes, setLastRes] = useState(null);
   // const [lastChannels, setLastChannels] = useState([]);
   const is3D = spatialRenderingMode === '3D';
+  const [dmInitComplete, setDmInitComplete] = useState(false);
   // const [loading, setLoading] = useState(false);
 
   // Add new refs for screen quad setup
@@ -272,8 +272,13 @@ export function VolumeView(props) {
     // layout(location = 0) out vec4 gColor: Final rendered color (sRGB)
     // layout(location = 1) out vec4 gRequest: Brick loading requests (packed coordinates)
     // layout(location = 2) out vec4 gUsage: Brick usage tracking (for cache management)
-    const mrt = new WebGLMultipleRenderTargets(width, height, 3);
-    mrt.texture.forEach((tex) => {
+    // Render to three color attachments (gColor, gRequest, gUsage) via three's
+    // WebGLRenderTarget `count` option. This replaced WebGLMultipleRenderTargets,
+    // which three removed in r172. Requires three >=0.162 (when `count` was added);
+    // the attachments are then exposed as the `.textures` array.
+    const mrt = new THREE.WebGLRenderTarget(width, height, { count: 3 });
+    const mrtTextures = mrt.textures;
+    mrtTextures.forEach((tex) => {
       // eslint-disable-next-line no-param-reassign
       tex.format = THREE.RGBAFormat;
       // eslint-disable-next-line no-param-reassign
@@ -296,7 +301,7 @@ export function VolumeView(props) {
     const screenMaterial = new THREE.ShaderMaterial({
       uniforms: {
         // Bind the first render target texture as the input of the gaussian blur shader.
-        tDiffuse: { value: mrt.texture[0] },
+        tDiffuse: { value: mrtTextures[0] },
         resolution: { value: new THREE.Vector2(width, height) },
         gaussian: { value: 7 },
       },
@@ -356,6 +361,7 @@ export function VolumeView(props) {
     const initializeDataManager = async () => {
       if (dataManager.initStatus === INIT_STATUS.COMPLETE) {
         log.debug('dataManager already initialized, skipping');
+        setDmInitComplete(true);
         return;
       }
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
@@ -380,6 +386,7 @@ export function VolumeView(props) {
       //   onInitComplete({ zarrStoreInfo: dm.zarrStore, deviceLimits: dm.deviceLimits });
       // }
 
+      setDmInitComplete(true);
       invalidate();
     };
     initializeDataManager();
@@ -437,7 +444,7 @@ export function VolumeView(props) {
   useEffect(() => {
     const on3D = spatialRenderingMode === '3D';
 
-    if (on3D && dataManager && renderManager) {
+    if (on3D && dataManager && renderManager && dmInitComplete) {
       logWithColor('useEffect spatialRenderingMode');
       // Direct call, no callbacks needed
       const propsForRenderManager = {
@@ -482,7 +489,7 @@ export function VolumeView(props) {
         }
       }
     }
-  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode]);
+  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode, dmInitComplete]);
 
 
   // Execute code on every rendered frame.
@@ -629,6 +636,7 @@ export function VolumeView(props) {
   // Set isInteracting while the user is sliding the channel slider
   // for smooth updates.
   useEffect(() => {
+    if (!dmInitComplete) return;
     logWithColor('useEffect firstImageLayerChannelCoordination');
     setIsInteracting(true);
     log.debug('something about channels changed');
@@ -640,7 +648,7 @@ export function VolumeView(props) {
     interactionTimeoutRef.current = setTimeout(() => {
       setIsInteracting(false);
     }, 300);
-  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting]);
+  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting, dmInitComplete]);
 
   const stopLoading = useEventCallback(() => {
     if (dataManager) {

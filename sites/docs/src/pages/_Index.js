@@ -7,6 +7,7 @@ import {
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs, configPages } from '@vitessce/example-configs';
+import { fetchConfigFromGist } from '@vitessce/config';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
@@ -85,6 +86,7 @@ function IndexWithHashParams() {
   const [demo] = useHashParam('dataset', undefined, 'string');
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
+  const [gist] = useHashParam('gist', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
   const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
   const [pageMode] = useHashParam('pageMode', false, 'boolean');
@@ -214,6 +216,46 @@ function IndexWithHashParams() {
           setLoading(false);
           clearConfigs();
         }
+      } else if (gist) {
+        setLoading(true);
+        try {
+          const gistResult = await fetchConfigFromGist(gist);
+          if (unmounted) {
+            return;
+          }
+          const { configContents: responseText } = gistResult;
+          if (edit) {
+            // User wants to edit the URL-based config.
+            try {
+              const responseJson = JSON.parse(responseText);
+              setPendingJson(JSON.stringify(responseJson, null, 2));
+            } catch (e) {
+              // However, this may be an invalid JSON object
+              // so we can just let the user edit the unformatted string.
+              setPendingJson(responseText);
+            }
+            setError(null);
+          } else {
+            try {
+              const responseJson = JSON.parse(responseText);
+              setValidConfig(responseJson);
+            } catch (e) {
+              setError({
+                title: 'Error parsing JSON',
+                message: 'Error executing JSON.parse',
+              });
+            }
+          }
+          setLoading(false);
+        } catch (e) {
+          console.log(e);
+          setError({
+            title: 'Fetch error',
+            message: e.message,
+          });
+          setLoading(false);
+          clearConfigs();
+        }
       } else if (demo && configs[demo]) {
         setValidConfig(configs[demo]);
         setPendingJson(JSON.stringify(configs[demo], null, 2));
@@ -229,7 +271,7 @@ function IndexWithHashParams() {
     return () => {
       unmounted = true;
     };
-  }, [edit, url, demo]);
+  }, [edit, url, demo, gist]);
 
   // Open the editor. When `useLiveConfig` is true (the default), prefer the
   // live config reflecting the user's current interactions (gene selections,
@@ -355,14 +397,15 @@ function IndexWithQueryParamRedirect() {
   const [demo] = useQueryParam('dataset', StringParam);
   const [wsCode] = useQueryParam('code', StringParam);
   const [url] = useQueryParam('url', StringParam);
+  const [gist] = useQueryParam('gist', StringParam);
 
   useEffect(() => {
-    const hasQueryParams = demo || url;
+    const hasQueryParams = demo || url || gist;
     if (hasQueryParams) {
-      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
+      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : (gist ? `gist=${gist}` : `url=${url}`));
       window.location.href = baseUrl + params;
     }
-  }, [baseUrl, demo, url]);
+  }, [baseUrl, demo, url, gist]);
 
   return (<IndexWithHashParams />);
 }

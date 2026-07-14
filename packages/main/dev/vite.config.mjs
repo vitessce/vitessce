@@ -13,7 +13,7 @@ export default defineConfig({
   build: {
     emptyOutDir: false,
     minify: isProduction ? 'esbuild' : false,
-    sourcemap: false,
+    sourcemap: !isProduction,
     target: 'es2020', // portal-ui cannot handle the nullish coalescing output by ESNext
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
@@ -22,7 +22,12 @@ export default defineConfig({
       // name: 'vitessce', // Used for UMD builds
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: (id) => (
+        id === 'react'
+        || id === 'react-dom'
+        || id.startsWith('react/')
+        || id.startsWith('react-dom/')
+      ),
       // output.globals required for UMD builds
       // (e.g., no longer used since only generating ESM build)
       /*

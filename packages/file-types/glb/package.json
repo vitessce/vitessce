@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/glb",
-  "version": "3.9.11",
+  "version": "4.0.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,16 +38,23 @@
     "@vitessce/spatial-utils": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
-    "@react-three/drei": "catalog:",
     "d3-array": "catalog:",
-    "lodash-es": "catalog:",
-    "three": "catalog:"
+    "lodash-es": "catalog:"
   },
   "devDependencies": {
     "@types/three": "catalog:",
+    "three": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "three": ">=0.159.0"
+  },
+  "peerDependenciesMeta": {
+    "three": {
+      "optional": true
+    }
   }
 }
