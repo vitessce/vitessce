@@ -31,6 +31,16 @@ const esmShUrls = {
         "https://esm.sh/react@18.3.0/es2022/react.mjs",
         "https://esm.sh/react@18.3.0?dev",
         "https://esm.sh/react@18.3.0/es2022/react.development.mjs",
+        // React 19.0
+        "https://esm.sh/react@19.0.0",
+        "https://esm.sh/react@19.0.0/es2022/react.mjs",
+        "https://esm.sh/react@19.0.0?dev",
+        "https://esm.sh/react@19.0.0/es2022/react.development.mjs",
+        // React 19.2.7
+        "https://esm.sh/react@19.2.7",
+        "https://esm.sh/react@19.2.7/es2022/react.mjs",
+        "https://esm.sh/react@19.2.7?dev",
+        "https://esm.sh/react@19.2.7/es2022/react.development.mjs",
     ],
     "react-dom": [
         // React 18.2
@@ -43,6 +53,16 @@ const esmShUrls = {
         "https://esm.sh/react-dom@18.3.0/es2022/react-dom.mjs",
         "https://esm.sh/react-dom@18.3.0?dev",
         "https://esm.sh/react-dom@18.3.0/es2022/react-dom.development.mjs",
+        // React 19.0
+        "https://esm.sh/react-dom@19.0.0",
+        "https://esm.sh/react-dom@19.0.0/es2022/react-dom.mjs",
+        "https://esm.sh/react-dom@19.0.0?dev",
+        "https://esm.sh/react-dom@19.0.0/es2022/react-dom.development.mjs",
+        // React 19.2.7
+        "https://esm.sh/react-dom@19.2.7",
+        "https://esm.sh/react-dom@19.2.7/es2022/react-dom.mjs",
+        "https://esm.sh/react-dom@19.2.7?dev",
+        "https://esm.sh/react-dom@19.2.7/es2022/react-dom.development.mjs",
     ],
     "react-dom/client": [
         // React 18.2
@@ -55,6 +75,17 @@ const esmShUrls = {
         "https://esm.sh/react-dom@18.3.0/es2022/client.mjs",
         "https://esm.sh/react-dom@18.3.0/client?dev",
         "https://esm.sh/react-dom@18.3.0/es2022/client.development.mjs",
+        // React 19.0
+        "https://esm.sh/react-dom@19.0.0/client",
+        "https://esm.sh/react-dom@19.0.0/es2022/client.mjs",
+        "https://esm.sh/react-dom@19.0.0/client?dev",
+        "https://esm.sh/react-dom@19.0.0/es2022/client.development.mjs",
+        // React 19.2.7
+        "https://esm.sh/react-dom@19.2.7/client",
+        "https://esm.sh/react-dom@19.2.7/es2022/client.mjs",
+        "https://esm.sh/react-dom@19.2.7/client?dev",
+        "https://esm.sh/react-dom@19.2.7/es2022/client.development.mjs",
+
     ],
     "scheduler": [
         // For react 18.2.0
@@ -66,6 +97,44 @@ const esmShUrls = {
         // For scheduler ^0.23.x
         "https://esm.sh/scheduler@0.23.2/es2022/scheduler.mjs",
         "https://esm.sh/scheduler@0.23.2/es2022/scheduler.development.mjs",
+        // For react 19.0.0
+        "https://esm.sh/scheduler@^0.25.0?target=es2022",
+        "https://esm.sh/scheduler@^0.25.0?target=es2022&dev",
+        // For scheduler ^0.25.0
+        "https://esm.sh/scheduler@0.25.0/es2022/scheduler.mjs",
+        // For react 19.2.7
+        "https://esm.sh/scheduler@^0.27.0?target=es2022",
+        "https://esm.sh/scheduler@^0.27.0?target=es2022&dev",
+        // For scheduler ^0.27.0
+        "https://esm.sh/scheduler@0.27.0/es2022/scheduler.mjs",
+    ],
+    "react/jsx-runtime": [
+      // For react 18.2.0
+      "https://esm.sh/react@18.2.0/jsx-runtime",
+      "https://esm.sh/react@18.2.0/es2022/jsx-runtime.mjs",
+      // For react 18.3.0
+      "https://esm.sh/react@18.3.0/jsx-runtime",
+      "https://esm.sh/react@18.3.0/es2022/jsx-runtime.mjs",
+      // For react 19.0.0
+      "https://esm.sh/react@19.0.0/jsx-runtime",
+      "https://esm.sh/react@19.0.0/es2022/jsx-runtime.mjs",
+      // For react 19.2.7
+      "https://esm.sh/react@19.2.7/jsx-runtime",
+      "https://esm.sh/react@19.2.7/es2022/jsx-runtime.mjs",
+    ],
+    "react/jsx-dev-runtime": [
+      // For react 18.2.0
+      "https://esm.sh/react@18.2.0/jsx-dev-runtime",
+      "https://esm.sh/react@18.2.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 18.3.0
+      "https://esm.sh/react@18.3.0/jsx-dev-runtime",
+      "https://esm.sh/react@18.3.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 19.0.0
+      "https://esm.sh/react@19.0.0/jsx-dev-runtime",
+      "https://esm.sh/react@19.0.0/es2022/jsx-dev-runtime.development.mjs",
+      // For react 19.2.7
+      "https://esm.sh/react@19.2.7/jsx-dev-runtime",
+      "https://esm.sh/react@19.2.7/es2022/jsx-dev-runtime.development.mjs",
     ],
 };
 

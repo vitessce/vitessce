@@ -20,7 +20,10 @@ rm -rf node_modules/
 npm init -y
 # Set private: true to prevent changesets from trying to publish this as a package.
 # Reference: https://stackoverflow.com/a/61049639
-contents="$(jq '.private = true' package.json)" && echo -E "${contents}" > package.json
+# Set type: module so the ESM source files (pages, components, next.config.js)
+# match the package's module format (Next.js 15.5+/16 reject the mismatch that
+# `npm init -y`'s default "type": "commonjs" would otherwise cause).
+contents="$(jq '.private = true | .type = "module"' package.json)" && echo -E "${contents}" > package.json
 
 cd -
 
@@ -30,14 +33,16 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 # Install packed tgz
 cd consumer
-npm install react@^18.0.0 react-dom@^18.0.0
-npm install --save-dev vite@3.0.0
+npm install react@^19.0.0 react-dom@^19.0.0
+# Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
+npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
+npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.
 npm exec vite build
 
 
 echo "Done vite build. Starting NextJS build."
-npm install next@13
+npm install next@16
 # Run NextJS build to bundle the consumer HTML/JS.
 npm exec next build
