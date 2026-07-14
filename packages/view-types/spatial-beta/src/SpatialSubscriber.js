@@ -36,7 +36,7 @@ import {
   useGridItemSize,
   useAuxiliaryCoordination,
 } from '@vitessce/vit-s';
-import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType } from '@vitessce/constants-internal';
+import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
@@ -148,6 +148,7 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    helpText = ViewHelpMapping.SPATIAL_BETA,
   } = props;
 
   const loaders = useLoaders();
@@ -903,6 +904,7 @@ export function SpatialSubscriber(props) {
       removeGridComponent={removeGridComponent}
       isReady={isReady}
       errors={errors}
+      helpText={helpText}
     >
       {
         shouldUseThree ? (
