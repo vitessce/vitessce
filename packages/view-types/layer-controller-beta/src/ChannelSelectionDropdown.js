@@ -40,7 +40,8 @@ export default function ChannelSelectionDropdown(props) {
 
   const sortedOptions = useMemo(() => {
     if (!Array.isArray(featureIndex)) return [];
-    const options = featureIndex.map((channelName, channelIndex) => ({ channelName, channelIndex }));
+    const options = featureIndex
+      .map((channelName, channelIndex) => ({ channelName, channelIndex }));
     if (channelsSortOrder === 'alphabetical') {
       // numeric: true ensures m/z-style numeric labels sort as 1, 2, 3, 10
       // rather than lexicographically as 1, 10, 2, 3.

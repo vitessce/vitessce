@@ -166,7 +166,7 @@ function ImageLayerEllipsisMenu(props) {
   }
 
   function handleChannelsSortOrderChange(event) {
-      setChannelsSortOrder(event.target.value);
+    setChannelsSortOrder(event.target.value);
   }
 
   // Update local LOD slider value immediately on drag
@@ -383,18 +383,18 @@ function ImageLayerEllipsisMenu(props) {
         />
       </MenuItem>
       <MenuItem dense disableGutters classes={menuClasses.menuItem}>
-       <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelsSortOrderId}>
-         Sort Channels:&nbsp;
-       </label>
-       <NativeSelect
-         onChange={handleChannelsSortOrderChange}
-         value={channelsSortOrder}
-         inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
-         classes={{ root: selectClasses.selectRoot }}
-       >
-         <option aria-label="Original" value="original">Original</option>
-         <option aria-label="Alphabetical" value="alphabetical">Alphabetical (A→Z)</option>
-       </NativeSelect>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelsSortOrderId}>
+          Sort Channels:&nbsp;
+        </label>
+        <NativeSelect
+          onChange={handleChannelsSortOrderChange}
+          value={channelsSortOrder}
+          inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option aria-label="Original" value="original">Original</option>
+          <option aria-label="Alphabetical" value="alphabetical">Alphabetical (A→Z)</option>
+        </NativeSelect>
       </MenuItem>
     </PopperMenu>
   );
