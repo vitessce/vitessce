@@ -265,6 +265,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_ACTIVE_TOOL,
     CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
     CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -693,6 +694,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
     // Currently-selected shape UID in the editor panel (for canvas highlight)
     CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    // Data storage mode: 'inline' (default) or 'data' (fetched from URL)
+    CoordinationType.ANNOTATION_DATA_TYPE,
+    CoordinationType.ANNOTATION_DATA_URL,
+    // Physical pixel size set by spatial view when image data loads
+    CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [

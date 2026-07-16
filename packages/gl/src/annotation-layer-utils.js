@@ -8,6 +8,14 @@ const LABEL_FONT_FAMILY = '"Roboto", "Helvetica", "Arial", sans-serif';
 const LABEL_FONT_WEIGHT = 'bold';
 const LABEL_FONT_SIZE = 14;
 
+// Pick a background color that contrasts with the stroke color.
+// Dark stroke (H&E / light images) → light bg; light stroke (fluorescence) → dark bg.
+function textBgColor(strokeColor) {
+  const [r, g, b] = strokeColor;
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return lum > 0.45 ? [20, 20, 20, 210] : [245, 245, 245, 210];
+}
+
 // Parse an SVG-style dash string ("10 5", "10 20 30 10") into a [dash, gap] pair for
 // deck.gl's PathStyleExtension. Returns null for "none" or invalid input.
 // deck.gl only supports a 2-element array; we use the first two values of longer patterns.
@@ -115,6 +123,26 @@ export function createPreviewLayer(inProgress, hoverCoord, strokeColor = [255, 2
 }
 
 /**
+ * Compute the two endpoints of a tick-cap (perpendicular crossbar) at (tipX, tipY).
+ * dirX/dirY is the line direction (the tick is perpendicular to it).
+ * Returns null if the direction vector is zero-length.
+ */
+export function computeTickCap(tipX, tipY, dirX, dirY, dataSize) {
+  const len = Math.sqrt(dirX * dirX + dirY * dirY);
+  if (len === 0) return null;
+  const ux = dirX / len;
+  const uy = dirY / len;
+  // Perpendicular unit vector
+  const px = -uy;
+  const py = ux;
+  const half = dataSize * 0.55;
+  return [
+    [tipX + px * half, tipY + py * half],
+    [tipX - px * half, tipY - py * half],
+  ];
+}
+
+/**
  * Compute the three vertices of an arrowhead triangle pointing in the direction (dirX, dirY).
  * The tip is at (tipX, tipY). dataSize controls the triangle's height in data units.
  * Returns null if the direction vector is zero-length.
@@ -145,7 +173,85 @@ export function computeArrowhead(tipX, tipY, dirX, dirY, dataSize) {
  * @param {string|null} selectedShapeUid - UID of the shape to highlight (from editor selection).
  * @returns {object[]} Array of deck.gl layer instances.
  */
-export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null) {
+// Insert thousand-separator commas for large integers (no locale API needed).
+function fmtCommas(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function getMeasurementLabel(shape, physicalPixelSize) {
+  const pps = physicalPixelSize;
+  const px = pps?.x ?? 1;
+  const py = pps?.y ?? 1;
+  // Replace µ / μ with u so deck.gl's default ASCII font atlas renders it.
+  const unit = pps ? (pps.unit ?? '').replace(/[µμ]/g, 'u') : null;
+  const hasPhys = !!pps;
+
+  const fmtDist = d => hasPhys
+    ? `${d.toFixed(2)} ${unit}`
+    : `${d.toFixed(1)} px`;
+  const fmtArea = a => hasPhys
+    ? `${a.toFixed(2)} ${unit}^2`
+    : `${fmtCommas(a)} px^2`;
+
+  if (shape.type === 'line') {
+    const dx = (shape.x2 ?? 0) - (shape.x1 ?? 0);
+    const dy = (shape.y2 ?? 0) - (shape.y1 ?? 0);
+    const dist = hasPhys
+      ? Math.sqrt((dx * px) ** 2 + (dy * py) ** 2)
+      : Math.sqrt(dx * dx + dy * dy);
+    return fmtDist(dist);
+  }
+  if (shape.type === 'rectangle') {
+    return fmtArea(hasPhys
+      ? Math.abs(shape.width ?? 0) * px * Math.abs(shape.height ?? 0) * py
+      : Math.abs((shape.width ?? 0) * (shape.height ?? 0)));
+  }
+  if (shape.type === 'ellipse') {
+    const rx = Math.abs(shape.radiusX ?? 0);
+    const ry = Math.abs(shape.radiusY ?? 0);
+    return fmtArea(hasPhys ? Math.PI * rx * px * ry * py : Math.PI * rx * ry);
+  }
+  if (shape.type === 'polygon' && shape.points?.length >= 3) {
+    const pts = shape.points;
+    let shoelace = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const [ax, ay] = pts[i];
+      const [bx, by] = pts[(i + 1) % pts.length];
+      shoelace += (hasPhys ? ax * px : ax) * (hasPhys ? by * py : by)
+        - (hasPhys ? bx * px : bx) * (hasPhys ? ay * py : ay);
+    }
+    return fmtArea(Math.abs(shoelace / 2));
+  }
+  if (shape.type === 'polyline' && shape.points?.length >= 2) {
+    let total = 0;
+    for (let i = 0; i < shape.points.length - 1; i++) {
+      const [ax, ay] = shape.points[i];
+      const [bx, by] = shape.points[i + 1];
+      total += hasPhys
+        ? Math.sqrt(((bx - ax) * px) ** 2 + ((by - ay) * py) ** 2)
+        : Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2);
+    }
+    return fmtDist(total);
+  }
+  return null;
+}
+
+// Pick the perpendicular direction (unit vec) that points "below" the line (more +y in image coords).
+function pickBelowPerp(ux, uy) {
+  const rp = [uy, -ux];
+  const lp = [-uy, ux];
+  return (rp[1] > lp[1] || (rp[1] === lp[1] && rp[0] > lp[0])) ? rp : lp;
+}
+
+// Normalize angle (degrees) so text reads left-to-right, not upside-down.
+function readableAngle(deg) {
+  let a = deg;
+  if (a > 90) a -= 180;
+  if (a < -90) a += 180;
+  return a;
+}
+
+export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null, physicalPixelSize = null) {
   // Selection halo — rendered first so the original shape draws on top of it.
   // Only the extra pixels outside the original stroke are visible, creating a subtle glow ring.
   const selectionLayers = [];
@@ -238,6 +344,9 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
     // Arrowhead scales with stroke width: 4px per unit, floor at ARROW_SCREEN_PX.
     const arrowDataSize = Math.max(ARROW_SCREEN_PX, strokeWidth * 4) / Math.pow(2, zoom);
     const base = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN };
+    const labelBgProps = shape.labelBackground
+      ? { background: true, getBackgroundColor: textBgColor(strokeColor), backgroundPadding: [3, 1, 3, 2] }
+      : {};
     const dashArray = parseDashArray(strokeDashArray);
     // Always include PathStyleExtension on outline PathLayers — adding/removing extensions
     // on a stable layer ID confuses deck.gl's reconciler. Use [0,0] for solid instead.
@@ -274,6 +383,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
       if (shape.text) {
         layers.push(new TextLayer({
           ...base,
+          ...labelBgProps,
           id: `annotation-rect-text-${uid}-${i}`,
           data: [{ position: [x, y], text: shape.text }],
           getPosition: d => d.position,
@@ -283,6 +393,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
           sizeUnits: 'pixels',
           fontFamily: LABEL_FONT_FAMILY,
           fontWeight: LABEL_FONT_WEIGHT,
+          getPixelOffset: [3, -7],
           getTextAnchor: 'start',
           getAlignmentBaseline: 'bottom',
         }));
@@ -300,6 +411,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
 
       // Shorten the shaft so it meets the arrowhead base, not the tip,
       // preventing the line width from poking through the pointed arrowhead.
+      // Tick caps sit perpendicular at the endpoint so no shortening is needed.
       const srcX = markerStart === 'Arrow' ? x1 + ux * arrowDataSize : x1;
       const srcY = markerStart === 'Arrow' ? y1 + uy * arrowDataSize : y1;
       const tgtX = markerEnd === 'Arrow' ? x2 - ux * arrowDataSize : x2;
@@ -348,6 +460,38 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
+      if (markerEnd === 'Tick') {
+        const tick = computeTickCap(x2, y2, x2 - x1, y2 - y1, arrowDataSize);
+        if (tick) {
+          layers.push(new PathLayer({
+            ...base,
+            id: `annotation-end-tick-${uid}-${i}`,
+            data: [{ path: tick }],
+            getPath: d => d.path,
+            getColor: strokeColor,
+            getWidth: strokeWidth,
+            widthUnits: 'pixels',
+            capRounded: true,
+          }));
+        }
+      }
+
+      if (markerStart === 'Tick') {
+        const tick = computeTickCap(x1, y1, x1 - x2, y1 - y2, arrowDataSize);
+        if (tick) {
+          layers.push(new PathLayer({
+            ...base,
+            id: `annotation-start-tick-${uid}-${i}`,
+            data: [{ path: tick }],
+            getPath: d => d.path,
+            getColor: strokeColor,
+            getWidth: strokeWidth,
+            widthUnits: 'pixels',
+            capRounded: true,
+          }));
+        }
+      }
+
       if (shape.text) {
         const pos = shape.textPosition ?? 'start';
         const textX = pos === 'start' ? x1 : pos === 'end' ? x2 : (x1 + x2) / 2;
@@ -382,10 +526,23 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
               alignmentBaseline = offsetY > 0 ? 'top' : 'bottom';
             }
           }
+        } else if (len > 0) {
+          // Middle: float on the TOP side of the line, parallel to it (avoids conflicting with
+          // the measurement label which sits on the bottom side).
+          const belowPerp = pickBelowPerp(ux, uy);
+          const bufferPx = shape.textBufferPx ?? 14;
+          pixelOffset = [-belowPerp[0] * bufferPx, -belowPerp[1] * bufferPx];
+          textAnchor = 'middle';
+          alignmentBaseline = 'center';
         }
+
+        const middleAngle = pos === 'middle' && len > 0
+          ? -readableAngle(Math.atan2(dy, dx) * 180 / Math.PI)
+          : null;
 
         layers.push(new TextLayer({
           ...base,
+          ...labelBgProps,
           id: `annotation-line-text-${uid}-${i}`,
           data: [{ position: [textX, textY], text: shape.text }],
           getPosition: d => d.position,
@@ -398,6 +555,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
           getPixelOffset: pixelOffset,
           getTextAnchor: textAnchor,
           getAlignmentBaseline: alignmentBaseline,
+          ...(middleAngle !== null && { getAngle: middleAngle }),
         }));
       }
     }
@@ -433,6 +591,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
       if (shape.text) {
         layers.push(new TextLayer({
           ...base,
+          ...labelBgProps,
           id: `annotation-ellipse-text-${uid}-${i}`,
           data: [{ position: [x1, y1 - radiusY], text: shape.text }],
           getPosition: d => d.position,
@@ -484,6 +643,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         const topCenterX = (minX + maxX) / 2;
         layers.push(new TextLayer({
           ...base,
+          ...labelBgProps,
           id: `annotation-polygon-text-${uid}-${i}`,
           data: [{ position: [topCenterX, minY], text: shape.text }],
           getPosition: d => d.position,
@@ -505,6 +665,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
       if (!points || points.length < 2) return;
 
       // Shorten the shaft at arrow endpoints so the stroke doesn't poke through the arrowhead tip.
+      // Tick caps are perpendicular so no shortening needed for those.
       let pathPoints = points;
       if (markerStart === 'Arrow') {
         const [x0, y0] = points[0];
@@ -572,6 +733,43 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
           }));
         }
       }
+
+      if (markerStart === 'Tick') {
+        const [x0, y0] = points[0];
+        const [x1, y1] = points[1];
+        const tick = computeTickCap(x0, y0, x0 - x1, y0 - y1, arrowDataSize);
+        if (tick) {
+          layers.push(new PathLayer({
+            ...base,
+            id: `annotation-polyline-start-tick-${uid}-${i}`,
+            data: [{ path: tick }],
+            getPath: d => d.path,
+            getColor: strokeColor,
+            getWidth: strokeWidth,
+            widthUnits: 'pixels',
+            capRounded: true,
+          }));
+        }
+      }
+
+      if (markerEnd === 'Tick') {
+        const last = points[points.length - 1];
+        const prev = points[points.length - 2];
+        const tick = computeTickCap(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
+        if (tick) {
+          layers.push(new PathLayer({
+            ...base,
+            id: `annotation-polyline-end-tick-${uid}-${i}`,
+            data: [{ path: tick }],
+            getPath: d => d.path,
+            getColor: strokeColor,
+            getWidth: strokeWidth,
+            widthUnits: 'pixels',
+            capRounded: true,
+          }));
+        }
+      }
+
       if (shape.text) {
         const pos = shape.textPosition ?? 'start';
         const bufferPx = shape.textBufferPx ?? 8;
@@ -615,6 +813,7 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
         layers.push(new TextLayer({
           ...base,
+          ...labelBgProps,
           id: `annotation-polyline-text-${uid}-${i}`,
           data: [{ position: [textX, textY], text: shape.text }],
           getPosition: d => d.position,
@@ -632,5 +831,108 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
     }
   });
 
-  return [...selectionLayers, ...layers];
+  // Measurement labels for shapes with showMeasure: true
+  const measureLayers = [];
+  shapes.forEach((shape) => {
+    if (!shape.showMeasure) return;
+    const label = getMeasurementLabel(shape, physicalPixelSize);
+    if (!label) return;
+    const color = shape.strokeColor ?? [255, 255, 255];
+    const base = {
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      getText: d => d.text,
+      getPosition: d => d.position,
+      getColor: color,
+      getSize: 13,
+      sizeUnits: 'pixels',
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      ...(shape.measureBackground ? { background: true, getBackgroundColor: textBgColor(color), backgroundPadding: [3, 1, 3, 2] } : {}),
+    };
+
+    if (shape.type === 'line') {
+      const mx = ((shape.x1 ?? 0) + (shape.x2 ?? 0)) / 2;
+      const my = ((shape.y1 ?? 0) + (shape.y2 ?? 0)) / 2;
+      const dx = (shape.x2 ?? 0) - (shape.x1 ?? 0);
+      const dy = (shape.y2 ?? 0) - (shape.y1 ?? 0);
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len === 0) return;
+      const perp = pickBelowPerp(dx / len, dy / len);
+      const angle = readableAngle(Math.atan2(dy, dx) * 180 / Math.PI);
+      measureLayers.push(new TextLayer({
+        ...base,
+        id: `annotation-measure-${shape.uid}`,
+        data: [{ position: [mx, my], text: label }],
+        getAngle: -angle,
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+        getPixelOffset: [perp[0] * 16, perp[1] * 16],
+      }));
+    } else if (shape.type === 'polyline' && shape.points?.length >= 2) {
+      const pts = shape.points;
+      const mi = Math.floor((pts.length - 1) / 2);
+      const [ax, ay] = pts[mi];
+      const [bx, by] = pts[mi + 1];
+      const dx = bx - ax;
+      const dy = by - ay;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len === 0) return;
+      const perp = pickBelowPerp(dx / len, dy / len);
+      const angle = readableAngle(Math.atan2(dy, dx) * 180 / Math.PI);
+      measureLayers.push(new TextLayer({
+        ...base,
+        id: `annotation-measure-${shape.uid}`,
+        data: [{ position: [(ax + bx) / 2, (ay + by) / 2], text: label }],
+        getAngle: -angle,
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+        getPixelOffset: [perp[0] * 16, perp[1] * 16],
+      }));
+    } else if (shape.type === 'rectangle') {
+      // Bottom-right of the actual drawn rect (handles negative width/height)
+      const x0 = shape.x ?? 0;
+      const y0 = shape.y ?? 0;
+      const w = shape.width ?? 0;
+      const h = shape.height ?? 0;
+      const rx = x0 + (w >= 0 ? w : 0);
+      const ry = y0 + (h >= 0 ? h : 0);
+      measureLayers.push(new TextLayer({
+        ...base,
+        id: `annotation-measure-${shape.uid}`,
+        data: [{ position: [rx, ry], text: label }],
+        getTextAnchor: 'end',
+        getAlignmentBaseline: 'bottom',
+        getPixelOffset: [-6, -6],
+      }));
+    } else if (shape.type === 'ellipse') {
+      // Just outside the bottom of the ellipse
+      const cx = shape.x1 ?? 0;
+      const cy = shape.y1 ?? 0;
+      const ry = Math.abs(shape.radiusY ?? 0);
+      measureLayers.push(new TextLayer({
+        ...base,
+        id: `annotation-measure-${shape.uid}`,
+        data: [{ position: [cx, cy + ry], text: label }],
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'top',
+        getPixelOffset: [0, 8],
+      }));
+    } else if (shape.type === 'polygon' && shape.points?.length >= 3) {
+      // Just outside the bottom edge of the bounding box
+      const xs = shape.points.map(p => p[0]);
+      const ys = shape.points.map(p => p[1]);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+      const maxY = Math.max(...ys);
+      measureLayers.push(new TextLayer({
+        ...base,
+        id: `annotation-measure-${shape.uid}`,
+        data: [{ position: [cx, maxY], text: label }],
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'top',
+        getPixelOffset: [0, 8],
+      }));
+    }
+  });
+
+  return [...selectionLayers, ...layers, ...measureLayers];
 }

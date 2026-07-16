@@ -56,6 +56,7 @@ import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spat
 import { salcher2022 } from './view-configs/salcher_2022.js';
 import { emptyConfig } from './view-configs/empty.js';
 import { annotationsDemoSpraggins } from './view-configs/annotations-demo-spraggins.js';
+import { annotationsDemoSpragginsData } from './view-configs/annotations-demo-spraggins-data.js';
 import { annotationsDemoCodeluppi } from './view-configs/annotations-demo-codeluppi.js';
 import { annotationsMinervaOrionCrc04 } from './view-configs/annotationsMinervaOrion.js';
 // TODO(spatialBeta):
@@ -177,6 +178,7 @@ export const configs = {
   'nakshatri-2024': nakshatri2024natureMedH5ad,
   empty: emptyConfig,
   'annotations-demo-spraggins': annotationsDemoSpraggins,
+  'annotations-demo-spraggins-data': annotationsDemoSpragginsData,
   'annotations-demo-codeluppi': annotationsDemoCodeluppi,
   'annotations-demo-minerva-orion': annotationsMinervaOrionCrc04,
   'sdata-merfish': sdataMerfishConfig,
@@ -244,6 +246,7 @@ export const configs = {
 // To adjust the list for the docs site, see docs/src/pages/_DemoList.js
 export const publicConfigs = [
   'annotations-demo-spraggins',
+  'annotations-demo-spraggins-data',
   'annotations-demo-codeluppi',
   'annotations-demo-minerva-orion',
   'codeluppi-2018',

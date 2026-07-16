@@ -659,6 +659,9 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_ACTIVE_TOOL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER, 0, z.number()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_SELECTED_SHAPE, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_DATA_TYPE, 'inline', z.string()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_DATA_URL, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE, null, z.object({ x: z.number(), y: z.number(), unit: z.string() }).nullable()),
 ];
 
 export const baseAsyncFunctions = [

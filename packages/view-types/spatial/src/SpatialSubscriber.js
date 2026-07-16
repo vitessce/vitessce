@@ -1,22 +1,73 @@
 import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
 
-// Merges channel/layer visibility overrides into a baseline layer config.
-// Only the `visible` flag is applied — colors, sliders, and opacity are preserved.
+// Returns true if ch and oc refer to the same channel.
+// Matches by channelName first (stable string key), then by selection index (fallback).
+function channelMatches(ch, oc) {
+  if (ch.channelName && oc.channelName) return ch.channelName === oc.channelName;
+  const chKey = ch.selection?.channel ?? ch.selection?.c;
+  const ocKey = oc.selection?.channel ?? oc.selection?.c;
+  return chKey !== undefined && chKey === ocKey;
+}
+
+// Merges channel/layer overrides from a captured or authored frame into the baseline.
+//
+// Two modes, detected by whether any override channel carries a `slider` property:
+//
+//   Full capture (slider present): the override IS the complete intended state.
+//     - Use override channels as the definitive list (handles add/remove via LayerController).
+//     - Merge baseline properties under override so format is preserved.
+//     - Also applies color and slider from the captured state.
+//
+//   Sparse authored (no slider): only certain channels are called out.
+//     - Start from baseline; apply visible (and color/slider if present) for matched channels.
+//     - Channels in baseline but not override: kept unchanged.
+//     - Channels in override but not baseline: appended (author added a new channel).
 function mergeLayerVisibility(baseline, override) {
   if (!baseline || !override) return override ?? baseline;
   return baseline.map(layer => {
-    const overrideLayer = override.find(l => l.index === layer.index);
+    const overrideLayer = override.find(l =>
+      (layer.layerName && l.layerName && l.layerName === layer.layerName)
+      || l.index === layer.index
+    );
     if (!overrideLayer) return layer;
-    const mergedChannels = (overrideLayer.channels && layer.channels)
-      ? layer.channels.map(ch => {
-          const chKey = ch.selection?.channel ?? ch.selection?.c;
-          const overrideCh = overrideLayer.channels.find(oc => {
-            const ocKey = oc.selection?.channel ?? oc.selection?.c;
-            return ocKey === chKey;
-          });
-          return overrideCh !== undefined ? { ...ch, visible: overrideCh.visible } : ch;
-        })
-      : layer.channels;
+
+    if (!overrideLayer.channels) {
+      return {
+        ...layer,
+        ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
+      };
+    }
+
+    const isFullCapture = overrideLayer.channels.some(oc => oc.slider !== undefined);
+    const baselineChannels = layer.channels ?? [];
+
+    let mergedChannels;
+    if (isFullCapture) {
+      // Override is the complete desired channel list — use it directly.
+      // Baseline channel is merged under override so any extra baseline fields are preserved.
+      mergedChannels = overrideLayer.channels.map(oc => {
+        const baselineCh = baselineChannels.find(ch => channelMatches(ch, oc));
+        return baselineCh ? { ...baselineCh, ...oc } : { ...oc };
+      });
+    } else {
+      // Sparse authored: start from baseline, patch matched channels.
+      const patched = baselineChannels.map(ch => {
+        const overrideCh = overrideLayer.channels.find(oc => channelMatches(ch, oc));
+        if (!overrideCh) return ch;
+        return {
+          ...ch,
+          visible: overrideCh.visible ?? ch.visible,
+          ...(overrideCh.color !== undefined && { color: overrideCh.color }),
+          ...(overrideCh.slider !== undefined && { slider: overrideCh.slider }),
+        };
+      });
+      // Append any override channels that weren't in the baseline.
+      const extra = overrideLayer.channels.filter(
+        oc => !baselineChannels.some(ch => channelMatches(ch, oc)),
+      );
+      mergedChannels = [...patched, ...extra];
+    }
+
     return {
       ...layer,
       ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
@@ -184,6 +235,7 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setSpatialPhysicalPixelSize,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const {
@@ -612,6 +664,21 @@ export function SpatialSubscriber(props) {
     {}, // TODO: which properties to match on. Revisit after #830.
   );
   const { loaders: imageLayerLoaders = [], meta = [], instance } = image || {};
+
+  const physicalPixelSize = useMemo(() => {
+    const source = imageLayerLoaders?.[0]?.data?.[0];
+    const ps = source?.meta?.physicalSizes;
+    return (ps?.x?.size && ps?.y?.size)
+      ? { x: ps.x.size, y: ps.y.size, unit: ps.x.unit ?? '' }
+      : null;
+  }, [image]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (physicalPixelSize) {
+      setSpatialPhysicalPixelSize(physicalPixelSize);
+    }
+  }, [physicalPixelSize]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [
     neighborhoods, neighborhoodsStatus, neighborhoodsUrls, neighborhoodsError,
   ] = useNeighborhoodsData(
@@ -1084,6 +1151,7 @@ export function SpatialSubscriber(props) {
         annotationActiveTool={annotationActiveTool}
         annotationPreviewLayer={annotationPreviewLayer}
         annotationSelectedShapeUid={annotationSelectedShapeUid}
+        physicalPixelSize={physicalPixelSize}
         onCoordHover={onCoordHover}
         onCoordClick={onCoordClick}
       />

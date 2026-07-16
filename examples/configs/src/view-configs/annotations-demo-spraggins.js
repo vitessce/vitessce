@@ -38,7 +38,10 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -6,
           spatialTargetX: 26800,
           spatialTargetY: 17300,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, visible: true }],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', visible: true },
+          ],
         },
       },
       {
@@ -86,10 +89,13 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -6,
           spatialTargetX: 26800,
           spatialTargetY: 17300,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 1 }, visible: false },
-            { selection: { channel: 3 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+              { channelName: 'Cy5 - THP (thick limb)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -146,10 +152,13 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -2,
           spatialTargetX: 18646,
           spatialTargetY: 13200,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 1 }, visible: false },
-            { selection: { channel: 3 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+              { channelName: 'Cy5 - THP (thick limb)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -171,10 +180,13 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -3.5,
           spatialTargetX: 14646,
           spatialTargetY: 13200,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: false },
-            { selection: { channel: 1 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: false },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -229,10 +241,13 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -2,
           spatialTargetX: 14646,
           spatialTargetY: 13200,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: false },
-            { selection: { channel: 1 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: false },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -299,10 +314,13 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -4,
           spatialTargetX: 15500,
           spatialTargetY: 13200,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: false },
-            { selection: { channel: 1 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: false },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -333,12 +351,15 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -5.8,
           spatialTargetX: 20000,
           spatialTargetY: 20000,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: true },
-            { selection: { channel: 1 }, visible: false },
-            { selection: { channel: 2 }, visible: false },
-            { selection: { channel: 3 }, visible: true },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: true },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: false },
+              { channelName: 'Cy3 - Synaptopodin (glomerular)', visible: false },
+              { channelName: 'Cy5 - THP (thick limb)', visible: true },
+            ]},
+          ],
         },
       },
       {
@@ -359,12 +380,15 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -4.5,
           spatialTargetX: 26000,
           spatialTargetY: 25000,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: true },
-            { selection: { channel: 1 }, visible: true },
-            { selection: { channel: 2 }, visible: false },
-            { selection: { channel: 3 }, visible: false },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: true },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: true },
+              { channelName: 'Cy3 - Synaptopodin (glomerular)', visible: false },
+              { channelName: 'Cy5 - THP (thick limb)', visible: false },
+            ]},
+          ],
         },
       },
       {
@@ -376,12 +400,15 @@ export const annotationsDemoSpraggins = {
           spatialZoom: -6.5,
           spatialTargetX: 20000,
           spatialTargetY: 20000,
-          spatialImageLayer: [{ index: 0, visible: false }, { index: 1, channels: [
-            { selection: { channel: 0 }, visible: true },
-            { selection: { channel: 1 }, visible: true },
-            { selection: { channel: 2 }, visible: true },
-            { selection: { channel: 3 }, visible: true },
-          ]}],
+          spatialImageLayer: [
+            { layerName: 'Spraggins IMS', visible: false },
+            { layerName: 'Spraggins MxIF', channels: [
+              { channelName: 'DAPI - Hoechst (nuclei)', visible: true },
+              { channelName: 'FITC - Laminin (basement membrane)', visible: true },
+              { channelName: 'Cy3 - Synaptopodin (glomerular)', visible: true },
+              { channelName: 'Cy5 - THP (thick limb)', visible: true },
+            ]},
+          ],
         },
       },
     ]},

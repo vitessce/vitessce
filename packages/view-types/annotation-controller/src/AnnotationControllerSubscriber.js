@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   TitleInfo,
   useCoordination,
@@ -37,6 +37,9 @@ export function AnnotationControllerSubscriber(props) {
       obsSetSelection,
       featureSelection,
       obsColorEncoding,
+      annotationDataType,
+      annotationDataUrl,
+      spatialPhysicalPixelSize,
     },
     {
       setAnnotationFrames,
@@ -55,6 +58,27 @@ export function AnnotationControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.ANNOTATION_CONTROLLER],
     coordinationScopes,
   );
+
+  const [fetchStatus, setFetchStatus] = useState({ status: 'idle', error: null });
+
+  useEffect(() => {
+    if (annotationDataType !== 'data' || !annotationDataUrl) return;
+    const controller = new AbortController();
+    setFetchStatus({ status: 'loading', error: null });
+    fetch(annotationDataUrl, { signal: controller.signal })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(data => {
+        const frames = Array.isArray(data) ? data : (data.frames ?? data.annotationFrames ?? []);
+        setAnnotationFrames(frames);
+        setFetchStatus({ status: 'success', error: null });
+      })
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          setFetchStatus({ status: 'error', error: err.message });
+        }
+      });
+    return () => controller.abort();
+  }, [annotationDataUrl, annotationDataType, setAnnotationFrames]);
 
   // Baseline snapshot for cross-view types — captured on first frame activation.
   const latestCrossViewRef = useRef({});
@@ -217,6 +241,11 @@ export function AnnotationControllerSubscriber(props) {
         onDownloadConfig={handleDownloadConfig}
         selectedShapeUid={annotationSelectedShapeUid}
         onSetSelectedShapeUid={setAnnotationSelectedShapeUid}
+        isLoadingData={fetchStatus.status === 'loading'}
+        loadDataError={fetchStatus.error}
+        dataMode={annotationDataType === 'data'}
+        dataUrl={annotationDataUrl}
+        physicalPixelSize={spatialPhysicalPixelSize}
       />
     </TitleInfo>
   );

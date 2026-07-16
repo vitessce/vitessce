@@ -1,0 +1,1266 @@
+[
+  {
+    "uid": "frame-0",
+    "title": "Kidney Overview — All Channels",
+    "text": "High bit-depth multiplex IF image of human kidney (Spraggins et al., 2020). All four channels: DAPI (nuclei), Laminin (basement membrane), Synaptopodin (glomerular), THP (thick limb).",
+    "viewState": {
+      "spatialZoom": -6,
+      "spatialTargetX": 26800,
+      "spatialTargetY": 17300,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "visible": true
+        }
+      ]
+    }
+  },
+  {
+    "uid": "adc54c0f-1e33-40d7-8075-e56e11d6b8d1",
+    "title": "Shape Demo",
+    "shapes": [
+      {
+        "uid": "0614b57b-94d6-4c0f-a77e-48acd9f89311",
+        "type": "rectangle",
+        "x": 11573.948374027597,
+        "y": 15186.659571053335,
+        "width": 1380.102546058435,
+        "height": 1410.0732252537255,
+        "text": "Rect",
+        "showMeasure": true
+      },
+      {
+        "uid": "fda17481-dc59-4933-af34-502a4bec15b4",
+        "type": "line",
+        "x1": 11588.788186350806,
+        "y1": 17019.754763883175,
+        "x2": 13258.267072711815,
+        "y2": 17027.17620191083,
+        "text": "Line 1"
+      },
+      {
+        "uid": "9cb9cb23-d7c7-4abb-a006-08b8e49885c7",
+        "type": "line",
+        "x1": 11596.20809251241,
+        "y1": 17375.983789210433,
+        "x2": 13258.267072711815,
+        "y2": 17375.983789210433,
+        "text": "Line 2",
+        "markerStart": "Arrow",
+        "markerEnd": "Arrow",
+        "strokeDashArray": "8 4",
+        "textPosition": "middle",
+        "showMeasure": false
+      },
+      {
+        "uid": "98c5780a-c0e9-4f83-b7d3-e289c5425497",
+        "type": "line",
+        "x1": 11566.528467865992,
+        "y1": 17687.684186371782,
+        "x2": 13213.747635742187,
+        "y2": 17702.527062427085,
+        "text": "Line 3",
+        "markerEnd": "Tick",
+        "markerStart": "Tick",
+        "showMeasure": true
+      },
+      {
+        "uid": "aa4daf89-44d4-4700-83a9-b7bf8d04842e",
+        "type": "ellipse",
+        "x1": 14267.374310690024,
+        "y1": 15772.953175237777,
+        "radiusX": 1194.604892018322,
+        "radiusY": 846.0439351522364,
+        "strokeDashArray": "2 4"
+      },
+      {
+        "uid": "789fa0fa-4e65-48ac-8fc1-e9667bdc9cfd",
+        "type": "polygon",
+        "points": [
+          [
+            13718.41336710327,
+            16929.560596644464
+          ],
+          [
+            13711.54175002221,
+            18029.24631678428
+          ],
+          [
+            15065.250314991046,
+            19012.090429159238
+          ],
+          [
+            16425.83049704094,
+            16448.4480940833
+          ]
+        ]
+      },
+      {
+        "uid": "a1cbfab5-7531-4895-aa0c-00874bfb4881",
+        "type": "polyline",
+        "points": [
+          [
+            16501.418284932603,
+            18682.184713117294
+          ],
+          [
+            16508.28990201366,
+            20077.410970544686
+          ],
+          [
+            15140.838102882706,
+            20070.53793479381
+          ]
+        ]
+      },
+      {
+        "uid": "2079f985-396f-46e8-931d-ea181cee16ff",
+        "type": "polyline",
+        "points": [
+          [
+            15024.020612504686,
+            19644.409718239633
+          ],
+          [
+            15415.70278612511,
+            19067.07471516623
+          ],
+          [
+            15718.053937691755,
+            19665.028825492256
+          ],
+          [
+            16302.14138958186,
+            18091.103638542147
+          ]
+        ],
+        "markerStart": "Tick",
+        "markerEnd": "Tick"
+      },
+      {
+        "uid": "819c4f1c-3633-4ca8-b1bc-4d98e4983883",
+        "type": "polyline",
+        "points": [
+          [
+            14852.230185478184,
+            19520.695074723903
+          ],
+          [
+            15614.979681475852,
+            18661.565605864675
+          ],
+          [
+            16199.06713336596,
+            18091.103638542147
+          ]
+        ]
+      },
+      {
+        "uid": "958572fc-3cd4-4f61-8f8b-a7a4cc9f5245",
+        "type": "line",
+        "x1": 11450.779730353444,
+        "y1": 18503.485783594573,
+        "x2": 11430.164879110263,
+        "y2": 19816.23561201148,
+        "text": "Line 4",
+        "textPosition": "middle",
+        "showMeasure": true,
+        "markerStart": "Tick",
+        "markerEnd": "Tick"
+      }
+    ],
+    "viewState": {
+      "obsColorEncoding": "cellSetSelection"
+    },
+    "viewStates": [
+      {
+        "targetView": "spatial",
+        "spatialZoom": -2.8652720709094477,
+        "spatialTargetX": 13922.230468039314,
+        "spatialTargetY": 17617.94674182787,
+        "spatialTargetZ": null,
+        "spatialImageLayer": [
+          {
+            "type": "raster",
+            "index": 1,
+            "layerName": "Spraggins MxIF",
+            "visible": true,
+            "colormap": null,
+            "opacity": 1,
+            "domainType": "Min/Max",
+            "transparentColor": null,
+            "renderingMode": "Additive",
+            "use3d": false,
+            "channels": [
+              {
+                "selection": {
+                  "channel": 0
+                },
+                "channelName": "DAPI - Hoechst (nuclei)",
+                "color": [
+                  0,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  20,
+                  24553
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 1
+                },
+                "channelName": "FITC - Laminin (basement membrane)",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  75,
+                  15541
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 2
+                },
+                "channelName": "Cy3 - Synaptopodin (glomerular)",
+                "color": [
+                  255,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  17,
+                  8705
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 3
+                },
+                "channelName": "Cy5 - THP (thick limb)",
+                "color": [
+                  0,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  21,
+                  1752
+                ]
+              }
+            ]
+          },
+          {
+            "type": "raster",
+            "index": 0,
+            "layerName": "Spraggins IMS",
+            "visible": false,
+            "colormap": null,
+            "opacity": 1,
+            "domainType": "Min/Max",
+            "transparentColor": [
+              0,
+              0,
+              0
+            ],
+            "renderingMode": "Additive",
+            "use3d": false,
+            "channels": [
+              {
+                "selection": {
+                  "mz": 0
+                },
+                "channelName": "675.5366",
+                "color": [
+                  0,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  85,
+                  657
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 1
+                },
+                "channelName": "703.5722",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  320,
+                  18875
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 2
+                },
+                "channelName": "721.4766",
+                "color": [
+                  255,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  99,
+                  4120
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 3
+                },
+                "channelName": "725.5562",
+                "color": [
+                  255,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  133,
+                  9265
+                ]
+              }
+            ]
+          }
+        ],
+        "spatialSegmentationLayer": [],
+        "spatialPointLayer": null
+      }
+    ],
+    "text": "Testing Purposes"
+  },
+  {
+    "uid": "frame-1",
+    "title": "Glomeruli — Synaptopodin + DAPI",
+    "text": "Synaptopodin marks podocytes of the glomerular filtration barrier. Laminin and THP are hidden to isolate glomerular signal.",
+    "shapes": [
+      {
+        "uid": "glom-arrow",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 26088,
+        "y1": 10566,
+        "x2": 21395,
+        "y2": 13200,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4,
+        "text": "Glom Barrier",
+        "textPosition": "start"
+      },
+      {
+        "uid": "glom-line-1",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 26700,
+        "y1": 5630,
+        "x2": 21000,
+        "y2": 8200,
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4
+      },
+      {
+        "uid": "glom-line-2",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 21400,
+        "y1": 17000,
+        "x2": 21000,
+        "y2": 8200,
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4
+      },
+      {
+        "uid": "glom-line-3",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 21400,
+        "y1": 17000,
+        "x2": 42789,
+        "y2": 20383,
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4
+      },
+      {
+        "uid": "afeaa102-37b5-4642-b724-2671c2552002",
+        "type": "ellipse",
+        "x1": 18441.678039179198,
+        "y1": 18935.352706045458,
+        "radiusX": 2012.0512795178947,
+        "radiusY": 1944.7235680209124,
+        "text": "Test Elipse",
+        "strokeDashArray": "2 4",
+        "strokeWidth": 3
+      },
+      {
+        "uid": "51ff0f22-5175-4bd8-8b41-958ddfac4456",
+        "type": "rectangle",
+        "x": 21400.57697964669,
+        "y": 21573.412502665127,
+        "width": 3161.794867813831,
+        "height": 1944.7235680209087,
+        "strokeDashArray": "8 4",
+        "text": "Test Rect",
+        "strokeColor": [
+          0,
+          255,
+          86
+        ]
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -6,
+      "spatialTargetX": 26800,
+      "spatialTargetY": 17300,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-2",
+    "title": "Glomerulus Detail — Synaptopodin + DAPI",
+    "text": "This is a detailed view of a glomerulus, showing the synaptopodin and DAPI staining.",
+    "shapes": [
+      {
+        "uid": "detail-arrow",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 20000,
+        "y1": 12326,
+        "x2": 18983,
+        "y2": 12326,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4,
+        "text": "1",
+        "textPosition": "start"
+      },
+      {
+        "uid": "detail-arrow-b",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 20000,
+        "y1": 12893,
+        "x2": 19136,
+        "y2": 12893,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4,
+        "text": "2",
+        "textPosition": "start"
+      },
+      {
+        "uid": "detail-arrow-c",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 20000,
+        "y1": 13224,
+        "x2": 18442,
+        "y2": 13224,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4,
+        "text": "3",
+        "textPosition": "start"
+      },
+      {
+        "uid": "detail-arrow-d",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 20000,
+        "y1": 13940,
+        "x2": 19107,
+        "y2": 13940,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          255,
+          255
+        ],
+        "strokeWidth": 4,
+        "text": "4",
+        "textPosition": "start"
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -2,
+      "spatialTargetX": 18646,
+      "spatialTargetY": 13200,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-3",
+    "title": "Tubule Detail — THP + DAPI",
+    "text": "This is a detailed view of a tubule, showing the THP and DAPI staining.",
+    "shapes": [
+      {
+        "uid": "tubule-detail-box",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 11428,
+        "y": 12516,
+        "width": 6500,
+        "height": 2000,
+        "strokeColor": [
+          255,
+          177,
+          107
+        ],
+        "strokeWidth": 4,
+        "text": "THP+ Tubule"
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -3.5,
+      "spatialTargetX": 14646,
+      "spatialTargetY": 13200,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": false
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-3b",
+    "title": "Tubule Detail — THP + DAPI",
+    "text": "Same location as previous frame, but with DAPI channel hidden to show the risk of interpreting THP signal without nuclear context. The boxed tubule looks fine, but the arrows point to three other areas of THP signal that are not associated with nuclei and are likely artifacts.",
+    "shapes": [
+      {
+        "uid": "tubule-detail-box",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 11428,
+        "y": 12516,
+        "width": 6500,
+        "height": 2000,
+        "strokeColor": [
+          255,
+          0,
+          0
+        ],
+        "strokeWidth": 4,
+        "text": "THP+ Tubule"
+      },
+      {
+        "uid": "tubule-detail-arrow-1",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 13452,
+        "y1": 13745,
+        "x2": 13000,
+        "y2": 14000,
+        "markerStart": "Arrow",
+        "strokeColor": [
+          255,
+          0,
+          0
+        ],
+        "strokeWidth": 4,
+        "text": "1",
+        "textPosition": "end"
+      },
+      {
+        "uid": "tubule-detail-arrow-2",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 12100,
+        "y1": 12873,
+        "x2": 12000,
+        "y2": 14000,
+        "markerStart": "Arrow",
+        "strokeColor": [
+          255,
+          0,
+          0
+        ],
+        "strokeWidth": 4,
+        "text": "3",
+        "textPosition": "end"
+      },
+      {
+        "uid": "tubule-detail-arrow-3",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 15800,
+        "y1": 13000,
+        "x2": 15200,
+        "y2": 13300,
+        "markerStart": "Arrow",
+        "strokeColor": [
+          255,
+          0,
+          0
+        ],
+        "strokeWidth": 4,
+        "text": "2",
+        "textPosition": "end"
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -2,
+      "spatialTargetX": 14646,
+      "spatialTargetY": 13200,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": false
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-3c",
+    "title": "Tubule Detail — THP + DAPI",
+    "text": "Same location as previous frame, but with DAPI channel restored to show the nuclei of cells within and surrounding the tubule.",
+    "shapes": [
+      {
+        "uid": "tubule-detail-box-1",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 11428,
+        "y": 12516,
+        "width": 6500,
+        "height": 2000,
+        "strokeColor": [
+          255,
+          0,
+          0
+        ],
+        "strokeWidth": 4,
+        "text": "PROBLEMATIC"
+      },
+      {
+        "uid": "tubule-detail-box-2",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 13800,
+        "y": 10300,
+        "width": 4500,
+        "height": 2000,
+        "strokeColor": [
+          0,
+          255,
+          30
+        ],
+        "strokeWidth": 4,
+        "text": "GOOD"
+      },
+      {
+        "uid": "tubule-detail-box-3",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 10300,
+        "y": 10100,
+        "width": 2350,
+        "height": 1500,
+        "strokeColor": [
+          0,
+          255,
+          30
+        ],
+        "strokeWidth": 4,
+        "text": "GOOD"
+      },
+      {
+        "uid": "tubule-detail-box-4",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 12500,
+        "y": 7600,
+        "width": 2600,
+        "height": 1200,
+        "strokeColor": [
+          0,
+          255,
+          30
+        ],
+        "strokeWidth": 4,
+        "text": "GOOD"
+      },
+      {
+        "uid": "tubule-detail-box-5",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 11300,
+        "y": 8600,
+        "width": 2900,
+        "height": 1200,
+        "strokeColor": [
+          0,
+          255,
+          30
+        ],
+        "strokeWidth": 4,
+        "text": "GOOD"
+      },
+      {
+        "uid": "tubule-detail-box-6",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 15700,
+        "y": 7700,
+        "width": 3100,
+        "height": 1500,
+        "strokeColor": [
+          0,
+          255,
+          30
+        ],
+        "strokeWidth": 4,
+        "text": "GOOD"
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -4,
+      "spatialTargetX": 15500,
+      "spatialTargetY": 13200,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": false
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-4",
+    "title": "Tubules — THP + DAPI",
+    "text": "THP marks the thick ascending limb of the loop of Henle. Laminin and Synaptopodin are hidden.",
+    "shapes": [
+      {
+        "uid": "tubule-arrow-a",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 10000,
+        "y1": 18000,
+        "x2": 12000,
+        "y2": 20000,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          255,
+          165,
+          0
+        ],
+        "strokeWidth": 4
+      },
+      {
+        "uid": "tubule-arrow-b",
+        "type": "line",
+        "targetView": "spatial",
+        "x1": 30000,
+        "y1": 18000,
+        "x2": 28000,
+        "y2": 20000,
+        "markerEnd": "Arrow",
+        "strokeColor": [
+          80,
+          200,
+          255
+        ],
+        "strokeWidth": 4
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -5.8,
+      "spatialTargetX": 20000,
+      "spatialTargetY": 20000,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": true
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy3 - Synaptopodin (glomerular)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-5",
+    "title": "Basement Membrane — Laminin + DAPI",
+    "text": "Laminin marks basement membranes surrounding tubules and glomeruli — the structural scaffold of the kidney.",
+    "shapes": [
+      {
+        "uid": "interstitium-rect",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 22000,
+        "y": 22000,
+        "width": 8000,
+        "height": 6000,
+        "strokeColor": [
+          180,
+          130,
+          255
+        ],
+        "strokeWidth": 2
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -4.5,
+      "spatialTargetX": 26000,
+      "spatialTargetY": 25000,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": true
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": true
+            },
+            {
+              "channelName": "Cy3 - Synaptopodin (glomerular)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "e98039f7-49eb-46dc-b716-6a443d913b70",
+    "title": "Basement Membrane — Laminin + DAPI (copy)",
+    "text": "Laminin marks basement membranes surrounding tubules and glomeruli — the structural scaffold of the kidney.",
+    "shapes": [
+      {
+        "uid": "27763b0c-1269-4c44-9789-43654fa8fd94",
+        "type": "rectangle",
+        "targetView": "spatial",
+        "x": 22000,
+        "y": 22000,
+        "width": 8000,
+        "height": 6000,
+        "strokeColor": [
+          180,
+          130,
+          255
+        ],
+        "strokeWidth": 2
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -4.5,
+      "spatialTargetX": 26000,
+      "spatialTargetY": 25000,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": true
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": true
+            },
+            {
+              "channelName": "Cy3 - Synaptopodin (glomerular)",
+              "visible": false
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "frame-6",
+    "title": "Full Tissue — All Channels",
+    "text": "Full tissue overview with all four channels restored. Use the layer controller to fine-tune individual channel sliders.",
+    "shapes": [
+      {
+        "uid": "9f9ce1e1-224e-44a9-8833-b34da9c7d31e",
+        "type": "rectangle",
+        "x": 21400.57697964669,
+        "y": 21573.412502665127,
+        "width": 3161.794867813831,
+        "height": 1944.7235680209087,
+        "strokeDashArray": "8 4",
+        "text": "Test Rect",
+        "strokeColor": [
+          37,
+          0,
+          255
+        ]
+      }
+    ],
+    "viewState": {
+      "spatialZoom": -6.5,
+      "spatialTargetX": 20000,
+      "spatialTargetY": 20000,
+      "spatialImageLayer": [
+        {
+          "layerName": "Spraggins IMS",
+          "visible": false
+        },
+        {
+          "layerName": "Spraggins MxIF",
+          "channels": [
+            {
+              "channelName": "DAPI - Hoechst (nuclei)",
+              "visible": true
+            },
+            {
+              "channelName": "FITC - Laminin (basement membrane)",
+              "visible": true
+            },
+            {
+              "channelName": "Cy3 - Synaptopodin (glomerular)",
+              "visible": true
+            },
+            {
+              "channelName": "Cy5 - THP (thick limb)",
+              "visible": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "uid": "5003f92f-c280-43ca-99fe-d3f92cdd909f",
+    "title": "New Frame 2",
+    "shapes": [],
+    "viewState": {
+      "obsColorEncoding": "cellSetSelection"
+    },
+    "viewStates": [
+      {
+        "targetView": "spatial",
+        "spatialZoom": -2.802536034191479,
+        "spatialTargetX": 26340.12581310858,
+        "spatialTargetY": 19659.473342837708,
+        "spatialTargetZ": null,
+        "spatialImageLayer": [
+          {
+            "type": "raster",
+            "index": 1,
+            "layerName": "Spraggins MxIF",
+            "visible": true,
+            "colormap": null,
+            "opacity": 1,
+            "domainType": "Min/Max",
+            "transparentColor": null,
+            "renderingMode": "Additive",
+            "use3d": false,
+            "channels": [
+              {
+                "selection": {
+                  "channel": 0
+                },
+                "channelName": "DAPI - Hoechst (nuclei)",
+                "color": [
+                  0,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  20,
+                  24553
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 1
+                },
+                "channelName": "FITC - Laminin (basement membrane)",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  75,
+                  15541
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 2
+                },
+                "channelName": "Cy3 - Synaptopodin (glomerular)",
+                "color": [
+                  255,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  17,
+                  8705
+                ]
+              },
+              {
+                "selection": {
+                  "channel": 2
+                },
+                "channelName": "Cy5 - THP (thick limb)",
+                "color": [
+                  255,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  17,
+                  8705
+                ]
+              }
+            ]
+          },
+          {
+            "type": "raster",
+            "index": 0,
+            "layerName": "Spraggins IMS",
+            "visible": true,
+            "colormap": null,
+            "opacity": 1,
+            "domainType": "Min/Max",
+            "transparentColor": [
+              0,
+              0,
+              0
+            ],
+            "renderingMode": "Additive",
+            "use3d": false,
+            "channels": [
+              {
+                "selection": {
+                  "mz": 0
+                },
+                "channelName": "675.5366",
+                "color": [
+                  0,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  85,
+                  657
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 39
+                },
+                "channelName": "703.5722",
+                "color": [
+                  0,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  85,
+                  915
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 2
+                },
+                "channelName": "721.4766",
+                "color": [
+                  255,
+                  0,
+                  255
+                ],
+                "visible": true,
+                "slider": [
+                  99,
+                  4120
+                ]
+              },
+              {
+                "selection": {
+                  "mz": 3
+                },
+                "channelName": "725.5562",
+                "color": [
+                  255,
+                  255,
+                  0
+                ],
+                "visible": true,
+                "slider": [
+                  133,
+                  9265
+                ]
+              }
+            ]
+          }
+        ],
+        "spatialSegmentationLayer": [],
+        "spatialPointLayer": null
+      }
+    ]
+  }
+]

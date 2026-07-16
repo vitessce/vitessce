@@ -272,6 +272,7 @@ export const CoordinationType = {
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
   SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
   SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
+  SPATIAL_PHYSICAL_PIXEL_SIZE: 'spatialPhysicalPixelSize',
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
@@ -390,6 +391,8 @@ export const CoordinationType = {
   ANNOTATION_ACTIVE_TOOL: 'annotationActiveTool',
   ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER: 'annotationCaptureViewStateTrigger',
   ANNOTATION_SELECTED_SHAPE: 'annotationSelectedShapeUid',
+  ANNOTATION_DATA_TYPE: 'annotationDataType',
+  ANNOTATION_DATA_URL: 'annotationDataUrl',
 };
 
 export const STATUS = {
