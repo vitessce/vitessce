@@ -143,6 +143,7 @@ export function useNeuroglancerViewerState(
             spatialChannelVisible,
           } = channelCoordination || {};
           const { source: ngSource, ...otherNgOptions } = layerData.neuroglancerOptions ?? {};
+          console.log(otherNgOptions)
 
           // Build source: if neuroglancerOptions has subsources
           const hasNgSourceOptions = layerData.neuroglancerOptions?.subsources
@@ -249,6 +250,7 @@ export function useNeuroglancerViewerState(
                 subsources: {
                   default: true,
                 },
+                enableDefaultSubsources: false,
                 ...(ngOptions?.matrix
                   ? {
                     transform: {

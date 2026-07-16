@@ -502,6 +502,8 @@ export function NeuroglancerSubscriber(props) {
     obsPointsData,
     pointMultiIndicesData,
   );
+
+  // console.log('obsSegmentationsData:', obsSegmentationsData);
   // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
   // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
   // is the mechanism to propagate culling updates to the NG viewer state.
@@ -579,6 +581,7 @@ export function NeuroglancerSubscriber(props) {
       NG receives updated segments and fetches and renders meshes for those IDs
    */
   const updateVisibleSegments = useCallback(async () => {
+    if (window.__disableCulling) return;
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
@@ -599,7 +602,6 @@ export function NeuroglancerSubscriber(props) {
     }
     const { width, height } = viewportSizeRef.current;
     if (!width || !height) return;
-
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
     const cellsUrl = info.url;
@@ -618,6 +620,11 @@ export function NeuroglancerSubscriber(props) {
       return coords;
     });
 
+    // console.log('allLevelCoords for spatial3:', 
+    //   allLevelCoords.filter(c => c.level === 'spatial3').map(c => `${c.cx}_${c.cy}_${c.cz}`));
+    // console.log('allLevelCoords sample:', allLevelCoords.slice(0, 3));
+    console.log('annotationInfoRef:', annotationInfoRef.current);
+    console.log('annotationTransformRef:', annotationTransformRef.current);
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
       const { serializers, serializer: defaultSerializer } = annotationTransformRef.current;
       // TODO: confirm for all datasets
@@ -627,6 +634,7 @@ export function NeuroglancerSubscriber(props) {
       const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer) return [];
       const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
+      // console.log('fetching:', cacheKey);
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
@@ -638,6 +646,7 @@ export function NeuroglancerSubscriber(props) {
         }
         const buffer = await res.arrayBuffer();
         const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
+        // console.log('parsed entries:', entries.length, 'from', cacheKey, 'buffer size:', buffer.byteLength);
         chunkCacheRef.current.set(cacheKey, entries);
         return entries;
       } catch (e) {
@@ -661,6 +670,12 @@ export function NeuroglancerSubscriber(props) {
         obsIdToMeshId[obsId] = id;
       });
       obsIdToMeshIdRef.current = obsIdToMeshId;
+
+      // In updateVisibleSegments:
+console.log('position:', position);
+console.log('projectionScale:', projectionScale);
+console.log('allEntries count:', allEntries.length);
+console.log('sample entry:', allEntries[0]);
 
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
@@ -695,6 +710,11 @@ export function NeuroglancerSubscriber(props) {
           }).map(({ id }) => id),
         )];
       }
+      console.log('[updateVisibleSegments] visibleIds count:', visibleIds.length);
+      console.log('[updateVisibleSegments] sample:', visibleIds.slice(0, 5));
+      visibleSegmentIdsRef.current = visibleIds;
+      window.__visibleSegmentIds = visibleSegmentIdsRef.current;
+      // console.log('[updateVisibleSegments] projectionScale:', latestViewerStateRef.current?.projectionScale, 'threshold:', meshLoadProjectionScaleThreshold);
       // TODO: ( remove - validation purposes)
       // Confirming phenotypes are correct cell types for an id - tested against csv
       // console.log('[phenotype] sample entries:',
@@ -734,7 +754,7 @@ export function NeuroglancerSubscriber(props) {
         visibleSegmentIdsRef.current = visibleIds;
         incrementLatestViewerStateIteration();
       }
-      // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
+     
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }
@@ -1010,6 +1030,11 @@ export function NeuroglancerSubscriber(props) {
       return current;
     }
 
+    // In derivedViewerState, where segments are set on the segmentation layer:
+// console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
+// console.log('[derivedViewerState] segmentationLayerScopes:', segmentationLayerScopes);
+// In NeuroglancerSubscriber, log the derived viewer state layers:
+
     const { projectionScale, projectionOrientation, position } = current;
 
     // Did Vitessce coords change vs the *previous* render?
@@ -1175,6 +1200,8 @@ export function NeuroglancerSubscriber(props) {
       } else if (!hasMatchingAnnotationSource) {
         derivedSegmentColors = layerColorMapping;
       }
+// In derivedViewerState, find where segmentation layer segments are set:
+// console.log('building seg layer, visibleSegmentIds:', visibleSegmentIdsRef.current?.slice(0, 5));
 
       return {
         ...layer,
@@ -1223,7 +1250,9 @@ export function NeuroglancerSubscriber(props) {
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
   // }
-
+  // console.log('seg layer in viewerState:', JSON.stringify(
+  //   derivedViewerState?.layers?.find(l => l.name?.includes('obsSegmentations'))?.segments?.slice(0, 5)
+  // ));
   const hasLayers = derivedViewerState?.layers?.length > 0;
 
   return (
