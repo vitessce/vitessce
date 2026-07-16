@@ -66,7 +66,7 @@ export const MPL_PASTEL2: RgbColor[] = [
 ];
 
 export const QUALITATIVE_COLORMAPS: Record<string, RgbColor[]> = {
-  default: PALETTE as RgbColor[], // Existing default
+  default: PALETTE, // Existing default
   tolBright: TOL_BRIGHT,
   tolHighContrast: TOL_HIGH_CONTRAST,
   tolVibrant: TOL_VIBRANT,
