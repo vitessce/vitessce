@@ -60,7 +60,7 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
   /**
    *
    * @param {string} path A path to within shapes.
-   * @returns {Promise<"0.1"|"0.2">} The format version.
+   * @returns {Promise<"0.1"|"0.2"|"0.3">} The format version.
    */
   async getShapesFormatVersion(path) {
     const zattrs = await this.loadSpatialDataElementAttrs(path);
@@ -70,6 +70,7 @@ export default class SpatialDataShapesSource extends SpatialDataTableSource {
     if (encodingType !== 'ngff:shapes' || !(
       (formatVersion === '0.1' && (geos.name === 'POINT' && geos.type === 0))
       || formatVersion === '0.2'
+      || formatVersion === '0.3'
     )) {
       throw new Error(
         `Unexpected encoding type or version for shapes spatialdata_attrs: ${encodingType} ${formatVersion}`,

@@ -41,6 +41,7 @@ Vitessce is being used in the following projects:
   * [Petukhov et al. 2021 Nature Biotechnology](https://github.com/kharchenkolab/BaysorAnalysis/tree/master?tab=readme-ov-file#visualization-of-the-results) ([code](https://github.com/kharchenkolab/BaysorAnalysis/tree/68f568d1c056708d474aeea3f28bbe083ccb6e4c#visualization-of-the-results)) ([paper](https://doi.org/10.1038/s41587-021-01044-w))
   * Fathollahian et al. [Bio+MedVis Challenge @ IEEE VIS 2025](http://biovis.net/2025/program_ieee/) ([paper](http://biovis.net/2025/data/BioMedVisChallenge2025submissions/1929/final.pdf))
   * Šmajdek et al. [Bio+MedVis Challenge @ IEEE VIS 2025](http://biovis.net/2025/program_ieee/) ([paper](http://biovis.net/2025/data/BioMedVisChallenge2025submissions/9750/final.pdf))
+  * [Gansberger et al. 2026 bioRxiv](https://isd-atlas.derma.meduniwien.ac.at/) ([preprint](https://doi.org/10.64898/2026.05.15.725328))
 * Other usage within the [HIDIVE Lab](https://hidivelab.org/)
   * Polyphony ([code](https://github.com/scPolyphony/polyphony-vis))  
   * Hybrid mixed rendering ([preprint](https://osf.io/preprints/osf/zka2j))  

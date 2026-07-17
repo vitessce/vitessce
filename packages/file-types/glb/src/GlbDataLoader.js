@@ -1,12 +1,16 @@
 import { AbstractTwoStepLoader, LoaderResult } from '@vitessce/abstract';
-// eslint-disable-next-line import/no-unresolved
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-// eslint-disable-next-line import/no-unresolved
-import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
 export default class GlbDataLoader extends AbstractTwoStepLoader {
   async load() {
     const { url, options } = this;
+    // Loaded dynamically so three stays out of the eager bundle: consumers that
+    // never load .glb meshes do not need three installed.
+    const [{ GLTFLoader }, { DRACOLoader }] = await Promise.all([
+      // eslint-disable-next-line import/no-unresolved
+      import('three/addons/loaders/GLTFLoader.js'),
+      // eslint-disable-next-line import/no-unresolved
+      import('three/addons/loaders/DRACOLoader.js'),
+    ]);
     const loader = new GLTFLoader();
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');

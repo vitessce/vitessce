@@ -188,6 +188,7 @@ export const FileType = {
   OBS_LABELS_MUDATA_ZARR: 'obsLabels.mudata.zarr',
   FEATURE_LABELS_MUDATA_ZARR: 'featureLabels.mudata.zarr',
   GENOMIC_PROFILES_ZARR: 'genomic-profiles.zarr',
+  GENOMIC_PROFILES_ZARR_ZIP: 'genomic-profiles.zarr.zip',
   NEIGHBORHOODS_JSON: 'neighborhoods.json',
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
@@ -433,4 +434,6 @@ export const ViewHelpMapping = {
   FEATURE_SET_ENRICHMENT_BAR_PLOT: 'The feature set enrichment bar plot displays the results of a hypergeometric test applied to the differential expression test results to identify enriched pathway gene sets.',
   SAMPLE_SET_PAIR_MANAGER: 'Select pairs of sample groups.',
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
+  LAYER_CONTROLLER_BETA: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
+  SPATIAL_BETA: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
 };

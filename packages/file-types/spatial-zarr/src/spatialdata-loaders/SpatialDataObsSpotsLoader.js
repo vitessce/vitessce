@@ -74,7 +74,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
       // TODO: move versioned logic to the dataSource class?
       if (formatVersion === '0.1') {
         locations = await this.dataSource.loadNumericForDims(getCoordsPath(path), [0, 1]);
-      } else if (formatVersion === '0.2') {
+      } else if (formatVersion === '0.2' || formatVersion === '0.3') {
         locations = await this.dataSource.loadCircleShapes(getGeometryPath(path));
       }
       this.locations = locations;

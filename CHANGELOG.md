@@ -1,4 +1,40 @@
 
+## 4.0.0
+
+### Major Changes
+
+- Update to support React 19. `three` and `@react-three/{fiber,drei,xr}` are now peer dependencies — consumers using 3D/spatial/VR views must install them. (`vitessce`) ([#2415](https://github.com/vitessce/vitessce/pull/2415))
+
+### Patch Changes
+
+- Support loading JSON-based configs from GitHub gists with a `.vitessce.json` suffix. (`docs`) ([#2520](https://github.com/vitessce/vitessce/pull/2520))
+
+- - Fixed sort-order gene selection to click-based when FeatureList multi-select is enabled (`@vitessce/feature-list`, `@vitessce/example-configs`) ([#2502](https://github.com/vitessce/vitessce/pull/2502))
+  - Added the FeatureAggregateStrategy option for the spatial view to match the scatterplot view.
+
+- Add React 19 dependencies to sync-cdn script. (`@vitessce/dev`) ([#2519](https://github.com/vitessce/vitessce/pull/2519))
+
+- Make FetchStore logic for `getRange` consistent with `get` (`@vitessce/zarr-utils`) ([#2509](https://github.com/vitessce/vitessce/pull/2509))
+
+
+## 3.9.11
+
+### Patch Changes
+
+- Support for SpatialData shapes format 0.3. (`@vitessce/spatial-zarr`) ([#2495](https://github.com/vitessce/vitessce/pull/2495))
+
+
+## 3.9.10
+
+### Patch Changes
+
+- Updated tiled points loading implementation to rely on the first 2-4 rows of the points dataframe to compute the bounding box, rather than relying on non-standard metadata (as the new approach only requires sorting). (`@vitessce/spatial-zarr`) ([#2489](https://github.com/vitessce/vitessce/pull/2489))
+
+- Add support for zipped multivec zarr stores for the genomic profiles view. (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/config`) ([#2484](https://github.com/vitessce/vitessce/pull/2484))
+
+- Update comparative example dataset. (`@vitessce/comparative`) ([#2481](https://github.com/vitessce/vitessce/pull/2481))
+
+
 ## 3.9.9
 
 ### Patch Changes
