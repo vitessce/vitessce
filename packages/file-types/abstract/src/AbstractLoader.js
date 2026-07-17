@@ -8,6 +8,9 @@ import LoaderResult from './LoaderResult.js';
  * and a stub for the required load() method.
  */
 export default class AbstractLoader {
+  /** @type {any} */
+  cachedResult = null;
+
   /**
    *
    * @param {LoaderParams} params
@@ -37,5 +40,9 @@ export default class AbstractLoader {
     return Promise.resolve(
       new LoaderResult(true, null),
     );
+  }
+
+  clearCache() {
+    this.cachedResult = null;
   }
 }

@@ -2,6 +2,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useState,
 } from 'react';
 import clsx from 'clsx';
 import { VITESSCE_CONTAINER } from './classNames.js';
@@ -15,6 +16,7 @@ import {
   useRemoveComponent,
   useChangeLayout,
   useLayout,
+  useClearCache,
 } from './state/hooks.js';
 import {
   useClosestVitessceContainerSize,
@@ -58,6 +60,7 @@ export default function VitessceGrid(props) {
     pageMode,
     children,
     queryClient,
+    clearTileCaches,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -111,12 +114,26 @@ export default function VitessceGrid(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  const clearCache = useClearCache();
+  const [cacheCleared, setCacheCleared] = useState(false);
+
+  const handleClearCache = useCallback(() => {
+    // console.log('queries before clear:', queryClient.getQueryCache().getAll().length);
+    clearCache();
+    // queryClient?.clear(); //causing rerenders
+    // console.log('queries after clear:', queryClient.getQueryCache().getAll().length);
+    clearTileCaches?.();
+    setCacheCleared(true);
+    setTimeout(() => setCacheCleared(false), 2000);
+  }, [clearCache, clearTileCaches]);
+
   return (
     <div
       ref={containerRef}
       className={clsx(VITESSCE_CONTAINER, classes.vitessceContainer)}
       role="group"
       aria-label={altText}
+      style={{ position: 'relative' }}
     >
       <GridLayoutGlobalStyles classes={classes} />
       {layout ? (
@@ -143,6 +160,30 @@ export default function VitessceGrid(props) {
           {children}
         </VitessceGridLayout>
       ) : null}
+      <button
+        type="button"
+        onClick={handleClearCache}
+        title="Free memory by clearing the data cache"
+        aria-label="Free memory"
+        style={{
+          position: 'absolute',
+          bottom: '8px',
+          right: '8px',
+          zIndex: 100,
+          padding: '4px 8px',
+          fontSize: '11px',
+          opacity: 0.6,
+          cursor: 'pointer',
+          background: 'rgba(0,0,0,0.5)',
+          color: '#fff',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '4px',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.6'; }}
+      >
+        {cacheCleared ? '✓ Cache cleared' : 'Free memory'}
+      </button>
     </div>
   );
 }
