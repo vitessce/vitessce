@@ -12,7 +12,13 @@ import {
 import {
   DimensionsSVG,
 } from '@vitessce/icons';
-import { useControllerSectionStyles } from './styles.js';
+import {
+  useControllerSectionStyles,
+  channelRowContainerSx,
+  channelSliderCellSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+} from './styles.js';
 
 
 const useStyles = makeStyles()(theme => ({
@@ -65,16 +71,16 @@ export default function GlobalDimensionSlider(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelSelectorCellSx}>
             <Typography className={classes.dimensionLabel}>
               {label}
             </Typography>
           </Grid>
-          <Grid size={8}>
+          <Grid size={8} sx={channelSliderCellSx}>
             {!is3dMode ? (
               <Slider
                 value={targetValue}
@@ -90,7 +96,7 @@ export default function GlobalDimensionSlider(props) {
               />
             ) : null}
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={channelControlCellSx}>
             {isForZ ? (
               <FormGroup row className={classes.switchFormGroup}>
                 <FormControlLabel

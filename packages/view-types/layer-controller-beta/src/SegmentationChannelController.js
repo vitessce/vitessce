@@ -26,6 +26,12 @@ import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
+  channelRowContainerSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+  channelRowBreakSx,
+  channelSegmentationIconCellSx,
+  channelSegmentationSliderCellSx,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
@@ -36,7 +42,7 @@ const useStyles = makeStyles()(() => ({
     marginLeft: '1px',
     fill: 'currentColor',
     fontSize: '24px',
-    width: '50%',
+    width: '24px',
     maxWidth: '24px',
   },
 }));
@@ -263,8 +269,8 @@ export default function SegmentationChannelController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -273,7 +279,7 @@ export default function SegmentationChannelController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -285,13 +291,14 @@ export default function SegmentationChannelController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={6} sx={channelSelectorCellSx}>
             <Typography className={menuClasses.imageLayerName}>
               {capitalize(label)}
               {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid sx={channelRowBreakSx} aria-hidden />
+          <Grid size={2} sx={channelSegmentationSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -303,7 +310,7 @@ export default function SegmentationChannelController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <SegmentationChannelEllipsisMenu
               obsType={obsType}
               featureType={featureType}
@@ -327,7 +334,7 @@ export default function SegmentationChannelController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelSegmentationIconCellSx}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>
