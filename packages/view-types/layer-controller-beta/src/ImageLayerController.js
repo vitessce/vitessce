@@ -384,7 +384,7 @@ function ImageLayerEllipsisMenu(props) {
       </MenuItem>
       <MenuItem dense disableGutters classes={menuClasses.menuItem}>
         <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelsSortOrderId}>
-          Sort Channels:&nbsp;
+          Channel Ordering:&nbsp;
         </label>
         <NativeSelect
           onChange={handleChannelsSortOrderChange}
@@ -393,7 +393,7 @@ function ImageLayerEllipsisMenu(props) {
           classes={{ root: selectClasses.selectRoot }}
         >
           <option aria-label="Original" value="original">Original</option>
-          <option aria-label="Alphabetical" value="alphabetical">Alphabetical (A→Z)</option>
+          <option aria-label="Alphabetical" value="alphabetical">Alphabetical</option>
         </NativeSelect>
       </MenuItem>
     </PopperMenu>
