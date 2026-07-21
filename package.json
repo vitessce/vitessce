@@ -41,8 +41,8 @@
     "@changesets/cli": "^2.17.0",
     "@changesets/get-github-info": "^0.5.2",
     "@playwright/test": "^1.52.0",
-    "@testing-library/jest-dom": "catalog:",
     "@testing-library/dom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@types/d3-array": "^3.2.1",
@@ -91,7 +91,8 @@
       "@react-spring/rafz": "^10.0.0",
       "@react-spring/shared": "^10.0.0",
       "@react-spring/three": "^10.0.0",
-      "@react-spring/types": "^10.0.0"
+      "@react-spring/types": "^10.0.0",
+      "form-data": "4.0.4"
     },
     "peerDependencyRules": {
       "allowedVersions": {
@@ -105,5 +106,8 @@
     }
   },
   "license": "MIT",
-  "packageManager": "pnpm@9.5.0"
+  "packageManager": "pnpm@9.5.0",
+  "dependencies": {
+    "form-data": "4.0.4"
+  }
 }
