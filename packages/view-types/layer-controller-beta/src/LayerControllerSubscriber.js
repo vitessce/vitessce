@@ -212,6 +212,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
       CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+      CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     ],
     coordinationScopes,
     coordinationScopesBy,

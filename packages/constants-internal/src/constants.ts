@@ -357,6 +357,7 @@ export const CoordinationType = {
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
   SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
+  SPATIAL_CHANNELS_SORT_ORDER: 'spatialChannelsSortOrder',
   // Multi-sample / comparative
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SELECTION: 'sampleSelection',
