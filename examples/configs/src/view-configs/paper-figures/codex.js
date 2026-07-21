@@ -41,34 +41,23 @@ export const codex = {
           },
         },
         {
-          fileType: 'raster.json',
+          fileType: 'obsSegmentations.ome-tiff',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/eae219c2-ddbc-4ebb-98a7-47c82e444619',
           options: {
-            schemaVersion: '0.0.2',
-            usePhysicalSizeScaling: false,
-            images: [
+            offsetsUrl: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/6c1864e1-1f1a-43ee-a13b-53e68c89c06c',
+          },
+        },
+        {
+          fileType: 'image.ome-tiff',
+          url: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/903dfc3b-0dbc-425a-96a7-71136bb010a2',
+          options: {
+            offsetsUrl: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/8ce83835-db34-4bde-8ae5-6643eb74c375',
+            coordinateTransformations: [
               {
-                name: 'Segmentations',
-                type: 'ome-tiff',
-                url: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/eae219c2-ddbc-4ebb-98a7-47c82e444619',
-                metadata: {
-                  omeTiffOffsetsUrl: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/6c1864e1-1f1a-43ee-a13b-53e68c89c06c',
-                  isBitmask: true,
-                },
-              },
-              {
-                name: 'Image',
-                type: 'ome-tiff',
-                url: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/903dfc3b-0dbc-425a-96a7-71136bb010a2',
-                metadata: {
-                  omeTiffOffsetsUrl: 'https://storage.googleapis.com/vitessce-demo-data/paper-figures-august-2023/codex/A/1/8ce83835-db34-4bde-8ae5-6643eb74c375',
-                  isBitmask: false,
-                },
-              },
-            ],
-            renderLayers: [
-              'Segmentations',
-              'Image',
-            ],
+                type: 'scale',
+                scale: [1000/377.4, 1000/377.4, 1, 1, 1],
+              }
+            ]
           },
         },
       ],

@@ -199,7 +199,7 @@ export function SpatialSubscriber(props) {
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const {
     spatialZoom: initialZoom,
@@ -207,7 +207,7 @@ export function SpatialSubscriber(props) {
     spatialTargetY: initialTargetY,
     spatialTargetZ: initialTargetZ,
   } = useInitialCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes,
   );
 
   const observationsLabel = observationsLabelOverride || obsType;

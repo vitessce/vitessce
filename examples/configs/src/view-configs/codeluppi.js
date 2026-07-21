@@ -215,7 +215,46 @@ export const codeluppi2018 = {
         },
         {
           fileType: 'image.raster.json',
-          url: 'https://data-1.vitessce.io/0.0.31/master_release/linnarsson/linnarsson.raster.json',
+          options: {
+            "schemaVersion": "0.0.2",
+            "images": [
+              {
+                "name": "Image",
+                "url": "https://vitessce-data.storage.googleapis.com/0.0.31/master_release/linnarsson/linnarsson.images.zarr",
+                "type": "zarr",
+                "metadata": {
+                  "dimensions": [
+                    {
+                      "field": "channel",
+                      "type": "nominal",
+                      "values": [
+                        "polyT",
+                        "nuclei"
+                      ]
+                    },
+                    {
+                      "field": "y",
+                      "type": "quantitative",
+                      "values": null
+                    },
+                    {
+                      "field": "x",
+                      "type": "quantitative",
+                      "values": null
+                    }
+                  ],
+                  "isPyramid": true,
+                  "transform": {
+                    "translate": {
+                      "y": 0,
+                      "x": 0
+                    },
+                    "scale": 1
+                  }
+                }
+              }
+            ]
+          },
         },
         {
           type: 'molecules',

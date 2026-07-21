@@ -1,5 +1,6 @@
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
+/*
 import React, {
   useCallback, useRef, forwardRef,
 } from 'react';
@@ -118,7 +119,7 @@ const LayerControllerMemoized = React.memo(
               handleLayerChange={setCellsLayer}
             />
           )}
-          {/* Segmentation bitmask layers: */}
+          {// Segmentation bitmask layers:}
           {cellsLayer && obsSegmentationsType === 'bitmask'
             && cellsLayer.map((layer, i) => {
               const { index } = layer;
@@ -198,7 +199,7 @@ const LayerControllerMemoized = React.memo(
                 </Grid>
               ) : null;
             })}
-          {/* Image layers: */}
+          {// Image layers: }
           {rasterLayers
             && rasterLayers.map((layer, i) => {
               const { index } = layer;
@@ -294,7 +295,7 @@ const LayerControllerMemoized = React.memo(
     );
   }),
 );
-
+*/
 /**
  * A subscriber component for the spatial layer controller.
  * @param {object} props
@@ -311,6 +312,7 @@ const LayerControllerMemoized = React.memo(
  * @param {boolean} props.enableLayerButtonsWithOneLayer If there is only one layer,
  * show the the layer add/remove buttons.
  */
+/*
 export function LayerControllerSubscriber(props) {
   const {
     coordinationScopes,
@@ -530,3 +532,4 @@ export function LayerControllerSubscriber(props) {
     />
   );
 }
+*/

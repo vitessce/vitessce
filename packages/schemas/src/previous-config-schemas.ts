@@ -267,3 +267,13 @@ export const configSchema1_0_17 = configSchema1_0_16.extend({
 export const configSchema1_0_18 = configSchema1_0_17.extend({
   version: z.literal('1.0.18'),
 });
+
+// Replace `spatial` with `spatialBeta` implementation.
+export const configSchema1_0_19 = configSchema1_0_18.extend({
+  version: z.literal('1.0.19'),
+});
+
+// Rename `spatialBeta` to `spatial`.
+export const configSchema1_0_20 = configSchema1_0_19.extend({
+  version: z.literal('1.0.20'),
+});

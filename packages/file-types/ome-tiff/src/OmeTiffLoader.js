@@ -130,7 +130,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
 
       const coordinationValues = {
         // Old
-        spatialImageLayer: autoImageLayers,
+        // spatialImageLayer: autoImageLayers,
         // New
         spatialTargetZ: imageWrapper.getDefaultTargetZ(),
         spatialTargetT: imageWrapper.getDefaultTargetT(),

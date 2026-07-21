@@ -15,7 +15,13 @@ export default class ObsPointsCsvLoader extends CsvLoader {
       data: [obsLocationsX, obsLocationsY],
       shape: [2, obsLocationsX.length],
     };
-    this.cachedResult = { obsIndex, obsPoints, obsPointsTilingType: 'full' };
+    this.cachedResult = {
+      obsIndex,
+      obsPoints,
+      featureIds: data.map(() => 0), // TODO
+      obsPointsModelMatrix: null,
+      obsPointsTilingType: 'full'
+    };
     return this.cachedResult;
   }
 
@@ -25,8 +31,8 @@ export default class ObsPointsCsvLoader extends CsvLoader {
     const coordinationValues = {
       pointLayer: CL({
         obsType: this.coordinationValues?.obsType ?? 'point',
-        // obsColorEncoding: 'spatialLayerColor',
-        // spatialLayerColor: [255, 255, 255],
+        obsColorEncoding: 'spatialLayerColor',
+        spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,
         spatialLayerOpacity: 1.0,
         // TODO: support a point radius?
@@ -41,10 +47,10 @@ export default class ObsPointsCsvLoader extends CsvLoader {
 
     const { data, url } = payload;
     const result = this.loadFromCache(data);
-    return Promise.resolve(new LoaderResult(
+    return new LoaderResult(
       result,
       url,
       coordinationValues,
-    ));
+    );
   }
 }

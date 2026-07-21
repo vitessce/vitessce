@@ -8,6 +8,7 @@ export type ImageOptions = {
   coordinateSystem?: string;
   coordinateTransformations?: object[]; // TODO: stricter type
   offsetsUrl?: string;
+  usePhysicalSizeScaling?: boolean;
 };
 
 export type ChannelObject = {

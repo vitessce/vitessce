@@ -170,6 +170,9 @@ export const imageOmeTiffSchema = z.object({
     .optional(),
   coordinateTransformations: omeCoordinateTransformations
     .optional(),
+  usePhysicalSizeScaling: z.boolean()
+    .optional()
+    .describe('Whether to use the physical size metadata present in the file to scale the image. Defaults to true. If false, an identity model matrix is used instead (ignoring the physical size metadata in the file).'),
 });
 
 export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
@@ -358,7 +361,7 @@ export const obsSpotsCsvSchema = z.object({
 });
 export const obsPointsCsvSchema = z.object({
   obsIndex: z.string(),
-  obsPoints: z.array(z.string()).length(3),
+  obsPoints: z.array(z.string()).length(2),
 });
 export const obsLocationsCsvSchema = z.object({
   obsIndex: z.string(),

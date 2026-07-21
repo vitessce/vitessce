@@ -1210,9 +1210,6 @@ importers:
       '@vitessce/json':
         specifier: workspace:*
         version: link:../../file-types/json
-      '@vitessce/layer-controller':
-        specifier: workspace:*
-        version: link:../../view-types/layer-controller
       '@vitessce/layer-controller-beta':
         specifier: workspace:*
         version: link:../../view-types/layer-controller-beta
@@ -1240,9 +1237,6 @@ importers:
       '@vitessce/schemas':
         specifier: workspace:*
         version: link:../../schemas
-      '@vitessce/spatial':
-        specifier: workspace:*
-        version: link:../../view-types/spatial
       '@vitessce/spatial-accelerated':
         specifier: workspace:*
         version: link:../../view-types/spatial-accelerated
@@ -1676,6 +1670,9 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
+      math.gl:
+        specifier: 'catalog:'
+        version: 3.6.3
     devDependencies:
       vite:
         specifier: 'catalog:'

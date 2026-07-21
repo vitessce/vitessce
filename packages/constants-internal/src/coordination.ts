@@ -212,6 +212,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.GATING_FEATURE_SELECTION_X,
     CoordinationType.GATING_FEATURE_SELECTION_Y,
   ],
+  /*
   [ViewType.SPATIAL]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
@@ -250,7 +251,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.TOOLTIPS_VISIBLE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
   ],
-  [ViewType.SPATIAL_BETA]: [
+  */
+  [ViewType.SPATIAL]: [
     CoordinationType.META_COORDINATION_SCOPES,
     CoordinationType.META_COORDINATION_SCOPES_BY,
     CoordinationType.DATASET,
@@ -424,6 +426,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_FILTER,
   ],
+  /*
   [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
@@ -444,7 +447,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
   ],
-  [ViewType.LAYER_CONTROLLER_BETA]: [
+  */
+  [ViewType.LAYER_CONTROLLER]: [
     CoordinationType.META_COORDINATION_SCOPES,
     CoordinationType.META_COORDINATION_SCOPES_BY,
     CoordinationType.DATASET,
