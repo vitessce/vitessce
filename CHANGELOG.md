@@ -1,4 +1,25 @@
 
+## 4.0.1
+
+### Patch Changes
+
+- Provides option to sort image channels by original order or alphabetical (`@vitessce/layer-controller-beta`, `@vitessce/layer-controller`, `@vitessce/constants-internal`) ([#2503](https://github.com/vitessce/vitessce/pull/2503))
+
+- Bump node version in github actions release workflow" (`vitessce`) ([#2532](https://github.com/vitessce/vitessce/pull/2532))
+
+- Adds help icon to both LayerControllerBeta and SpatialBeta views (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/constants-internal`) ([#2512](https://github.com/vitessce/vitessce/pull/2512))
+
+- Changes cursor to move/grab when panning and rotating in NG view. (`@vitessce/neuroglancer`) ([#2499](https://github.com/vitessce/vitessce/pull/2499))
+
+- Added support to preserve the current state of configuration via the Edit button (`docs`) ([#2518](https://github.com/vitessce/vitessce/pull/2518))
+
+- Install threeJS peer deps into app, demo, and docs sites. Fix multiple render target bug. (`@vitessce/spatial-accelerated`, `demo`, `docs`, `app`) ([#2535](https://github.com/vitessce/vitessce/pull/2535))
+
+- Update KPMP comparative example dataset. Improve volcano plot. (`@vitessce/comparative`) ([#2530](https://github.com/vitessce/vitessce/pull/2530))
+
+- Fix build errors in consumer bundlers when the optional `@react-three/xr` peer dependency is not installed. XR modules previously used static named imports of `@react-three/xr`, which bundlers resolve at build time even for lazy-loaded chunks (Vite stubs the missing optional peer, causing MISSING_EXPORT). All XR access now goes through a single dynamic namespace import, so the non-XR 3D view works without `@react-three/xr`. (`@vitessce/spatial-three`) ([#2525](https://github.com/vitessce/vitessce/pull/2525))
+
+
 ## 4.0.0
 
 ### Major Changes
