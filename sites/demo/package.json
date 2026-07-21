@@ -21,7 +21,7 @@
     "@vitessce/config": "workspace:*",
     "@react-three/fiber": "^9.0.0",
     "@react-three/drei": "^10.0.0",
-    "three": ">=0.159.0",
+    "three": ">=0.162.0",
     "@react-three/xr": "^6.0.0"
   },
   "devDependencies": {

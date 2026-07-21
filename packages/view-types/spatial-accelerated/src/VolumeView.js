@@ -276,8 +276,8 @@ export function VolumeView(props) {
     // WebGLRenderTarget `count` option. This replaced WebGLMultipleRenderTargets,
     // which three removed in r172. Requires three >=0.162 (when `count` was added);
     // the attachments are then exposed as the `.textures` array.
-    const mrt = new THREE.WebGLMultipleRenderTargets(width, height, 3);
-    const mrtTextures = mrt.texture;
+    const mrt = new THREE.WebGLRenderTarget(width, height, { count: 3 });
+    const mrtTextures = mrt.textures;
     mrtTextures.forEach((tex) => {
       // eslint-disable-next-line no-param-reassign
       tex.format = THREE.RGBAFormat;
