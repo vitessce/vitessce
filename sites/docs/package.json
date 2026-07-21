@@ -50,7 +50,11 @@
     "react-live": "^4.0.0",
     "react-loadable": "^5.5.0",
     "react-monaco-editor": "^0.43.0",
-    "use-query-params": "^1.1.9"
+    "use-query-params": "^1.1.9",
+    "@react-three/fiber": "^9.0.0",
+    "@react-three/drei": "^10.0.0",
+    "three": ">=0.162.0",
+    "@react-three/xr": "^6.0.0"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
