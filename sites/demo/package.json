@@ -18,7 +18,11 @@
     "react-dom": "^19.1.0",
     "vitessce": "workspace:*",
     "@vitessce/comparative": "workspace:*",
-    "@vitessce/config": "workspace:*"
+    "@vitessce/config": "workspace:*",
+    "@react-three/fiber": "^9.0.0",
+    "@react-three/drei": "^10.0.0",
+    "three": ">=0.159.0",
+    "@react-three/xr": "^6.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "catalog:",
