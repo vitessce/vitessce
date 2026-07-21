@@ -12,6 +12,9 @@ import { PALETTE, getDefaultColor } from '@vitessce/utils';
  * @returns {[number, number, number]}
  */
 function normalizeColor(rgbColor) {
+  if (!Array.isArray(rgbColor)) {
+    return [0, 0, 0];
+  }
   return rgbColor.map(c => c / 255);
 }
 
@@ -45,6 +48,7 @@ function toVec3(normalizedColor) {
 function toVec4(normalizedColor, alpha) {
   return `vec4(${normalizedColor.join(', ')}, ${alpha})`;
 }
+
 
 // ============================================================
 // Case 1: spatialLayerColor
@@ -186,6 +190,7 @@ export function getGeneSelectionNoSelectionShader(staticColor, opacity, borderWi
  */
 export function getGeneSelectionWithSelectionShader(
   featureIndices,
+  featureOpacities,
   featureColors,
   staticColor,
   defaultColor,
@@ -201,19 +206,23 @@ export function getGeneSelectionWithSelectionShader(
   const colorArr = normColors.map(
     c => (c ? toVec3(c) : toVec3(normStatic)),
   );
+  const opacityArr = featureOpacities.map(o => o.toFixed(4));
 
   const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
   const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
+  const opacitiesDecl = `float featureOpacities[${numFeatures}] = float[${numFeatures}](${opacityArr.join(', ')});`;
+
   // lang: glsl
   return `
         void main() {
             int geneIndex = prop_${featureIndexProp}();
             ${indicesDecl}
             ${colorsDecl}
+            ${opacitiesDecl}
             vec4 color = ${toVec4(normDefault, opacity)};
             for (int i = 0; i < ${numFeatures}; ++i) {
                 if (geneIndex == selectedIndices[i]) {
-                    color = vec4(featureColors[i], ${opacity});
+                    color = vec4(featureColors[i], featureOpacities[i]);
                 }
             }
             setColor(color);
@@ -234,7 +243,8 @@ export function getGeneSelectionWithSelectionShader(
  * @returns {string} A GLSL shader string.
  */
 export function getGeneSelectionFilteredShader(
-  featureIndices, featureColors, staticColor, opacity, featureIndexProp, borderWidth = 0.0,
+  featureIndices, featureColors, featureOpacities, staticColor, opacity, featureIndexProp,
+  borderWidth = 0.0,
 ) {
   const numFeatures = featureIndices.length;
   const normColors = featureColors.map(c => normalizeColor(c));
@@ -243,9 +253,11 @@ export function getGeneSelectionFilteredShader(
   const colorArr = normColors.map(
     c => (c ? toVec3(c) : toVec3(normStatic)),
   );
+  const opacityArr = featureOpacities.map(o => o.toFixed(4));
 
   const indicesDecl = `int selectedIndices[${numFeatures}] = int[${numFeatures}](${featureIndices.join(', ')});`;
   const colorsDecl = `vec3 featureColors[${numFeatures}] = vec3[${numFeatures}](${colorArr.join(', ')});`;
+  const opacitiesDecl = `float featureOpacities[${numFeatures}] = float[${numFeatures}](${opacityArr.join(', ')});`;
 
   // lang: glsl
   return `
@@ -253,18 +265,21 @@ export function getGeneSelectionFilteredShader(
             int geneIndex = prop_${featureIndexProp}();
             ${indicesDecl}
             ${colorsDecl}
+            ${opacitiesDecl}
             bool isSelected = false;
             vec3 matchedColor = vec3(0.0);
+            float matchedOpacity = ${opacity.toFixed(4)}; 
             for (int i = 0; i < ${numFeatures}; ++i) {
                 if (geneIndex == selectedIndices[i]) {
                     isSelected = true;
                     matchedColor = featureColors[i];
+                    matchedOpacity = featureOpacities[i];
                 }
             }
             if (!isSelected) {
                 discard;
             }
-            setColor(vec4(matchedColor, ${opacity}));
+            setColor(vec4(matchedColor, matchedOpacity));
             ${borderWidthGlsl(borderWidth)}
         }
     `;
@@ -574,6 +589,17 @@ export function getPointsShader(layerCoordination) {
       })
     : [];
 
+  const resolvedFeatureOpacities = hasResolvedIndices
+    ? featureSelection
+      .filter(name => featureIndex?.indexOf(name) >= 0)
+      .map((name) => {
+        const match = Array.isArray(featureColor)
+          ? featureColor.find(fc => fc.name === name)
+          : null;
+        return match?.opacity ?? opacity;
+      })
+    : [];
+
   // Points coloring cases:
   // (See `createPointLayer` in spatial-beta/Spatial.js for more background.)
 
@@ -645,12 +671,12 @@ export function getPointsShader(layerCoordination) {
     }
     if (isFiltered) {
       return getGeneSelectionFilteredShader(
-        featureIndices, resolvedFeatureColors,
+        featureIndices, resolvedFeatureColors, resolvedFeatureOpacities,
         staticColor, opacity, featureIndexProp, pointMarkerBorderWidth,
       );
     }
     return getGeneSelectionWithSelectionShader(
-      featureIndices, resolvedFeatureColors,
+      featureIndices, resolvedFeatureOpacities, resolvedFeatureColors,
       staticColor, defaultColor, opacity, featureIndexProp, pointMarkerBorderWidth,
     );
   }

@@ -500,8 +500,6 @@ export default function PointLayerController(props) {
               setFeatureSelection={setFeatureSelection}
               obsColorEncoding={obsColorEncoding}
               loadingDoneFraction={loadingDoneFraction}
-              opacity={opacity}
-              handleOpacityChange={handleOpacityChange}
             />
           ))}
           <Grid className={lcClasses.layerControllerGrid}>
