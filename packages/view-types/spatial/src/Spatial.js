@@ -8,6 +8,7 @@ import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import { AbstractSpatialOrScatterplot, createQuadTree, getOnHoverCallback } from '@vitessce/scatterplot';
 import { getLayerLoaderTuple, HOVER_MODE, renderSubBitmaskLayers } from './utils.js';
+import { createAnnotationLayers } from '@vitessce/gl';
 
 const CELLS_LAYER_ID = 'cells-layer';
 const MOLECULES_LAYER_ID = 'molecules-layer';
@@ -583,6 +584,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       obsSegmentationsBitmaskLayers,
     } = this;
+    const { annotationShapes = [], annotationPreviewLayer = null, annotationSelectedShapeUid = null, viewState, physicalPixelSize = null, annotationAuthoredZoom = null, annotationSemanticZoom = true } = this.props;
+    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid, physicalPixelSize, annotationAuthoredZoom, annotationSemanticZoom);
     return [
       ...imageLayers,
       ...obsSegmentationsBitmaskLayers,
@@ -591,6 +594,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
+      ...annotationLayers,
+      ...(annotationPreviewLayer ? [annotationPreviewLayer] : []),
     ];
   }
 

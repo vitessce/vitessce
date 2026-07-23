@@ -36,5 +36,6 @@ export * as viv from './viv.js';
 export * as luma from './luma.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as deck from './deck.js';
+export { createAnnotationLayers, createPreviewLayer, computeArrowhead } from './annotation-layer-utils.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as math from './math.js';

@@ -271,6 +271,7 @@ export async function initializeLayerChannels(loader, use3d) {
     const slider = sliders[i];
     const channel = {
       selection,
+      channelName: loader.channels?.[i] ?? `Channel ${i}`,
       // eslint-disable-next-line no-nested-ternary
       color: colors ? colors[i]
         : defaultSelection.length !== 1
@@ -324,6 +325,7 @@ export async function initializeRasterLayersAndChannels(
       .then(channels => Promise.resolve({
         type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
         index: layerIndex,
+        layerName: nextImageMetaAndLayers[layerIndex]?.name ?? `Layer ${layerIndex}`,
         ...DEFAULT_RASTER_LAYER_PROPS,
         channels: channels.map((channel, j) => ({
           ...channel,
@@ -346,6 +348,7 @@ export async function initializeRasterLayersAndChannels(
         .then(channels => Promise.resolve({
           type: nextImageMetaAndLayers[layerIndex]?.metadata?.isBitmask ? 'bitmask' : 'raster',
           index: layerIndex,
+          layerName: nextImageMetaAndLayers[layerIndex]?.name ?? `Layer ${layerIndex}`,
           ...DEFAULT_RASTER_LAYER_PROPS,
           channels: channels.map((channel, j) => ({
             ...channel,

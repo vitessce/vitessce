@@ -4,7 +4,7 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
-  ContourLayerWithText,
+  ContourLayerWithText, createAnnotationLayers,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
 import {
@@ -381,11 +381,15 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellSetsLayers,
       contourLayers,
     } = this;
+    const { annotationShapes = [], annotationPreviewLayer = null, annotationSelectedShapeUid = null, viewState, annotationAuthoredZoom = null, annotationSemanticZoom = true } = this.props;
+    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid, null, annotationAuthoredZoom, annotationSemanticZoom);
     return [
       cellsLayer,
       ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
+      ...annotationLayers,
+      ...(annotationPreviewLayer ? [annotationPreviewLayer] : []),
     ];
   }
 

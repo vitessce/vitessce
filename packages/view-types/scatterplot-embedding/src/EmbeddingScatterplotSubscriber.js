@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useRef,
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -26,6 +26,7 @@ import {
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
   useCoordinationScopes,
+  useViewConfigStoreApi,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
@@ -39,7 +40,25 @@ import {
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import { makeStyles } from '@vitessce/styles';
+import { createPreviewLayer } from '@vitessce/gl';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
+
+const useStyles = makeStyles()(() => ({
+  coordOverlay: {
+    position: 'absolute',
+    bottom: 4,
+    right: 8,
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'monospace',
+    pointerEvents: 'none',
+    zIndex: 10,
+    background: 'rgba(0,0,0,0.45)',
+    borderRadius: 3,
+    padding: '1px 5px',
+  },
+}));
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
@@ -67,6 +86,8 @@ export function EmbeddingScatterplotSubscriber(props) {
     observationsLabelOverride,
     title: titleOverride,
     helpText = ViewHelpMapping.SCATTERPLOT,
+    coordinatesVisible = false,
+    logClickCoords = false,
     // Average fill density for dynamic opacity calculation.
     averageFillDensity,
     // For the dual scatterplot:
@@ -75,6 +96,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     circleScaleFactor = 0.8,
   } = props;
 
+  const { classes } = useStyles();
   const loaders = useLoaders();
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const setComponentHover = useSetComponentHover();
@@ -118,8 +140,18 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationFrames,
+    annotationFrameIndex,
+    annotationOverlayVisible,
+    annotationTransitionDuration,
+    annotationActiveTool,
+    annotationCaptureViewStateTrigger,
+    annotationSelectedShapeUid,
+    annotationSemanticZoom,
   }, {
     setEmbeddingZoom: setZoom,
+    setAnnotationDiverged,
+    setAnnotationFrames,
     setEmbeddingTargetX: setTargetX,
     setEmbeddingTargetY: setTargetY,
     setEmbeddingTargetZ: setTargetZ,
@@ -154,6 +186,286 @@ export function EmbeddingScatterplotSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
   );
+
+  // Filter annotation shapes to those targeting this specific scatterplot instance.
+  // `mapping` (embeddingType) disambiguates UMAP vs PCA vs tSNE scatterplots.
+  const activeShapes = useMemo(() => {
+    if (!annotationOverlayVisible || !annotationFrames || annotationFrameIndex === null) return [];
+    const frame = annotationFrames[annotationFrameIndex];
+    return (frame?.shapes ?? []).filter(s => {
+      if (s.visible === false) return false;
+      if (s.targetView !== 'scatterplot') return false;
+      const tcv = s.targetCoordinationValues ?? {};
+      if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
+      return true;
+    });
+  }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex, mapping]);
+
+  const [enteredFrameZoom, setEnteredFrameZoom] = useState(null);
+  useEffect(() => {
+    setEnteredFrameZoom(annotationFrameIndex !== null ? zoom : null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationFrameIndex]); // intentionally excludes zoom — snapshot on entry only
+
+  const annotationAuthoredZoom = useMemo(() => {
+    if (!annotationFrames || annotationFrameIndex === null) return null;
+    const frame = annotationFrames[annotationFrameIndex];
+    if (!frame) return null;
+    const captured = (frame?.viewStates ?? []).find(e => (
+      e.targetView === 'scatterplot'
+      && (e.targetCoordinationValues?.embeddingType ?? null) === mapping
+    ));
+    if (captured?.embeddingZoom != null) return captured.embeddingZoom;
+    const manual = frame?.viewState;
+    return manual?.embeddingZoom ?? enteredFrameZoom;
+  }, [annotationFrames, annotationFrameIndex, mapping, enteredFrameZoom]);
+
+  // ── Annotation drawing state ─────────────────────────────────────────────
+  const [drawingVertices, setDrawingVertices] = useState([]);
+  const [drawHoverCoord, setDrawHoverCoord] = useState(null);
+
+  const appendAnnotationShape = useCallback((newShape) => {
+    if (!annotationFrames || annotationFrameIndex === null) return;
+    const updated = annotationFrames.map((f, idx) => (
+      idx === annotationFrameIndex
+        ? { ...f, shapes: [...(f.shapes ?? []), newShape] }
+        : f
+    ));
+    setAnnotationFrames(updated);
+  }, [annotationFrames, annotationFrameIndex, setAnnotationFrames]);
+
+  const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
+  const lastAnnotationClickTimeRef = React.useRef(0);
+  const DOUBLE_CLICK_MS = 350;
+
+  const handleAnnotationClick = useCallback((coord) => {
+    if (!annotationActiveTool || annotationFrameIndex === null) return;
+    const tool = annotationActiveTool;
+
+    if (TWO_CLICK_TOOLS.includes(tool)) {
+      if (drawingVertices.length === 0) {
+        setDrawingVertices([coord]);
+      } else {
+        const [ax, ay] = drawingVertices[0];
+        const [bx, by] = coord;
+        const uid = crypto.randomUUID();
+        let shape;
+        if (tool === 'rectangle') {
+          shape = { uid, type: 'rectangle', x: Math.min(ax, bx), y: Math.min(ay, by), width: Math.abs(bx - ax), height: Math.abs(by - ay), targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        } else if (tool === 'line') {
+          shape = { uid, type: 'line', x1: ax, y1: ay, x2: bx, y2: by, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        } else {
+          shape = { uid, type: 'ellipse', x1: ax, y1: ay, radiusX: Math.abs(bx - ax), radiusY: Math.abs(by - ay), targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } };
+        }
+        appendAnnotationShape(shape);
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    } else {
+      const now = Date.now();
+      const elapsed = now - lastAnnotationClickTimeRef.current;
+      lastAnnotationClickTimeRef.current = now;
+      const minVerts = tool === 'polygon' ? 3 : 2;
+      if (elapsed < DOUBLE_CLICK_MS && drawingVertices.length >= minVerts) {
+        const uid = crypto.randomUUID();
+        appendAnnotationShape({ uid, type: tool, points: drawingVertices, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } });
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+        return;
+      }
+      setDrawingVertices(prev => [...prev, coord]);
+    }
+  }, [annotationActiveTool, annotationFrameIndex, drawingVertices, appendAnnotationShape, mapping]);
+
+  const finishMultiClickShape = useCallback(() => {
+    const tool = annotationActiveTool;
+    if (!tool || TWO_CLICK_TOOLS.includes(tool)) return;
+    const minVerts = tool === 'polygon' ? 3 : 2;
+    if (drawingVertices.length < minVerts) return;
+    const uid = crypto.randomUUID();
+    appendAnnotationShape({ uid, type: tool, points: drawingVertices, targetView: 'scatterplot', targetCoordinationValues: { embeddingType: mapping } });
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool, drawingVertices, appendAnnotationShape, mapping]);
+
+
+  useEffect(() => {
+    setDrawingVertices([]);
+    setDrawHoverCoord(null);
+  }, [annotationActiveTool]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Enter') finishMultiClickShape();
+      if (e.key === 'Escape') {
+        setDrawingVertices([]);
+        setDrawHoverCoord(null);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [finishMultiClickShape]);
+
+  const inProgress = annotationActiveTool && drawingVertices.length > 0
+    ? { type: annotationActiveTool, vertices: drawingVertices }
+    : null;
+  const annotationPreviewLayer = createPreviewLayer(inProgress, drawHoverCoord);
+  // ── End annotation drawing state ─────────────────────────────────────────
+
+  // ── View state capture (triggered by AnnotationController) ───────────────
+  const storeApi = useViewConfigStoreApi();
+  const embeddingViewStateRef = useRef(null);
+  useEffect(() => {
+    embeddingViewStateRef.current = { zoom, targetX, targetY };
+  });
+  useEffect(() => {
+    if (!annotationCaptureViewStateTrigger || annotationFrameIndex === null) return;
+    const s = embeddingViewStateRef.current;
+    if (!s) return;
+    // Read live frames from the store to avoid stale-closure overwrites when
+    // multiple scatterplot subscribers write in the same effect flush.
+    const scope = coordinationScopes.annotationFrames;
+    const currentFrames = storeApi.getState().viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
+    const entry = {
+      targetView: 'scatterplot',
+      targetCoordinationValues: { embeddingType: mapping },
+      embeddingZoom: s.zoom,
+      embeddingTargetX: s.targetX,
+      embeddingTargetY: s.targetY,
+    };
+    setAnnotationFrames(currentFrames.map((f, idx) => {
+      if (idx !== annotationFrameIndex) return f;
+      const filtered = (f.viewStates ?? []).filter(e => !(
+        e.targetView === 'scatterplot'
+        && (e.targetCoordinationValues?.embeddingType ?? null) === mapping
+      ));
+      return { ...f, viewStates: [...filtered, entry] };
+    }));
+  // annotationFrameIndex and mapping are intentionally excluded from deps: the
+  // trigger only increments on a user click (fresh render → closures are current).
+  // Including them would re-fire the capture on every navigation, silently
+  // overwriting the destination frame with the source frame's zoom.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationCaptureViewStateTrigger]);
+  // ── End view state capture ────────────────────────────────────────────────
+
+  // Apply per-frame embedding view state from the frame's viewStates[] entry.
+  // Matching uses targetView === 'scatterplot' AND targetCoordinationValues.embeddingType
+  // === mapping, so a UMAP entry applies only to the UMAP panel and a PCA entry
+  // applies only to the PCA panel — independently, without any extra coordination types.
+
+  // Sync frames into a ref so the effect does not list annotationFrames as a dep —
+  // that would cause zoom to snap back every time a shape is added or captured.
+  const annotationFramesEmbedRef = useRef(annotationFrames);
+  annotationFramesEmbedRef.current = annotationFrames;
+
+  const embeddingDefaultsRef = useRef(null);
+
+  useEffect(() => {
+    const frames = annotationFramesEmbedRef.current;
+    if (!frames) return;
+
+    // Exit story: restore the pre-story embedding baseline.
+    if (annotationFrameIndex === null) {
+      const d = embeddingDefaultsRef.current;
+      if (!d) return;
+      if (d.embeddingZoom != null) setZoom(d.embeddingZoom);
+      if (d.embeddingTargetX != null) setTargetX(d.embeddingTargetX);
+      if (d.embeddingTargetY != null) setTargetY(d.embeddingTargetY);
+      return;
+    }
+
+    const frame = frames[annotationFrameIndex];
+
+    // Capture baseline once (closure values — only read once, must not be in deps).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (embeddingDefaultsRef.current === null) {
+      embeddingDefaultsRef.current = {
+        embeddingZoom: zoom, embeddingTargetX: targetX, embeddingTargetY: targetY,
+      };
+    }
+
+    // Find the viewStates entry addressed to this specific scatterplot instance.
+    const viewStateEntry = (frame?.viewStates ?? []).find(e => {
+      if (e.targetView !== 'scatterplot') return false;
+      const tcv = e.targetCoordinationValues ?? {};
+      if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
+      return true;
+    });
+    // Fall back to flat viewState (backward compat)
+    const vs = viewStateEntry ?? frame?.viewState ?? {};
+
+    // Apply frame value or fall back to pre-story baseline.
+    // Safe because annotationFrames is no longer a dep — only navigation/recenter
+    // triggers this effect, never shape-add or capture.
+    const d = embeddingDefaultsRef.current;
+    const applyVal = (setter, key) => {
+      const v = vs[key] !== undefined ? vs[key] : d?.[key];
+      if (v !== undefined) setter(v);
+    };
+    applyVal(setZoom, 'embeddingZoom');
+    applyVal(setTargetX, 'embeddingTargetX');
+    applyVal(setTargetY, 'embeddingTargetY');
+  }, [
+    annotationFrameIndex, mapping,
+    annotationTransitionDuration,
+    setZoom, setTargetX, setTargetY,
+  ]);
+
+  // Animated embedding zoom/pan — same RAF-driven approach as SpatialSubscriber.
+  const [animZoom, setAnimZoom] = useState(zoom);
+  const [animTargetX, setAnimTargetX] = useState(targetX);
+  const [animTargetY, setAnimTargetY] = useState(targetY);
+  const animFrameRef = useRef(null);
+
+  useEffect(() => {
+    if (annotationTransitionDuration <= 0) {
+      if (zoom != null) setAnimZoom(zoom);
+      if (targetX != null) setAnimTargetX(targetX);
+      if (targetY != null) setAnimTargetY(targetY);
+      return;
+    }
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    const startZoom = animZoom;
+    const startX = animTargetX;
+    const startY = animTargetY;
+    const endZoom = zoom;
+    const endX = targetX;
+    const endY = targetY;
+    const startTime = performance.now();
+    const duration = annotationTransitionDuration;
+
+    const step = (now) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Only interpolate when both endpoints are numbers — null means "not set"
+      // and null arithmetic (null + 0 = 0) would silently move the view to origin.
+      if (typeof startZoom === 'number' && typeof endZoom === 'number') {
+        setAnimZoom(startZoom + (endZoom - startZoom) * ease);
+      }
+      if (typeof startX === 'number' && typeof endX === 'number') {
+        setAnimTargetX(startX + (endX - startX) * ease);
+      }
+      if (typeof startY === 'number' && typeof endY === 'number') {
+        setAnimTargetY(startY + (endY - startY) * ease);
+      }
+      if (t < 1) {
+        animFrameRef.current = requestAnimationFrame(step);
+      } else {
+        animFrameRef.current = null;
+      }
+    };
+    animFrameRef.current = requestAnimationFrame(step);
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom, targetX, targetY, annotationTransitionDuration]);
+
+  const effectiveZoom = annotationTransitionDuration > 0 ? animZoom : zoom;
+  const effectiveTargetX = annotationTransitionDuration > 0 ? animTargetX : targetX;
+  const effectiveTargetY = annotationTransitionDuration > 0 ? animTargetY : targetY;
 
   const observationsLabel = observationsLabelOverride || obsType;
   const sampleSetSelection = (
@@ -264,6 +576,26 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [hoverCoords, setHoverCoords] = useState(null);
+  const onCoordHover = useCallback((coord) => {
+    if (coordinatesVisible) setHoverCoords(coord);
+    if (annotationActiveTool) setDrawHoverCoord(coord);
+  }, [coordinatesVisible, annotationActiveTool]);
+  const onCoordClick = useCallback((coord) => {
+    if (annotationActiveTool) {
+      handleAnnotationClick(coord);
+      return;
+    }
+    if (logClickCoords) {
+      // eslint-disable-next-line no-console
+      console.log(
+        `[Vitessce] ${mapping}`
+        + `  click: x=${coord[0].toFixed(4)}, y=${coord[1].toFixed(4)}`
+        + `  zoom: ${zoom?.toFixed(3) ?? 'null'}`
+        + `  center: x=${targetX?.toFixed(4) ?? 'null'}, y=${targetY?.toFixed(4) ?? 'null'}`,
+      );
+    }
+  }, [annotationActiveTool, handleAnnotationClick, logClickCoords, mapping, zoom, targetX, targetY]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,
@@ -528,6 +860,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
+    if (annotationTransitionDuration > 0) return;
+    if (annotationFrameIndex !== null) setAnnotationDiverged(true);
     setZoom(newZoom);
     setTargetX(target[0]);
     setTargetY(target[1]);
@@ -596,7 +930,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         ref={deckRef}
         uuid={uuid}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom: effectiveZoom, target: [effectiveTargetX, effectiveTargetY, targetZ] }}
         setViewState={setViewState}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
@@ -640,7 +974,20 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+        annotationShapes={activeShapes}
+        annotationActiveTool={annotationActiveTool}
+        annotationPreviewLayer={annotationPreviewLayer}
+        annotationSelectedShapeUid={annotationSelectedShapeUid}
+        annotationAuthoredZoom={annotationAuthoredZoom}
+        annotationSemanticZoom={annotationSemanticZoom}
+        onCoordHover={onCoordHover}
+        onCoordClick={onCoordClick}
       />
+      {coordinatesVisible && hoverCoords && (
+        <div className={classes.coordOverlay}>
+          {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
+        </div>
+      )}
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber
           parentUuid={uuid}
