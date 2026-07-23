@@ -141,6 +141,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_ACTIVE_TOOL,
     CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
     CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -265,6 +266,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_ACTIVE_TOOL,
     CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
     CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
     CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
   ],
   [ViewType.SPATIAL_BETA]: [
@@ -699,6 +701,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_DATA_URL,
     // Physical pixel size set by spatial view when image data loads
     CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
+    // LOD: whether to apply zoom-relative adaptive rendering to annotation shapes
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [

@@ -662,6 +662,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_SELECTED_SHAPE, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_DATA_TYPE, 'inline', z.string()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_DATA_URL, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SEMANTIC_ZOOM, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE, null, z.object({ x: z.number(), y: z.number(), unit: z.string() }).nullable()),
 ];
 

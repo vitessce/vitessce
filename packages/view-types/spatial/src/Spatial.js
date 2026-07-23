@@ -584,8 +584,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       obsSegmentationsBitmaskLayers,
     } = this;
-    const { annotationShapes = [], annotationPreviewLayer = null, annotationSelectedShapeUid = null, viewState, physicalPixelSize = null } = this.props;
-    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid, physicalPixelSize);
+    const { annotationShapes = [], annotationPreviewLayer = null, annotationSelectedShapeUid = null, viewState, physicalPixelSize = null, annotationAuthoredZoom = null, annotationSemanticZoom = true } = this.props;
+    const annotationLayers = createAnnotationLayers(annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid, physicalPixelSize, annotationAuthoredZoom, annotationSemanticZoom);
     return [
       ...imageLayers,
       ...obsSegmentationsBitmaskLayers,

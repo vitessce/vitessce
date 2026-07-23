@@ -394,6 +394,7 @@ export const CoordinationType = {
   ANNOTATION_SELECTED_SHAPE: 'annotationSelectedShapeUid',
   ANNOTATION_DATA_TYPE: 'annotationDataType',
   ANNOTATION_DATA_URL: 'annotationDataUrl',
+  ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
 };
 
 export const STATUS = {

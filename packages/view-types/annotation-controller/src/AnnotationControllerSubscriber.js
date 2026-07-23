@@ -39,10 +39,12 @@ export function AnnotationControllerSubscriber(props) {
       obsColorEncoding,
       annotationDataType,
       annotationDataUrl,
+      annotationSemanticZoom,
       spatialPhysicalPixelSize,
     },
     {
       setAnnotationFrames,
+      setAnnotationSemanticZoom,
       setAnnotationFrameIndex,
       setAnnotationOverlayVisible,
       setAnnotationTransitionDuration,
@@ -245,6 +247,8 @@ export function AnnotationControllerSubscriber(props) {
         loadDataError={fetchStatus.error}
         dataMode={annotationDataType === 'data'}
         dataUrl={annotationDataUrl}
+        semanticZoom={annotationSemanticZoom}
+        onToggleSemanticZoom={() => setAnnotationSemanticZoom(!annotationSemanticZoom)}
         physicalPixelSize={spatialPhysicalPixelSize}
       />
     </TitleInfo>

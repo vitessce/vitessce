@@ -147,6 +147,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     annotationActiveTool,
     annotationCaptureViewStateTrigger,
     annotationSelectedShapeUid,
+    annotationSemanticZoom,
   }, {
     setEmbeddingZoom: setZoom,
     setAnnotationDiverged,
@@ -199,6 +200,25 @@ export function EmbeddingScatterplotSubscriber(props) {
       return true;
     });
   }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex, mapping]);
+
+  const [enteredFrameZoom, setEnteredFrameZoom] = useState(null);
+  useEffect(() => {
+    setEnteredFrameZoom(annotationFrameIndex !== null ? zoom : null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationFrameIndex]); // intentionally excludes zoom — snapshot on entry only
+
+  const annotationAuthoredZoom = useMemo(() => {
+    if (!annotationFrames || annotationFrameIndex === null) return null;
+    const frame = annotationFrames[annotationFrameIndex];
+    if (!frame) return null;
+    const captured = (frame?.viewStates ?? []).find(e => (
+      e.targetView === 'scatterplot'
+      && (e.targetCoordinationValues?.embeddingType ?? null) === mapping
+    ));
+    if (captured?.embeddingZoom != null) return captured.embeddingZoom;
+    const manual = frame?.viewState;
+    return manual?.embeddingZoom ?? enteredFrameZoom;
+  }, [annotationFrames, annotationFrameIndex, mapping, enteredFrameZoom]);
 
   // ── Annotation drawing state ─────────────────────────────────────────────
   const [drawingVertices, setDrawingVertices] = useState([]);
@@ -958,6 +978,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         annotationActiveTool={annotationActiveTool}
         annotationPreviewLayer={annotationPreviewLayer}
         annotationSelectedShapeUid={annotationSelectedShapeUid}
+        annotationAuthoredZoom={annotationAuthoredZoom}
+        annotationSemanticZoom={annotationSemanticZoom}
         onCoordHover={onCoordHover}
         onCoordClick={onCoordClick}
       />

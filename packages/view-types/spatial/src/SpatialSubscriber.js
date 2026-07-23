@@ -213,6 +213,7 @@ export function SpatialSubscriber(props) {
     annotationActiveTool,
     annotationCaptureViewStateTrigger,
     annotationSelectedShapeUid,
+    annotationSemanticZoom,
     featureAggregationStrategy,
   }, {
     setAnnotationFrames,
@@ -430,6 +431,26 @@ export function SpatialSubscriber(props) {
       return !s.targetView || s.targetView === 'spatial';
     });
   }, [annotationOverlayVisible, annotationFrames, annotationFrameIndex]);
+
+  // Snapshot the spatial zoom the moment a frame is entered so frames without
+  // an explicit viewState.spatialZoom still get a meaningful authored zoom.
+  const [enteredFrameZoom, setEnteredFrameZoom] = useState(null);
+  useEffect(() => {
+    setEnteredFrameZoom(annotationFrameIndex !== null ? zoom : null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [annotationFrameIndex]); // intentionally excludes zoom — snapshot on entry only
+
+  const annotationAuthoredZoom = useMemo(() => {
+    if (!annotationFrames || annotationFrameIndex === null) return null;
+    const frame = annotationFrames[annotationFrameIndex];
+    if (!frame) return null;
+    const captured = (frame?.viewStates ?? []).find(e => e.targetView === 'spatial');
+    if (captured?.spatialZoom != null) return captured.spatialZoom;
+    if (captured?.zoom != null) return captured.zoom; // legacy: deck.gl field name
+    // Hand-authored viewState uses Vitessce coordination names (spatialZoom)
+    const manual = frame?.viewState;
+    return manual?.spatialZoom ?? manual?.zoom ?? enteredFrameZoom;
+  }, [annotationFrames, annotationFrameIndex, enteredFrameZoom]);
 
   // ── Annotation drawing state ─────────────────────────────────────────────
   const [drawingVertices, setDrawingVertices] = useState([]);
@@ -1168,6 +1189,8 @@ export function SpatialSubscriber(props) {
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
         annotationShapes={activeShapes}
+        annotationAuthoredZoom={annotationAuthoredZoom}
+        annotationSemanticZoom={annotationSemanticZoom}
         annotationActiveTool={annotationActiveTool}
         annotationPreviewLayer={annotationPreviewLayer}
         annotationSelectedShapeUid={annotationSelectedShapeUid}

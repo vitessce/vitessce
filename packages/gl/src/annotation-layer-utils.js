@@ -1,4 +1,4 @@
-import { PolygonLayer, PathLayer, TextLayer, COORDINATE_SYSTEM, PathStyleExtension } from './deck.js';
+import { PolygonLayer, PathLayer, TextLayer, ScatterplotLayer, COORDINATE_SYSTEM, PathStyleExtension } from './deck.js';
 
 // Target arrowhead size in screen pixels, converted to data-space at render time.
 const ARROW_SCREEN_PX = 14;
@@ -7,6 +7,14 @@ const ARROW_SCREEN_PX = 14;
 const LABEL_FONT_FAMILY = '"Roboto", "Helvetica", "Arial", sans-serif';
 const LABEL_FONT_WEIGHT = 'bold';
 const LABEL_FONT_SIZE = 14;
+// Ratio-based thresholds relative to authored zoom: zoomRatio = 2^(currentZoom - authoredZoom).
+// ratio=1 → exactly at authored zoom; ratio=0.5 → one stop zoomed out; etc.
+const RATIO_CLUSTER = 0.10;    // below → clustered dots (~3.3 stops out)
+const RATIO_DOT = 0.30;        // below → individual dots (~1.74 stops out)
+const RATIO_GEO_FADE = 0.55;   // dot↔geometry crossfade zone top (~0.86 stops out)
+const RATIO_TIPS = 0.70;       // above → arrow/tick caps visible (fades to 0 at RATIO_GEO_FADE)
+const RATIO_LABEL = 0.55;      // labels start appearing (~0.86 stops out)
+const RATIO_LABEL_FULL = 0.75; // labels reach full opacity (~0.42 stops out)
 
 // Pick a background color that contrasts with the stroke color.
 // Dark stroke (H&E / light images) → light bg; light stroke (fluorescence) → dark bg.
@@ -251,7 +259,45 @@ function readableAngle(deg) {
   return a;
 }
 
-export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null, physicalPixelSize = null) {
+
+function getShapeCentroid(shape) {
+  if (shape.type === 'rectangle') {
+    return [(shape.x ?? 0) + (shape.width ?? 0) / 2, (shape.y ?? 0) + (shape.height ?? 0) / 2];
+  }
+  if (shape.type === 'line') {
+    return [((shape.x1 ?? 0) + (shape.x2 ?? 0)) / 2, ((shape.y1 ?? 0) + (shape.y2 ?? 0)) / 2];
+  }
+  if (shape.type === 'ellipse') {
+    return [shape.x1 ?? 0, shape.y1 ?? 0];
+  }
+  if ((shape.type === 'polygon' || shape.type === 'polyline') && shape.points?.length >= 1) {
+    const mx = shape.points.reduce((s, p) => s + p[0], 0) / shape.points.length;
+    const my = shape.points.reduce((s, p) => s + p[1], 0) / shape.points.length;
+    return [mx, my];
+  }
+  return [0, 0];
+}
+
+function computeClusters(shapeList, zoom, cellPx = 50) {
+  // Snap to integer zoom stops so cluster membership is stable during continuous
+  // scrolling — groups only change at discrete zoom-level crossings, not every frame.
+  const cellSize = cellPx / Math.pow(2, Math.floor(zoom));
+  const cells = new Map();
+  shapeList.forEach(({ shape }) => {
+    const [cx, cy] = getShapeCentroid(shape);
+    const key = `${Math.floor(cx / cellSize)},${Math.floor(cy / cellSize)}`;
+    if (!cells.has(key)) cells.set(key, { sumX: 0, sumY: 0, count: 0, color: shape.strokeColor ?? [255, 255, 255] });
+    const c = cells.get(key);
+    c.sumX += cx; c.sumY += cy; c.count++;
+  });
+  return Array.from(cells.values()).map(c => ({
+    position: [c.sumX / c.count, c.sumY / c.count, 0],
+    count: c.count,
+    color: c.color,
+  }));
+}
+
+export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null, physicalPixelSize = null, authoredZoom = null, semanticZoom = true) {
   // Selection halo — rendered first so the original shape draws on top of it.
   // Only the extra pixels outside the original stroke are visible, creating a subtle glow ring.
   const selectionLayers = [];
@@ -332,6 +378,8 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
   }
 
   const layers = [];
+  const dotShapes = [];
+  const clusterDotShapes = [];
 
   shapes.forEach((shape, i) => {
     const {
@@ -341,12 +389,52 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
       strokeWidth = 3,
       strokeDashArray,
     } = shape;
+    // LOD: compute geometry + label opacity, demote tiny shapes to dots.
+    // Selected shapes always render at full detail regardless of zoom.
+    const isSelected = uid === selectedShapeUid;
+    let shapeOpacity = 1;
+    let tipsOpacity = 1;
+    let labelOpacity = 0;
+
+    if (isSelected || !semanticZoom || authoredZoom === null) {
+      // No LOD: selected shapes always render fully; LOD disabled; or no reference zoom available.
+      tipsOpacity = 1;
+      labelOpacity = 1;
+    } else {
+      // Ratio-based LOD relative to the frame's captured zoom.
+      // ratio=1 → at authored zoom; <1 → zoomed out; >1 → zoomed in (always full detail).
+      const zoomRatio = Math.pow(2, zoom - authoredZoom);
+      if (zoomRatio < RATIO_CLUSTER) {
+        clusterDotShapes.push({ shape });
+        return;
+      }
+      if (zoomRatio < RATIO_DOT) {
+        dotShapes.push({ shape, alpha: 200 });
+        return;
+      }
+      if (zoomRatio < RATIO_GEO_FADE) {
+        const t = (zoomRatio - RATIO_DOT) / (RATIO_GEO_FADE - RATIO_DOT);
+        shapeOpacity = t;
+        dotShapes.push({ shape, alpha: Math.round((1 - t) * 200) });
+      }
+      tipsOpacity = zoomRatio >= RATIO_TIPS
+        ? shapeOpacity
+        : Math.max(0, ((zoomRatio - RATIO_GEO_FADE) / (RATIO_TIPS - RATIO_GEO_FADE)) * shapeOpacity);
+      if (zoomRatio >= RATIO_LABEL_FULL) {
+        labelOpacity = shapeOpacity;
+      } else if (zoomRatio >= RATIO_LABEL) {
+        labelOpacity = ((zoomRatio - RATIO_LABEL) / (RATIO_LABEL_FULL - RATIO_LABEL)) * shapeOpacity;
+      }
+    }
     // Arrowhead scales with stroke width: 4px per unit, floor at ARROW_SCREEN_PX.
     const arrowDataSize = Math.max(ARROW_SCREEN_PX, strokeWidth * 4) / Math.pow(2, zoom);
-    const base = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN };
+    const base = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: shapeOpacity };
+    const tipsBase = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: tipsOpacity };
+    const labelBase = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: labelOpacity };
     const labelBgProps = shape.labelBackground
       ? { background: true, getBackgroundColor: textBgColor(strokeColor), backgroundPadding: [3, 1, 3, 2] }
       : {};
+    const labelProps = { ...labelBgProps };
     const dashArray = parseDashArray(strokeDashArray);
     // Always include PathStyleExtension on outline PathLayers — adding/removing extensions
     // on a stable layer ID confuses deck.gl's reconciler. Use [0,0] for solid instead.
@@ -380,10 +468,10 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         widthUnits: 'pixels',
       }));
 
-      if (shape.text) {
+      if (shape.text && labelOpacity > 0) {
         layers.push(new TextLayer({
-          ...base,
-          ...labelBgProps,
+          ...labelBase,
+          ...labelProps,
           id: `annotation-rect-text-${uid}-${i}`,
           data: [{ position: [x, y], text: shape.text }],
           getPosition: d => d.position,
@@ -430,11 +518,11 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         capRounded: true,
       }));
 
-      if (markerEnd === 'Arrow') {
+      if (markerEnd === 'Arrow' && tipsOpacity > 0) {
         const head = computeArrowhead(x2, y2, x2 - x1, y2 - y1, arrowDataSize);
         if (head) {
           layers.push(new PolygonLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-end-arrow-${uid}-${i}`,
             data: [{ polygon: head }],
             getPolygon: d => d.polygon,
@@ -445,11 +533,11 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
-      if (markerStart === 'Arrow') {
+      if (markerStart === 'Arrow' && tipsOpacity > 0) {
         const head = computeArrowhead(x1, y1, x1 - x2, y1 - y2, arrowDataSize);
         if (head) {
           layers.push(new PolygonLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-start-arrow-${uid}-${i}`,
             data: [{ polygon: head }],
             getPolygon: d => d.polygon,
@@ -460,11 +548,11 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
-      if (markerEnd === 'Tick') {
+      if (markerEnd === 'Tick' && tipsOpacity > 0) {
         const tick = computeTickCap(x2, y2, x2 - x1, y2 - y1, arrowDataSize);
         if (tick) {
           layers.push(new PathLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-end-tick-${uid}-${i}`,
             data: [{ path: tick }],
             getPath: d => d.path,
@@ -476,11 +564,11 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
-      if (markerStart === 'Tick') {
+      if (markerStart === 'Tick' && tipsOpacity > 0) {
         const tick = computeTickCap(x1, y1, x1 - x2, y1 - y2, arrowDataSize);
         if (tick) {
           layers.push(new PathLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-start-tick-${uid}-${i}`,
             data: [{ path: tick }],
             getPath: d => d.path,
@@ -540,9 +628,10 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
           ? -readableAngle(Math.atan2(dy, dx) * 180 / Math.PI)
           : null;
 
+        if (labelOpacity <= 0) return;
         layers.push(new TextLayer({
-          ...base,
-          ...labelBgProps,
+          ...labelBase,
+          ...labelProps,
           id: `annotation-line-text-${uid}-${i}`,
           data: [{ position: [textX, textY], text: shape.text }],
           getPosition: d => d.position,
@@ -588,10 +677,10 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         widthUnits: 'pixels',
         jointRounded: true,
       }));
-      if (shape.text) {
+      if (shape.text && labelOpacity > 0) {
         layers.push(new TextLayer({
-          ...base,
-          ...labelBgProps,
+          ...labelBase,
+          ...labelProps,
           id: `annotation-ellipse-text-${uid}-${i}`,
           data: [{ position: [x1, y1 - radiusY], text: shape.text }],
           getPosition: d => d.position,
@@ -636,14 +725,14 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         widthUnits: 'pixels',
         jointRounded: true,
       }));
-      if (shape.text) {
+      if (shape.text && labelOpacity > 0) {
         const minX = Math.min(...points.map(p => p[0]));
         const maxX = Math.max(...points.map(p => p[0]));
         const minY = Math.min(...points.map(p => p[1]));
         const topCenterX = (minX + maxX) / 2;
         layers.push(new TextLayer({
-          ...base,
-          ...labelBgProps,
+          ...labelBase,
+          ...labelProps,
           id: `annotation-polygon-text-${uid}-${i}`,
           data: [{ position: [topCenterX, minY], text: shape.text }],
           getPosition: d => d.position,
@@ -701,13 +790,13 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         jointRounded: true,
         capRounded: true,
       }));
-      if (markerStart === 'Arrow') {
+      if (markerStart === 'Arrow' && tipsOpacity > 0) {
         const [x0, y0] = points[0];
         const [x1, y1] = points[1];
         const head = computeArrowhead(x0, y0, x0 - x1, y0 - y1, arrowDataSize);
         if (head) {
           layers.push(new PolygonLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-polyline-start-arrow-${uid}-${i}`,
             data: [{ polygon: head }],
             getPolygon: d => d.polygon,
@@ -717,13 +806,13 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
           }));
         }
       }
-      if (markerEnd === 'Arrow') {
+      if (markerEnd === 'Arrow' && tipsOpacity > 0) {
         const last = points[points.length - 1];
         const prev = points[points.length - 2];
         const head = computeArrowhead(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
         if (head) {
           layers.push(new PolygonLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-polyline-end-arrow-${uid}-${i}`,
             data: [{ polygon: head }],
             getPolygon: d => d.polygon,
@@ -734,13 +823,13 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
-      if (markerStart === 'Tick') {
+      if (markerStart === 'Tick' && tipsOpacity > 0) {
         const [x0, y0] = points[0];
         const [x1, y1] = points[1];
         const tick = computeTickCap(x0, y0, x0 - x1, y0 - y1, arrowDataSize);
         if (tick) {
           layers.push(new PathLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-polyline-start-tick-${uid}-${i}`,
             data: [{ path: tick }],
             getPath: d => d.path,
@@ -752,13 +841,13 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
         }
       }
 
-      if (markerEnd === 'Tick') {
+      if (markerEnd === 'Tick' && tipsOpacity > 0) {
         const last = points[points.length - 1];
         const prev = points[points.length - 2];
         const tick = computeTickCap(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
         if (tick) {
           layers.push(new PathLayer({
-            ...base,
+            ...tipsBase,
             id: `annotation-polyline-end-tick-${uid}-${i}`,
             data: [{ path: tick }],
             getPath: d => d.path,
@@ -811,9 +900,10 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
             polylineAlignmentBaseline = offY > 0 ? 'top' : 'bottom';
           }
         }
+        if (labelOpacity <= 0) return;
         layers.push(new TextLayer({
-          ...base,
-          ...labelBgProps,
+          ...labelBase,
+          ...labelProps,
           id: `annotation-polyline-text-${uid}-${i}`,
           data: [{ position: [textX, textY], text: shape.text }],
           getPosition: d => d.position,
@@ -831,15 +921,86 @@ export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null
     }
   });
 
+  if (dotShapes.length > 0) {
+    layers.push(new ScatterplotLayer({
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      id: 'annotation-dots',
+      data: dotShapes.map(({ shape: s, alpha }) => ({
+        position: getShapeCentroid(s),
+        color: [...(s.strokeColor ?? [255, 255, 255]), alpha],
+      })),
+      getPosition: d => d.position,
+      getFillColor: d => d.color,
+      getRadius: 4,
+      radiusUnits: 'pixels',
+      filled: true,
+      stroked: false,
+    }));
+  }
+
+  if (clusterDotShapes.length > 0) {
+    const clusters = computeClusters(clusterDotShapes, zoom);
+    layers.push(new ScatterplotLayer({
+      coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      id: 'annotation-clusters',
+      data: clusters,
+      getPosition: d => d.position,
+      getFillColor: d => [...d.color, 180],
+      getRadius: d => Math.max(6, 4 + Math.sqrt(d.count) * 2),
+      radiusUnits: 'pixels',
+      filled: true,
+      stroked: true,
+      getLineColor: d => [...d.color, 220],
+      lineWidthMinPixels: 1.5,
+    }));
+    const multiClusters = clusters.filter(c => c.count > 1);
+    if (multiClusters.length > 0) {
+      layers.push(new TextLayer({
+        coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+        id: 'annotation-cluster-counts',
+        data: multiClusters,
+        getPosition: d => d.position,
+        getText: d => String(d.count),
+        getColor: [255, 255, 255],
+        getSize: 10,
+        sizeUnits: 'pixels',
+        fontWeight: 'bold',
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+      }));
+    }
+  }
+
   // Measurement labels for shapes with showMeasure: true
   const measureLayers = [];
   shapes.forEach((shape) => {
     if (!shape.showMeasure) return;
+    const mIsSelected = shape.uid === selectedShapeUid;
     const label = getMeasurementLabel(shape, physicalPixelSize);
     if (!label) return;
     const color = shape.strokeColor ?? [255, 255, 255];
+    let mShapeOpacity = 1;
+    let mLabelFactor = 0;
+
+    if (mIsSelected || !semanticZoom || authoredZoom === null) {
+      mLabelFactor = 1;
+    } else {
+      const mZoomRatio = Math.pow(2, zoom - authoredZoom);
+      if (mZoomRatio < RATIO_DOT) return;
+      if (mZoomRatio < RATIO_GEO_FADE) {
+        mShapeOpacity = (mZoomRatio - RATIO_DOT) / (RATIO_GEO_FADE - RATIO_DOT);
+      }
+      if (mZoomRatio >= RATIO_LABEL_FULL) {
+        mLabelFactor = 1;
+      } else if (mZoomRatio >= RATIO_LABEL) {
+        mLabelFactor = (mZoomRatio - RATIO_LABEL) / (RATIO_LABEL_FULL - RATIO_LABEL);
+      }
+    }
+    const measureOpacity = mShapeOpacity * mLabelFactor;
+    if (measureOpacity <= 0) return;
     const base = {
       coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
+      opacity: measureOpacity,
       getText: d => d.text,
       getPosition: d => d.position,
       getColor: color,

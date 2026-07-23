@@ -577,6 +577,8 @@ export function AnnotationController(props) {
     loadDataError = null,
     dataMode = false,
     dataUrl = null,
+    semanticZoom = true,
+    onToggleSemanticZoom = () => {},
     physicalPixelSize = null,
   } = props;
 
@@ -1391,11 +1393,16 @@ export function AnnotationController(props) {
         </IconButton>
       </div>
 
-      {/* Utility: overlay toggle + recenter (+ diverged indicator) */}
+      {/* Utility: overlay toggle + semantic zoom toggle + recenter (+ diverged chip) */}
       <div className={classes.utilityRow}>
         <Tooltip title={overlayVisible ? 'Hide annotation overlay' : 'Show annotation overlay'}>
           <IconButton onClick={onToggleOverlay}>
             {overlayVisible ? <Visibility style={{ fontSize: 26 }} /> : <VisibilityOff style={{ fontSize: 26 }} />}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={semanticZoom ? 'Adaptive zoom on — shapes simplify when zoomed out' : 'Adaptive zoom off — shapes always render at full detail'}>
+          <IconButton onClick={onToggleSemanticZoom} style={{ opacity: semanticZoom ? 1 : 0.35 }}>
+            <span style={{ fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace', lineHeight: 1, letterSpacing: -0.5, userSelect: 'none' }}>Z↕</span>
           </IconButton>
         </Tooltip>
         <div style={{ position: 'relative', display: 'inline-flex' }}>
