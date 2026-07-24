@@ -30,7 +30,6 @@ import {
   nodeInsertChild,
   filterNode,
   treeInitialize,
-  initializeCellSetColor,
 
   isEqualOrPrefix,
   tryRenamePath,
@@ -516,13 +515,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onUnion = useCallback(() => {
     const newSet = treeToUnion(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Union ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
-    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
@@ -530,13 +529,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onIntersection = useCallback(() => {
     const newSet = treeToIntersection(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Intersection ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
-    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
@@ -544,13 +543,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onComplement = useCallback(() => {
     const newSet = treeToComplement(mergedObsSets, obsSetSelection, allCellIds);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Complement ',
     );
-  }, [additionalObsSets, allCellIds, obsSetColor, obsSetSelection,
-    mergedObsSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
+  }, [additionalObsSets, allCellIds, obsSetSelection,
+    mergedObsSets, setAdditionalObsSets, setObsColorEncoding,
     setObsSetSelection,
   ]);
 
@@ -569,14 +568,15 @@ export function ObsSetsManagerSubscriber(props) {
         ],
       });
       // Automatically initialize set colors for the imported sets.
-      const importAutoSetColors = initializeCellSetColor(treeToImport, obsSetColor);
-      setObsSetColor([
-        ...obsSetColor,
-        ...importAutoSetColors,
-      ]);
+      // const importAutoSetColors = initializeCellSetColor(treeToImport, obsSetColor);
+      // setObsSetColor([
+      //   ...obsSetColor,
+      //   ...importAutoSetColors,
+      // ]);
+     // No action needed — imported nodes without explicit colors will be
+     // colored live via the obsSetColormap fallback.
     }
-  }, [additionalObsSets, obsSetColor, mergedObsSets, setAdditionalObsSets,
-    setObsSetColor,
+  }, [additionalObsSets, mergedObsSets, setAdditionalObsSets,
   ]);
 
   // The user wants to download a particular hierarchy to a JSON file.
