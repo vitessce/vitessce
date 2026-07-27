@@ -401,6 +401,7 @@ export function LayerControllerSubscriber(props) {
         pointLayerCoordination={pointLayerCoordination}
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
+        obsPointsData={obsPointsData}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />
