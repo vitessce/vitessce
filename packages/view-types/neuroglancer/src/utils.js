@@ -1,8 +1,4 @@
 import {
-  Quaternion,
-  Euler,
-} from 'three';
-import {
   interpolatePlasma,
   interpolateViridis,
   interpolateJet,

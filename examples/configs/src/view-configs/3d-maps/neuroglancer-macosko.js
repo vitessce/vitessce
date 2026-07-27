@@ -15,8 +15,8 @@ function generateNeuroglancerMacosko() {
 
   //  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
 
-  const pointsUrl = 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/pucks';
-  const segmentationsUrl = 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/';
+  const pointsUrl = 'https://data-2.vitessce.io/data/macosko/pucks';
+  const segmentationsUrl = 'https://data-2.vitessce.io/data/macosko/';
 
   const withPoints = true;
 
@@ -67,7 +67,7 @@ function generateNeuroglancerMacosko() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://vitessce-data-v2.s3.us-east-1.amazonaws.com/data/macosko/brain_regions.csv',
+    url: 'https://data-2.vitessce.io/data/macosko/brain_regions.csv',
     coordinationValues: {
       obsType: 'cell',
     },
