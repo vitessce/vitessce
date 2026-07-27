@@ -28,6 +28,7 @@ import {
   ViewType,
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
+  ViewHelpMapping,
 } from '@vitessce/constants-internal';
 import LayerController from './LayerController.js';
 
@@ -58,6 +59,7 @@ export function LayerControllerSubscriber(props) {
     uuid,
     layerPerFeatureForPoints = false,
     cameraPresets,
+    helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
   } = props;
 
   const loaders = useLoaders();
@@ -210,6 +212,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
       CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+      CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -405,6 +408,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       errors={errors}
+      helpText={helpText}
     >
       <LayerController
         theme={theme}

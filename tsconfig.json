@@ -13,7 +13,8 @@
     "isolatedModules": true,
     "incremental": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "sourceMap": true
   },
   "references": [
     { "path": "packages/types" },

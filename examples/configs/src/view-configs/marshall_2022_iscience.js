@@ -139,6 +139,9 @@ export const marshall2022iScience = {
       obsType: 'A',
       featureType: 'A',
     },
+    props: {
+      enableMultiSelect: true,
+    },
     uid: 'G',
   },
   {

@@ -25,6 +25,7 @@ import {
   useHasLoader,
   useExpandedFeatureLabelsMap,
 } from '@vitessce/vit-s';
+import { aggregateFeatureArrays } from '@vitessce/utils';
 import {
   setObsSelection,
   mergeObsSets,
@@ -40,6 +41,8 @@ import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
+
+const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 /**
  * A subscriber component for the spatial plot.
@@ -105,6 +108,7 @@ export function SpatialSubscriber(props) {
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
     photometricInterpretation: photometricInterpretationFromCoordination,
+    featureAggregationStrategy,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -128,6 +132,7 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormap: setGeneExpressionColormap,
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
+    setFeatureAggregationStrategy,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const {
@@ -475,10 +480,21 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
+  const featureAggregationStrategyToUse = featureAggregationStrategy
+  ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+
+  const aggregatedExpressionData = useMemo(() => {
+    if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
+      const aggregated = aggregateFeatureArrays(expressionData, featureAggregationStrategyToUse);
+      return [aggregated];
+    }
+    return expressionData;
+  }, [expressionData, featureAggregationStrategyToUse]);
+
   const {
     normData: uint8ExpressionData,
     extents: expressionExtents,
-  } = useUint8FeatureSelection(expressionData);
+  } = useUint8FeatureSelection(aggregatedExpressionData);
 
   // The bitmask layer needs access to a array (i.e a texture) lookup of cell -> expression value
   // where each cell id indexes into the array.
@@ -542,6 +558,9 @@ export function SpatialSubscriber(props) {
             (hasLocationsData || hasSegmentationsData) && hasExpressionData
           }
           canShow3DOptions={canShow3DOptions}
+          featureSelection={geneSelection}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
         />
       );
     }
@@ -552,6 +571,7 @@ export function SpatialSubscriber(props) {
     observationsLabel, setCellColorEncoding,
     setGeneExpressionColormapRange, setSpatialAxisFixed, spatialAxisFixed, use3d,
     tooltipsVisible, setTooltipsVisible,
+    geneSelection, featureAggregationStrategy, setFeatureAggregationStrategy,
   ]);
 
   useEffect(() => {
@@ -726,6 +746,7 @@ export function SpatialSubscriber(props) {
         featureValueColormapRange={geneExpressionColormapRange}
         setFeatureValueColormapRange={setGeneExpressionColormapRange}
         extent={expressionExtents?.[0]}
+        featureAggregationStrategy={featureAggregationStrategyToUse}
       />
     </TitleInfo>
   );

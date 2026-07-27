@@ -1,5 +1,5 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L26
-import { root as zarrRoot, FetchStore, type Readable, type AbsolutePath } from 'zarrita';
+import { root as zarrRoot, FetchStore, type Readable, type AbsolutePath, type RangeQuery } from 'zarrita';
 import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
@@ -26,6 +26,24 @@ class RelaxedFetchStore extends FetchStore {
     } catch (e: any) {
       // TODO: request/contribute a custom error class
       // to avoid string comparisons in the future.
+      if (
+        e?.message?.startsWith('Unexpected response status 403')
+        && !getDebugMode()
+      ) {
+        return undefined;
+      }
+      throw e;
+    }
+  }
+
+  async getRange(
+    key: AbsolutePath,
+    range: RangeQuery,
+    options: RequestInit = {},
+  ): Promise<Uint8Array | undefined> {
+    try {
+      return await super.getRange(key, range, options);
+    } catch (e: any) {
       if (
         e?.message?.startsWith('Unexpected response status 403')
         && !getDebugMode()

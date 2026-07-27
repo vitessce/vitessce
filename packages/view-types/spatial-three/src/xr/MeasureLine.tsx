@@ -1,12 +1,14 @@
 import React, { useRef } from 'react';
 import { Center, Line, Text } from '@react-three/drei';
+import type { MeasureLineData } from '../types.js';
 
-export function MeasureLine(props) {
-  const {
-    currentLine,
-    scale,
-  } = props;
-  const textRef = useRef();
+interface MeasureLineProps {
+  currentLine: MeasureLineData;
+  scale: number;
+}
+
+export function MeasureLine({ currentLine, scale }: MeasureLineProps) {
+  const textRef = useRef(null);
   // TODO: let the text always face the player/camera
   // useFrame((state) => {
   //     const {gl, scene, camera} = state;

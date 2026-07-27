@@ -1,4 +1,43 @@
 
+## 4.0.1
+
+### Patch Changes
+
+- Provides option to sort image channels by original order or alphabetical (`@vitessce/layer-controller-beta`, `@vitessce/layer-controller`, `@vitessce/constants-internal`) ([#2503](https://github.com/vitessce/vitessce/pull/2503))
+
+- Bump node version in github actions release workflow" (`vitessce`) ([#2532](https://github.com/vitessce/vitessce/pull/2532))
+
+- Adds help icon to both LayerControllerBeta and SpatialBeta views (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/constants-internal`) ([#2512](https://github.com/vitessce/vitessce/pull/2512))
+
+- Changes cursor to move/grab when panning and rotating in NG view. (`@vitessce/neuroglancer`) ([#2499](https://github.com/vitessce/vitessce/pull/2499))
+
+- Added support to preserve the current state of configuration via the Edit button (`docs`) ([#2518](https://github.com/vitessce/vitessce/pull/2518))
+
+- Install threeJS peer deps into app, demo, and docs sites. Fix multiple render target bug. (`@vitessce/spatial-accelerated`, `demo`, `docs`, `app`) ([#2535](https://github.com/vitessce/vitessce/pull/2535))
+
+- Update KPMP comparative example dataset. Improve volcano plot. (`@vitessce/comparative`) ([#2530](https://github.com/vitessce/vitessce/pull/2530))
+
+- Fix build errors in consumer bundlers when the optional `@react-three/xr` peer dependency is not installed. XR modules previously used static named imports of `@react-three/xr`, which bundlers resolve at build time even for lazy-loaded chunks (Vite stubs the missing optional peer, causing MISSING_EXPORT). All XR access now goes through a single dynamic namespace import, so the non-XR 3D view works without `@react-three/xr`. (`@vitessce/spatial-three`) ([#2525](https://github.com/vitessce/vitessce/pull/2525))
+
+
+## 4.0.0
+
+### Major Changes
+
+- Update to support React 19. `three` and `@react-three/{fiber,drei,xr}` are now peer dependencies — consumers using 3D/spatial/VR views must install them. (`vitessce`) ([#2415](https://github.com/vitessce/vitessce/pull/2415))
+
+### Patch Changes
+
+- Support loading JSON-based configs from GitHub gists with a `.vitessce.json` suffix. (`docs`) ([#2520](https://github.com/vitessce/vitessce/pull/2520))
+
+- - Fixed sort-order gene selection to click-based when FeatureList multi-select is enabled (`@vitessce/feature-list`, `@vitessce/example-configs`) ([#2502](https://github.com/vitessce/vitessce/pull/2502))
+  - Added the FeatureAggregateStrategy option for the spatial view to match the scatterplot view.
+
+- Add React 19 dependencies to sync-cdn script. (`@vitessce/dev`) ([#2519](https://github.com/vitessce/vitessce/pull/2519))
+
+- Make FetchStore logic for `getRange` consistent with `get` (`@vitessce/zarr-utils`) ([#2509](https://github.com/vitessce/vitessce/pull/2509))
+
+
 ## 3.9.11
 
 ### Patch Changes

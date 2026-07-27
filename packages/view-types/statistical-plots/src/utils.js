@@ -87,8 +87,8 @@ export function useFilteredVolcanoData(props) {
       sampleSetPathB[0] = sampleSetsColumnNameMappingReversed[rawSampleSetPathB[0]];
 
       if (
-        isEqual(sampleSetPathA, sampleSetSelection[1])
-        && isEqual(sampleSetPathB, sampleSetSelection[0])
+        isEqual(sampleSetPathA, sampleSetSelection[0])
+        && isEqual(sampleSetPathB, sampleSetSelection[1])
       ) {
         shouldSwapFoldChangeDirection = true;
       }
