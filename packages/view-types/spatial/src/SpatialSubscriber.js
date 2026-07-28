@@ -1,80 +1,4 @@
 import React, { useEffect, useMemo, useCallback, useState, useRef } from 'react';
-
-// Returns true if ch and oc refer to the same channel.
-// Matches by channelName first (stable string key), then by selection index (fallback).
-function channelMatches(ch, oc) {
-  if (ch.channelName && oc.channelName) return ch.channelName === oc.channelName;
-  const chKey = ch.selection?.channel ?? ch.selection?.c;
-  const ocKey = oc.selection?.channel ?? oc.selection?.c;
-  return chKey !== undefined && chKey === ocKey;
-}
-
-// Merges channel/layer overrides from a captured or authored frame into the baseline.
-//
-// Two modes, detected by whether any override channel carries a `slider` property:
-//
-//   Full capture (slider present): the override IS the complete intended state.
-//     - Use override channels as the definitive list (handles add/remove via LayerController).
-//     - Merge baseline properties under override so format is preserved.
-//     - Also applies color and slider from the captured state.
-//
-//   Sparse authored (no slider): only certain channels are called out.
-//     - Start from baseline; apply visible (and color/slider if present) for matched channels.
-//     - Channels in baseline but not override: kept unchanged.
-//     - Channels in override but not baseline: appended (author added a new channel).
-function mergeLayerVisibility(baseline, override) {
-  if (!baseline || !override) return override ?? baseline;
-  return baseline.map(layer => {
-    const overrideLayer = override.find(l =>
-      (layer.layerName && l.layerName && l.layerName === layer.layerName)
-      || l.index === layer.index
-    );
-    if (!overrideLayer) return layer;
-
-    if (!overrideLayer.channels) {
-      return {
-        ...layer,
-        ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
-      };
-    }
-
-    const isFullCapture = overrideLayer.channels.some(oc => oc.slider !== undefined);
-    const baselineChannels = layer.channels ?? [];
-
-    let mergedChannels;
-    if (isFullCapture) {
-      // Override is the complete desired channel list — use it directly.
-      // Baseline channel is merged under override so any extra baseline fields are preserved.
-      mergedChannels = overrideLayer.channels.map(oc => {
-        const baselineCh = baselineChannels.find(ch => channelMatches(ch, oc));
-        return baselineCh ? { ...baselineCh, ...oc } : { ...oc };
-      });
-    } else {
-      // Sparse authored: start from baseline, patch matched channels.
-      const patched = baselineChannels.map(ch => {
-        const overrideCh = overrideLayer.channels.find(oc => channelMatches(ch, oc));
-        if (!overrideCh) return ch;
-        return {
-          ...ch,
-          visible: overrideCh.visible ?? ch.visible,
-          ...(overrideCh.color !== undefined && { color: overrideCh.color }),
-          ...(overrideCh.slider !== undefined && { slider: overrideCh.slider }),
-        };
-      });
-      // Append any override channels that weren't in the baseline.
-      const extra = overrideLayer.channels.filter(
-        oc => !baselineChannels.some(ch => channelMatches(ch, oc)),
-      );
-      mergedChannels = [...patched, ...extra];
-    }
-
-    return {
-      ...layer,
-      ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
-      channels: mergedChannels,
-    };
-  });
-}
 import { debounce } from 'lodash-es';
 import {
   TitleInfo,
@@ -136,6 +60,78 @@ import SpatialOptions from './SpatialOptions.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
+// Returns true if ch and oc refer to the same channel.
+// Matches by channelName first (stable string key), then by selection index (fallback).
+function channelMatches(ch, oc) {
+  if (ch.channelName && oc.channelName) return ch.channelName === oc.channelName;
+  const chKey = ch.selection?.channel ?? ch.selection?.c;
+  const ocKey = oc.selection?.channel ?? oc.selection?.c;
+  return chKey !== undefined && chKey === ocKey;
+}
+
+// Merges channel/layer overrides from a captured or authored frame into the baseline.
+//
+// Two modes, detected by whether any override channel carries a `slider` property:
+//
+//   Full capture (slider present): the override IS the complete intended state.
+//     - Use override channels as the definitive list (handles add/remove via LayerController).
+//     - Merge baseline properties under override so format is preserved.
+//     - Also applies color and slider from the captured state.
+//
+//   Sparse authored (no slider): only certain channels are called out.
+//     - Start from baseline; apply visible (and color/slider if present) for matched channels.
+//     - Channels in baseline but not override: kept unchanged.
+//     - Channels in override but not baseline: appended (author added a new channel).
+function mergeLayerVisibility(baseline, override) {
+  if (!baseline || !override) return override ?? baseline;
+  return baseline.map(layer => {
+    const overrideLayer = override.find(l =>
+      (layer.layerName && l.layerName && l.layerName === layer.layerName)
+      || l.index === layer.index
+    );
+    if (!overrideLayer) return layer;
+
+    if (!overrideLayer.channels) {
+      return {
+        ...layer,
+        ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
+      };
+    }
+
+    const isFullCapture = overrideLayer.channels.some(oc => oc.slider !== undefined);
+    const baselineChannels = layer.channels ?? [];
+
+    let mergedChannels;
+    if (isFullCapture) {
+      mergedChannels = overrideLayer.channels.map(oc => {
+        const baselineCh = baselineChannels.find(ch => channelMatches(ch, oc));
+        return baselineCh ? { ...baselineCh, ...oc } : { ...oc };
+      });
+    } else {
+      const patched = baselineChannels.map(ch => {
+        const overrideCh = overrideLayer.channels.find(oc => channelMatches(ch, oc));
+        if (!overrideCh) return ch;
+        return {
+          ...ch,
+          visible: overrideCh.visible ?? ch.visible,
+          ...(overrideCh.color !== undefined && { color: overrideCh.color }),
+          ...(overrideCh.slider !== undefined && { slider: overrideCh.slider }),
+        };
+      });
+      const extra = overrideLayer.channels.filter(
+        oc => !baselineChannels.some(ch => channelMatches(ch, oc)),
+      );
+      mergedChannels = [...patched, ...extra];
+    }
+
+    return {
+      ...layer,
+      ...(overrideLayer.visible !== undefined && { visible: overrideLayer.visible }),
+      channels: mergedChannels,
+    };
+  });
+}
+
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 
 /**
@@ -148,6 +144,9 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
  */
+const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
+const DOUBLE_CLICK_MS = 350;
+
 export function SpatialSubscriber(props) {
   const {
     uuid,
@@ -466,9 +465,7 @@ export function SpatialSubscriber(props) {
     setAnnotationFrames(updated);
   }, [annotationFrames, annotationFrameIndex, setAnnotationFrames]);
 
-  const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
-  const lastAnnotationClickTimeRef = React.useRef(0);
-  const DOUBLE_CLICK_MS = 350;
+  const lastAnnotationClickTimeRef = useRef(0);
 
   const handleAnnotationClick = useCallback((coord) => {
     if (!annotationActiveTool || annotationFrameIndex === null) return;
@@ -574,6 +571,7 @@ export function SpatialSubscriber(props) {
       spatialImageLayer: s.imageLayers,
       spatialSegmentationLayer: s.cellsLayer,
       spatialPointLayer: s.moleculesLayer,
+      spatialNeighborhoodLayer: s.neighborhoodsLayer,
     };
     setAnnotationFrames(currentFrames.map((f, idx) => {
       if (idx !== annotationFrameIndex) return f;

@@ -12,6 +12,8 @@ import {
 } from '@vitessce/constants-internal';
 import { AnnotationController } from './AnnotationController.js';
 
+const TRANSITION_MS = 800;
+
 export function AnnotationControllerSubscriber(props) {
   const {
     coordinationScopes: coordinationScopesRaw,
@@ -111,6 +113,8 @@ export function AnnotationControllerSubscriber(props) {
   ]);
 
   const defaultsCrossViewRef = useRef(null);
+  const transitionTimerRef = useRef(null);
+  useEffect(() => () => { clearTimeout(transitionTimerRef.current); }, []);
 
   const applyFrame = useCallback((frameIndex) => {
     const frame = annotationFrames?.[frameIndex];
@@ -128,8 +132,9 @@ export function AnnotationControllerSubscriber(props) {
     };
 
     // Signal views to animate and clear any divergence.
-    setAnnotationTransitionDuration(800);
-    setTimeout(() => setAnnotationTransitionDuration(0), 800);
+    setAnnotationTransitionDuration(TRANSITION_MS);
+    clearTimeout(transitionTimerRef.current);
+    transitionTimerRef.current = setTimeout(() => setAnnotationTransitionDuration(0), TRANSITION_MS);
     setAnnotationDiverged(false);
 
     applyVal(setFeatureSelection, 'featureSelection');
@@ -155,8 +160,9 @@ export function AnnotationControllerSubscriber(props) {
   // Exit — animate views back to their pre-story baseline and restore all
   // cross-view state (color encoding, selections) to what they were before entry.
   const handleExit = useCallback(() => {
-    setAnnotationTransitionDuration(800);
-    setTimeout(() => setAnnotationTransitionDuration(0), 800);
+    setAnnotationTransitionDuration(TRANSITION_MS);
+    clearTimeout(transitionTimerRef.current);
+    transitionTimerRef.current = setTimeout(() => setAnnotationTransitionDuration(0), TRANSITION_MS);
     setAnnotationDiverged(false);
 
     const d = defaultsCrossViewRef.current;
@@ -191,6 +197,10 @@ export function AnnotationControllerSubscriber(props) {
   }, [annotationFrameIndex, applyFrame]);
 
   const storeApi = useViewConfigStoreApi();
+
+  const handleToggleSemanticZoom = useCallback(() => {
+    setAnnotationSemanticZoom(!annotationSemanticZoom);
+  }, [annotationSemanticZoom, setAnnotationSemanticZoom]);
 
   const handleDownloadConfig = useCallback(() => {
     const viewConfig = storeApi.getState().viewConfig;
@@ -248,7 +258,7 @@ export function AnnotationControllerSubscriber(props) {
         dataMode={annotationDataType === 'data'}
         dataUrl={annotationDataUrl}
         semanticZoom={annotationSemanticZoom}
-        onToggleSemanticZoom={() => setAnnotationSemanticZoom(!annotationSemanticZoom)}
+        onToggleSemanticZoom={handleToggleSemanticZoom}
         physicalPixelSize={spatialPhysicalPixelSize}
       />
     </TitleInfo>

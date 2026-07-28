@@ -195,7 +195,7 @@ export const annotationsDemoSpraggins = {
         text: 'Same location as previous frame, but with DAPI channel hidden to show the risk of interpreting THP signal without nuclear context. The boxed tubule looks fine, but the arrows point to three other areas of THP signal that are not associated with nuclei and are likely artifacts.',
         shapes: [
           {
-            uid: 'tubule-detail-box',
+            uid: 'tubule-detail-box-b',
             type: 'rectangle',
             targetView: 'spatial',
             x: 11428, y: 12516, width: 6500, height: 2000,
@@ -416,7 +416,7 @@ export const annotationsDemoSpraggins = {
   layout: [
     {
       component: 'spatial',
-      props: { coordinatesVisible: true, logClickCoords: true },
+      props: { coordinatesVisible: true },
       coordinationScopes: {
         spatialZoom: 'A',
         spatialTargetX: 'A',

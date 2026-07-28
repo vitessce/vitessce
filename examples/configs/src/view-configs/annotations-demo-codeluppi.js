@@ -256,7 +256,7 @@ export const annotationsDemoCodeluppi = {
         text: 'The Oligodendrocyte subclusters highlighted via feature selection (Plp1 gene expression).',
         shapes: [
           {
-            uid: 'scatterplot-arrow-1',
+            uid: 'frame-2c-arrow-1',
             type: 'line',
             targetView: 'scatterplot',
             targetCoordinationValues: { embeddingType: 't-SNE' },
@@ -269,7 +269,7 @@ export const annotationsDemoCodeluppi = {
             textPosition: 'end',
           },
           {
-            uid: 'scatterplot-arrow-2',
+            uid: 'frame-2c-arrow-2',
             type: 'line',
             targetView: 'scatterplot',
             targetCoordinationValues: { embeddingType: 't-SNE' },
@@ -282,7 +282,7 @@ export const annotationsDemoCodeluppi = {
             textPosition: 'end',
           },
           {
-            uid: 'scatterplot-arrow-3',
+            uid: 'frame-2c-arrow-3',
             type: 'line',
             targetView: 'scatterplot',
             targetCoordinationValues: { embeddingType: 't-SNE' },
@@ -295,7 +295,7 @@ export const annotationsDemoCodeluppi = {
             textPosition: 'end',
           },
           {
-            uid: 'scatterplot-arrow-4',
+            uid: 'frame-2c-arrow-4',
             type: 'line',
             targetView: 'scatterplot',
             targetCoordinationValues: { embeddingType: 't-SNE' },
@@ -308,7 +308,7 @@ export const annotationsDemoCodeluppi = {
             textPosition: 'end',
           },
           {
-            uid: 'scatterplot-arrow-5',
+            uid: 'frame-2c-arrow-5',
             type: 'line',
             targetView: 'scatterplot',
             targetCoordinationValues: { embeddingType: 't-SNE' },
@@ -487,15 +487,12 @@ export const annotationsDemoCodeluppi = {
         spatialZoom: 'A',
         spatialTargetX: 'A',
         spatialTargetY: 'A',
-        embeddingZoom: 'TSNE',
-        embeddingTargetX: 'TSNE',
-        embeddingTargetY: 'TSNE',
       },
       x: 0, y: 2, w: 2, h: 4,
     },
     {
       component: 'spatial',
-      props: { coordinatesVisible: true, logClickCoords: true },
+      props: { coordinatesVisible: true },
       coordinationScopes: {
         spatialZoom: 'A',
         spatialTargetX: 'A',
@@ -507,11 +504,11 @@ export const annotationsDemoCodeluppi = {
       x: 2, y: 0, w: 4, h: 4,
     },
     {
-      component: 'genes',
+      component: 'featureList',
       x: 9, y: 0, w: 3, h: 2,
     },
     {
-      component: 'cellSets',
+      component: 'obsSets',
       x: 9, y: 3, w: 3, h: 2,
     },
     {
@@ -520,12 +517,12 @@ export const annotationsDemoCodeluppi = {
       x: 2, y: 4, w: 5, h: 2,
     },
     {
-      component: 'cellSetExpression',
+      component: 'obsSetFeatureValueDistribution',
       x: 7, y: 4, w: 5, h: 2,
     },
     {
       component: 'scatterplot',
-      props: { coordinatesVisible: true, logClickCoords: true },
+      props: { coordinatesVisible: true },
       coordinationScopes: {
         embeddingType: 'PCA',
         embeddingZoom: 'PCA',
@@ -537,7 +534,7 @@ export const annotationsDemoCodeluppi = {
     },
     {
       component: 'scatterplot',
-      props: { coordinatesVisible: true, logClickCoords: true },
+      props: { coordinatesVisible: true },
       coordinationScopes: {
         embeddingType: 'TSNE',
         embeddingZoom: 'TSNE',

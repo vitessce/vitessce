@@ -186,7 +186,7 @@ function fmtCommas(n) {
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function getMeasurementLabel(shape, physicalPixelSize) {
+export function getMeasurementLabel(shape, physicalPixelSize) {
   const pps = physicalPixelSize;
   const px = pps?.x ?? 1;
   const py = pps?.y ?? 1;
@@ -297,7 +297,7 @@ function computeClusters(shapeList, zoom, cellPx = 50) {
   }));
 }
 
-export function createAnnotationLayers(shapes, zoom = 0, selectedShapeUid = null, physicalPixelSize = null, authoredZoom = null, semanticZoom = true) {
+export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid = null, physicalPixelSize = null, authoredZoom = null, semanticZoom = true) {
   // Selection halo — rendered first so the original shape draws on top of it.
   // Only the extra pixels outside the original stroke are visible, creating a subtle glow ring.
   const selectionLayers = [];

@@ -2355,8 +2355,7 @@ export const annotationsMinervaOrionCrc04 = {
       {
         "component": "spatial",
         "props": {
-          "coordinatesVisible": true,
-          "logClickCoords": true
+          "coordinatesVisible": true
         },
         "coordinationScopes": {
           "spatialZoom": "A",

@@ -1841,6 +1841,9 @@ importers:
       '@vitessce/constants-internal':
         specifier: workspace:*
         version: link:../../constants-internal
+      '@vitessce/gl':
+        specifier: workspace:*
+        version: link:../../gl
       '@vitessce/styles':
         specifier: workspace:*
         version: link:../../styles

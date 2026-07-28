@@ -27,6 +27,7 @@ import {
   Warning,
   Info,
 } from '@vitessce/styles';
+import { getMeasurementLabel } from '@vitessce/gl';
 
 const TOOLS = [
   { key: 'rectangle', label: 'Rect' },
@@ -35,6 +36,8 @@ const TOOLS = [
   { key: 'polygon', label: 'Poly' },
   { key: 'polyline', label: 'Path' },
 ];
+
+const CONFIRM_FLASH_MS = 1500;
 
 function rgbToHex(rgb) {
   if (!rgb || rgb.length < 3) return '#ffffff';
@@ -602,20 +605,31 @@ export function AnnotationController(props) {
   const [downloadConfirmed, setDownloadConfirmed] = useState(false);
   const [configDownloadConfirmed, setConfigDownloadConfirmed] = useState(false);
 
+  const captureTimerRef = useRef(null);
+  const copyTimerRef = useRef(null);
+  const downloadTimerRef = useRef(null);
+  const configDownloadTimerRef = useRef(null);
+  useEffect(() => () => {
+    clearTimeout(captureTimerRef.current);
+    clearTimeout(copyTimerRef.current);
+    clearTimeout(downloadTimerRef.current);
+    clearTimeout(configDownloadTimerRef.current);
+  }, []);
+
   const handleCaptureViewState = useCallback(() => {
     onCaptureViewState();
     setCaptureConfirmed(true);
-    setTimeout(() => setCaptureConfirmed(false), 1500);
+    clearTimeout(captureTimerRef.current);
+    captureTimerRef.current = setTimeout(() => setCaptureConfirmed(false), CONFIRM_FLASH_MS);
   }, [onCaptureViewState]);
-  const setSelectedShapeUid = onSetSelectedShapeUid;
 
   const handleToggleEditMode = useCallback(() => {
     if (editMode) {
       onSetActiveTool(null);
-      setSelectedShapeUid(null);
+      onSetSelectedShapeUid(null);
     }
     setEditMode(prev => !prev);
-  }, [editMode, onSetActiveTool, setSelectedShapeUid]);
+  }, [editMode, onSetActiveTool, onSetSelectedShapeUid]);
 
   const handleAddFrame = useCallback(() => {
     const newFrame = {
@@ -714,7 +728,8 @@ export function AnnotationController(props) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(JSON.stringify(frames, null, 2));
       setCopyConfirmed(true);
-      setTimeout(() => setCopyConfirmed(false), 1500);
+      clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(() => setCopyConfirmed(false), CONFIRM_FLASH_MS);
     }
   }, [frames]);
 
@@ -727,13 +742,15 @@ export function AnnotationController(props) {
     a.click();
     URL.revokeObjectURL(url);
     setDownloadConfirmed(true);
-    setTimeout(() => setDownloadConfirmed(false), 1500);
+    clearTimeout(downloadTimerRef.current);
+    downloadTimerRef.current = setTimeout(() => setDownloadConfirmed(false), CONFIRM_FLASH_MS);
   }, [frames]);
 
   const handleDownloadConfig = useCallback(() => {
     onDownloadConfig();
     setConfigDownloadConfirmed(true);
-    setTimeout(() => setConfigDownloadConfirmed(false), 1500);
+    clearTimeout(configDownloadTimerRef.current);
+    configDownloadTimerRef.current = setTimeout(() => setConfigDownloadConfirmed(false), CONFIRM_FLASH_MS);
   }, [onDownloadConfig]);
 
   const numFrames = frames?.length ?? 0;
@@ -921,60 +938,16 @@ export function AnnotationController(props) {
                     const hasFill = ['rectangle', 'ellipse', 'polygon'].includes(shape.type);
                     const hasMarkers = ['line', 'polyline'].includes(shape.type);
                     const currentDash = shape.strokeDashArray ?? null;
-                    const measurementValue = (() => {
-                      const pps = physicalPixelSize;
-                      const ppx = pps?.x ?? 1;
-                      const ppy = pps?.y ?? 1;
-                      const unit = pps?.unit ?? null;
-                      const hasPhys = !!pps;
-                      const addCommas = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                      const fmtDist = d => unit ? `${d.toFixed(2)} ${unit}` : `${d.toFixed(1)} px`;
-                      const fmtArea = a => unit ? `${a.toFixed(2)} ${unit}²` : `${addCommas(a)} px²`;
-                      if (shape.type === 'line') {
-                        const dx = (shape.x2 ?? 0) - (shape.x1 ?? 0);
-                        const dy = (shape.y2 ?? 0) - (shape.y1 ?? 0);
-                        return fmtDist(hasPhys ? Math.sqrt((dx * ppx) ** 2 + (dy * ppy) ** 2) : Math.sqrt(dx * dx + dy * dy));
-                      }
-                      if (shape.type === 'rectangle') {
-                        const areaPx = Math.abs((shape.width ?? 0) * (shape.height ?? 0));
-                        return fmtArea(hasPhys ? areaPx * ppx * ppy : areaPx);
-                      }
-                      if (shape.type === 'ellipse') {
-                        const areaPx = Math.PI * Math.abs(shape.radiusX ?? 0) * Math.abs(shape.radiusY ?? 0);
-                        return fmtArea(hasPhys ? areaPx * ppx * ppy : areaPx);
-                      }
-                      if (shape.type === 'polygon' && shape.points?.length >= 3) {
-                        const pts = shape.points;
-                        let shoelace = 0;
-                        for (let pi = 0; pi < pts.length; pi++) {
-                          const [ax, ay] = pts[pi];
-                          const [bx, by] = pts[(pi + 1) % pts.length];
-                          shoelace += ax * by - bx * ay;
-                        }
-                        return fmtArea(hasPhys ? Math.abs(shoelace / 2) * ppx * ppy : Math.abs(shoelace / 2));
-                      }
-                      if (shape.type === 'polyline' && shape.points?.length >= 2) {
-                        let total = 0;
-                        for (let pi = 0; pi < shape.points.length - 1; pi++) {
-                          const [ax, ay] = shape.points[pi];
-                          const [bx, by] = shape.points[pi + 1];
-                          total += hasPhys
-                            ? Math.sqrt(((bx - ax) * ppx) ** 2 + ((by - ay) * ppy) ** 2)
-                            : Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2);
-                        }
-                        return fmtDist(total);
-                      }
-                      return null;
-                    })();
+                    const measurementValue = getMeasurementLabel(shape, physicalPixelSize);
                     return (
                       <div key={shape.uid}>
                         <div
                           className={cx(classes.shapeItem, isSelected && classes.shapeItemSelected)}
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setSelectedShapeUid(isSelected ? null : shape.uid)}
+                          onClick={() => onSetSelectedShapeUid(isSelected ? null : shape.uid)}
                           role="button"
                           tabIndex={0}
-                          onKeyDown={e => e.key === 'Enter' && setSelectedShapeUid(isSelected ? null : shape.uid)}
+                          onKeyDown={e => e.key === 'Enter' && onSetSelectedShapeUid(isSelected ? null : shape.uid)}
                         >
                           <ShapeIcon type={shape.type} size={12} />
                           <span className={classes.shapeLabel}>{shape.text ? `"${shape.text}"` : shape.type}</span>

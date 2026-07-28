@@ -35,12 +35,14 @@ export const annotationsDemoSpragginsData = {
     annotationOverlayVisible: { A: true },
     annotationDescription: { A: 'This demo walks through the Spraggins 2020 multiplex immunofluorescence kidney dataset. The annotations and story are strictly for demonstration purposes only and will not reflect true biological findings.' },
     annotationDataType: { A: 'data' },
+    // This path is served from sites/demo/public/ by the local dev server only.
+    // For a production deploy, replace with an absolute hosted URL.
     annotationDataUrl: { A: '/spraggins-annotation-frames.json' },
   },
   layout: [
     {
       component: 'spatial',
-      props: { coordinatesVisible: true, logClickCoords: true },
+      props: { coordinatesVisible: true },
       coordinationScopes: {
         spatialZoom: 'A',
         spatialTargetX: 'A',
