@@ -588,7 +588,8 @@ export function NeuroglancerSubscriber(props) {
       NG receives updated segments and fetches and renders meshes for those IDs
    */
   const updateVisibleSegments = useCallback(async () => {
-    if (window.__disableCulling) return;
+    // Debuggin purposes
+    // if (window.__disableCulling) return;
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
@@ -707,8 +708,8 @@ export function NeuroglancerSubscriber(props) {
           }).map(({ id }) => id),
         )];
       }
-      visibleSegmentIdsRef.current = visibleIds;
       // TODO: Debugging purposes - can be removed once we settle with datasets
+      // visibleSegmentIdsRef.current = visibleIds;
       // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
       // TODO: ( remove - validation purposes)
       // Confirming phenotypes are correct cell types for an id - tested against csv
@@ -1025,11 +1026,6 @@ export function NeuroglancerSubscriber(props) {
       return current;
     }
 
-    // In derivedViewerState, where segments are set on the segmentation layer:
-// console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
-// console.log('[derivedViewerState] segmentationLayerScopes:', segmentationLayerScopes);
-// In NeuroglancerSubscriber, log the derived viewer state layers:
-
     const { projectionScale, projectionOrientation, position } = current;
 
     // Did Vitessce coords change vs the *previous* render?
@@ -1195,9 +1191,6 @@ export function NeuroglancerSubscriber(props) {
       } else if (!hasMatchingAnnotationSource) {
         derivedSegmentColors = layerColorMapping;
       }
-// In derivedViewerState, find where segmentation layer segments are set:
-// console.log('building seg layer, visibleSegmentIds:', visibleSegmentIdsRef.current?.slice(0, 5));
-
       return {
         ...layer,
         segments,
@@ -1245,9 +1238,6 @@ export function NeuroglancerSubscriber(props) {
   // if (!cellColorMapping || Object.keys(cellColorMapping).length === 0) {
   //   return;
   // }
-  // console.log('seg layer in viewerState:', JSON.stringify(
-  //   derivedViewerState?.layers?.find(l => l.name?.includes('obsSegmentations'))?.segments?.slice(0, 5)
-  // ));
   const hasLayers = derivedViewerState?.layers?.length > 0;
 
   return (
