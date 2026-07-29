@@ -461,29 +461,23 @@ export function createAnnotationLayers(
 
     if (type === 'rectangle') {
       const { x, y, width, height, fillColor = strokeColor, fillOpacity = 0 } = shape;
-      const closedPath = [[x, y], [x + width, y], [x + width, y + height], [x, y + height], [x, y]];
-
-      if (fillOpacity > 0) {
-        layers.push(new PolygonLayer({
-          ...base,
-          id: `annotation-rect-fill-${uid}-${i}`,
-          data: [{ polygon: [[x, y], [x + width, y], [x + width, y + height], [x, y + height]] }],
-          getPolygon: d => d.polygon,
-          stroked: false,
-          filled: true,
-          getFillColor: [...fillColor, Math.round(fillOpacity * 255)],
-        }));
-      }
-      layers.push(new PathLayer({
+      const filled = fillOpacity > 0;
+      const rectPolygon = [[x, y], [x + width, y], [x + width, y + height], [x, y + height]];
+      layers.push(new PolygonLayer({
         ...base,
         id: `annotation-rect-${uid}-${i}`,
-        extensions: dashExt,
-        getDashArray: getDash,
-        data: [{ path: closedPath }],
-        getPath: d => d.path,
-        getColor: strokeColor,
-        getWidth: strokeWidth,
-        widthUnits: 'pixels',
+        data: [{ polygon: rectPolygon }],
+        getPolygon: d => d.polygon,
+        filled,
+        stroked: true,
+        getFillColor: filled ? [...fillColor, Math.round(fillOpacity * 255)] : [0, 0, 0, 0],
+        getLineColor: strokeColor,
+        getLineWidth: strokeWidth,
+        lineWidthUnits: 'pixels',
+        ...(dashArray ? {
+          extensions: [new PathStyleExtension({ dash: true })],
+          getDashArray: dashArray,
+        } : {}),
       }));
 
       if (shape.text && labelOpacity > 0) {
@@ -677,30 +671,22 @@ export function createAnnotationLayers(
     if (type === 'ellipse') {
       const { x1, y1, radiusX, radiusY, fillColor = strokeColor, fillOpacity = 0 } = shape;
       const polygon = computeEllipsePolygon(x1, y1, radiusX, radiusY);
-      const closedPath = [...polygon, polygon[0]];
-
-      if (fillOpacity > 0) {
-        layers.push(new PolygonLayer({
-          ...base,
-          id: `annotation-ellipse-fill-${uid}-${i}`,
-          data: [{ polygon }],
-          getPolygon: d => d.polygon,
-          stroked: false,
-          filled: true,
-          getFillColor: [...fillColor, Math.round(fillOpacity * 255)],
-        }));
-      }
-      layers.push(new PathLayer({
+      const filled = fillOpacity > 0;
+      layers.push(new PolygonLayer({
         ...base,
         id: `annotation-ellipse-${uid}-${i}`,
-        extensions: dashExt,
-        getDashArray: getDash,
-        data: [{ path: closedPath }],
-        getPath: d => d.path,
-        getColor: strokeColor,
-        getWidth: strokeWidth,
-        widthUnits: 'pixels',
-        jointRounded: true,
+        data: [{ polygon }],
+        getPolygon: d => d.polygon,
+        filled,
+        stroked: true,
+        getFillColor: filled ? [...fillColor, Math.round(fillOpacity * 255)] : [0, 0, 0, 0],
+        getLineColor: strokeColor,
+        getLineWidth: strokeWidth,
+        lineWidthUnits: 'pixels',
+        ...(dashArray ? {
+          extensions: [new PathStyleExtension({ dash: true })],
+          getDashArray: dashArray,
+        } : {}),
       }));
       if (shape.text && labelOpacity > 0) {
         layers.push(new TextLayer({
