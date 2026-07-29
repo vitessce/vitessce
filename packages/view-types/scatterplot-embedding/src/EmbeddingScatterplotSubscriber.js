@@ -45,7 +45,7 @@ import { createPreviewLayer } from '@vitessce/gl';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 const useStyles = makeStyles()(() => ({
-  coordOverlay: {
+  coordOverlayEmbedding: {
     position: 'absolute',
     bottom: 4,
     right: 8,
@@ -988,7 +988,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         onCoordClick={onCoordClick}
       />
       {coordinatesVisible && hoverCoords && (
-        <div className={classes.coordOverlay}>
+        <div className={classes.coordOverlayEmbedding}>
           {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
         </div>
       )}

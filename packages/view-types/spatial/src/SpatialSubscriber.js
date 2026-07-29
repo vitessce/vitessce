@@ -45,7 +45,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
 const useStyles = makeStyles()(() => ({
-  coordOverlay: {
+  coordOverlaySpatial: {
     position: 'absolute',
     bottom: 4,
     right: 8,
@@ -1203,7 +1203,7 @@ export function SpatialSubscriber(props) {
         onCoordClick={onCoordClick}
       />
       {coordinatesVisible && hoverCoords && (
-        <div className={classes.coordOverlay}>
+        <div className={classes.coordOverlaySpatial}>
           {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
         </div>
       )}
