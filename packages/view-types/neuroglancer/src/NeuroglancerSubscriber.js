@@ -94,7 +94,6 @@ export function NeuroglancerSubscriber(props) {
     subtitle = 'Powered by Neuroglancer',
     helpText = ViewHelpMapping.NEUROGLANCER,
     meshLoadProjectionScaleThreshold,
-    csvUrl,
     // Note: this is a temporary mechanism
     // to pass an initial NG camera state.
     // Ideally, all camera state should be passed via
@@ -175,6 +174,14 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  const csvUrl = useMemo(() => {
+    const obsSetsMap = loaders?.[dataset]?.loaders?.obsSets;
+    if (!obsSetsMap) return null;
+    // InternMap - get the first value
+    const firstLoader = obsSetsMap.values().next().value;
+    return firstLoader?.url ?? null;
+  }, [loaders, dataset]);
 
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
@@ -513,13 +520,12 @@ export function NeuroglancerSubscriber(props) {
     ...(initialNgCameraState ?? {}),
   });
 
-  // TODO: Remove - For debugging in console
-  useEffect(() => {
-    // eslint-disable-next-line no-underscore-dangle
-    window.__chunkCache = chunkCacheRef.current;
-  }, []);
+  // TODO: For debugging in console uncomment
+  // useEffect(() => {
+  //   // eslint-disable-next-line no-underscore-dangle
+  //   window.__chunkCache = chunkCacheRef.current;
+  // }, []);
 
-  // TODO: need to read it from vitessce globals
   useEffect(() => {
     if (!csvUrl) return;
     fetch(csvUrl)
@@ -543,6 +549,7 @@ export function NeuroglancerSubscriber(props) {
         meshIdToCellIdRef.current = meshMap;
         cellIdToMeshIdRef.current = cellMap;
         setCsvLoaded(true);
+        // TODO: For debugging
         // window.__meshIdToCellId = meshIdToCellIdRef.current;
         // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
         // console.log('[csvUrl] meshIdToCellId size:', Object.keys(meshMap).length);
@@ -620,11 +627,6 @@ export function NeuroglancerSubscriber(props) {
       return coords;
     });
 
-    // console.log('allLevelCoords for spatial3:', 
-    //   allLevelCoords.filter(c => c.level === 'spatial3').map(c => `${c.cx}_${c.cy}_${c.cz}`));
-    // console.log('allLevelCoords sample:', allLevelCoords.slice(0, 3));
-    console.log('annotationInfoRef:', annotationInfoRef.current);
-    console.log('annotationTransformRef:', annotationTransformRef.current);
     const fetchChunkWithPositions = async ({ level, cx, cy, cz }) => {
       const { serializers, serializer: defaultSerializer } = annotationTransformRef.current;
       // TODO: confirm for all datasets
@@ -671,11 +673,6 @@ export function NeuroglancerSubscriber(props) {
       });
       obsIdToMeshIdRef.current = obsIdToMeshId;
 
-      // In updateVisibleSegments:
-console.log('position:', position);
-console.log('projectionScale:', projectionScale);
-console.log('allEntries count:', allEntries.length);
-console.log('sample entry:', allEntries[0]);
 
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
@@ -710,11 +707,9 @@ console.log('sample entry:', allEntries[0]);
           }).map(({ id }) => id),
         )];
       }
-      console.log('[updateVisibleSegments] visibleIds count:', visibleIds.length);
-      console.log('[updateVisibleSegments] sample:', visibleIds.slice(0, 5));
       visibleSegmentIdsRef.current = visibleIds;
-      window.__visibleSegmentIds = visibleSegmentIdsRef.current;
-      // console.log('[updateVisibleSegments] projectionScale:', latestViewerStateRef.current?.projectionScale, 'threshold:', meshLoadProjectionScaleThreshold);
+      // TODO: Debugging purposes - can be removed once we settle with datasets
+      // window.__visibleSegmentIds = visibleSegmentIdsRef.current;
       // TODO: ( remove - validation purposes)
       // Confirming phenotypes are correct cell types for an id - tested against csv
       // console.log('[phenotype] sample entries:',
@@ -754,7 +749,7 @@ console.log('sample entry:', allEntries[0]);
         visibleSegmentIdsRef.current = visibleIds;
         incrementLatestViewerStateIteration();
       }
-     
+
       if (hasSignificantChange) {
         setTimeout(() => setIsMeshLoading(false), MESH_LOADING_OVERLAY_TIMEOUT);
       }
@@ -1015,7 +1010,7 @@ console.log('sample entry:', allEntries[0]);
   }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
 
   // For on-demand-mesh-loading use opacity to make the centroids obvious
-  // TODO: may be this shoudl be a prop?
+  // TODO: may be this should be a prop?
   const meshOpacity = hasMatchingAnnotationSource ? MESH_OPACITY : undefined;
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
