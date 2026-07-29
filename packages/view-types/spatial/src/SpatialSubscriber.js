@@ -39,6 +39,10 @@ import { log } from '@vitessce/globals';
 import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
 import { createPreviewLayer } from '@vitessce/gl';
 import { Typography, makeStyles } from '@vitessce/styles';
+import Spatial from './Spatial.js';
+import SpatialOptions from './SpatialOptions.js';
+import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
+import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
 const useStyles = makeStyles()(() => ({
   coordOverlay: {
@@ -55,10 +59,6 @@ const useStyles = makeStyles()(() => ({
     padding: '1px 5px',
   },
 }));
-import Spatial from './Spatial.js';
-import SpatialOptions from './SpatialOptions.js';
-import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { makeSpatialSubtitle, getInitialSpatialTargets, HOVER_MODE } from './utils.js';
 
 // Returns true if ch and oc refer to the same channel.
 // Matches by channelName first (stable string key), then by selection index (fallback).
@@ -84,11 +84,11 @@ function channelMatches(ch, oc) {
 //     - Channels in override but not baseline: appended (author added a new channel).
 function mergeLayerVisibility(baseline, override) {
   if (!baseline || !override) return override ?? baseline;
-  return baseline.map(layer => {
-    const overrideLayer = override.find(l =>
+  return baseline.map((layer) => {
+    const overrideLayer = override.find(l => (
       (layer.layerName && l.layerName && l.layerName === layer.layerName)
       || l.index === layer.index
-    );
+    ));
     if (!overrideLayer) return layer;
 
     if (!overrideLayer.channels) {
@@ -103,12 +103,12 @@ function mergeLayerVisibility(baseline, override) {
 
     let mergedChannels;
     if (isFullCapture) {
-      mergedChannels = overrideLayer.channels.map(oc => {
+      mergedChannels = overrideLayer.channels.map((oc) => {
         const baselineCh = baselineChannels.find(ch => channelMatches(ch, oc));
         return baselineCh ? { ...baselineCh, ...oc } : { ...oc };
       });
     } else {
-      const patched = baselineChannels.map(ch => {
+      const patched = baselineChannels.map((ch) => {
         const overrideCh = overrideLayer.channels.find(oc => channelMatches(ch, oc));
         if (!overrideCh) return ch;
         return {
@@ -208,7 +208,6 @@ export function SpatialSubscriber(props) {
     annotationFrameIndex,
     annotationOverlayVisible,
     annotationTransitionDuration,
-    annotationDiverged,
     annotationActiveTool,
     annotationCaptureViewStateTrigger,
     annotationSelectedShapeUid,
@@ -284,7 +283,7 @@ export function SpatialSubscriber(props) {
       if (zoom != null) setAnimZoom(zoom);
       if (targetX != null) setAnimTargetX(targetX);
       if (targetY != null) setAnimTargetY(targetY);
-      return;
+      return undefined;
     }
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
 
@@ -300,7 +299,7 @@ export function SpatialSubscriber(props) {
     const step = (now) => {
       const t = Math.min((now - startTime) / duration, 1);
       // Cubic ease-in-out
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - ((-2 * t + 2) ** 3) / 2;
       // Only interpolate when both endpoints are numbers — null means "not set"
       // and null arithmetic (null + 0 = 0) would silently move the view to origin.
       if (typeof startZoom === 'number' && typeof endZoom === 'number') {
@@ -360,7 +359,9 @@ export function SpatialSubscriber(props) {
       if (d.spatialImageLayer !== undefined) setRasterLayers(d.spatialImageLayer);
       if (d.spatialSegmentationLayer !== undefined) setCellsLayer(d.spatialSegmentationLayer);
       if (d.spatialPointLayer !== undefined) setMoleculesLayer(d.spatialPointLayer);
-      if (d.spatialNeighborhoodLayer !== undefined) setNeighborhoodsLayer(d.spatialNeighborhoodLayer);
+      if (d.spatialNeighborhoodLayer !== undefined) {
+        setNeighborhoodsLayer(d.spatialNeighborhoodLayer);
+      }
       return;
     }
 
@@ -372,8 +373,10 @@ export function SpatialSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     if (spatialDefaultsRef.current === null) {
       spatialDefaultsRef.current = {
-        spatialZoom: zoom, spatialTargetX: targetX,
-        spatialTargetY: targetY, spatialTargetZ: targetZ,
+        spatialZoom: zoom,
+        spatialTargetX: targetX,
+        spatialTargetY: targetY,
+        spatialTargetZ: targetZ,
         spatialImageLayer: imageLayers,
         spatialSegmentationLayer: cellsLayer,
         spatialPointLayer: moleculesLayer,
@@ -425,7 +428,7 @@ export function SpatialSubscriber(props) {
   const activeShapes = useMemo(() => {
     if (!annotationOverlayVisible || !annotationFrames || annotationFrameIndex === null) return [];
     const frame = annotationFrames[annotationFrameIndex];
-    return (frame?.shapes ?? []).filter(s => {
+    return (frame?.shapes ?? []).filter((s) => {
       if (s.visible === false) return false;
       return !s.targetView || s.targetView === 'spatial';
     });
@@ -552,7 +555,9 @@ export function SpatialSubscriber(props) {
   const storeApi = useViewConfigStoreApi();
   const spatialViewStateRef = useRef(null);
   useEffect(() => {
-    spatialViewStateRef.current = { zoom, targetX, targetY, targetZ, imageLayers, cellsLayer, moleculesLayer, neighborhoodsLayer };
+    spatialViewStateRef.current = {
+      zoom, targetX, targetY, targetZ, imageLayers, cellsLayer, moleculesLayer, neighborhoodsLayer,
+    };
   });
   useEffect(() => {
     if (!annotationCaptureViewStateTrigger || annotationFrameIndex === null) return;
@@ -561,7 +566,8 @@ export function SpatialSubscriber(props) {
     // Read live frames from the store rather than the stale React-state closure,
     // so that sequential writes from sibling subscribers don't overwrite each other.
     const scope = coordinationScopes.annotationFrames;
-    const currentFrames = storeApi.getState().viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
+    const currentFrames = storeApi.getState()
+      .viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
     const entry = {
       targetView: 'spatial',
       spatialZoom: s.zoom,
@@ -884,7 +890,7 @@ export function SpatialSubscriber(props) {
     if (logClickCoords) {
       // eslint-disable-next-line no-console
       console.log(
-        `[Vitessce] spatial`
+        '[Vitessce] spatial'
         + `  click: x=${coord[0].toFixed(2)}, y=${coord[1].toFixed(2)}`
         + `  zoom: ${zoom?.toFixed(3) ?? 'null'}`
         + `  center: x=${targetX?.toFixed(2) ?? 'null'}, y=${targetY?.toFixed(2) ?? 'null'}`,

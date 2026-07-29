@@ -9,11 +9,11 @@ const LABEL_FONT_WEIGHT = 'bold';
 const LABEL_FONT_SIZE = 14;
 // Ratio-based thresholds relative to authored zoom: zoomRatio = 2^(currentZoom - authoredZoom).
 // ratio=1 → exactly at authored zoom; ratio=0.5 → one stop zoomed out; etc.
-const RATIO_CLUSTER = 0.10;    // below → clustered dots (~3.3 stops out)
-const RATIO_DOT = 0.30;        // below → individual dots (~1.74 stops out)
-const RATIO_GEO_FADE = 0.55;   // dot↔geometry crossfade zone top (~0.86 stops out)
-const RATIO_TIPS = 0.70;       // above → arrow/tick caps visible (fades to 0 at RATIO_GEO_FADE)
-const RATIO_LABEL = 0.55;      // labels start appearing (~0.86 stops out)
+const RATIO_CLUSTER = 0.10; // below → clustered dots (~3.3 stops out)
+const RATIO_DOT = 0.30; // below → individual dots (~1.74 stops out)
+const RATIO_GEO_FADE = 0.55; // dot↔geometry crossfade zone top (~0.86 stops out)
+const RATIO_TIPS = 0.70; // above → arrow/tick caps visible (fades to 0 at RATIO_GEO_FADE)
+const RATIO_LABEL = 0.55; // labels start appearing (~0.86 stops out)
 const RATIO_LABEL_FULL = 0.75; // labels reach full opacity (~0.42 stops out)
 
 // Pick a background color that contrasts with the stroke color.
@@ -194,18 +194,18 @@ export function getMeasurementLabel(shape, physicalPixelSize) {
   const unit = pps ? (pps.unit ?? '').replace(/[µμ]/g, 'u') : null;
   const hasPhys = !!pps;
 
-  const fmtDist = d => hasPhys
+  const fmtDist = d => (hasPhys
     ? `${d.toFixed(2)} ${unit}`
-    : `${d.toFixed(1)} px`;
-  const fmtArea = a => hasPhys
+    : `${d.toFixed(1)} px`);
+  const fmtArea = a => (hasPhys
     ? `${a.toFixed(2)} ${unit}^2`
-    : `${fmtCommas(a)} px^2`;
+    : `${fmtCommas(a)} px^2`);
 
   if (shape.type === 'line') {
     const dx = (shape.x2 ?? 0) - (shape.x1 ?? 0);
     const dy = (shape.y2 ?? 0) - (shape.y1 ?? 0);
     const dist = hasPhys
-      ? Math.sqrt((dx * px) ** 2 + (dy * py) ** 2)
+      ? Math.sqrt(((dx * px) ** 2) + ((dy * py) ** 2))
       : Math.sqrt(dx * dx + dy * dy);
     return fmtDist(dist);
   }
@@ -236,15 +236,16 @@ export function getMeasurementLabel(shape, physicalPixelSize) {
       const [ax, ay] = shape.points[i];
       const [bx, by] = shape.points[i + 1];
       total += hasPhys
-        ? Math.sqrt(((bx - ax) * px) ** 2 + ((by - ay) * py) ** 2)
-        : Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2);
+        ? Math.sqrt((((bx - ax) * px) ** 2) + (((by - ay) * py) ** 2))
+        : Math.sqrt(((bx - ax) ** 2) + ((by - ay) ** 2));
     }
     return fmtDist(total);
   }
   return null;
 }
 
-// Pick the perpendicular direction (unit vec) that points "below" the line (more +y in image coords).
+// Pick the perpendicular direction (unit vec) that points "below" the line
+// (more +y in image coords).
 function pickBelowPerp(ux, uy) {
   const rp = [uy, -ux];
   const lp = [-uy, ux];
@@ -281,12 +282,14 @@ function getShapeCentroid(shape) {
 function computeClusters(shapeList, zoom, cellPx = 50) {
   // Snap to integer zoom stops so cluster membership is stable during continuous
   // scrolling — groups only change at discrete zoom-level crossings, not every frame.
-  const cellSize = cellPx / Math.pow(2, Math.floor(zoom));
+  const cellSize = cellPx / (2 ** Math.floor(zoom));
   const cells = new Map();
   shapeList.forEach(({ shape }) => {
     const [cx, cy] = getShapeCentroid(shape);
     const key = `${Math.floor(cx / cellSize)},${Math.floor(cy / cellSize)}`;
-    if (!cells.has(key)) cells.set(key, { sumX: 0, sumY: 0, count: 0, color: shape.strokeColor ?? [255, 255, 255] });
+    if (!cells.has(key)) {
+      cells.set(key, { sumX: 0, sumY: 0, count: 0, color: shape.strokeColor ?? [255, 255, 255] });
+    }
     const c = cells.get(key);
     c.sumX += cx; c.sumY += cy; c.count++;
   });
@@ -297,7 +300,10 @@ function computeClusters(shapeList, zoom, cellPx = 50) {
   }));
 }
 
-export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid = null, physicalPixelSize = null, authoredZoom = null, semanticZoom = true) {
+export function createAnnotationLayers(
+  shapes = [], zoom = 0, selectedShapeUid = null,
+  physicalPixelSize = null, authoredZoom = null, semanticZoom = true,
+) {
   // Selection halo — rendered first so the original shape draws on top of it.
   // Only the extra pixels outside the original stroke are visible, creating a subtle glow ring.
   const selectionLayers = [];
@@ -314,7 +320,12 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
         selectionLayers.push(new PathLayer({
           ...base,
           id: `annotation-select-${sUid}`,
-          data: [{ path: [[x, y], [x + width, y], [x + width, y + height], [x, y + height], [x, y]] }],
+          data: [{
+            path: [
+              [x, y], [x + width, y],
+              [x + width, y + height], [x, y + height], [x, y],
+            ],
+          }],
           getPath: d => d.path,
           getColor: haloColor,
           getWidth: haloWidth,
@@ -403,7 +414,7 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
     } else {
       // Ratio-based LOD relative to the frame's captured zoom.
       // ratio=1 → at authored zoom; <1 → zoomed out; >1 → zoomed in (always full detail).
-      const zoomRatio = Math.pow(2, zoom - authoredZoom);
+      const zoomRatio = 2 ** (zoom - authoredZoom);
       if (zoomRatio < RATIO_CLUSTER) {
         clusterDotShapes.push({ shape });
         return;
@@ -419,20 +430,27 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
       }
       tipsOpacity = zoomRatio >= RATIO_TIPS
         ? shapeOpacity
-        : Math.max(0, ((zoomRatio - RATIO_GEO_FADE) / (RATIO_TIPS - RATIO_GEO_FADE)) * shapeOpacity);
+        : Math.max(
+          0, ((zoomRatio - RATIO_GEO_FADE) / (RATIO_TIPS - RATIO_GEO_FADE)) * shapeOpacity,
+        );
       if (zoomRatio >= RATIO_LABEL_FULL) {
         labelOpacity = shapeOpacity;
       } else if (zoomRatio >= RATIO_LABEL) {
-        labelOpacity = ((zoomRatio - RATIO_LABEL) / (RATIO_LABEL_FULL - RATIO_LABEL)) * shapeOpacity;
+        labelOpacity = ((zoomRatio - RATIO_LABEL) / (RATIO_LABEL_FULL - RATIO_LABEL))
+          * shapeOpacity;
       }
     }
     // Arrowhead scales with stroke width: 4px per unit, floor at ARROW_SCREEN_PX.
-    const arrowDataSize = Math.max(ARROW_SCREEN_PX, strokeWidth * 4) / Math.pow(2, zoom);
+    const arrowDataSize = Math.max(ARROW_SCREEN_PX, strokeWidth * 4) / (2 ** zoom);
     const base = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: shapeOpacity };
     const tipsBase = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: tipsOpacity };
     const labelBase = { coordinateSystem: COORDINATE_SYSTEM.CARTESIAN, opacity: labelOpacity };
     const labelBgProps = shape.labelBackground
-      ? { background: true, getBackgroundColor: textBgColor(strokeColor), backgroundPadding: [3, 1, 3, 2] }
+      ? {
+        background: true,
+        getBackgroundColor: textBgColor(strokeColor),
+        backgroundPadding: [3, 1, 3, 2],
+      }
       : {};
     const labelProps = { ...labelBgProps };
     const dashArray = parseDashArray(strokeDashArray);
@@ -582,8 +600,15 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
 
       if (shape.text) {
         const pos = shape.textPosition ?? 'start';
-        const textX = pos === 'start' ? x1 : pos === 'end' ? x2 : (x1 + x2) / 2;
-        const textY = pos === 'start' ? y1 : pos === 'end' ? y2 : (y1 + y2) / 2;
+        let textX;
+        let textY;
+        if (pos === 'start') {
+          textX = x1; textY = y1;
+        } else if (pos === 'end') {
+          textX = x2; textY = y2;
+        } else {
+          textX = (x1 + x2) / 2; textY = (y1 + y2) / 2;
+        }
 
         let pixelOffset = [0, 0];
         let textAnchor = 'middle';
@@ -773,7 +798,8 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
         const len = Math.sqrt(dx * dx + dy * dy);
         if (len > 0) {
           const ux = dx / len; const uy = dy / len;
-          pathPoints = [...pathPoints.slice(0, -1), [last[0] - ux * arrowDataSize, last[1] - uy * arrowDataSize]];
+          const shortened = [last[0] - ux * arrowDataSize, last[1] - uy * arrowDataSize];
+          pathPoints = [...pathPoints.slice(0, -1), shortened];
         }
       }
 
@@ -809,7 +835,9 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
       if (markerEnd === 'Arrow' && tipsOpacity > 0) {
         const last = points[points.length - 1];
         const prev = points[points.length - 2];
-        const head = computeArrowhead(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
+        const dxArrow = last[0] - prev[0];
+        const dyArrow = last[1] - prev[1];
+        const head = computeArrowhead(last[0], last[1], dxArrow, dyArrow, arrowDataSize);
         if (head) {
           layers.push(new PolygonLayer({
             ...tipsBase,
@@ -844,7 +872,9 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
       if (markerEnd === 'Tick' && tipsOpacity > 0) {
         const last = points[points.length - 1];
         const prev = points[points.length - 2];
-        const tick = computeTickCap(last[0], last[1], last[0] - prev[0], last[1] - prev[1], arrowDataSize);
+        const dxTick = last[0] - prev[0];
+        const dyTick = last[1] - prev[1];
+        const tick = computeTickCap(last[0], last[1], dxTick, dyTick, arrowDataSize);
         if (tick) {
           layers.push(new PathLayer({
             ...tipsBase,
@@ -863,7 +893,8 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
         const pos = shape.textPosition ?? 'start';
         const bufferPx = shape.textBufferPx ?? 8;
 
-        let textPt, dirX, dirY;
+        let textPt; let dirX; let
+          dirY;
         if (pos === 'end') {
           const last = points[points.length - 1];
           const prev = points[points.length - 2];
@@ -877,7 +908,7 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
           dirX = 0;
           dirY = 0;
         } else {
-          textPt = points[0];
+          ([textPt] = points);
           dirX = points[0][0] - points[1][0];
           dirY = points[0][1] - points[1][1];
         }
@@ -985,7 +1016,7 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
     if (mIsSelected || !semanticZoom || authoredZoom === null) {
       mLabelFactor = 1;
     } else {
-      const mZoomRatio = Math.pow(2, zoom - authoredZoom);
+      const mZoomRatio = 2 ** (zoom - authoredZoom);
       if (mZoomRatio < RATIO_DOT) return;
       if (mZoomRatio < RATIO_GEO_FADE) {
         mShapeOpacity = (mZoomRatio - RATIO_DOT) / (RATIO_GEO_FADE - RATIO_DOT);
@@ -1008,7 +1039,13 @@ export function createAnnotationLayers(shapes = [], zoom = 0, selectedShapeUid =
       sizeUnits: 'pixels',
       fontFamily: 'monospace',
       fontWeight: 'bold',
-      ...(shape.measureBackground ? { background: true, getBackgroundColor: textBgColor(color), backgroundPadding: [3, 1, 3, 2] } : {}),
+      ...(shape.measureBackground
+        ? {
+          background: true,
+          getBackgroundColor: textBgColor(color),
+          backgroundPadding: [3, 1, 3, 2],
+        }
+        : {}),
     };
 
     if (shape.type === 'line') {

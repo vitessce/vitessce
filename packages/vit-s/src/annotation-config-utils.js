@@ -76,4 +76,3 @@ export function cleanExportConfig(viewConfig) {
 
   return { ...rest, coordinationSpace: cleanCs, layout: cleanLayout };
 }
-

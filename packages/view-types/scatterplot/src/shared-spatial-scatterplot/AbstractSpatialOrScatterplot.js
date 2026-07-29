@@ -318,14 +318,17 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool
-            ? { dragPan: false, doubleClickZoom: false }
-            : (isMultiClickAnnotation ? { doubleClickZoom: false } : true)}
+          controller={(() => {
+            if (tool) return { dragPan: false, doubleClickZoom: false };
+            if (isMultiClickAnnotation) return { doubleClickZoom: false };
+            return true;
+          })()}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
           onClick={(info) => {
-            if (this.props.onCoordClick && info.coordinate) {
-              this.props.onCoordClick(info.coordinate);
+            const { onCoordClick } = this.props;
+            if (onCoordClick && info.coordinate) {
+              onCoordClick(info.coordinate);
             }
           }}
           width="100%"

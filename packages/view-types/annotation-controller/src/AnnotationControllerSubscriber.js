@@ -66,17 +66,17 @@ export function AnnotationControllerSubscriber(props) {
   const [fetchStatus, setFetchStatus] = useState({ status: 'idle', error: null });
 
   useEffect(() => {
-    if (annotationDataType !== 'data' || !annotationDataUrl) return;
+    if (annotationDataType !== 'data' || !annotationDataUrl) return undefined;
     const controller = new AbortController();
     setFetchStatus({ status: 'loading', error: null });
     fetch(annotationDataUrl, { signal: controller.signal })
-      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-      .then(data => {
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((data) => {
         const frames = Array.isArray(data) ? data : (data.frames ?? data.annotationFrames ?? []);
         setAnnotationFrames(frames);
         setFetchStatus({ status: 'success', error: null });
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.name !== 'AbortError') {
           setFetchStatus({ status: 'error', error: err.message });
         }
@@ -99,7 +99,8 @@ export function AnnotationControllerSubscriber(props) {
     if (obsColorEncoding != null) crossView.obsColorEncoding = obsColorEncoding;
     if (obsSetSelection != null) crossView.obsSetSelection = obsSetSelection;
     setAnnotationFrames((annotationFrames ?? []).map((f, idx) => (
-      idx === annotationFrameIndex ? { ...f, viewState: { ...(f.viewState ?? {}), ...crossView } } : f
+      idx === annotationFrameIndex
+        ? { ...f, viewState: { ...(f.viewState ?? {}), ...crossView } } : f
     )));
     // Increment trigger so each subscribed view writes its own viewStates[] entry.
     setAnnotationCaptureViewStateTrigger(annotationCaptureViewStateTrigger + 1);
@@ -134,7 +135,9 @@ export function AnnotationControllerSubscriber(props) {
     // Signal views to animate and clear any divergence.
     setAnnotationTransitionDuration(TRANSITION_MS);
     clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = setTimeout(() => setAnnotationTransitionDuration(0), TRANSITION_MS);
+    transitionTimerRef.current = setTimeout(
+      () => setAnnotationTransitionDuration(0), TRANSITION_MS,
+    );
     setAnnotationDiverged(false);
 
     applyVal(setFeatureSelection, 'featureSelection');
@@ -162,7 +165,9 @@ export function AnnotationControllerSubscriber(props) {
   const handleExit = useCallback(() => {
     setAnnotationTransitionDuration(TRANSITION_MS);
     clearTimeout(transitionTimerRef.current);
-    transitionTimerRef.current = setTimeout(() => setAnnotationTransitionDuration(0), TRANSITION_MS);
+    transitionTimerRef.current = setTimeout(
+      () => setAnnotationTransitionDuration(0), TRANSITION_MS,
+    );
     setAnnotationDiverged(false);
 
     const d = defaultsCrossViewRef.current;
@@ -185,7 +190,10 @@ export function AnnotationControllerSubscriber(props) {
 
   const handleForward = useCallback(() => {
     const numFrames = annotationFrames?.length ?? 0;
-    applyFrame(annotationFrameIndex === null ? 0 : Math.min(numFrames - 1, annotationFrameIndex + 1));
+    const nextIdx = annotationFrameIndex === null
+      ? 0
+      : Math.min(numFrames - 1, annotationFrameIndex + 1);
+    applyFrame(nextIdx);
   }, [annotationFrameIndex, annotationFrames, applyFrame]);
 
   const handleToggleOverlay = useCallback(() => {
@@ -203,7 +211,7 @@ export function AnnotationControllerSubscriber(props) {
   }, [annotationSemanticZoom, setAnnotationSemanticZoom]);
 
   const handleDownloadConfig = useCallback(() => {
-    const viewConfig = storeApi.getState().viewConfig;
+    const { viewConfig } = storeApi.getState();
     if (!viewConfig) return;
     const cleaned = cleanExportConfig(viewConfig);
     const blob = new Blob([JSON.stringify(cleaned, null, 2)], { type: 'application/json' });
@@ -216,11 +224,13 @@ export function AnnotationControllerSubscriber(props) {
   }, [storeApi]);
 
   const numFrames = annotationFrames?.length ?? 0;
-  const infoText = numFrames > 0
-    ? (annotationFrameIndex !== null
+  const plural = numFrames !== 1 ? 's' : '';
+  let infoText = '';
+  if (numFrames > 0) {
+    infoText = annotationFrameIndex !== null
       ? `Frame ${annotationFrameIndex + 1} of ${numFrames}`
-      : `${numFrames} frame${numFrames !== 1 ? 's' : ''}`)
-    : '';
+      : `${numFrames} frame${plural}`;
+  }
 
   return (
     <TitleInfo

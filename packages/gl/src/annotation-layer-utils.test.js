@@ -134,9 +134,9 @@ describe('createAnnotationLayers', () => {
   });
 
   it('returns a PathLayer for polygon preview that closes back to start', () => {
-    const layer = createPreviewLayer({ type: 'polygon', vertices: [[0,0],[10,0],[5,10]] }, [3, 3]);
+    const layer = createPreviewLayer({ type: 'polygon', vertices: [[0, 0], [10, 0], [5, 10]] }, [3, 3]);
     expect(layer).not.toBeNull();
-    const path = layer.props.data[0].path;
+    const { path } = layer.props.data[0];
     // vertices + cursor + close = 3 + 1 + 1 = 5
     expect(path).toHaveLength(5);
     // Last point closes to first vertex
@@ -144,9 +144,9 @@ describe('createAnnotationLayers', () => {
   });
 
   it('returns a PathLayer for polyline preview without closing', () => {
-    const layer = createPreviewLayer({ type: 'polyline', vertices: [[0,0],[10,0]] }, [15, 5]);
+    const layer = createPreviewLayer({ type: 'polyline', vertices: [[0, 0], [10, 0]] }, [15, 5]);
     expect(layer).not.toBeNull();
-    const path = layer.props.data[0].path;
+    const { path } = layer.props.data[0];
     // vertices + cursor = 2 + 1 = 3 (no close)
     expect(path).toHaveLength(3);
   });

@@ -61,6 +61,7 @@ const useStyles = makeStyles()(() => ({
 }));
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
+const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
 
 /**
  * A subscriber component for the scatterplot.
@@ -192,7 +193,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const activeShapes = useMemo(() => {
     if (!annotationOverlayVisible || !annotationFrames || annotationFrameIndex === null) return [];
     const frame = annotationFrames[annotationFrameIndex];
-    return (frame?.shapes ?? []).filter(s => {
+    return (frame?.shapes ?? []).filter((s) => {
       if (s.visible === false) return false;
       if (s.targetView !== 'scatterplot') return false;
       const tcv = s.targetCoordinationValues ?? {};
@@ -234,7 +235,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAnnotationFrames(updated);
   }, [annotationFrames, annotationFrameIndex, setAnnotationFrames]);
 
-  const TWO_CLICK_TOOLS = ['rectangle', 'line', 'ellipse'];
   const lastAnnotationClickTimeRef = React.useRef(0);
   const DOUBLE_CLICK_MS = 350;
 
@@ -325,7 +325,8 @@ export function EmbeddingScatterplotSubscriber(props) {
     // Read live frames from the store to avoid stale-closure overwrites when
     // multiple scatterplot subscribers write in the same effect flush.
     const scope = coordinationScopes.annotationFrames;
-    const currentFrames = storeApi.getState().viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
+    const currentFrames = storeApi.getState()
+      .viewConfig?.coordinationSpace?.annotationFrames?.[scope] ?? [];
     const entry = {
       targetView: 'scatterplot',
       targetCoordinationValues: { embeddingType: mapping },
@@ -378,7 +379,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     const frame = frames[annotationFrameIndex];
 
     // Capture baseline once (closure values — only read once, must not be in deps).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (embeddingDefaultsRef.current === null) {
       embeddingDefaultsRef.current = {
         embeddingZoom: zoom, embeddingTargetX: targetX, embeddingTargetY: targetY,
@@ -386,7 +386,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     }
 
     // Find the viewStates entry addressed to this specific scatterplot instance.
-    const viewStateEntry = (frame?.viewStates ?? []).find(e => {
+    const viewStateEntry = (frame?.viewStates ?? []).find((e) => {
       if (e.targetView !== 'scatterplot') return false;
       const tcv = e.targetCoordinationValues ?? {};
       if (tcv.embeddingType && tcv.embeddingType !== mapping) return false;
@@ -406,6 +406,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     applyVal(setZoom, 'embeddingZoom');
     applyVal(setTargetX, 'embeddingTargetX');
     applyVal(setTargetY, 'embeddingTargetY');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     annotationFrameIndex, mapping,
     annotationTransitionDuration,
@@ -423,7 +424,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       if (zoom != null) setAnimZoom(zoom);
       if (targetX != null) setAnimTargetX(targetX);
       if (targetY != null) setAnimTargetY(targetY);
-      return;
+      return undefined;
     }
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
 
@@ -438,7 +439,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
     const step = (now) => {
       const t = Math.min((now - startTime) / duration, 1);
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - ((-2 * t + 2) ** 3) / 2;
       // Only interpolate when both endpoints are numbers — null means "not set"
       // and null arithmetic (null + 0 = 0) would silently move the view to origin.
       if (typeof startZoom === 'number' && typeof endZoom === 'number') {
@@ -595,7 +596,10 @@ export function EmbeddingScatterplotSubscriber(props) {
         + `  center: x=${targetX?.toFixed(4) ?? 'null'}, y=${targetY?.toFixed(4) ?? 'null'}`,
       );
     }
-  }, [annotationActiveTool, handleAnnotationClick, logClickCoords, mapping, zoom, targetX, targetY]);
+  }, [
+    annotationActiveTool, handleAnnotationClick, logClickCoords,
+    mapping, zoom, targetX, targetY,
+  ]);
 
   const mergedCellSets = useMemo(() => mergeObsSets(
     cellSets, additionalCellSets,

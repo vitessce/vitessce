@@ -59,21 +59,31 @@ function ShapeIcon({ type, size = 13 }) {
   const s = size;
   const sw = 1.5;
   const c = 'currentColor';
-  if (type === 'rectangle') return (
-    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" stroke={c} strokeWidth={sw} /></svg>
-  );
-  if (type === 'line') return (
-    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><line x1="1.5" y1="11.5" x2="11.5" y2="1.5" stroke={c} strokeWidth={sw} strokeLinecap="round" /><polygon points="11.5,1.5 8.5,2.5 10.5,4.5" fill={c} /></svg>
-  );
-  if (type === 'ellipse') return (
-    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><ellipse cx="6.5" cy="6.5" rx="5" ry="3" stroke={c} strokeWidth={sw} /></svg>
-  );
-  if (type === 'polygon') return (
-    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polygon points="6.5,1 11.5,4.5 9.5,11 3.5,11 1.5,4.5" stroke={c} strokeWidth={sw} fill="none" /></svg>
-  );
-  if (type === 'polyline') return (
-    <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polyline points="1.5,10.5 4,5 7,8.5 10,3 12,6" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
-  );
+  if (type === 'rectangle') {
+    return (
+      <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><rect x="1" y="3" width="11" height="7" stroke={c} strokeWidth={sw} /></svg>
+    );
+  }
+  if (type === 'line') {
+    return (
+      <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><line x1="1.5" y1="11.5" x2="11.5" y2="1.5" stroke={c} strokeWidth={sw} strokeLinecap="round" /><polygon points="11.5,1.5 8.5,2.5 10.5,4.5" fill={c} /></svg>
+    );
+  }
+  if (type === 'ellipse') {
+    return (
+      <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><ellipse cx="6.5" cy="6.5" rx="5" ry="3" stroke={c} strokeWidth={sw} /></svg>
+    );
+  }
+  if (type === 'polygon') {
+    return (
+      <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polygon points="6.5,1 11.5,4.5 9.5,11 3.5,11 1.5,4.5" stroke={c} strokeWidth={sw} fill="none" /></svg>
+    );
+  }
+  if (type === 'polyline') {
+    return (
+      <svg width={s} height={s} viewBox="0 0 13 13" fill="none"><polyline points="1.5,10.5 4,5 7,8.5 10,3 12,6" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" /></svg>
+    );
+  }
   return null;
 }
 
@@ -705,7 +715,10 @@ export function AnnotationController(props) {
     if (!frames || frameIndex === null) return;
     onSetFrames(frames.map((f, idx) => (
       idx === frameIndex
-        ? { ...f, shapes: (f.shapes ?? []).map(s => s.uid === shapeUid ? { ...s, ...updates } : s) }
+        ? {
+          ...f,
+          shapes: (f.shapes ?? []).map(s => (s.uid === shapeUid ? { ...s, ...updates } : s)),
+        }
         : f
     )));
   }, [frames, frameIndex, onSetFrames]);
@@ -750,7 +763,9 @@ export function AnnotationController(props) {
     onDownloadConfig();
     setConfigDownloadConfirmed(true);
     clearTimeout(configDownloadTimerRef.current);
-    configDownloadTimerRef.current = setTimeout(() => setConfigDownloadConfirmed(false), CONFIRM_FLASH_MS);
+    configDownloadTimerRef.current = setTimeout(
+      () => setConfigDownloadConfirmed(false), CONFIRM_FLASH_MS,
+    );
   }, [onDownloadConfig]);
 
   const numFrames = frames?.length ?? 0;
@@ -767,22 +782,45 @@ export function AnnotationController(props) {
           <div className={classes.headerActions}>
             <Tooltip title={copyConfirmed ? 'Copied!' : 'Copy JSON to clipboard'}>
               <span>
-                <IconButton size="small" className={classes.headerIconBtn} onClick={handleCopyJson} disabled={!frames} style={copyConfirmed ? { color: '#4caf50' } : {}}>
-                  {copyConfirmed ? <Check style={{ fontSize: 14 }} /> : <ContentCopy style={{ fontSize: 14 }} />}
+                <IconButton
+                  size="small"
+                  className={classes.headerIconBtn}
+                  onClick={handleCopyJson}
+                  disabled={!frames}
+                  style={copyConfirmed ? { color: '#4caf50' } : {}}
+                >
+                  {copyConfirmed
+                    ? <Check style={{ fontSize: 14 }} />
+                    : <ContentCopy style={{ fontSize: 14 }} />}
                 </IconButton>
               </span>
             </Tooltip>
             <Tooltip title={downloadConfirmed ? 'Downloaded!' : 'Download annotation-frames.json'}>
               <span>
-                <IconButton size="small" className={classes.headerIconBtn} onClick={handleDownloadJson} disabled={!frames} style={downloadConfirmed ? { color: '#4caf50' } : {}}>
-                  {downloadConfirmed ? <Check style={{ fontSize: 14 }} /> : <CloudDownload style={{ fontSize: 14 }} />}
+                <IconButton
+                  size="small"
+                  className={classes.headerIconBtn}
+                  onClick={handleDownloadJson}
+                  disabled={!frames}
+                  style={downloadConfirmed ? { color: '#4caf50' } : {}}
+                >
+                  {downloadConfirmed
+                    ? <Check style={{ fontSize: 14 }} />
+                    : <CloudDownload style={{ fontSize: 14 }} />}
                 </IconButton>
               </span>
             </Tooltip>
             <Tooltip title={configDownloadConfirmed ? 'Downloaded!' : 'Download full Vitessce config'}>
               <span>
-                <IconButton size="small" className={classes.headerIconBtn} onClick={handleDownloadConfig} style={configDownloadConfirmed ? { color: '#4caf50' } : {}}>
-                  {configDownloadConfirmed ? <Check style={{ fontSize: 14 }} /> : <Code style={{ fontSize: 14 }} />}
+                <IconButton
+                  size="small"
+                  className={classes.headerIconBtn}
+                  onClick={handleDownloadConfig}
+                  style={configDownloadConfirmed ? { color: '#4caf50' } : {}}
+                >
+                  {configDownloadConfirmed
+                    ? <Check style={{ fontSize: 14 }} />
+                    : <Code style={{ fontSize: 14 }} />}
                 </IconButton>
               </span>
             </Tooltip>
@@ -832,17 +870,17 @@ export function AnnotationController(props) {
                       </span>
                       <span className={classes.frameRowTitle}>{frame.title || `Frame ${i + 1}`}</span>
                       <div className={classes.frameReorderBtns} onClick={e => e.stopPropagation()} role="presentation">
-                        <IconButton size="small" disabled={i === 0} onClick={e => { e.stopPropagation(); handleMoveFrame(i, -1); }} title="Move up" style={{ padding: '1px 3px' }}>
+                        <IconButton size="small" disabled={i === 0} onClick={(e) => { e.stopPropagation(); handleMoveFrame(i, -1); }} title="Move up" style={{ padding: '1px 3px' }}>
                           <ArrowDropUp style={{ fontSize: 22 }} />
                         </IconButton>
-                        <IconButton size="small" disabled={i === (frames?.length ?? 0) - 1} onClick={e => { e.stopPropagation(); handleMoveFrame(i, 1); }} title="Move down" style={{ padding: '1px 3px' }}>
+                        <IconButton size="small" disabled={i === (frames?.length ?? 0) - 1} onClick={(e) => { e.stopPropagation(); handleMoveFrame(i, 1); }} title="Move down" style={{ padding: '1px 3px' }}>
                           <ArrowDropDown style={{ fontSize: 22 }} />
                         </IconButton>
                       </div>
-                      <IconButton size="small" onClick={e => { e.stopPropagation(); handleDuplicateFrame(i); }} title="Duplicate frame">
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDuplicateFrame(i); }} title="Duplicate frame">
                         <FileCopy fontSize="inherit" />
                       </IconButton>
-                      <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteFrame(i); }} title="Delete frame">
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteFrame(i); }} title="Delete frame">
                         <RemoveCircle fontSize="inherit" />
                       </IconButton>
                     </div>
@@ -933,7 +971,7 @@ export function AnnotationController(props) {
                 </div>
               ) : (
                 <div className={classes.shapeList}>
-                  {activeFrame.shapes.map(shape => {
+                  {activeFrame.shapes.map((shape) => {
                     const isSelected = selectedShapeUid === shape.uid;
                     const hasFill = ['rectangle', 'ellipse', 'polygon'].includes(shape.type);
                     const hasMarkers = ['line', 'polyline'].includes(shape.type);
@@ -951,7 +989,7 @@ export function AnnotationController(props) {
                         >
                           <ShapeIcon type={shape.type} size={12} />
                           <span className={classes.shapeLabel}>{shape.text ? `"${shape.text}"` : shape.type}</span>
-                          <IconButton size="small" onClick={e => { e.stopPropagation(); handleDeleteShape(shape.uid); }} title="Delete shape">
+                          <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleDeleteShape(shape.uid); }} title="Delete shape">
                             <RemoveCircle fontSize="inherit" />
                           </IconButton>
                         </div>
@@ -965,7 +1003,7 @@ export function AnnotationController(props) {
                             </div>
                             {hasMarkers && shape.text && (
                               <div style={{ display: 'flex', gap: 3, paddingLeft: 48, marginTop: -2 }}>
-                                {['start', 'middle', 'end'].map(pos => {
+                                {['start', 'middle', 'end'].map((pos) => {
                                   const active = (shape.textPosition ?? 'start') === pos;
                                   return (
                                     <Button key={pos} size="small" variant={active ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, active && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { textPosition: pos })}>
@@ -980,11 +1018,28 @@ export function AnnotationController(props) {
                               <span className={classes.shapeEditorLabel}>Stroke</span>
                               <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { strokeColor: hexToRgb(e.target.value) })} title="Stroke color" />
                               <div className={classes.shapeEditorBtnGroup}>
-                                {DASH_OPTIONS.map(opt => (
-                                  <Button key={String(opt.key)} size="small" variant={currentDash === opt.key ? 'contained' : 'outlined'} className={cx(classes.shapeEditorBtn, currentDash === opt.key && classes.shapeEditorBtnActive)} onClick={() => handleUpdateShape(shape.uid, { strokeDashArray: opt.key ?? undefined })} title={opt.key === null ? 'Solid' : opt.key === '8 4' ? 'Dashed' : 'Dotted'}>
-                                    {opt.label}
-                                  </Button>
-                                ))}
+                                {DASH_OPTIONS.map((opt) => {
+                                  let dashTitle = 'Dotted';
+                                  if (opt.key === null) dashTitle = 'Solid';
+                                  else if (opt.key === '8 4') dashTitle = 'Dashed';
+                                  return (
+                                    <Button
+                                      key={String(opt.key)}
+                                      size="small"
+                                      variant={currentDash === opt.key ? 'contained' : 'outlined'}
+                                      className={cx(
+                                        classes.shapeEditorBtn,
+                                        currentDash === opt.key && classes.shapeEditorBtnActive,
+                                      )}
+                                      onClick={() => handleUpdateShape(
+                                        shape.uid, { strokeDashArray: opt.key ?? undefined },
+                                      )}
+                                      title={dashTitle}
+                                    >
+                                      {opt.label}
+                                    </Button>
+                                  );
+                                })}
                               </div>
                               <Slider size="small" min={1} max={10} step={1} value={shape.strokeWidth ?? 3} onChange={(_, v) => handleUpdateShape(shape.uid, { strokeWidth: v })} valueLabelDisplay="auto" style={{ flex: 1, marginLeft: 4 }} />
                             </div>
@@ -993,8 +1048,22 @@ export function AnnotationController(props) {
                               <div className={classes.shapeEditorRow}>
                                 <span className={classes.shapeEditorLabel}>Fill</span>
                                 <input type="color" className={classes.colorSwatch} value={rgbToHex(shape.fillColor ?? shape.strokeColor ?? [255, 255, 255])} onChange={e => handleUpdateShape(shape.uid, { fillColor: hexToRgb(e.target.value) })} title="Fill color" />
-                                <span style={{ fontSize: FS.xs, opacity: 0.6, flexShrink: 0 }}>α</span>
-                                <Slider size="small" min={0} max={1} step={0.05} value={shape.fillOpacity ?? 0} onChange={(_, v) => handleUpdateShape(shape.uid, { fillOpacity: v })} valueLabelDisplay="auto" valueLabelFormat={v => v.toFixed(2)} style={{ flex: 1, marginLeft: 2 }} />
+                                <span style={{ fontSize: FS.xs, opacity: 0.6, flexShrink: 0 }}>
+                                  α
+                                </span>
+                                <Slider
+                                  size="small"
+                                  min={0}
+                                  max={1}
+                                  step={0.05}
+                                  value={shape.fillOpacity ?? 0}
+                                  onChange={(_, v) => handleUpdateShape(
+                                    shape.uid, { fillOpacity: v },
+                                  )}
+                                  valueLabelDisplay="auto"
+                                  valueLabelFormat={v => v.toFixed(2)}
+                                  style={{ flex: 1, marginLeft: 2 }}
+                                />
                               </div>
                             )}
                             {/* Markers: start/end caps — full-width symmetric layout */}
@@ -1002,7 +1071,7 @@ export function AnnotationController(props) {
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 {[
                                   { field: 'markerStart', current: shape.markerStart, prefix: '←', symbols: ['–', '←', '|–'] },
-                                  { field: 'markerEnd',   current: shape.markerEnd,   prefix: '→', symbols: ['–', '→', '–|'] },
+                                  { field: 'markerEnd', current: shape.markerEnd, prefix: '→', symbols: ['–', '→', '–|'] },
                                 ].map(({ field, current, prefix, symbols }) => (
                                   <div key={field} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                                     <span style={{ fontSize: FS.xs, opacity: 0.45, width: 12, textAlign: 'center', flexShrink: 0 }}>{prefix}</span>
@@ -1023,7 +1092,11 @@ export function AnnotationController(props) {
                             {/* ── Utilities row: attributes toggle + copy to frame ── */}
                             <div className={classes.shapeEditorRow} style={{ justifyContent: 'space-between', marginTop: 2 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-                                <button className={classes.geomToggleBtn} onClick={() => setGeoOpen(o => !o)}>
+                                <button
+                                  type="button"
+                                  className={classes.geomToggleBtn}
+                                  onClick={() => setGeoOpen(o => !o)}
+                                >
                                   {geoOpen ? '▾' : '▸'} Attributes
                                 </button>
                                 {!geoOpen && measurementValue && (
@@ -1037,7 +1110,7 @@ export function AnnotationController(props) {
                                     className={classes.shapeCopySelect}
                                     value=""
                                     onClick={e => e.stopPropagation()}
-                                    onChange={e => {
+                                    onChange={(e) => {
                                       e.stopPropagation();
                                       if (e.target.value !== '') {
                                         handleCopyShapeToFrame(shape.uid, +e.target.value);
@@ -1049,24 +1122,35 @@ export function AnnotationController(props) {
                                     {frames.map((f, fi) => fi !== frameIndex && (
                                       <option key={f.uid} value={fi}>
                                         {String(fi + 1).padStart(String(numFrames).length, '0')}
-                                        {f.title ? ` ${f.title.length > 18 ? f.title.slice(0, 18) + '…' : f.title}` : ''}
+                                        {f.title ? ` ${f.title.length > 18 ? `${f.title.slice(0, 18)}…` : f.title}` : ''}
                                       </option>
                                     ))}
                                   </select>
                                 </div>
                               )}
                             </div>
-                            {/* ── Attributes section (collapsed by default): measure + geometry ── */}
-                            {geoOpen && (<>
-                              {measurementValue && (
+                            {/* Attributes section (collapsed by default): measure + geometry */}
+                            {geoOpen && (
+                              <>
+                                {measurementValue && (
                                 <div className={classes.shapeEditorRow}>
                                   <span className={classes.shapeEditorLabel}>Measure</span>
-                                  <span style={{ fontSize: FS.xs, fontFamily: FONT_MONO, opacity: 0.75, flex: 1 }}>{measurementValue}</span>
+                                  <span style={{
+                                    fontSize: FS.xs, fontFamily: FONT_MONO, opacity: 0.75, flex: 1,
+                                  }}
+                                  >
+                                    {measurementValue}
+                                  </span>
                                   <Button
                                     size="small"
                                     variant={shape.measureBackground ? 'contained' : 'outlined'}
-                                    className={cx(classes.shapeEditorBtn, shape.measureBackground && classes.shapeEditorBtnActive)}
-                                    onClick={() => handleUpdateShape(shape.uid, { measureBackground: !shape.measureBackground })}
+                                    className={cx(
+                                      classes.shapeEditorBtn,
+                                      shape.measureBackground && classes.shapeEditorBtnActive,
+                                    )}
+                                    onClick={() => handleUpdateShape(
+                                      shape.uid, { measureBackground: !shape.measureBackground },
+                                    )}
                                     style={{ flexShrink: 0 }}
                                     title="Toggle background behind measure text"
                                   >
@@ -1075,69 +1159,84 @@ export function AnnotationController(props) {
                                   <Button
                                     size="small"
                                     variant={shape.showMeasure ? 'contained' : 'outlined'}
-                                    className={cx(classes.shapeEditorBtn, shape.showMeasure && classes.shapeEditorBtnActive)}
-                                    onClick={() => handleUpdateShape(shape.uid, { showMeasure: !shape.showMeasure })}
+                                    className={cx(
+                                      classes.shapeEditorBtn,
+                                      shape.showMeasure && classes.shapeEditorBtnActive,
+                                    )}
+                                    onClick={() => handleUpdateShape(
+                                      shape.uid, { showMeasure: !shape.showMeasure },
+                                    )}
                                     style={{ flexShrink: 0 }}
                                   >
                                     Show
                                   </Button>
                                 </div>
-                              )}
-                              {shape.type === 'rectangle' && (<>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>Origin</span>
-                                  <span className={classes.coordLabel}>x</span>
-                                  <input type="number" className={classes.coordInput} value={shape.x ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x: +e.target.value })} />
-                                  <span className={classes.coordLabel}>y</span>
-                                  <input type="number" className={classes.coordInput} value={shape.y ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y: +e.target.value })} />
-                                </div>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>Size</span>
-                                  <span className={classes.coordLabel}>w</span>
-                                  <input type="number" className={classes.coordInput} value={shape.width ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { width: +e.target.value })} />
-                                  <span className={classes.coordLabel}>h</span>
-                                  <input type="number" className={classes.coordInput} value={shape.height ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { height: +e.target.value })} />
-                                </div>
-                              </>)}
-                              {shape.type === 'line' && (<>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>Start</span>
-                                  <span className={classes.coordLabel}>x</span>
-                                  <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
-                                  <span className={classes.coordLabel}>y</span>
-                                  <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
-                                </div>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>End</span>
-                                  <span className={classes.coordLabel}>x</span>
-                                  <input type="number" className={classes.coordInput} value={shape.x2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x2: +e.target.value })} />
-                                  <span className={classes.coordLabel}>y</span>
-                                  <input type="number" className={classes.coordInput} value={shape.y2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y2: +e.target.value })} />
-                                </div>
-                              </>)}
-                              {shape.type === 'ellipse' && (<>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>Center</span>
-                                  <span className={classes.coordLabel}>x</span>
-                                  <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
-                                  <span className={classes.coordLabel}>y</span>
-                                  <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
-                                </div>
-                                <div className={classes.shapeEditorRow}>
-                                  <span className={classes.shapeEditorLabel}>Radius</span>
-                                  <span className={classes.coordLabel}>rx</span>
-                                  <input type="number" className={classes.coordInput} value={shape.radiusX ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusX: +e.target.value })} />
-                                  <span className={classes.coordLabel}>ry</span>
-                                  <input type="number" className={classes.coordInput} value={shape.radiusY ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusY: +e.target.value })} />
-                                </div>
-                              </>)}
-                              {(shape.type === 'polygon' || shape.type === 'polyline') && (
+                                )}
+                                {shape.type === 'rectangle' && (
+                                  <>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>Origin</span>
+                                      <span className={classes.coordLabel}>x</span>
+                                      <input type="number" className={classes.coordInput} value={shape.x ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x: +e.target.value })} />
+                                      <span className={classes.coordLabel}>y</span>
+                                      <input type="number" className={classes.coordInput} value={shape.y ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y: +e.target.value })} />
+                                    </div>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>Size</span>
+                                      <span className={classes.coordLabel}>w</span>
+                                      <input type="number" className={classes.coordInput} value={shape.width ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { width: +e.target.value })} />
+                                      <span className={classes.coordLabel}>h</span>
+                                      <input type="number" className={classes.coordInput} value={shape.height ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { height: +e.target.value })} />
+                                    </div>
+                                  </>
+                                )}
+                                {shape.type === 'line' && (
+                                  <>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>Start</span>
+                                      <span className={classes.coordLabel}>x</span>
+                                      <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                      <span className={classes.coordLabel}>y</span>
+                                      <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                                    </div>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>End</span>
+                                      <span className={classes.coordLabel}>x</span>
+                                      <input type="number" className={classes.coordInput} value={shape.x2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x2: +e.target.value })} />
+                                      <span className={classes.coordLabel}>y</span>
+                                      <input type="number" className={classes.coordInput} value={shape.y2 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y2: +e.target.value })} />
+                                    </div>
+                                  </>
+                                )}
+                                {shape.type === 'ellipse' && (
+                                  <>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>Center</span>
+                                      <span className={classes.coordLabel}>x</span>
+                                      <input type="number" className={classes.coordInput} value={shape.x1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { x1: +e.target.value })} />
+                                      <span className={classes.coordLabel}>y</span>
+                                      <input type="number" className={classes.coordInput} value={shape.y1 ?? 0} step={1} onChange={e => handleUpdateShape(shape.uid, { y1: +e.target.value })} />
+                                    </div>
+                                    <div className={classes.shapeEditorRow}>
+                                      <span className={classes.shapeEditorLabel}>Radius</span>
+                                      <span className={classes.coordLabel}>rx</span>
+                                      <input type="number" className={classes.coordInput} value={shape.radiusX ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusX: +e.target.value })} />
+                                      <span className={classes.coordLabel}>ry</span>
+                                      <input type="number" className={classes.coordInput} value={shape.radiusY ?? 0} step={1} min={1} onChange={e => handleUpdateShape(shape.uid, { radiusY: +e.target.value })} />
+                                    </div>
+                                  </>
+                                )}
+                                {(shape.type === 'polygon' || shape.type === 'polyline') && (
                                 <div className={classes.shapeEditorRow}>
                                   <span className={classes.shapeEditorLabel}>Points</span>
-                                  <span style={{ fontSize: FS.xs, opacity: 0.5 }}>{shape.points?.length ?? 0} vertices</span>
+                                  <span style={{ fontSize: FS.xs, opacity: 0.5 }}>
+                                    {shape.points?.length ?? 0}
+                                    {' vertices'}
+                                  </span>
                                 </div>
-                              )}
-                            </>)}
+                                )}
+                              </>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1287,21 +1386,28 @@ export function AnnotationController(props) {
           {(() => {
             const desc = description ?? 'Step through annotated views with shapes and narrative text.';
             const isLong = desc.length > 220;
+            let descStyle = {};
+            if (isLong && !hintExpanded) descStyle = { maxHeight: 90, overflow: 'hidden' };
+            else if (isLong) descStyle = { maxHeight: 200, overflowY: 'auto' };
             return (
               <div className={classes.enterHint}>
-                <div style={isLong && !hintExpanded
-                  ? { maxHeight: 90, overflow: 'hidden' }
-                  : isLong ? { maxHeight: 200, overflowY: 'auto' }
-                  : {}}>
+                <div style={descStyle}>
                   {desc}
                 </div>
                 {isLong && (
                   <button
+                    type="button"
                     onClick={() => setHintExpanded(e => !e)}
                     style={{
-                      marginTop: 6, background: 'none', border: 'none',
-                      cursor: 'pointer', color: 'inherit', padding: 0,
-                      fontSize: FS.xs, opacity: 0.5, letterSpacing: '0.04em',
+                      marginTop: 6,
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'inherit',
+                      padding: 0,
+                      fontSize: FS.xs,
+                      opacity: 0.5,
+                      letterSpacing: '0.04em',
                     }}
                   >
                     {hintExpanded ? '↑ Show less' : '↓ Read more'}
@@ -1370,7 +1476,9 @@ export function AnnotationController(props) {
       <div className={classes.utilityRow}>
         <Tooltip title={overlayVisible ? 'Hide annotation overlay' : 'Show annotation overlay'}>
           <IconButton onClick={onToggleOverlay}>
-            {overlayVisible ? <Visibility style={{ fontSize: 26 }} /> : <VisibilityOff style={{ fontSize: 26 }} />}
+            {overlayVisible
+              ? <Visibility style={{ fontSize: 26 }} />
+              : <VisibilityOff style={{ fontSize: 26 }} />}
           </IconButton>
         </Tooltip>
         <Tooltip title={semanticZoom ? 'Adaptive zoom on — shapes simplify when zoomed out' : 'Adaptive zoom off — shapes always render at full detail'}>
@@ -1380,7 +1488,10 @@ export function AnnotationController(props) {
         </Tooltip>
         <div style={{ position: 'relative', display: 'inline-flex' }}>
           <Tooltip title={diverged ? 'View has drifted — click to recenter' : 'Recenter view'}>
-            <IconButton onClick={onRecenter} className={diverged ? classes.recentBtnDiverged : undefined}>
+            <IconButton
+              onClick={onRecenter}
+              className={diverged ? classes.recentBtnDiverged : undefined}
+            >
               <CenterFocusStrong style={{ fontSize: 26 }} />
             </IconButton>
           </Tooltip>
