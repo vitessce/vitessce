@@ -175,14 +175,16 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes,
   );
 
+  const csvUrlRef = useRef(null); 
   const csvUrl = useMemo(() => {
+    if (csvUrlRef.current) return csvUrlRef.current;
     const obsSetsMap = loaders?.[dataset]?.loaders?.obsSets;
     if (!obsSetsMap) return null;
-    // InternMap - get the first value
     const firstLoader = obsSetsMap.values().next().value;
-    return firstLoader?.url ?? null;
+    const url = firstLoader?.url ?? null;
+    if (url) csvUrlRef.current = url;
+    return url;
   }, [loaders, dataset]);
-
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
   const [
@@ -510,7 +512,6 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
-  // console.log('obsSegmentationsData:', obsSegmentationsData);
   // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
   // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
   // is the mechanism to propagate culling updates to the NG viewer state.
@@ -552,8 +553,6 @@ export function NeuroglancerSubscriber(props) {
         // TODO: For debugging
         // window.__meshIdToCellId = meshIdToCellIdRef.current;
         // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
-        // console.log('[csvUrl] meshIdToCellId size:', Object.keys(meshMap).length);
-        // console.log('[csvUrl] cellIdToMeshId size:', Object.keys(cellMap).length);
       });
   }, [csvUrl]);
 
@@ -588,7 +587,7 @@ export function NeuroglancerSubscriber(props) {
       NG receives updated segments and fetches and renders meshes for those IDs
    */
   const updateVisibleSegments = useCallback(async () => {
-    // Debuggin purposes
+    // TODO: For Debugging
     // if (window.__disableCulling) return;
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
@@ -637,7 +636,6 @@ export function NeuroglancerSubscriber(props) {
       const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer) return [];
       const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
-      // console.log('fetching:', cacheKey);
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
@@ -649,7 +647,6 @@ export function NeuroglancerSubscriber(props) {
         }
         const buffer = await res.arrayBuffer();
         const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
-        // console.log('parsed entries:', entries.length, 'from', cacheKey, 'buffer size:', buffer.byteLength);
         chunkCacheRef.current.set(cacheKey, entries);
         return entries;
       } catch (e) {
