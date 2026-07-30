@@ -93,29 +93,46 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
   throw new Error(`Unsupported data type: ${dataType}`);
 }
 
-export function pointsHaveMatchingSegmentation({ pointObsType, segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination }) {
+export function pointsHaveMatchingSegmentation({
+  pointObsType,
+  segmentationLayerScopes,
+  segmentationChannelScopesByLayer,
+  segmentationChannelCoordination,
+}) {
   // Check if there are segmentations with the same obsType.
-  // If so, we infer that the points represent the centroids of the segmentations.
-  // We pass this down to the getPointsShader, to determine whether to interpret
-  // `obsColorEncoding === 'geneSelection'` as a quantitative color encoding or a categorical color encoding.
-  const pointsHaveMatchingSegmentation = segmentationLayerScopes.some((segmentationLayerScope) => {
-    const segmentationChannelScopes = segmentationChannelScopesByLayer[segmentationLayerScope] || [];
+  // If so, infer that the points represent centroids of the segmentations.
+  // We pass this down to the getPointsShader, to determine whether to
+  // interpret `obsColorEncoding === 'geneSelection'` as a quantitative
+  // color encoding or a categorical color encoding.
+  return segmentationLayerScopes.some((segmentationLayerScope) => {
+    const segmentationChannelScopes = segmentationChannelScopesByLayer?.
+      [segmentationLayerScope] || [];
     return segmentationChannelScopes.some((segmentationChannelScope) => {
-      const segmentationObsType = segmentationChannelCoordination?.[0]?.[segmentationLayerScope]?.[segmentationChannelScope]?.obsType;
-      return segmentationObsType && pointObsType && segmentationObsType === pointObsType;
+      const segmentationObsType = segmentationChannelCoordination?.[0]
+        ?.[segmentationLayerScope]?.[segmentationChannelScope]?.obsType;
+      return (
+        segmentationObsType && pointObsType
+        && segmentationObsType === pointObsType
+      );
     });
   });
-  return pointsHaveMatchingSegmentation;
 }
 
-export function segmentationsHaveMatchingPoints({ segmentationObsType, pointLayerScopes, pointLayerCoordination }) {
+export function segmentationsHaveMatchingPoints({
+  segmentationObsType,
+  pointLayerScopes,
+  pointLayerCoordination,
+}) {
   // Check if there are points with the same obsType.
   // If so, we infer that the segmentations have matching points.
-  const segmentationHasMatchingPoints = pointLayerScopes.some((pointLayerScope) => {
-    const pointObsType = pointLayerCoordination?.[0]?.[pointLayerScope]?.obsType;
-    return segmentationObsType && pointObsType && segmentationObsType === pointObsType;
+  return pointLayerScopes.some((pointLayerScope) => {
+    const pointObsType = pointLayerCoordination?.
+      [0]?.[pointLayerScope]?.obsType;
+    return (
+      segmentationObsType && pointObsType
+      && segmentationObsType === pointObsType
+    );
   });
-  return segmentationHasMatchingPoints;
 }
 
 /**
@@ -223,12 +240,13 @@ export function useNeuroglancerViewerState(
       // Check if there are segmentations with the same obsType.
       // If so, we infer that the points represent the centroids of the segmentations.
       // We pass this down to the getPointsShader, to determine whether to interpret
-      // `obsColorEncoding === 'geneSelection'` as a quantitative color encoding or a categorical color encoding.
+      // `obsColorEncoding === 'geneSelection'` as a
+      // quantitative color encoding or a categorical color encoding.
       const pointsAreSegmentationCentroids = pointsHaveMatchingSegmentation({
         pointObsType: layerCoordination?.obsType,
         segmentationLayerScopes,
         segmentationChannelScopesByLayer,
-        segmentationChannelCoordination
+        segmentationChannelCoordination,
       });
 
       const featureIndex = pointMultiIndicesData[layerScope]?.featureIndex;

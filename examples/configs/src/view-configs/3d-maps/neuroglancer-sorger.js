@@ -90,9 +90,12 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         },
       },
       /*
-      This has a single quantitative feature hard-coded in the config, and a hard-coded maximum feature value for normalization. What happens when there are multiple genes?
-        - Can we assume that the annotation value will always be prop_{geneId}(); in the shader? Then, we could remove qualitativeColorProp from the config
-        - Can we assume the annotation values will always be normalized already?
+      This has a single quantitative feature hard-coded in the config,
+      and a hard-coded maximum feature value for normalization.
+      What happens when there are multiple genes?
+      - Can we assume that the annotation value will always be prop_{geneId}();
+      in the shader? Then, we could remove qualitativeColorProp from the config
+      - Can we assume the annotation values will always be normalized already?
       */
       quantitativeColorProp: 'mx1spots',
       // max value for mx1spots from binary chunks - used to normalize the colormap scale

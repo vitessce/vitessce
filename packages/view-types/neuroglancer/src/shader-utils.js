@@ -746,8 +746,6 @@ export function getPointsShader(layerCoordination) {
     );
   }
 
-  console.log(obsColorEncoding, pointsAreSegmentationCentroids);
-
   // ---- geneSelection ----
   if (obsColorEncoding === 'geneSelection' && !pointsAreSegmentationCentroids) {
     if (!featureIndexProp) {
@@ -814,7 +812,8 @@ export function getPointsShader(layerCoordination) {
     );
   }
 
-  // Quantitative color encoding for points when pointsAreSegmentationCentroids is true (e.g., for segmentation centroids).
+  // Quantitative color encoding for points when
+  // pointsAreSegmentationCentroids is true (e.g., for segmentation centroids).
   if (obsColorEncoding === 'geneSelection' && pointsAreSegmentationCentroids) {
     if (!quantitativeColorProp) {
       console.warn(
