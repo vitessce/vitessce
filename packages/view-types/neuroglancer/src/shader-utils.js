@@ -648,6 +648,7 @@ export function getPointsShader(layerCoordination) {
     obsSetColor,
     obsSetSelection,
     quantitativeColorMax,
+    pointsAreSegmentationCentroids,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
@@ -745,8 +746,10 @@ export function getPointsShader(layerCoordination) {
     );
   }
 
+  console.log(obsColorEncoding, pointsAreSegmentationCentroids);
+
   // ---- geneSelection ----
-  if (obsColorEncoding === 'geneSelection') {
+  if (obsColorEncoding === 'geneSelection' && !pointsAreSegmentationCentroids) {
     if (!featureIndexProp) {
       throw new Error('In order to use gene-based color encoding for Neuroglancer Points, options.featureIndexProp must be specified for the obsPoints.ng-annotations fileType in the Vitessce configuration.');
     }
@@ -811,7 +814,8 @@ export function getPointsShader(layerCoordination) {
     );
   }
 
-  if (obsColorEncoding === 'quantitativeColormap') {
+  // Quantitative color encoding for points when pointsAreSegmentationCentroids is true (e.g., for segmentation centroids).
+  if (obsColorEncoding === 'geneSelection' && pointsAreSegmentationCentroids) {
     if (!quantitativeColorProp) {
       console.warn(
         'In order to use quantitative colormap encoding for Neuroglancer Points, '

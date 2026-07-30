@@ -140,7 +140,6 @@ function PointLayerEllipsisMenu(props) {
           <option value="geneSelection">Feature Color</option>
           <option value="randomByFeature">Random Color per Feature</option>
           <option value="random">Random Color per Point</option>
-          <option value="quantitativeColormap">Quantitative Colormap</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
@@ -160,7 +159,7 @@ function PointLayerEllipsisMenu(props) {
           Colormap Range:&nbsp;
         </label>
         <Slider
-          disabled={obsColorEncoding !== 'geneSelection' && obsColorEncoding !== 'quantitativeColormap'}
+          disabled={obsColorEncoding !== 'geneSelection'}
           value={featureValueColormapRange}
           min={0.0}
           max={1.0}
@@ -300,7 +299,7 @@ export default function PointLayerController(props) {
     obsColorEncoding === 'spatialLayerColor'
     || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
   );
-  const isColormap = obsColorEncoding === 'quantitativeColormap';
+  const isColormap = obsColorEncoding === 'geneSelection';
 
   // If the feature color encoding is "geneSelection" and there is only one feature selected,
   // we can use the first feature's color as the static color, and hook up the featureColor setter

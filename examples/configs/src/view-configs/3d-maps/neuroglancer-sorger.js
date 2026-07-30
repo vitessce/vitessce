@@ -22,12 +22,10 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       obsType: 'cell',
     },
     options: {
-      neuroglancerOptions: {
-        dimensions: {
-          x: [0.000001, 'm'],
-          y: [0.000001, 'm'],
-          z: [0.000001, 'm'],
-        },
+      dimensions: {
+        x: [0.000001, 'm'],
+        y: [0.000001, 'm'],
+        z: [0.000001, 'm'],
       },
     },
   });
@@ -78,21 +76,27 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      useForSegmentationCulling: true,
       featureIndexProp: 'mx1spots',
+      transform: {
+        matrix: [
+          [7148.09960682, 0, 0, 0],
+          [0, 7148.09960682, 0, 0],
+          [0, 0, 3803.92156863, 0],
+        ],
+        outputDimensions: {
+          x: [0.000001, 'm'],
+          y: [0.000001, 'm'],
+          z: [0.000001, 'm'],
+        },
+      },
+      /*
+      This has a single quantitative feature hard-coded in the config, and a hard-coded maximum feature value for normalization. What happens when there are multiple genes?
+        - Can we assume that the annotation value will always be prop_{geneId}(); in the shader? Then, we could remove qualitativeColorProp from the config
+        - Can we assume the annotation values will always be normalized already?
+      */
       quantitativeColorProp: 'mx1spots',
       // max value for mx1spots from binary chunks - used to normalize the colormap scale
       quantitativeColorMax: 58,
-      matrix: [
-        [7148.09960682, 0, 0, 0],
-        [0, 7148.09960682, 0, 0],
-        [0, 0, 3803.92156863, 0],
-      ],
-      outputDimensions: {
-        x: [0.000001, 'm'],
-        y: [0.000001, 'm'],
-        z: [0.000001, 'm'],
-      },
     },
     coordinationValues: {
       fileUid: 'sorger-cells',
@@ -172,7 +176,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         spatialLayerVisible: true,
         spatialLayerColor: [0, 255, 0],
         spatialPointStrokeWidth: 0.2,
-        obsColorEncoding: 'quantitativeColormap',
+        obsColorEncoding: 'geneSelection',
         featureValueColormap: 'plasma',
         featureSelection: ['MX1_SPOTS'],
         featureValueColormapRange: [0.0, 1.0],

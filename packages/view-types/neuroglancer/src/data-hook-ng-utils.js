@@ -93,6 +93,31 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
   throw new Error(`Unsupported data type: ${dataType}`);
 }
 
+export function pointsHaveMatchingSegmentation({ pointObsType, segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination }) {
+  // Check if there are segmentations with the same obsType.
+  // If so, we infer that the points represent the centroids of the segmentations.
+  // We pass this down to the getPointsShader, to determine whether to interpret
+  // `obsColorEncoding === 'geneSelection'` as a quantitative color encoding or a categorical color encoding.
+  const pointsHaveMatchingSegmentation = segmentationLayerScopes.some((segmentationLayerScope) => {
+    const segmentationChannelScopes = segmentationChannelScopesByLayer[segmentationLayerScope] || [];
+    return segmentationChannelScopes.some((segmentationChannelScope) => {
+      const segmentationObsType = segmentationChannelCoordination?.[0]?.[segmentationLayerScope]?.[segmentationChannelScope]?.obsType;
+      return segmentationObsType && pointObsType && segmentationObsType === pointObsType;
+    });
+  });
+  return pointsHaveMatchingSegmentation;
+}
+
+export function segmentationsHaveMatchingPoints({ segmentationObsType, pointLayerScopes, pointLayerCoordination }) {
+  // Check if there are points with the same obsType.
+  // If so, we infer that the segmentations have matching points.
+  const segmentationHasMatchingPoints = pointLayerScopes.some((pointLayerScope) => {
+    const pointObsType = pointLayerCoordination?.[0]?.[pointLayerScope]?.obsType;
+    return segmentationObsType && pointObsType && segmentationObsType === pointObsType;
+  });
+  return segmentationHasMatchingPoints;
+}
+
 /**
  * Get the parameters for NG's viewerstate.
  * @param {object} loaders The object mapping
@@ -188,12 +213,23 @@ export function useNeuroglancerViewerState(
       const layerData = obsPointsData[layerScope];
       const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
       const ngOptions = layerData?.neuroglancerOptions;
-      if (ngOptions?.matrix && ngOptions?.outputDimensions) {
+      if (ngOptions?.transform?.matrix && ngOptions?.transform?.outputDimensions) {
         result = {
           ...result,
-          dimensions: ngOptions.outputDimensions ?? DEFAULT_NG_DIMENSIONS,
+          dimensions: ngOptions.transform.outputDimensions ?? DEFAULT_NG_DIMENSIONS,
         };
       }
+
+      // Check if there are segmentations with the same obsType.
+      // If so, we infer that the points represent the centroids of the segmentations.
+      // We pass this down to the getPointsShader, to determine whether to interpret
+      // `obsColorEncoding === 'geneSelection'` as a quantitative color encoding or a categorical color encoding.
+      const pointsAreSegmentationCentroids = pointsHaveMatchingSegmentation({
+        pointObsType: layerCoordination?.obsType,
+        segmentationLayerScopes,
+        segmentationChannelScopesByLayer,
+        segmentationChannelCoordination
+      });
 
       const featureIndex = pointMultiIndicesData[layerScope]?.featureIndex;
 
@@ -211,7 +247,7 @@ export function useNeuroglancerViewerState(
           featureValueColormapRange,
         } = layerCoordination || {};
         const quantitativeColorMax = layerData.neuroglancerOptions?.quantitativeColorMax;
-        if (!quantitativeColorMax && obsColorEncoding === 'quantitativeColormap') {
+        if (!quantitativeColorMax && obsColorEncoding === 'geneSelection') {
           console.warn('quantitativeColorMax not specified in options — defaulting to 1.0 (no normalization)');
         }
         const quantitativeColorMaxSelected = quantitativeColorMax ?? 1.0;
@@ -237,6 +273,7 @@ export function useNeuroglancerViewerState(
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
           quantitativeColorMax: quantitativeColorMaxSelected,
+          pointsAreSegmentationCentroids,
         });
         result = {
           ...result,
@@ -250,11 +287,11 @@ export function useNeuroglancerViewerState(
                   default: true,
                 },
                 enableDefaultSubsources: false,
-                ...(ngOptions?.matrix
+                ...(ngOptions?.transform?.matrix
                   ? {
                     transform: {
-                      matrix: ngOptions.matrix,
-                      outputDimensions: ngOptions.outputDimensions ?? result.dimensions,
+                      matrix: ngOptions.transform.matrix,
+                      outputDimensions: ngOptions.transform?.outputDimensions ?? result.dimensions,
                     },
                   }
                   : {}),

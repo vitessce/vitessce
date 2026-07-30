@@ -33,7 +33,7 @@ import { Chip } from '@vitessce/styles';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
-import { useNeuroglancerViewerState } from './data-hook-ng-utils.js';
+import { useNeuroglancerViewerState, pointsHaveMatchingSegmentation } from './data-hook-ng-utils.js';
 import {
   useMemoCustomComparison,
   customIsEqualForCellColors,
@@ -820,15 +820,18 @@ export function NeuroglancerSubscriber(props) {
   }, [pointLayerScopes, obsPointsUrls]);
 
 
-  // Whether the points layer has opted in to viewport-based mesh culling (useForSegmentationCulling: true).
-  // To avoid datasets like MERFISH (where points are molecules, not cells)
-  // from incorrectly driving mesh culling.
+  // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
+  // TODO: generalize to multiple point layers?
   const hasMatchingAnnotationSource = useMemo(() => {
     if (!cellsUrl) return false;
     const firstPointScope = pointLayerScopes?.[0];
-    const firstPointData = obsPointsData?.[firstPointScope];
-    return !!(firstPointData?.neuroglancerOptions?.useForSegmentationCulling);
-  }, [cellsUrl, pointLayerScopes, obsPointsData]);
+    return pointsHaveMatchingSegmentation({
+      pointObsType: pointLayerCoordination[0]?.[firstPointScope]?.obsType,
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+      segmentationChannelCoordination,
+    });
+  }, [cellsUrl, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
 
   // URL of the annotation source for the points layer.
@@ -1272,6 +1275,9 @@ export function NeuroglancerSubscriber(props) {
   // }
   const hasLayers = derivedViewerState?.layers?.length > 0;
 
+  // TODO: generalize to support multiple point layers.
+  const showPointsLegend = !hasMatchingAnnotationSource;
+
   return (
 
     <TitleInfo
@@ -1302,7 +1308,7 @@ export function NeuroglancerSubscriber(props) {
               segmentationChannelCoordination={segmentationChannelCoordination}
 
               // Points
-              pointLayerScopes={pointLayerScopes}
+              pointLayerScopes={showPointsLegend ? pointLayerScopes : undefined}
               pointLayerCoordination={pointLayerCoordination}
               pointMultiIndicesData={pointMultiIndicesData}
             />
