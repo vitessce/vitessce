@@ -128,6 +128,7 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
+  const resizeObserverRef = useRef(null);
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
   // For overlay when meshes are loaded on demand
@@ -175,7 +176,7 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes,
   );
 
-  const csvUrlRef = useRef(null); 
+  const csvUrlRef = useRef(null);
   const csvUrl = useMemo(() => {
     if (csvUrlRef.current) return csvUrlRef.current;
     const obsSetsMap = loaders?.[dataset]?.loaders?.obsSets;
@@ -185,6 +186,7 @@ export function NeuroglancerSubscriber(props) {
     if (url) csvUrlRef.current = url;
     return url;
   }, [loaders, dataset]);
+
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
 
   const [
@@ -567,6 +569,38 @@ export function NeuroglancerSubscriber(props) {
       viewportSizeRef.current = { width: ngWidth, height: ngHeight };
     }
   }, [ngWidth, ngHeight]);
+
+  // Fallback: directly observe the container's own size.
+  // The shared/global grid-resize signal (useGridItemSize) can race with this
+  // view's mount order relative to sibling views, leaving viewportSizeRef
+  // stuck at {0, 0} until an unrelated resize event happens to fire again.
+  // A local ResizeObserver guarantees we get real dimensions as soon as
+  // this container has a layout size, regardless of that timing.
+  const setContainerNode = useCallback((node) => {
+    containerRef.current = node; // keep useGridItemSize's internal logic in sync
+    if (resizeObserverRef.current) {
+      resizeObserverRef.current.disconnect();
+      resizeObserverRef.current = null;
+    }
+    if (node) {
+      // Seed synchronously in case the first ResizeObserver callback is delayed,
+      // so updateVisibleSegments doesn't wait an extra tick for real dimensions.
+      const rect = node.getBoundingClientRect();
+      if (rect.width && rect.height) {
+        viewportSizeRef.current = { width: rect.width, height: rect.height };
+      }
+      const observer = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        const { width, height } = entry.contentRect;
+        if (width && height) {
+          viewportSizeRef.current = { width, height };
+        }
+      });
+      observer.observe(node);
+      resizeObserverRef.current = observer;
+    }
+  }, []);
 
   // Core viewport culling function — determines which mesh segments are visible
   // in the current camera view and updates visibleSegmentIdsRef accordingly.
@@ -1254,7 +1288,7 @@ export function NeuroglancerSubscriber(props) {
       guideUrl={GUIDE_URL}
     >
       {hasLayers ? (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={containerRef}>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
               theme="dark"
