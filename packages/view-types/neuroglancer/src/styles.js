@@ -7,6 +7,12 @@ export const useStyles = makeStyles()(() => ({
     position: 'relative',
     height: '100%',
   },
+  meshLoadingIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    zIndex: 50,
+  },
 }));
 
 // We define a subset of styles as a string,

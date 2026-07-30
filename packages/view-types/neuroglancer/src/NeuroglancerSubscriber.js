@@ -29,6 +29,7 @@ import {
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
+import { Chip } from '@vitessce/styles';
 import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
@@ -1282,7 +1283,7 @@ export function NeuroglancerSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady && isLayersLoaded && !(hasMatchingAnnotationSource && isMeshLoading)}
+      isReady={isReady && isLayersLoaded}// && !(hasMatchingAnnotationSource && isMeshLoading)}
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
@@ -1306,6 +1307,14 @@ export function NeuroglancerSubscriber(props) {
               pointMultiIndicesData={pointMultiIndicesData}
             />
           </div>
+          {isMeshLoading ? (
+            <Chip
+              label="Loading meshes..."
+              size="small"
+              color="primary"
+              className={classes.meshLoadingIndicator}
+            />
+          ) : null}
 
           <NeuroglancerComp
             classes={classes}
