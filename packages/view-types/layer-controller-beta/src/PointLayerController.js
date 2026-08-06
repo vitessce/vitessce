@@ -387,6 +387,8 @@ export default function PointLayerController(props) {
     if (obsColorEncoding !== 'geneSelection' || !Array.isArray(featureSelection)) return;
 
     // Remove stale entries for genes no longer selected
+    // TODO: is this the ideal behavior? We could alternatively keep the prior entries,
+    // so that if a user deselects and reselects a gene, it retains its prior color.
     const cleanedFeatureColor = (featureColor ?? []).filter(
       fc => featureSelection.includes(fc.name),
     );

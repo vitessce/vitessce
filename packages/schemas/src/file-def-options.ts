@@ -328,7 +328,11 @@ export const ngPointAnnotationSchema = z.object({
     outputDimensions: z.record(z.tuple([z.number(), z.string()])),
   }).optional()
     .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.'),
-  // TODO: See comments in neuroglancer-sorger.js
+  // Note: See comments in neuroglancer-sorger.js
+  // We may remove these in the future, pending clarification
+  // to questions in the tissue-map-tools repo
+  // - https://github.com/hms-dbmi/tissue-map-tools/issues/20
+  // - https://github.com/hms-dbmi/tissue-map-tools/issues/38
   quantitativeColorProp: z.string().optional(),
   quantitativeColorMax: z.number().optional(),
 }).partial().nullable();
