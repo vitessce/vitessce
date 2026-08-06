@@ -328,8 +328,10 @@ export const ngPointAnnotationSchema = z.object({
     outputDimensions: z.record(z.tuple([z.number(), z.string()])),
   }).optional()
     .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.'),
-// passthrough as the schema validation was stripping the transform option
-}).partial().passthrough().nullable();
+  // TODO: See comments in neuroglancer-sorger.js
+  quantitativeColorProp: z.string().optional(),
+  quantitativeColorMax: z.number().optional(),
+}).partial().nullable();
 
 /**
  * Options schemas for atomic file types.

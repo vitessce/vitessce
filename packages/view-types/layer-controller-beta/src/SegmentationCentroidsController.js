@@ -334,7 +334,7 @@ export default function SegmentationCentroidsController(props) {
     setObsColorEncoding(val);
     // Map seg encoding to the equivalent point encoding
     if (val === 'geneSelection') {
-      setPointObsColorEncoding?.('quantitativeColormap');
+      setPointObsColorEncoding?.('geneSelection');
     } else if (val === 'cellSetSelection') {
       // TODO: Need to implement this
       setPointObsColorEncoding?.('cellSetSelection');
@@ -353,8 +353,7 @@ export default function SegmentationCentroidsController(props) {
   const isColormap = obsColorEncoding === 'geneSelection';
 
   const pointIsStaticColor = pointObsColorEncoding === 'spatialChannelColor';
-  const pointIsColormap = pointObsColorEncoding === 'geneSelection'
-                             || pointObsColorEncoding === 'quantitativeColormap';
+  const pointIsColormap = pointObsColorEncoding === 'geneSelection';
 
 
   return (
