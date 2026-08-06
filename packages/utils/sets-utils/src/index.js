@@ -65,6 +65,11 @@ export {
 } from './CellSetsZarrLoader.js';
 export {
   getCellColors,
+  interpolatePlasma,
+  interpolateRdBu,
+  interpolateViridis,
+  interpolateJet,
+  interpolateGreys,
 } from './interpolate-colors.js';
 export {
   stratifyArrays,
