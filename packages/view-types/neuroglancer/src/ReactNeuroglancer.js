@@ -984,7 +984,7 @@ export default class Neuroglancer extends React.Component {
    *
    */
   setCallbacks(callbacks) {
-    callbacks.forEach((callback) => {
+    (callbacks ?? []).forEach((callback) => {
       this.viewer.bindCallback(callback.name, callback.function);
       this.viewer.inputEventBindings.sliceView.set(
         callback.event,
