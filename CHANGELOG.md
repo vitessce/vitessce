@@ -1,4 +1,13 @@
 
+## 4.0.2
+
+### Patch Changes
+
+- In the Neuroglancer view, adds on-demand-mesh-loading when centroids for pointsLayer are available. If there are both meshes and points configured with the same `obsType`, we infer that the points represent centroids of the meshes. (`@vitessce/neuroglancer`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2470](https://github.com/vitessce/vitessce/pull/2470))
+
+- Added guard for no callbacks in Neuroglancer (`@vitessce/neuroglancer`) ([#2536](https://github.com/vitessce/vitessce/pull/2536))
+
+
 ## 4.0.1
 
 ### Patch Changes
