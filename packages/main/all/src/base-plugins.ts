@@ -493,6 +493,7 @@ export const baseCoordinationTypes = [
     z.array(z.object({
       name: z.string(),
       color: rgbArray,
+      opacity: z.number().min(0).max(1).optional(),
     })).nullable(),
   ),
   new PluginCoordinationType(

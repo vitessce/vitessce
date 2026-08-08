@@ -177,6 +177,7 @@ describe('getGeneSelectionWithSelectionShader', () => {
   it('generates a shader with per-feature colors for selected and default for unselected', () => {
     const result = getGeneSelectionWithSelectionShader(
       [1, 4],
+      [1.0, 0.5],
       [[255, 0, 0], [0, 255, 0]],
       [128, 128, 128],
       [50, 50, 50],
@@ -184,20 +185,21 @@ describe('getGeneSelectionWithSelectionShader', () => {
       'gene_index',
     );
     const expected = `
-void main() {
-    int geneIndex = prop_gene_index();
-    int selectedIndices[2] = int[2](1, 4);
-    vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 1, 0));
-    vec4 color = vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.6);
-    for (int i = 0; i < 2; ++i) {
-        if (geneIndex == selectedIndices[i]) {
-            color = vec4(featureColors[i], 0.6);
+    void main() {
+        int geneIndex = prop_gene_index();
+        int selectedIndices[2] = int[2](1, 4);
+        vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 1, 0));
+        float featureOpacities[2] = float[2](1.0000, 0.5000);
+        vec4 color = vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.6);
+        for (int i = 0; i < 2; ++i) {
+            if (geneIndex == selectedIndices[i]) {
+                color = vec4(featureColors[i], featureOpacities[i]);
+            }
         }
+        setColor(color);
+        setPointMarkerBorderWidth(0.0);
     }
-    setColor(color);
-    setPointMarkerBorderWidth(0.0);
-}
-`;
+    `;
     expectShaderEqual(result, expected);
   });
 
@@ -208,6 +210,7 @@ void main() {
     // Since featureColors are always normalized, we just check the normal path.
     const result = getGeneSelectionWithSelectionShader(
       [0],
+      [1.0],
       [[0, 0, 255]],
       [255, 255, 255],
       [0, 0, 0],
@@ -219,10 +222,11 @@ void main() {
     int geneIndex = prop_fi();
     int selectedIndices[1] = int[1](0);
     vec3 featureColors[1] = vec3[1](vec3(0, 0, 1));
+    float featureOpacities[1] = float[1](1.0000);
     vec4 color = vec4(0, 0, 0, 1);
     for (int i = 0; i < 1; ++i) {
         if (geneIndex == selectedIndices[i]) {
-            color = vec4(featureColors[i], 1);
+            color = vec4(featureColors[i], featureOpacities[i]);
         }
     }
     setColor(color);
@@ -238,30 +242,34 @@ describe('getGeneSelectionFilteredShader', () => {
     const result = getGeneSelectionFilteredShader(
       [2, 8],
       [[255, 0, 0], [0, 0, 255]],
+      [0.8, 0.3],
       [128, 128, 128],
       0.75,
       'gene_index',
     );
     const expected = `
-void main() {
-    int geneIndex = prop_gene_index();
-    int selectedIndices[2] = int[2](2, 8);
-    vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 0, 1));
-    bool isSelected = false;
-    vec3 matchedColor = vec3(0.0);
-    for (int i = 0; i < 2; ++i) {
-        if (geneIndex == selectedIndices[i]) {
-            isSelected = true;
-            matchedColor = featureColors[i];
-        }
-    }
-    if (!isSelected) {
-        discard;
-    }
-    setColor(vec4(matchedColor, 0.75));
-    setPointMarkerBorderWidth(0.0);
-}
-`;
+      void main() {
+          int geneIndex = prop_gene_index();
+          int selectedIndices[2] = int[2](2, 8);
+          vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 0, 1));
+          float featureOpacities[2] = float[2](0.8000, 0.3000);
+          bool isSelected = false;
+          vec3 matchedColor = vec3(0.0);
+          float matchedOpacity = 0.7500;
+          for (int i = 0; i < 2; ++i) {
+              if (geneIndex == selectedIndices[i]) {
+                  isSelected = true;
+                  matchedColor = featureColors[i];
+                  matchedOpacity = featureOpacities[i];
+              }
+          }
+          if (!isSelected) {
+              discard;
+          }
+          setColor(vec4(matchedColor, matchedOpacity));
+          setPointMarkerBorderWidth(0.0);
+      }
+      `;
     expectShaderEqual(result, expected);
   });
 });
