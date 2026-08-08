@@ -1289,3 +1289,25 @@ export function useGridResize() {
 export function useEmitGridResize() {
   return useGridSizeStore(state => state.incrementResizeCount);
 }
+
+/**
+ * Returns a callback that clears the cached result from all loaders
+ * across all datasets, freeing memory without affecting the current view.
+ */
+export function useClearCache() {
+  const loaders = useViewConfigStore(state => state.loaders);
+  return useCallback(() => {
+    if (!loaders) return;
+    Object.values(loaders).forEach((datasetLoaders) => {
+      const { loaders: dataTypeMap } = datasetLoaders;
+      if (!dataTypeMap) return;
+      Object.values(dataTypeMap).forEach((loaderMap) => {
+        loaderMap.forEach((loaderInstance) => {
+          if (typeof loaderInstance?.clearCache === 'function') {
+            loaderInstance.clearCache();
+          }
+        });
+      });
+    });
+  }, [loaders]);
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useLayoutEffect, useRef } from 'react';
 import {
   ThemeProvider,
   CacheProvider,
@@ -35,7 +35,7 @@ import {
   logConfig,
 } from './view-config-utils.js';
 import { createLoaders } from './vitessce-grid-utils.js';
-import { AsyncFunctionsContext } from './contexts.js';
+import { AsyncFunctionsContext, ClearTileCacheContext } from './contexts.js';
 
 
 /**
@@ -311,6 +311,17 @@ export function VitS(props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [success, configKey]);
 
+  const clearTileCacheFnsRef = useRef([]);
+  const registerClearTileCache = useCallback((fn) => {
+    clearTileCacheFnsRef.current.push(fn);
+    return () => {
+      clearTileCacheFnsRef.current = clearTileCacheFnsRef.current.filter(f => f !== fn);
+    };
+  }, []);
+  const clearTileCaches = useCallback(() => {
+    clearTileCacheFnsRef.current.forEach(fn => fn());
+  }, []);
+
   // TODO: use in ErrorBoundary fallback.
   // Will probably need to move a lot to a child of VitS
   // so that when the child throws errors the parent can catch.
@@ -333,23 +344,26 @@ export function VitS(props) {
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
               <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={mergedStores}
-                  queryClient={queryClient}
-                >
-                  {children}
-                </VitessceGrid>
+                <ClearTileCacheContext.Provider value={registerClearTileCache}>
+                  <VitessceGrid
+                    pageMode={pageMode}
+                    success={success}
+                    configKey={configKey}
+                    viewTypes={viewTypes}
+                    fileTypes={fileTypes}
+                    coordinationTypes={coordinationTypes}
+                    config={configOrWarning}
+                    rowHeight={rowHeight}
+                    height={height}
+                    theme={theme}
+                    isBounded={isBounded}
+                    stores={mergedStores}
+                    queryClient={queryClient}
+                    clearTileCaches={clearTileCaches}
+                  >
+                    {children}
+                  </VitessceGrid>
+                </ClearTileCacheContext.Provider>
                 <CallbackPublisher
                   onWarn={onWarn}
                   onConfigChange={onConfigChange}
