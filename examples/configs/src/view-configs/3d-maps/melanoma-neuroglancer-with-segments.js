@@ -30,8 +30,15 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanom-meshes',
     },
     options: {
-      segments: ['5', '200'],
-      forceSegments: true,
+    segments: [612, 3351, 4328, 6531, 8446],
+      forceSegments: false,
+      segmentColors: {
+        "612": "#d74242",
+        "3351": "#b9d742",
+        "4328": "#42d77d",
+        "6531": "#427dd7",
+        "8446": "#b942d7"
+      }
     },
   });
 
@@ -49,23 +56,23 @@ function generateNeuroglancerMinimalConfiguration() {
     },
   });
 
-  // dataset.addFile({
-  //   fileType: 'obsSets.csv',
-  //   url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
-  //   // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
-  //   coordinationValues: {
-  //     obsType: 'cell',
-  //   },
-  //   options: {
-  //     obsIndex: 'id',
-  //     obsSets: [
-  //       {
-  //         name: 'Clusters',
-  //         column: 'cluster',
-  //       },
-  //     ],
-  //   },
-  // });
+  dataset.addFile({
+    fileType: 'obsSets.csv',
+    url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
+    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+    coordinationValues: {
+      obsType: 'cell',
+    },
+    options: {
+      obsIndex: 'id',
+      obsSets: [
+        {
+          name: 'Clusters',
+          column: 'cluster',
+        },
+      ],
+    },
+  });
 
   const spatialThreeView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta').setProps({
@@ -88,7 +95,7 @@ function generateNeuroglancerMinimalConfiguration() {
       },
     ],
   });
-  // const obsSets = config.addView(dataset, 'obsSets');
+  const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
@@ -160,8 +167,7 @@ function generateNeuroglancerMinimalConfiguration() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, scatterView)));
-  // config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
+  config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
 
   const configJSON = config.toJSON();
   return configJSON;
