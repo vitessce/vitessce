@@ -1,4 +1,11 @@
 
+## 4.0.3
+
+### Patch Changes
+
+- Added config examples to 3d tissue maps - neuroglancerView (`@vitessce/example-configs`) ([#2544](https://github.com/vitessce/vitessce/pull/2544))
+
+
 ## 4.0.2
 
 ### Patch Changes
