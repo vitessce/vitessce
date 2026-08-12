@@ -108,7 +108,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
 
       const coordinationValues = {
         // Old
-        spatialSegmentationLayer: autoImageLayers,
+        // spatialSegmentationLayer: autoImageLayers,
         // New
         spatialTargetZ: imageWrapper.getDefaultTargetZ(),
         spatialTargetT: imageWrapper.getDefaultTargetT(),

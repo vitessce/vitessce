@@ -87,7 +87,7 @@ export function LayerControllerSubscriber(props) {
       setSpatialRenderingMode,
     },
   ] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
+    COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
     coordinationScopes,
   );
 
