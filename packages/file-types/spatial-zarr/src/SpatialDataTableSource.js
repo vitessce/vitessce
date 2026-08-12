@@ -5,7 +5,8 @@
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
-import { createGetRange } from '@vitessce/zarr-utils';
+import { extendStore } from 'zarrita';
+import { withGetRange } from '@vitessce/zarr-utils';
 import { range } from 'lodash-es';
 import {
   getParquetModule,
@@ -273,18 +274,18 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
-    const getRange = createGetRange(store);
+    const extendedStore = await extendStore(store, withGetRange);
     // Step 1: Fetch last 8 bytes to get footer length and magic number
     const TAIL_LENGTH = 8;
     let partZeroPath = parquetPath;
     // Case 1: Parquet file (or still unknown if file vs. directory).
-    let tailBytes = await getRange(`/${partZeroPath}`, {
+    let tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
       suffixLength: TAIL_LENGTH,
     });
     // We already know this is a directory, so we skip the single-file path altogether.
     // Case 2: Rather than a single file, this may be a directory with multiple parts.
     partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-    tailBytes = await getRange(`/${partZeroPath}`, {
+    tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
       suffixLength: TAIL_LENGTH,
     });
 
@@ -309,7 +310,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
 
     // Step 3. Fetch the full footer bytes
-    const footerBytes = await getRange(`/${partZeroPath}`, {
+    const footerBytes = await extendedStore.getRange(`/${partZeroPath}`, {
       suffixLength: footerLength + TAIL_LENGTH,
     });
     if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {

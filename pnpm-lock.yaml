@@ -116,8 +116,8 @@ catalogs:
       specifier: ^3.1.4
       version: 3.2.4
     '@zarrita/storage':
-      specifier: 0.1.4
-      version: 0.1.4
+      specifier: 0.2.0
+      version: 0.2.0
     apache-arrow:
       specifier: ^17.0.0
       version: 17.0.0
@@ -209,8 +209,8 @@ catalogs:
       specifier: ^3.1.4
       version: 3.2.4
     zarrita:
-      specifier: 0.6.1
-      version: 0.6.1
+      specifier: 0.7.4
+      version: 0.7.4
     zod:
       specifier: ^3.21.4
       version: 3.22.4
@@ -534,13 +534,13 @@ importers:
         version: link:../utils/zarr-utils
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.4
+        version: 0.2.0
       fetch-jsonp:
         specifier: ^1.4.0
         version: 1.4.0
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
 
   packages/constants:
     dependencies:
@@ -708,7 +708,7 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
       zod:
         specifier: 'catalog:'
         version: 3.22.4
@@ -798,7 +798,7 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
     devDependencies:
       '@tanstack/react-query':
         specifier: 'catalog:'
@@ -808,7 +808,7 @@ importers:
         version: link:../../types
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.4
+        version: 0.2.0
 
   packages/file-types/zarr:
     dependencies:
@@ -856,7 +856,7 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
@@ -1635,7 +1635,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@19.1.6)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@19.2.6)
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1778,7 +1778,7 @@ importers:
         version: 9.5.2
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
 
   packages/utils/zarr-utils:
     dependencies:
@@ -1787,14 +1787,14 @@ importers:
         version: link:../../globals
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.4
+        version: 0.2.0
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
     devDependencies:
       unzipit:
-        specifier: ^1.4.3
-        version: 1.4.3
+        specifier: ^2.0.1
+        version: 2.0.3
 
   packages/vega:
     dependencies:
@@ -2595,7 +2595,7 @@ importers:
         version: 1.0.7
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
     devDependencies:
       '@react-three/drei':
         specifier: 'catalog:'
@@ -2924,7 +2924,7 @@ importers:
         version: link:../utils/zarr-utils
       '@zarrita/storage':
         specifier: 'catalog:'
-        version: 0.1.4
+        version: 0.2.0
       clsx:
         specifier: 'catalog:'
         version: 1.2.1
@@ -2957,7 +2957,7 @@ importers:
         version: 9.0.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.6.1
+        version: 0.7.4
       zustand:
         specifier: 'catalog:'
         version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -7920,6 +7920,9 @@ packages:
 
   '@zarrita/storage@0.1.4':
     resolution: {integrity: sha512-qURfJAQcQGRfDQ4J9HaCjGaj3jlJKc66bnRk6G/IeLUsM7WKyG7Bzsuf1EZurSXyc0I4LVcu6HaeQQ4d3kZ16g==}
+
+  '@zarrita/storage@0.2.0':
+    resolution: {integrity: sha512-855ZXqtnds7spnT8vNvD+MXa3QExP1m2GqShe8yt7uZXHnQLgJHgkpVwFjE1B0KDDRO0ki09hmk6OboTaIfPsQ==}
 
   abab@1.0.4:
     resolution: {integrity: sha512-I+Wi+qiE2kUXyrRhNsWv6XsjUTBJjSoVSctKNBfLG5zG/Xe7Rjbxf13+vqYHNTwHaFU+FtSlVxOCTiMEVtPv0A==}
@@ -15475,6 +15478,14 @@ packages:
     resolution: {integrity: sha512-gsq2PdJIWWGhx5kcdWStvNWit9FVdTewm4SEG7gFskWs+XCVaULt9+BwuoBtJiRE8eo3L1IPAOrbByNLtLtIlg==}
     engines: {node: '>=12'}
 
+  unzipit@2.0.0:
+    resolution: {integrity: sha512-DVeVIWUZCAQPNzm5sB0hpsG1GygTTdBnzNtYYEpInkttx5evkyqRgZi6rTczoySqp8hO5jHVKzrH0f23X8FZLg==}
+    engines: {node: '>=18'}
+
+  unzipit@2.0.3:
+    resolution: {integrity: sha512-e6+ftgSQRj9Hwf2mIWFwYIGqBoKV7AziG/d7pep2Uv3NCzHbhLO5d9dGRwpahVlnpQ7aQC+5kWk72dnWocdYyA==}
+    engines: {node: '>=18'}
+
   update-browserslist-db@1.1.3:
     resolution: {integrity: sha512-UxhIZQ+QInVdunkDAaiazvvT/+fXL5Osr0JZlJulepYu6Jd7qJtDZjlur0emRlT71EN3ScPoE7gvsuIKKNavKw==}
     hasBin: true
@@ -16200,8 +16211,8 @@ packages:
   zarrita@0.5.2:
     resolution: {integrity: sha512-BN/miFnvBuVqLLObrI08crkbyi+Oc/HWZpgCmWusrWUNIauIV9vR5zlvpSAnhOjZwjomEKFb728K7ax7FiDgJQ==}
 
-  zarrita@0.6.1:
-    resolution: {integrity: sha512-YOMTW8FT55Rz+vadTIZeOFZ/F2h4svKizyldvPtMYSxPgSNcRkOzkxCsWpIWlWzB1I/LmISmi0bEekOhLlI+Zw==}
+  zarrita@0.7.4:
+    resolution: {integrity: sha512-NChufj86SceFj45z4CYjndmI98dphaG7hU8Wj0UGpMyT21o0V3HTY6zo87aSobYWts1tNFivSXzH2AR1AkaWjA==}
 
   zod-to-json-schema@3.21.1:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
@@ -23045,6 +23056,11 @@ snapshots:
     dependencies:
       reference-spec-reader: 0.2.0
       unzipit: 1.4.3
+
+  '@zarrita/storage@0.2.0':
+    dependencies:
+      reference-spec-reader: 0.2.0
+      unzipit: 2.0.0
 
   abab@1.0.4: {}
 
@@ -32316,6 +32332,10 @@ snapshots:
     dependencies:
       uzip-module: 1.0.3
 
+  unzipit@2.0.0: {}
+
+  unzipit@2.0.3: {}
+
   update-browserslist-db@1.1.3(browserslist@4.25.0):
     dependencies:
       browserslist: 4.25.0
@@ -33336,9 +33356,9 @@ snapshots:
       '@zarrita/storage': 0.1.4
       numcodecs: 0.3.2
 
-  zarrita@0.6.1:
+  zarrita@0.7.4:
     dependencies:
-      '@zarrita/storage': 0.1.4
+      '@zarrita/storage': 0.2.0
       numcodecs: 0.3.2
 
   zod-to-json-schema@3.21.1(zod@3.22.4):
