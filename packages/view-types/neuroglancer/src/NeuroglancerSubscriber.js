@@ -397,6 +397,10 @@ export function NeuroglancerSubscriber(props) {
           const merged = (configSegmentColors && useConfigSegmentIds)
             ? { ...ngCellColors, ...configSegmentColors }
             : ngCellColors;
+            // Store hex as default even if no layerIndex
+            // so applyColorsAndVisibility knows the intended color
+            // result[layerScope][channelScope] = ngCellColors;
+            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
           result[layerScope][channelScope] = remapCellColors(merged, cellIdToMeshIdRef);
           result[layerScope].opacity = opacity ?? 1.0;
           if (defaultColor !== undefined) {
@@ -538,12 +542,9 @@ export function NeuroglancerSubscriber(props) {
           });
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
         } else if (useConfigSegmentIds) {
-          // No obsSets at all (or forceSegments is set) and this channel isn't
-          // using spatialChannelColor/geneSelection encoding. There's no
-          // obsSet color data to fall back on here, so IDs are left uncolored
-          // unless segmentColors (applied in finalizeChannelColors) covers
-          // them — NG applies its own default per-segment coloring for the
-          // rest. The IDs still get included so the meshes render.
+          // No obsSets at all (or forceSegments is set) and this channel isn't using
+          // spatialChannelColor/geneSelection encoding. There's no obsSet color data
+          // data to fall back on here, so each Id gets an auto-generated color
           const ngCellColors = {};
           segmentIds.forEach((id) => {
             ngCellColors[id] = autoColorForId(id);
