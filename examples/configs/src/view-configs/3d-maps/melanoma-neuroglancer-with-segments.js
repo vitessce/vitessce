@@ -33,12 +33,12 @@ function generateNeuroglancerMinimalConfiguration() {
       segments: [612, 3351, 4328, 6531, 8446],
       forceSegments: true,
       segmentColors: {
-        "612": "#d74242",
-        "3351": "#b9d742",
-        "4328": "#42d77d",
-        "6531": "#427dd7",
-        "8446": "#b942d7"
-      }
+        612: '#d74242',
+        3351: '#b9d742',
+        4328: '#42d77d',
+        6531: '#427dd7',
+        8446: '#b942d7',
+      },
     },
   });
 
