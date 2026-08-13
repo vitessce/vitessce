@@ -421,8 +421,15 @@ export function NeuroglancerSubscriber(props) {
                     : rootNode;
                   leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
                 });
+                // Every ID keeps a color: selected or unknown-to-obsSets gets flat color;
+                // known but deselected gets grey
+                const knownIds = new Set((layerIndex ?? []).map(String));
                 segmentIds.forEach((id) => {
                   if (selectedIds.has(String(id))) {
+                    ngCellColors[id] = hex;
+                  } else if (knownIds.has(String(id))) {
+                    ngCellColors[id] = GREY_HEX;
+                  } else {
                     ngCellColors[id] = hex;
                   }
                 });
@@ -513,7 +520,7 @@ export function NeuroglancerSubscriber(props) {
           // sets — a deselected obsSets member and an ID obsSets has never
           // heard of both come back as `cellColors.get(id) === undefined`.
           // Distinguish them: a deselected (but known) obsSets member
-          // recedes to grey (the lasso-selection UX), while an ID obsSets
+          // recedes to grey (the lasso-selection), while an ID obsSets
           // has no record of at all gets an auto-generated color.
           const knownIds = new Set(layerIndex.map(String));
           const ngCellColors = {};

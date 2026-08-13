@@ -30,8 +30,8 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanom-meshes',
     },
     options: {
-    segments: [612, 3351, 4328, 6531, 8446],
-      forceSegments: false,
+      segments: [612, 3351, 4328, 6531, 8446],
+      forceSegments: true,
       segmentColors: {
         "612": "#d74242",
         "3351": "#b9d742",
