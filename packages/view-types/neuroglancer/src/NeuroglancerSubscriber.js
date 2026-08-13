@@ -53,6 +53,7 @@ import {
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
+  autoColorForId,
   remapCellColors,
 } from './utils.js';
 
@@ -396,7 +397,6 @@ export function NeuroglancerSubscriber(props) {
           const merged = (configSegmentColors && useConfigSegmentIds)
             ? { ...ngCellColors, ...configSegmentColors }
             : ngCellColors;
-
           result[layerScope][channelScope] = remapCellColors(merged, cellIdToMeshIdRef);
           result[layerScope].opacity = opacity ?? 1.0;
           if (defaultColor !== undefined) {
@@ -408,7 +408,7 @@ export function NeuroglancerSubscriber(props) {
           // is inherently flat, so segments/forceSegments only affects which
           // IDs are included, not the (single) color used.
           if (spatialChannelColor || useConfigSegmentIds) {
-            const hex = rgbToHex(spatialChannelColor);
+            const hex = spatialChannelColor ? rgbToHex(spatialChannelColor) : autoColorForId(layerScope + channelScope);
             const ngCellColors = {};
             if (segmentIds?.length) {
               if (obsSetSelection?.length > 0 && layerSets) {
@@ -470,7 +470,7 @@ export function NeuroglancerSubscriber(props) {
                 // filler color) unless segmentColors covers it; NG will
                 // apply its own default per-segment coloring, and the key
                 // stays present so the segment remains visible.
-                ngCellColors[id] = undefined;
+                ngCellColors[id] = autoColorForId(id);
                 return;
               }
               const rawVal = expressionData[0][rowIndex] ?? 0;
@@ -489,7 +489,7 @@ export function NeuroglancerSubscriber(props) {
             // explicit override; otherwise NG's own default coloring applies).
             const ngCellColors = {};
             idsToColor.forEach((id) => {
-              ngCellColors[id] = undefined;
+              ngCellColors[id] = autoColorForId(id);
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           }
@@ -509,14 +509,25 @@ export function NeuroglancerSubscriber(props) {
             theme,
           });
           const idsToColor = segmentIds?.length ? segmentIds : layerIndex;
+          // getCellColors only returns entries for the currently *selected*
+          // sets — a deselected obsSets member and an ID obsSets has never
+          // heard of both come back as `cellColors.get(id) === undefined`.
+          // Distinguish them: a deselected (but known) obsSets member
+          // recedes to grey (the lasso-selection UX), while an ID obsSets
+          // has no record of at all gets an auto-generated color.
+          const knownIds = new Set(layerIndex.map(String));
           const ngCellColors = {};
           idsToColor.forEach((id) => {
             const color = cellColors.get(id);
-            // Leave IDs obsSets doesn't cover uncolored (rather than a flat
-            // default) — segmentColors, applied in finalizeChannelColors,
-            // is the only explicit override for those; otherwise NG's own
-            // default per-segment coloring applies.
-            ngCellColors[id] = color ? rgbToHex(color) : undefined;
+            if (color) {
+              ngCellColors[id] = rgbToHex(color);
+            } else if (knownIds.has(String(id))) {
+              // Known to obsSets, just not part of the current selection.
+              ngCellColors[id] = GREY_HEX;
+            } else {
+              // Not part of obsSets at all — auto-color deterministically.
+              ngCellColors[id] = autoColorForId(id);
+            }
           });
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
         } else if (useConfigSegmentIds) {
@@ -528,7 +539,7 @@ export function NeuroglancerSubscriber(props) {
           // rest. The IDs still get included so the meshes render.
           const ngCellColors = {};
           segmentIds.forEach((id) => {
-            ngCellColors[id] = undefined;
+            ngCellColors[id] = autoColorForId(id);
           });
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
         }

@@ -285,3 +285,36 @@ export const remapCellColors = (ngCellColors, cellIdToMeshIdRef) => {
   });
   return remapped;
 };
+
+
+
+// Deterministic fallback coloring for segment IDs with no obsSet or
+// segmentColors data. Neuroglancer's own random-hash per-segment coloring
+// (the "rainbow" look we get in NG does not reliably carry over here due to our changes, 
+// so rather than leave these IDs uncolored  we hash the ID to a stable hue —
+// same ID always gets the same color across re-renders, without needing to
+// know the full ID list up front (unlike an index-based palette).
+const AUTO_COLOR_PALETTE = [
+  '#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377',
+  '#BBBBBB', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#D55E00',
+];
+
+const autoColorCache = new Map();
+
+function hashStringToIndex(str, mod) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i += 1) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return hash % mod;
+}
+
+export function autoColorForId(id) {
+  const key = String(id);
+  let color = autoColorCache.get(key);
+  if (!color) {
+    color = AUTO_COLOR_PALETTE[hashStringToIndex(key, AUTO_COLOR_PALETTE.length)];
+    autoColorCache.set(key, color);
+  }
+  return color;
+}
