@@ -4,6 +4,7 @@ import {
   interpolateJet,
   interpolateGreys,
 } from '@vitessce/sets-utils';
+import { PALETTE } from '@vitessce/utils';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
@@ -292,10 +293,6 @@ export const remapCellColors = (ngCellColors, cellIdToMeshIdRef) => {
 // so rather than leave these IDs uncolored  we hash the ID to a stable hue —
 // same ID always gets the same color across re-renders, without needing to
 // know the full ID list up front (unlike an index-based palette).
-const AUTO_COLOR_PALETTE = [
-  '#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377',
-  '#BBBBBB', '#E69F00', '#56B4E9', '#009E73', '#F0E442', '#D55E00',
-];
 
 const autoColorCache = new Map();
 
@@ -311,7 +308,8 @@ export function autoColorForId(id) {
   const key = String(id);
   let color = autoColorCache.get(key);
   if (!color) {
-    color = AUTO_COLOR_PALETTE[hashStringToIndex(key, AUTO_COLOR_PALETTE.length)];
+    color = PALETTE[hashStringToIndex(key, PALETTE.length)].map(c => c.toString(16).padStart(2, '0')).join('');
+    color = `#${color}`;
     autoColorCache.set(key, color);
   }
   return color;
