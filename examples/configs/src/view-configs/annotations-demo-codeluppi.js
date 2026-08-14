@@ -16,7 +16,7 @@
 
 export const annotationsDemoCodeluppi = {
   name: 'Annotation Demo — Codeluppi 2018 (Full Feature)',
-  description: 'Demonstrates all annotation functionality: spatial shapes, t-SNE shapes, PCA shapes, gene expression, cell type selection, and zoom control.',
+  description: 'Demonstrates multiple different views (spatial, t-SNE, PCA) being controlled simultaneously by a single annotation frame — alongside shapes, gene expression coloring, cell type selection, and zoom control per view.',
   version: '1.0.0',
   initStrategy: 'auto',
   datasets: [

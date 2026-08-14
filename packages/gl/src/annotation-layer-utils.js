@@ -1,3 +1,4 @@
+import { ViewType } from '@vitessce/constants-internal';
 import { PolygonLayer, PathLayer, TextLayer, ScatterplotLayer, COORDINATE_SYSTEM, PathStyleExtension } from './deck.js';
 
 // Target arrowhead size in screen pixels, converted to data-space at render time.
@@ -186,20 +187,26 @@ function fmtCommas(n) {
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-export function getMeasurementLabel(shape, physicalPixelSize) {
+export function getMeasurementLabel(shape, physicalPixelSize, viewType = ViewType.SPATIAL) {
   const pps = physicalPixelSize;
   const px = pps?.x ?? 1;
   const py = pps?.y ?? 1;
-  // Replace µ / μ with u so deck.gl's default ASCII font atlas renders it.
-  const unit = pps ? (pps.unit ?? '').replace(/[µμ]/g, 'u') : null;
+  const unit = pps ? (pps.unit ?? '') : null;
   const hasPhys = !!pps;
+  // Embedding scatterplots (t-SNE/UMAP/PCA) have no pixel grid — their axes are
+  // continuous, arbitrary-scale coordinates, so decimals are real signal, not noise.
+  const isEmbedding = viewType === ViewType.SCATTERPLOT;
 
-  const fmtDist = d => (hasPhys
-    ? `${d.toFixed(2)} ${unit}`
-    : `${d.toFixed(1)} px`);
-  const fmtArea = a => (hasPhys
-    ? `${a.toFixed(2)} ${unit}^2`
-    : `${fmtCommas(a)} px^2`);
+  const fmtDist = (d) => {
+    if (hasPhys) return `${d.toFixed(2)} ${unit}`;
+    if (isEmbedding) return d.toFixed(2);
+    return `${fmtCommas(d)} px`;
+  };
+  const fmtArea = (a) => {
+    if (hasPhys) return `${a.toFixed(2)} ${unit}²`;
+    if (isEmbedding) return a.toFixed(2);
+    return `${fmtCommas(a)} px²`;
+  };
 
   if (shape.type === 'line') {
     const dx = (shape.x2 ?? 0) - (shape.x1 ?? 0);
@@ -303,6 +310,7 @@ function computeClusters(shapeList, zoom, cellPx = 50) {
 export function createAnnotationLayers(
   shapes = [], zoom = 0, selectedShapeUid = null,
   physicalPixelSize = null, authoredZoom = null, semanticZoom = true,
+  viewType = ViewType.SPATIAL,
 ) {
   // Selection halo — rendered first so the original shape draws on top of it.
   // Only the extra pixels outside the original stroke are visible, creating a subtle glow ring.
@@ -993,7 +1001,7 @@ export function createAnnotationLayers(
   shapes.forEach((shape) => {
     if (!shape.showMeasure) return;
     const mIsSelected = shape.uid === selectedShapeUid;
-    const label = getMeasurementLabel(shape, physicalPixelSize);
+    const label = getMeasurementLabel(shape, physicalPixelSize, viewType);
     if (!label) return;
     const color = shape.strokeColor ?? [255, 255, 255];
     let mShapeOpacity = 1;
@@ -1023,8 +1031,11 @@ export function createAnnotationLayers(
       getColor: color,
       getSize: 13,
       sizeUnits: 'pixels',
-      fontFamily: 'monospace',
+      fontFamily: LABEL_FONT_FAMILY,
       fontWeight: 'bold',
+      // 'auto' builds the font atlas from the actual rendered characters (e.g. µ, ²)
+      // instead of deck.gl's default ASCII-only atlas.
+      characterSet: 'auto',
       ...(shape.measureBackground
         ? {
           background: true,

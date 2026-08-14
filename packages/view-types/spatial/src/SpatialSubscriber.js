@@ -1204,7 +1204,7 @@ export function SpatialSubscriber(props) {
       />
       {coordinatesVisible && hoverCoords && (
         <div className={classes.coordOverlaySpatial}>
-          {`x: ${hoverCoords[0].toFixed(2)}  y: ${hoverCoords[1].toFixed(2)}`}
+          {`x: ${Math.round(hoverCoords[0])}  y: ${Math.round(hoverCoords[1])}`}
         </div>
       )}
       {tooltipsVisible && (

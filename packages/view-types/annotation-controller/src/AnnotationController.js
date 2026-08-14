@@ -88,7 +88,7 @@ function ShapeIcon({ type, size = 13 }) {
 }
 
 const FS = { xs: '0.65rem', sm: '0.78rem', md: '0.82rem', lg: '0.92rem' };
-const FONT_MONO = 'monospace';
+const FONT_SANS = '"Roboto", "Helvetica", "Arial", sans-serif';
 
 const useStyles = makeStyles()(theme => ({
   root: {
@@ -146,6 +146,7 @@ const useStyles = makeStyles()(theme => ({
     lineHeight: 1.6,
     marginTop: 2,
     width: '100%',
+    whiteSpace: 'pre-wrap',
   },
   enterBeginBtn: {
     marginTop: 12,
@@ -238,6 +239,7 @@ const useStyles = makeStyles()(theme => ({
     opacity: 0.75,
     lineHeight: 1.5,
     marginBottom: 4,
+    whiteSpace: 'pre-wrap',
   },
   shapeCount: {
     display: 'inline-block',
@@ -274,7 +276,7 @@ const useStyles = makeStyles()(theme => ({
     textAlign: 'right',
     flexShrink: 0,
     fontVariantNumeric: 'tabular-nums',
-    fontFamily: FONT_MONO,
+    fontFamily: FONT_SANS,
   },
   frameNumActive: {
     opacity: 1,
@@ -554,7 +556,7 @@ const useStyles = makeStyles()(theme => ({
   dataUrlBadge: {
     padding: '2px 12px 4px',
     fontSize: FS.xs,
-    fontFamily: FONT_MONO,
+    fontFamily: FONT_SANS,
     opacity: 0.45,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -1100,7 +1102,7 @@ export function AnnotationController(props) {
                                   {geoOpen ? '▾' : '▸'} Attributes
                                 </button>
                                 {!geoOpen && measurementValue && (
-                                  <span style={{ fontSize: FS.xs, fontFamily: FONT_MONO, opacity: 0.55, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{measurementValue}</span>
+                                  <span style={{ fontSize: FS.xs, fontFamily: FONT_SANS, opacity: 0.55, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{measurementValue}</span>
                                 )}
                               </div>
                               {numFrames > 1 && (
@@ -1136,7 +1138,7 @@ export function AnnotationController(props) {
                                 <div className={classes.shapeEditorRow}>
                                   <span className={classes.shapeEditorLabel}>Measure</span>
                                   <span style={{
-                                    fontSize: FS.xs, fontFamily: FONT_MONO, opacity: 0.75, flex: 1,
+                                    fontSize: FS.xs, fontFamily: FONT_SANS, opacity: 0.75, flex: 1,
                                   }}
                                   >
                                     {measurementValue}
@@ -1292,7 +1294,7 @@ export function AnnotationController(props) {
           <div className={classes.enterLabel}>Failed to Load</div>
           <div className={classes.enterHint}>{loadDataError}</div>
           {dataUrl && (
-            <div style={{ fontSize: FS.xs, opacity: 0.4, fontFamily: FONT_MONO, wordBreak: 'break-all', maxWidth: 220 }}>
+            <div style={{ fontSize: FS.xs, opacity: 0.4, fontFamily: FONT_SANS, wordBreak: 'break-all', maxWidth: 220 }}>
               {dataUrl}
             </div>
           )}
@@ -1483,7 +1485,7 @@ export function AnnotationController(props) {
         </Tooltip>
         <Tooltip title={semanticZoom ? 'Adaptive zoom on — shapes simplify when zoomed out' : 'Adaptive zoom off — shapes always render at full detail'}>
           <IconButton onClick={onToggleSemanticZoom} style={{ opacity: semanticZoom ? 1 : 0.35 }}>
-            <span style={{ fontSize: 11, fontWeight: 'bold', fontFamily: 'monospace', lineHeight: 1, letterSpacing: -0.5, userSelect: 'none' }}>Z↕</span>
+            <span style={{ fontSize: 11, fontWeight: 'bold', fontFamily: FONT_SANS, lineHeight: 1, letterSpacing: -0.5, userSelect: 'none' }}>Z↕</span>
           </IconButton>
         </Tooltip>
         <div style={{ position: 'relative', display: 'inline-flex' }}>

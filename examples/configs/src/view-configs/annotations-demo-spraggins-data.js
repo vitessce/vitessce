@@ -1,17 +1,13 @@
 // Spraggins 2020 multiplex immunofluorescence kidney dataset — data mode variant.
 // annotationFrames are NOT embedded in this config. Instead they are fetched at
-// runtime from annotationDataUrl. Swap the URL for any hosted copy of the frames file.
-//
-// The frames JSON file lives at:
-//   sites/demo/public/spraggins-annotation-frames.json
-// When running the demo dev server it is served at:
-//   http://localhost:3000/spraggins-annotation-frames.json
+// runtime from annotationDataUrl, hosted at:
+//   https://data-2.vitessce.io/data/rseaman/annotationDemoFiles/spraggins-annotation-frames.json
 
 import { urlPrefix } from '../utils.js';
 
 export const annotationsDemoSpragginsData = {
   name: 'Annotation Frames — Spraggins 2020 Kidney (data mode)',
-  description: 'Same as the Spraggins annotation demo, but frames are loaded from a separate JSON file rather than embedded in the config.',
+  description: 'Multiplex IF kidney image with annotation frames overlaid on the spatial view; frames are loaded from a separate JSON file rather than embedded in the config. See the embedded version of this demo for a reference example of that pattern.',
   version: '1.0.0',
   initStrategy: 'auto',
   datasets: [
@@ -35,9 +31,7 @@ export const annotationsDemoSpragginsData = {
     annotationOverlayVisible: { A: true },
     annotationDescription: { A: 'This demo walks through the Spraggins 2020 multiplex immunofluorescence kidney dataset. The annotations and story are strictly for demonstration purposes only and will not reflect true biological findings.' },
     annotationDataType: { A: 'data' },
-    // This path is served from sites/demo/public/ by the local dev server only.
-    // For a production deploy, replace with an absolute hosted URL.
-    annotationDataUrl: { A: '/spraggins-annotation-frames.json' },
+    annotationDataUrl: { A: 'https://data-2.vitessce.io/data/rseaman/annotationDemoFiles/spraggins-annotation-frames.json' },
   },
   layout: [
     {

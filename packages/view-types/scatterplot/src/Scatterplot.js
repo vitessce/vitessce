@@ -7,6 +7,7 @@ import {
   ContourLayerWithText, createAnnotationLayers,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
+import { ViewType } from '@vitessce/constants-internal';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
@@ -391,7 +392,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     } = this.props;
     const annotationLayers = createAnnotationLayers(
       annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid,
-      null, annotationAuthoredZoom, annotationSemanticZoom,
+      null, annotationAuthoredZoom, annotationSemanticZoom, ViewType.SCATTERPLOT,
     );
     return [
       cellsLayer,

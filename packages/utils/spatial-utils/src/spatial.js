@@ -271,7 +271,7 @@ export async function initializeLayerChannels(loader, use3d) {
     const slider = sliders[i];
     const channel = {
       selection,
-      channelName: loader.channels?.[i] ?? `Channel ${i}`,
+      channelName: loader.channels?.[selection.c ?? selection.channel ?? i] ?? `Channel ${i}`,
       // eslint-disable-next-line no-nested-ternary
       color: colors ? colors[i]
         : defaultSelection.length !== 1

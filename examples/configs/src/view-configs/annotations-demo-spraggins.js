@@ -5,8 +5,8 @@
 import { urlPrefix } from '../utils.js';
 
 export const annotationsDemoSpraggins = {
-  name: 'Annotation Frames — Spraggins 2020 Kidney',
-  description: 'Multiplex IF kidney image with annotation frames overlaid on the spatial view.',
+  name: 'Annotation Frames — Spraggins 2020 Kidney (embedded)',
+  description: 'Reference example of embedded annotation frames: frames are defined directly inline in this config rather than fetched from a separate file. Compare with the data-mode version of this demo.',
   version: '1.0.0',
   initStrategy: 'auto',
   datasets: [

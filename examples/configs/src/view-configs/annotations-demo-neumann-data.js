@@ -1,0 +1,137 @@
+// Neumann et al. 2020 multi-modal kidney imaging dataset — data mode annotation demo.
+// PAS and AF modalities only (IMS layers omitted).
+// annotationFrames are NOT embedded in this config; they are fetched at runtime
+// from annotationDataUrl, hosted at:
+//   https://data-2.vitessce.io/data/rseaman/annotationDemoFiles/neumann-annotation-frames.json
+
+export const annotationsDemoNeumannData = {
+  version: '1.0.1',
+  name: 'Annotation Frames — Neumann et al. 2020 (PAS + AF, data mode)',
+  description: 'Four registered imaging modalities from HuBMAP HBM876.XNRH.336 — PAS and AF only. Annotation frames loaded from a separate JSON file.',
+  initStrategy: 'auto',
+  datasets: [
+    {
+      uid: 'A',
+      name: 'Neumann 2020',
+      files: [
+        {
+          type: 'raster',
+          fileType: 'raster.json',
+          url: 'https://data-2.vitessce.io/data/rseaman/annotationDemoFiles/neumann-pas-af.raster.json',
+        },
+      ],
+    },
+  ],
+  coordinationSpace: {
+    dataset: { A: 'A' },
+    obsType: { A: 'cell' },
+    featureType: { A: 'gene' },
+    featureValueType: { A: 'expression' },
+    spatialZoom: { A: -4.544584921291093 },
+    spatialTargetX: { A: 15426.009817723443 },
+    spatialTargetY: { A: 7675.529803483682 },
+    spatialImageLayer: {
+      A: [
+        {
+          type: 'raster',
+          index: 0,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: null,
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            { selection: { c: 0, z: 0, t: 0 }, color: [255, 0, 0], visible: true, slider: [0, 255] },
+            { selection: { c: 1, z: 0, t: 0 }, color: [0, 255, 0], visible: true, slider: [0, 255] },
+            { selection: { c: 2, z: 0, t: 0 }, color: [0, 0, 255], visible: true, slider: [0, 255] },
+          ],
+        },
+        {
+          type: 'raster',
+          index: 1,
+          visible: true,
+          colormap: null,
+          opacity: 1,
+          domainType: 'Min/Max',
+          transparentColor: [0, 0, 0],
+          renderingMode: 'Additive',
+          use3d: false,
+          channels: [
+            { selection: { c: 0, z: 0, t: 0 }, color: [0, 0, 255], visible: true, slider: [1024, 23753] },
+            { selection: { c: 1, z: 0, t: 0 }, color: [0, 255, 0], visible: true, slider: [373, 9848] },
+            { selection: { c: 2, z: 0, t: 0 }, color: [255, 0, 255], visible: true, slider: [326, 14084] },
+          ],
+        },
+      ],
+    },
+    spatialSegmentationLayer: { A: [] },
+    spatialNeighborhoodLayer: { A: null },
+    spatialPointLayer: { A: null },
+    annotationFrameIndex: { A: null },
+    annotationOverlayVisible: { A: true },
+    annotationDescription: { A: '' },
+    annotationDataType: { A: 'data' },
+    annotationDataUrl: { A: 'https://data-2.vitessce.io/data/rseaman/annotationDemoFiles/neumann-annotation-frames.json' },
+  },
+  layout: [
+    {
+      component: 'spatial',
+      props: { coordinatesVisible: true },
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialNeighborhoodLayer: 'A',
+        spatialPointLayer: 'A',
+        annotationFrames: 'A',
+        annotationFrameIndex: 'A',
+        annotationOverlayVisible: 'A',
+      },
+      x: 0,
+      y: 0,
+      w: 6,
+      h: 12,
+    },
+    {
+      component: 'layerController',
+      props: { globalDisable3d: true, disableChannelsIfRgbDetected: true },
+      coordinationScopes: {
+        dataset: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+        spatialImageLayer: 'A',
+        spatialSegmentationLayer: 'A',
+        spatialNeighborhoodLayer: 'A',
+        spatialPointLayer: 'A',
+      },
+      x: 6,
+      y: 0,
+      w: 3,
+      h: 12,
+    },
+    {
+      component: 'annotationController',
+      coordinationScopes: {
+        annotationFrames: 'A',
+        annotationFrameIndex: 'A',
+        annotationOverlayVisible: 'A',
+        annotationDescription: 'A',
+        annotationDataType: 'A',
+        annotationDataUrl: 'A',
+        spatialZoom: 'A',
+        spatialTargetX: 'A',
+        spatialTargetY: 'A',
+      },
+      x: 9,
+      y: 0,
+      w: 3,
+      h: 12,
+    },
+  ],
+};

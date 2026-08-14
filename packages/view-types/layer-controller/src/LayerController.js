@@ -331,6 +331,10 @@ export default function LayerController(props) {
               ...globalLabelValues,
               ...update.selection,
             };
+            const newChannelIndex = value.c ?? value.channel;
+            if (newChannelIndex !== undefined && loader?.channels) {
+              update.channelName = loader.channels[newChannelIndex] ?? `Channel ${newChannelIndex}`;
+            }
             setChannel({ ...c, ...update }, channelId);
             // Call back for raster layer handles update of UI
             // like sliders and the loading state of the channel.
