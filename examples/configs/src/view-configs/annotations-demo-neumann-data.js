@@ -43,9 +43,15 @@ export const annotationsDemoNeumannData = {
           renderingMode: 'Additive',
           use3d: false,
           channels: [
-            { selection: { c: 0, z: 0, t: 0 }, color: [255, 0, 0], visible: true, slider: [0, 255] },
-            { selection: { c: 1, z: 0, t: 0 }, color: [0, 255, 0], visible: true, slider: [0, 255] },
-            { selection: { c: 2, z: 0, t: 0 }, color: [0, 0, 255], visible: true, slider: [0, 255] },
+            {
+              selection: { c: 0, z: 0, t: 0 }, color: [255, 0, 0], visible: true, slider: [0, 255],
+            },
+            {
+              selection: { c: 1, z: 0, t: 0 }, color: [0, 255, 0], visible: true, slider: [0, 255],
+            },
+            {
+              selection: { c: 2, z: 0, t: 0 }, color: [0, 0, 255], visible: true, slider: [0, 255],
+            },
           ],
         },
         {
@@ -59,9 +65,24 @@ export const annotationsDemoNeumannData = {
           renderingMode: 'Additive',
           use3d: false,
           channels: [
-            { selection: { c: 0, z: 0, t: 0 }, color: [0, 0, 255], visible: true, slider: [1024, 23753] },
-            { selection: { c: 1, z: 0, t: 0 }, color: [0, 255, 0], visible: true, slider: [373, 9848] },
-            { selection: { c: 2, z: 0, t: 0 }, color: [255, 0, 255], visible: true, slider: [326, 14084] },
+            {
+              selection: { c: 0, z: 0, t: 0 },
+              color: [0, 0, 255],
+              visible: true,
+              slider: [1024, 23753],
+            },
+            {
+              selection: { c: 1, z: 0, t: 0 },
+              color: [0, 255, 0],
+              visible: true,
+              slider: [373, 9848],
+            },
+            {
+              selection: { c: 2, z: 0, t: 0 },
+              color: [255, 0, 255],
+              visible: true,
+              slider: [326, 14084],
+            },
           ],
         },
       ],
