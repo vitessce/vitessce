@@ -265,6 +265,7 @@ export default function SegmentationCentroidsController(props) {
     obsType,
     featureType,
     featureValueType,
+    spatialLayerLabel,
     spatialChannelVisible: segVisible,
     spatialChannelOpacity: segOpacity,
     spatialChannelColor: segColor,
@@ -301,6 +302,7 @@ export default function SegmentationCentroidsController(props) {
     spatialLayerOpacity: pointOpacity,
     spatialLayerColor: pointColor,
     obsColorEncoding: pointObsColorEncoding,
+    spatialLayerLabel: pointSpatialLayerLabel,
     featureValueColormap: pointFeatureValueColormap,
   } = pointValues;
 
@@ -379,7 +381,7 @@ export default function SegmentationCentroidsController(props) {
             />
 
             <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
-              Cell
+              {spatialLayerLabel ?? 'Cell'}
             </Typography>
 
             <div className={classes.divider} />
@@ -400,7 +402,7 @@ export default function SegmentationCentroidsController(props) {
               visible={pointVisibleSetting}
             />
             <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
-              Point
+              {pointSpatialLayerLabel ?? 'Point'}
             </Typography>
           </Grid>
           {/* Shared opacity slider */}
