@@ -161,6 +161,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.FILE_UID,
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
     ],
     coordinationScopes,
@@ -197,6 +198,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.FILE_UID,
       CoordinationType.IMAGE_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLORMAP,
       CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
@@ -239,6 +241,7 @@ export function LayerControllerSubscriber(props) {
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.SPATIAL_SPOT_FILLED,
@@ -262,6 +265,7 @@ export function LayerControllerSubscriber(props) {
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
