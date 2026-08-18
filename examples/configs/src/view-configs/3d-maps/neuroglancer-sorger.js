@@ -149,10 +149,10 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         fileUid: 'sorger-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Meshes',
         segmentationChannel: CL([
           {
             obsType: 'cell',
-            spatialLayerLabel: 'Meshes',
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,

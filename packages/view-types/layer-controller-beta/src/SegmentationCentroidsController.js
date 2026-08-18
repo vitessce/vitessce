@@ -265,7 +265,6 @@ export default function SegmentationCentroidsController(props) {
     obsType,
     featureType,
     featureValueType,
-    spatialLayerLabel,
     spatialChannelVisible: segVisible,
     spatialChannelOpacity: segOpacity,
     spatialChannelColor: segColor,
@@ -316,6 +315,9 @@ export default function SegmentationCentroidsController(props) {
   } = pointSetters;
 
   const sharedOpacity = segOpacity ?? 1;
+
+  const segValues = segLayerCoordination[0]?.[segScope] ?? {};
+  const { spatialLayerLabel: segSpatialLayerLabel } = segValues;
 
   const handleOpacityChange = useCallback((e, v) => {
     setSegOpacity?.(v);
@@ -381,7 +383,7 @@ export default function SegmentationCentroidsController(props) {
             />
 
             <Typography className={`${menuClasses.imageLayerName} ${classes.inlineLabel}`}>
-              {spatialLayerLabel ?? 'Cell'}
+              {segSpatialLayerLabel ?? 'Cell'}
             </Typography>
 
             <div className={classes.divider} />

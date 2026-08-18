@@ -18,6 +18,7 @@ export default function SegmentationLayerController(props) {
   const {
     spatialLayerVisible,
     spatialLayerOpacity,
+    spatialLayerLabel,
   } = layerCoordination;
   const {
     setSpatialLayerVisible,
@@ -62,7 +63,7 @@ export default function SegmentationLayerController(props) {
           setLegendVisible,
         } = setChannelCoordination[cScope];
 
-        const obsTypeName = obsType;
+        const obsTypeName = spatialLayerLabel ?? obsType;
 
         return (
           <SegmentationChannelController
