@@ -163,6 +163,7 @@ function generateNeuroglancerMerfish() {
           spatialLayerOpacity: 1,
           spatialLayerVisible: true,
           obsColorEncoding: 'geneSelection',
+          spatialLayerLabel: 'Transcripts',
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],

@@ -152,6 +152,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         segmentationChannel: CL([
           {
             obsType: 'cell',
+            spatialLayerLabel: 'Meshes',
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,
@@ -183,6 +184,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         featureValueColormap: 'plasma',
         featureSelection: ['MX1_SPOTS'],
         featureValueColormapRange: [0.0, 1.0],
+        spatialLayerLabel: 'Centroids',
         featureFilterMode: 'featureSelection',
       },
     ]),
