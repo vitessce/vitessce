@@ -267,7 +267,6 @@ export default function PointLayerController(props) {
   } = setLayerCoordination;
 
   const label = spatialLayerLabel ?? capitalize(obsType);
-console.log("label", label)
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = useMemo(() => (
     visibleSetting
