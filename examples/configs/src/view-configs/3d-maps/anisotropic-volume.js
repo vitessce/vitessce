@@ -2,6 +2,7 @@ import {
   VitessceConfig,
   CoordinationLevel as CL,
   hconcat,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 /**
@@ -57,7 +58,7 @@ function generateAnisotropicVolumeConfiguration() {
         }))),
       },
     ]),
-  });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
   config.layout(hconcat(spatialView, lcView));
 
