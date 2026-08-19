@@ -85,8 +85,8 @@ function generateNeuroglancerMerfish() {
         tablePath: 'tables/gene_expression_baysor',
         obsSets: [
           {
-            name: 'Region',
-            path: 'tables/gene_expression_baysor/obs/region',
+            name: 'Cell Types',
+            path: 'tables/gene_expression_cellpose/obs/cluster',
           },
         ],
       },
