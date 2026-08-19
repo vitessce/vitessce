@@ -72,7 +72,35 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return true;
   }
 
-  getData(): VivLoaderDataType {
+  // TODO: make stripPhysicalSizes the default behavior,
+  // and remove it as a parameter, once it is no longer
+  // used by spatial-accelerated and spatial-three.
+  getData(stripPhysicalSizes = true): VivLoaderDataType {
+    // Here, we strip the physical size information from the Viv loaders,
+    // since we instead pass it via the model matrix.
+    // If we keep it here AND the caller also uses getModelMatrix(),
+    // then the physical size information will be applied twice.
+    // Reference: https://github.com/hms-dbmi/viv/blob/ec590278f8f5591c64200be9ce189aa5c12215fc/packages/layers/src/utils.js#L162
+    if (stripPhysicalSizes) {
+      const data = this.vivLoader.data;
+      // Clone each pixel source rather than spreading it into a plain object,
+      // so that its prototype methods (e.g. getRaster, getTile) are preserved.
+      const newData = data.map(d => {
+        if ('meta' in d) {
+          const { meta } = d;
+          if (meta && 'physicalSizes' in meta) {
+            // Undefined results in using the identity matrix.
+            const newMeta = { ...meta, physicalSizes: undefined };
+            const clone = Object.create(Object.getPrototypeOf(d));
+            Object.assign(clone, d, { meta: newMeta });
+            return clone;
+          }
+        }
+        return d;
+      });
+      return newData as VivLoaderDataType;
+    }
+
     return this.vivLoader.data;
   }
 

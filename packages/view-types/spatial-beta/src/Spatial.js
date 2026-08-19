@@ -16,7 +16,7 @@ import {
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
-import { getLayerLoaderTuple, getVolumeModelMatrix, renderSubBitmaskLayers } from './utils.js';
+import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
 
 const POINT_LAYER_PREFIX = 'point-layer-';
 const SPOT_LAYER_PREFIX = 'spot-layer-';
@@ -1198,13 +1198,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     // TODO: support model matrix from coordination space also.
-    const imageModelMatrix = image?.image?.instance?.getModelMatrix();
-    // In 3D, viv's VolumeLayer applies its own physical size scaling matrix on
-    // top of whatever modelMatrix it is given, so the physical scaling has to be
-    // divided back out here to avoid applying it twice. See getVolumeModelMatrix.
-    const layerDefModelMatrix = is3dMode
-      ? getVolumeModelMatrix(data, imageModelMatrix)
-      : (imageModelMatrix || {});
+    const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
