@@ -1,5 +1,5 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L26
-import { root as zarrRoot, FetchStore, type Readable, type AbsolutePath, type RangeQuery } from 'zarrita';
+import { root as zarrRoot, FetchStore, type Readable, type AsyncReadable, type AbsolutePath, type RangeQuery } from 'zarrita';
 import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
@@ -10,50 +10,20 @@ type ZarrOpenRootOptions = {
   refSpecUrl?: string,
 };
 
-class RelaxedFetchStore extends FetchStore {
-  // This allows returning `undefined` for 403 responses,
-  // as opposed to completely erroring.
-  // Needed due to https://github.com/manzt/zarrita.js/pull/212
-  // In the future, perhaps we could contribute a way to pass a
-  // custom error handling function or additional options
-  // to the zarrita FetchStore so that a subclass is not required.
-  async get(
-    key: AbsolutePath,
-    options: RequestInit = {},
-  ): Promise<Uint8Array | undefined> {
-    try {
-      return await super.get(key, options);
-    } catch (e: any) {
-      // TODO: request/contribute a custom error class
-      // to avoid string comparisons in the future.
-      if (
-        e?.message?.startsWith('Unexpected response status 403')
-        && !getDebugMode()
-      ) {
-        return undefined;
-      }
-      throw e;
-    }
+// This allows returning `undefined` for 403 responses,
+// as opposed to completely erroring.
+// Needed due to https://github.com/manzt/zarrita.js/pull/212
+// In the future, perhaps we could contribute a way to pass a
+// custom error handling function or additional options
+// to the zarrita FetchStore so that a subclass is not required.
+// Reference: https://zarrita.dev/migration/v0.7.html
+async function relaxedFetch(...args: Parameters<typeof fetch>) {
+  const response = await fetch(...args);
+  if (response.status === 403) {
+    return new Response(null, { status: 404 });
   }
-
-  async getRange(
-    key: AbsolutePath,
-    range: RangeQuery,
-    options: RequestInit = {},
-  ): Promise<Uint8Array | undefined> {
-    try {
-      return await super.getRange(key, range, options);
-    } catch (e: any) {
-      if (
-        e?.message?.startsWith('Unexpected response status 403')
-        && !getDebugMode()
-      ) {
-        return undefined;
-      }
-      throw e;
-    }
-  }
-}
+  return response;
+};
 
 // Define a transformEntries function that expects a single top-level .zarr directory
 // and strips that prefix from all entries.
@@ -88,10 +58,11 @@ export function transformEntriesForZipFileStore(entries: ZipInfo['entries']) {
 }
 
 export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
-  let store: Readable;
+  let store: any;
   if (fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, {
       overrides: opts?.requestInit,
+      // @ts-ignore
       transformEntries: transformEntriesForZipFileStore,
     });
   } else if (fileType && fileType.endsWith('.h5ad')) {
@@ -115,7 +86,7 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
     store = ReferenceStore.fromSpec(referenceSpecPromise,
       { target: url, overrides: opts?.requestInit });
   } else {
-    store = new RelaxedFetchStore(url, { overrides: opts?.requestInit });
+    store = new FetchStore(url, { overrides: opts?.requestInit, fetch: relaxedFetch });
   }
 
   // Wrap remote stores in a cache

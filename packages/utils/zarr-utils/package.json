@@ -35,6 +35,6 @@
     "@vitessce/globals": "workspace:*"
   },
   "devDependencies": {
-    "unzipit": "^1.4.3"
+    "unzipit": "^2.0.1"
   }
 }
