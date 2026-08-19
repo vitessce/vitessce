@@ -82,10 +82,10 @@ export default class ImageWrapper implements AbstractImageWrapper {
     // then the physical size information will be applied twice.
     // Reference: https://github.com/hms-dbmi/viv/blob/ec590278f8f5591c64200be9ce189aa5c12215fc/packages/layers/src/utils.js#L162
     if (stripPhysicalSizes) {
-      const data = this.vivLoader.data;
+      const { data } = this.vivLoader;
       // Clone each pixel source rather than spreading it into a plain object,
       // so that its prototype methods (e.g. getRaster, getTile) are preserved.
-      const newData = data.map(d => {
+      const newData = data.map((d) => {
         if ('meta' in d) {
           const { meta } = d;
           if (meta && 'physicalSizes' in meta) {
