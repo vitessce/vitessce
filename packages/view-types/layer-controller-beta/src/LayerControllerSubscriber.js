@@ -41,8 +41,6 @@ import LayerController from './LayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
- * @param {boolean} props.globalDisable3d Hide the 3D rendering-mode switch, so this view cannot
- * enter volume rendering. Named to match the equivalent prop on the legacy `layerController`.
  * @param {object[]} props.cameraPresets An array of camera preset objects,
  * which can be applied by the user by pressing CTRL+[0-9].
  * Each preset object can have the following coordination properties:
@@ -60,7 +58,6 @@ export function LayerControllerSubscriber(props) {
     title = 'Spatial Layers',
     uuid,
     layerPerFeatureForPoints = false,
-    globalDisable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
   } = props;
@@ -443,7 +440,6 @@ export function LayerControllerSubscriber(props) {
         pointLayerCoordination={pointLayerCoordination}
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
-        globalDisable3d={globalDisable3d}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
 

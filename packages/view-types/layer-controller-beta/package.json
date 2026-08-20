@@ -49,7 +49,6 @@
     "react-color-with-lodash": "^2.19.5"
   },
   "devDependencies": {
-    "@testing-library/react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
