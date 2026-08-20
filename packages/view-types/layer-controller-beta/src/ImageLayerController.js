@@ -33,6 +33,11 @@ import {
   useControllerSectionStyles,
   useSelectStyles,
   useEllipsisMenuStyles,
+  channelRowContainerSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+  channelSliderCellSx,
+  channelSpacerCellSx,
 } from './styles.js';
 import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
@@ -473,8 +478,8 @@ export default function ImageLayerController(props) {
   return (
     <Grid className={controllerSectionClasses.layerControllerGrid}>
       <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <Button
               className={menuClasses.imageLayerVisibleButton}
               onClick={handleVisibleChange}
@@ -483,13 +488,15 @@ export default function ImageLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid size={1} />
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
+          {/* Empty cell to align the label with the channel rows' labels;
+              it keeps its width at every container size. */}
+          <Grid size={1} sx={channelSpacerCellSx} />
+          <Grid size={6} sx={channelSelectorCellSx}>
+            <Typography className={menuClasses.imageLayerName} title={label}>
               {label}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={channelSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -501,7 +508,7 @@ export default function ImageLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <ImageLayerEllipsisMenu
               colormap={colormap}
               setColormap={setColormap}
@@ -528,7 +535,7 @@ export default function ImageLayerController(props) {
               setChannelLabelSize={setChannelLabelSize}
             />
           </Grid>
-          <Grid size={1} container direction="row">
+          <Grid size={1} container direction="row" sx={channelControlCellSx}>
             <ImageIcon className={classes.layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button

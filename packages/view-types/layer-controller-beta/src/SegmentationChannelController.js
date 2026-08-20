@@ -3,6 +3,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
+import clsx from 'clsx';
 import {
   makeStyles,
   Grid,
@@ -29,14 +30,18 @@ import {
   channelRowContainerSx,
   channelSelectorCellSx,
   channelControlCellSx,
-  channelRowBreakSx,
-  channelSegmentationIconCellSx,
-  channelSegmentationSliderCellSx,
+  channelSliderCellSx,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 
 const useStyles = makeStyles()(() => ({
+  // Cap the channel name's width; imageLayerName ellipsizes the overflow.
+  channelName: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
   layerTypeSegmentationIcon: {
     height: '100%',
     marginLeft: '1px',
@@ -292,13 +297,15 @@ export default function SegmentationChannelController(props) {
             />
           </Grid>
           <Grid size={6} sx={channelSelectorCellSx}>
-            <Typography className={menuClasses.imageLayerName}>
+            <Typography
+              className={clsx(menuClasses.imageLayerName, classes.channelName)}
+              title={capitalize(label)}
+            >
               {capitalize(label)}
               {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
-          <Grid sx={channelRowBreakSx} aria-hidden />
-          <Grid size={2} sx={channelSegmentationSliderCellSx}>
+          <Grid size={2} sx={channelSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -334,7 +341,7 @@ export default function SegmentationChannelController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid size={1} sx={channelSegmentationIconCellSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>

@@ -24,6 +24,11 @@ export const useEllipsisMenuStyles = makeStyles()(() => ({
     marginBottom: '0 !important',
     marginLeft: '4px',
     marginTop: '12px !important',
+    // Truncate rather than widening the row's label cell, which would push the
+    // options menu and layer type icon onto a second line in narrow containers.
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   imageLayerOpacitySlider: {
     marginTop: '7px',
@@ -60,9 +65,16 @@ export const channelSliderCellSx = {
   },
 };
 
-// Selector/label cell: grow to absorb the top line's slack when narrow.
+// Selector/label cell: absorb the top line's slack when narrow. Flex line
+// breaking uses each item's flex-basis (not its shrunk size), so the cell's
+// wide-layout basis of 6/12 columns would push the controls to its right onto
+// a second line; a zero basis lets it take only the leftover width instead.
+// Its contents therefore need to handle being narrow (see imageLayerName).
 export const channelSelectorCellSx = {
-  [wrapQuery]: { flexGrow: 1 },
+  [wrapQuery]: {
+    flexBasis: 0,
+    flexGrow: 1,
+  },
 };
 
 // Small control cells (checkbox, color swatch, options, type icon): size to
@@ -76,39 +88,9 @@ export const channelControlCellSx = {
   },
 };
 
-// Segmentation-only narrow layout: instead of the opacity slider getting its own
-// full-width line, the square+circle type icon and the slider share the second
-// line => [type icon][slider]. A zero-height full-width break (order 1) forces
-// that new line so a short label can't let the icon float back up to line 1;
-// the icon (order 2) and slider (order 3) then follow on it.
-export const channelRowBreakSx = {
-  display: 'none',
-  [wrapQuery]: {
-    display: 'block',
-    flexBasis: '100%',
-    height: 0,
-    order: 1,
-  },
-};
-
-export const channelSegmentationIconCellSx = {
-  [wrapQuery]: {
-    width: 'auto',
-    flexGrow: 0,
-    flexShrink: 0,
-    order: 2,
-    paddingLeft: '12px',
-  },
-};
-
-export const channelSegmentationSliderCellSx = {
-  [wrapQuery]: {
-    order: 3,
-    flexGrow: 1,
-    paddingLeft: '8px',
-    paddingRight: '12px',
-  },
-};
+// Empty alignment cells: hold their column width at every container size, so a
+// crowded line shrinks the neighbouring label instead of eating the alignment.
+export const channelSpacerCellSx = { flexShrink: 0, minWidth: '44px' };
 
 export {
   useSpanStyles,
