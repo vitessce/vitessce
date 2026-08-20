@@ -1,6 +1,7 @@
 import React, { forwardRef, useState, useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { SpatialThree } from './SpatialThree.js';
+import { loadXRModule } from './xr/xrModule.js';
 import type { SpatialThreeProps } from './types.js';
 
 // Lazy-load XR components. If @react-three/xr is not installed,
@@ -24,7 +25,7 @@ export const SpatialWrapper = forwardRef<HTMLCanvasElement, SpatialThreeProps>(
     const [xrAvailable, setXrAvailable] = useState(false);
 
     useEffect(() => {
-      import('@react-three/xr')
+      loadXRModule()
         .then(() => setXrAvailable(true))
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         .catch(() => {});

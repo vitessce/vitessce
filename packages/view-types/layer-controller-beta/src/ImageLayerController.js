@@ -127,6 +127,8 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelsOrientation,
     channelLabelSize,
     setChannelLabelSize,
+    channelsSortOrder,
+    setChannelsSortOrder,
   } = props;
   const [open, setOpen] = useState(false);
   const { classes: selectClasses } = useSelectStyles();
@@ -168,6 +170,10 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelsOrientation(event.target.value);
   }
 
+  function handleChannelsSortOrderChange(event) {
+    setChannelsSortOrder(event.target.value);
+  }
+
   // Update local LOD slider value immediately on drag
   function handleLodFactorChange(event, value) {
     setLocalLodSliderValue(value);
@@ -194,6 +200,7 @@ function ImageLayerEllipsisMenu(props) {
   const channelLabelsOrientationId = useId();
   const channelLabelSizeId = useId();
   const lodFactorId = useId();
+  const channelsSortOrderId = useId();
 
   return (
     <PopperMenu
@@ -380,6 +387,20 @@ function ImageLayerEllipsisMenu(props) {
           aria-label="Channel labels text size slider"
         />
       </MenuItem>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelsSortOrderId}>
+          Channel Ordering:&nbsp;
+        </label>
+        <NativeSelect
+          onChange={handleChannelsSortOrderChange}
+          value={channelsSortOrder}
+          inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          <option aria-label="Original" value="original">Original</option>
+          <option aria-label="Alphabetical" value="alphabetical">Alphabetical</option>
+        </NativeSelect>
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -424,6 +445,7 @@ export default function ImageLayerController(props) {
     spatialChannelLabelsVisible: channelLabelsVisible,
     spatialChannelLabelsOrientation: channelLabelsOrientation,
     spatialChannelLabelSize: channelLabelSize,
+    spatialChannelsSortOrder: channelsSortOrder,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -441,6 +463,7 @@ export default function ImageLayerController(props) {
     setSpatialChannelLabelsVisible: setChannelLabelsVisible,
     setSpatialChannelLabelsOrientation: setChannelLabelsOrientation,
     setSpatialChannelLabelSize: setChannelLabelSize,
+    setSpatialChannelsSortOrder: setChannelsSortOrder,
   } = setLayerCoordination;
 
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
@@ -533,6 +556,8 @@ export default function ImageLayerController(props) {
               setChannelLabelsOrientation={setChannelLabelsOrientation}
               channelLabelSize={channelLabelSize}
               setChannelLabelSize={setChannelLabelSize}
+              channelsSortOrder={channelsSortOrder}
+              setChannelsSortOrder={setChannelsSortOrder}
             />
           </Grid>
           <Grid size={1} container direction="row" sx={channelControlCellSx}>
@@ -598,6 +623,7 @@ export default function ImageLayerController(props) {
                   colormapOn={colormap !== null}
                   featureIndex={featureIndex}
                   image={image}
+                  channelsSortOrder={channelsSortOrder}
                   spatialRenderingMode={spatialRenderingMode}
                   numResolutions={numResolutions}
                   spatialMaxResolution={spatialMaxResolution}

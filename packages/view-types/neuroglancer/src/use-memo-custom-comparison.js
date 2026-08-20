@@ -82,6 +82,9 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('theme')) {
     forceUpdate = true;
   }
+  if (curriedShallowDiff('csvLoaded')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -102,7 +105,12 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'additionalObsSets',
               'spatialChannelColor',
               'spatialChannelOpacity',
+              'featureValueColormap',
+              'featureValueColormapRange',
+              'featureSelection',
             ])
+            || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
+            || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
         ) {
           forceUpdate = true;
         }
@@ -178,6 +186,12 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'featureFilterMode',
             'featureColor',
             'spatialPointStrokeWidth',
+            'featureValueColormap',
+            'featureValueColormapRange',
+            'featureSelection',
+            'obsSetColor',
+            'obsSetSelection',
+            'additionalObsSets',
           ])
           // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
           || (

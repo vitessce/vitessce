@@ -35,7 +35,7 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 cd consumer
 npm install react@^19.0.0 react-dom@^19.0.0
 # Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
-npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.159.0"
+npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.162.0"
 npm install --save-dev vite@7
 npm install $(ls ./vitessce-*.tgz)
 # Run Vite build to bundle the consumer HTML/JS.

@@ -1,8 +1,10 @@
 /* eslint-disable react/no-unknown-property */
 import React, { useRef } from 'react';
 import type { Mesh } from 'three';
-import { useXRInputSourceState } from '@react-three/xr';
 import { useFrame, useThree } from '@react-three/fiber';
+import { getXRModule } from './xrModule.js';
+
+const { useXRInputSourceState } = getXRModule();
 
 // XRHand is typed as Map<number, XRJointSpace> in TS lib, but the WebXR spec
 // and runtime use string joint names. This helper casts for string-keyed access.

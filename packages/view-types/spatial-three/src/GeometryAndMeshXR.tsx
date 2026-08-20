@@ -6,11 +6,13 @@ import type { Group, Scene } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
-import { useXR, useXRInputSourceState } from '@react-three/xr';
 import { FrontSide, Vector3, Box3, Matrix4 } from 'three';
+import { getXRModule } from './xr/xrModule.js';
 import { MeasureLine } from './xr/MeasureLine.js';
 import type { GeometryAndMeshProps, MeasureLineData, ClickEvent, PointerOverEvent } from './types.js';
 import { isValidGeometrySize, stringifyLineData } from './three-utils.js';
+
+const { useXR, useXRInputSourceState } = getXRModule();
 
 // XRHand is typed as Map<number, XRJointSpace> in TS lib, but the WebXR spec
 // and runtime use string joint names. This helper casts for string-keyed access.

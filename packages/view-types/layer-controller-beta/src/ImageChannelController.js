@@ -49,6 +49,7 @@ export default function ImageChannelController(props) {
     numResolutions,
     spatialMaxResolution,
     setSpatialMaxResolution,
+    channelsSortOrder,
   } = props;
 
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
@@ -129,6 +130,7 @@ export default function ImageChannelController(props) {
           setTargetC={setTargetC}
           setWindow={setWindow}
           disabled={isLoading}
+          channelsSortOrder={channelsSortOrder}
         />
       </Grid>
 
