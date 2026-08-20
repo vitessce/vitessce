@@ -1,6 +1,6 @@
 ---
 name: vitessce-add-changeset
-description: Use when the user has made changes to Vitessce packages and needs to record a changeset for the release process. Trigger on "add a changeset", "bump version", "record a change", "prepare a release", "how do I version this", "update the changelog", or any mention of CHANGELOG in this codebase.
+description: Use when the user has made changes within this repository and needs to document the changes in preparation for semantic versioning. Trigger on "add a changeset", "bump version", "record a change", "prepare a release", "how do I version this", "update the changelog", or any mention of CHANGELOG in this codebase.
 ---
 
 # Adding a Changeset

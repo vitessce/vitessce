@@ -1,6 +1,6 @@
 ---
 name: vitessce-add-coordination-to-view
-description: Use when wiring an existing coordination type into an existing Vitessce subscriber component — making a view read or write a piece of shared state it doesn't currently use. Trigger on "add coordination to a view", "wire up coordination", "make this view respond to obsType", "subscribe to a coordination type", "add a coordination scope to a view", or "link this view to shared state".
+description: Use when wiring an existing coordination type into an existing Vitessce subscriber component — making a view read or write a piece of shared state it doesn't currently use. Trigger on "add coordination to a view", "wire up coordination", "make this view respond to a new property", "subscribe to a coordination type", "add a coordination scope to a view", or "link this view to shared state".
 ---
 
 # Adding a Coordination Type to an Existing View

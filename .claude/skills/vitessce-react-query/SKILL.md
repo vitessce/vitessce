@@ -1,6 +1,6 @@
 ---
 name: vitessce-react-query
-description: Use when working with React Query (TanStack Query) internals in Vitessce — understanding how data fetching works, adding new useDataType hooks, or debugging caching and query key issues. Trigger on "react query", "tanstack query", "useQuery in vitessce", "queryFn", "data loading internals", "query key", "caching", "how does data loading work", or "add a new data hook from scratch".
+description: Use when working with React Query (TanStack Query) internals in Vitessce — understanding how data fetching and loading works, adding new useDataType hooks, or debugging caching and query key issues. Trigger on "react query", "tanstack query", "useQuery in vitessce", "queryFn", "data loading internals", "query key", "caching", "how does data loading work", or "add a new data hook from scratch".
 ---
 
 # React Query in Vitessce

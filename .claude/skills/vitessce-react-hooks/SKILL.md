@@ -1,6 +1,6 @@
 ---
 name: vitessce-react-hooks
-description: Use when writing or reviewing React hook patterns in Vitessce — useMemo vs useState/useEffect, useCallback, and Vitessce-specific hooks from @vitessce/vit-s. Trigger on "how should I use hooks", "useMemo vs useEffect", "React hooks in Vitessce", "optimize with hooks", "memoize this", "write a custom hook", or when reviewing a component that uses hooks incorrectly.
+description: Use when writing or reviewing React hook patterns in Vitessce — useMemo vs useState/useEffect, useCallback, and Vitessce-specific custom hook functions. Trigger when writing a custom hook, updating code that performs state management, adding memoization, or when reviewing a component that uses hooks incorrectly.
 ---
 
 # React Hooks in Vitessce
