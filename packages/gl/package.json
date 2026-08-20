@@ -66,6 +66,7 @@
     "@turf/distance": "catalog:turf",
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
     "d3-array": "catalog:",
     "deck.gl": "catalog:deck.gl",
     "glslify": "^7.0.0",

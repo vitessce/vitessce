@@ -66,3 +66,4 @@ export {
   moleculesLayerObj,
 } from './spatial-layers.js';
 export { z } from 'zod';
+export { annotationFrameObj } from './annotation-frames.js';

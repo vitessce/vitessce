@@ -107,3 +107,4 @@ export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
 export { createOnDrop } from './on-drop.js';
+export { cleanExportConfig } from './annotation-config-utils.js';

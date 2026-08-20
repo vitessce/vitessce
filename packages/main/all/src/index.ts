@@ -8,6 +8,7 @@ export {
 } from '@vitessce/plugins';
 export { z } from '@vitessce/schemas';
 export {
+  cleanExportConfig,
   useCoordination,
   useGridItemSize,
   usePageModeView,

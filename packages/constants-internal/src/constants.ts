@@ -34,6 +34,7 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  ANNOTATION_CONTROLLER: 'annotationController',
 };
 
 export const DataType = {
@@ -272,6 +273,7 @@ export const CoordinationType = {
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
   SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
   SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
+  SPATIAL_PHYSICAL_PIXEL_SIZE: 'spatialPhysicalPixelSize',
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
@@ -381,6 +383,19 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  // Annotation frames
+  ANNOTATION_FRAMES: 'annotationFrames',
+  ANNOTATION_FRAME_INDEX: 'annotationFrameIndex',
+  ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
+  ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
+  ANNOTATION_DIVERGED: 'annotationDiverged',
+  ANNOTATION_DESCRIPTION: 'annotationDescription',
+  ANNOTATION_ACTIVE_TOOL: 'annotationActiveTool',
+  ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER: 'annotationCaptureViewStateTrigger',
+  ANNOTATION_SELECTED_SHAPE: 'annotationSelectedShapeUid',
+  ANNOTATION_DATA_TYPE: 'annotationDataType',
+  ANNOTATION_DATA_URL: 'annotationDataUrl',
+  ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
 };
 
 export const STATUS = {
@@ -423,4 +438,5 @@ export const ViewHelpMapping = {
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
   LAYER_CONTROLLER_BETA: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
   SPATIAL_BETA: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  ANNOTATION_CONTROLLER: 'The annotation controller displays a guided sequence of annotation frames, each capturing a spatial view state with descriptive text and optional geometric shapes (rectangles, lines, ellipses, polygons, polylines). Use it to present a structured narrative over spatial data, or to author and export annotation stories in edit mode.',
 };

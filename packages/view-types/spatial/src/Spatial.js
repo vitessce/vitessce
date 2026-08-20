@@ -2,7 +2,7 @@ import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension,
-} from '@vitessce/gl';
+  createAnnotationLayers } from '@vitessce/gl';
 import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -583,6 +583,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       obsSegmentationsBitmaskLayers,
     } = this;
+    const {
+      annotationShapes = [],
+      annotationPreviewLayer = null,
+      annotationSelectedShapeUid = null,
+      viewState,
+      physicalPixelSize = null,
+      annotationAuthoredZoom = null,
+      annotationSemanticZoom = true,
+    } = this.props;
+    const annotationLayers = createAnnotationLayers(
+      annotationShapes, viewState?.zoom ?? 0, annotationSelectedShapeUid,
+      physicalPixelSize, annotationAuthoredZoom, annotationSemanticZoom,
+    );
     return [
       ...imageLayers,
       ...obsSegmentationsBitmaskLayers,
@@ -591,6 +604,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
+      ...annotationLayers,
+      ...(annotationPreviewLayer ? [annotationPreviewLayer] : []),
     ];
   }
 

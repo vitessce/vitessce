@@ -31,7 +31,7 @@ export default class JsonLoader extends AbstractTwoStepLoader {
   async load() {
     const { url } = this;
     if (this.data) {
-      return this.data;
+      return new LoaderResult(this.data, url);
     }
     this.data = await this.dataSource.loadJson();
     const [valid, reason] = this.validate(this.data);

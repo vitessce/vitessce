@@ -133,6 +133,15 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.EMBEDDING_CONTOUR_PERCENTILES,
     CoordinationType.CONTOUR_COLOR_ENCODING,
     CoordinationType.CONTOUR_COLOR,
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -249,6 +258,16 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -660,6 +679,32 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.SAMPLE_SET_COLOR,
     CoordinationType.FEATURE_SELECTION,
+  ],
+  [ViewType.ANNOTATION_CONTROLLER]: [
+    CoordinationType.DATASET,
+    // Annotation navigation state
+    CoordinationType.ANNOTATION_FRAMES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_DIVERGED,
+    CoordinationType.ANNOTATION_DESCRIPTION,
+    CoordinationType.ANNOTATION_ACTIVE_TOOL,
+    // Cross-view state (shared across all views, not per-view)
+    CoordinationType.FEATURE_SELECTION,
+    CoordinationType.OBS_COLOR_ENCODING,
+    CoordinationType.OBS_SET_SELECTION,
+    // Trigger that tells each view subscriber to capture its own current view state
+    CoordinationType.ANNOTATION_CAPTURE_VIEW_STATE_TRIGGER,
+    // Currently-selected shape UID in the editor panel (for canvas highlight)
+    CoordinationType.ANNOTATION_SELECTED_SHAPE,
+    // Data storage mode: 'inline' (default) or 'data' (fetched from URL)
+    CoordinationType.ANNOTATION_DATA_TYPE,
+    CoordinationType.ANNOTATION_DATA_URL,
+    // Physical pixel size set by spatial view when image data loads
+    CoordinationType.SPATIAL_PHYSICAL_PIXEL_SIZE,
+    // LOD: whether to apply zoom-relative adaptive rendering to annotation shapes
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.LINK_CONTROLLER]: [],
   [ViewType.BIOMARKER_SELECT]: [
