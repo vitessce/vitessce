@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
-import { getDebugMode } from '@vitessce/globals';
+import { getDebugMode, log } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
 import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
 
@@ -58,20 +58,29 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
   }
 
   async loadDataFrame(dfPath) {
-    const [
-      featureId,
-      featureFoldChange,
-      featureSignificance,
-    ] = await Promise.all([
-      this.loadFeatureNames(dfPath),
-      this.loadFoldChanges(dfPath),
-      this.loadSignificances(dfPath),
-    ]);
-    return {
-      featureId,
-      featureFoldChange,
-      featureSignificance,
-    };
+    try {
+      const [
+        featureId,
+        featureFoldChange,
+        featureSignificance,
+      ] = await Promise.all([
+        this.loadFeatureNames(dfPath),
+        this.loadFoldChanges(dfPath),
+        this.loadSignificances(dfPath),
+      ]);
+      return {
+        featureId,
+        featureFoldChange,
+        featureSignificance,
+      };
+    } catch (e) {
+      log.warn('Dataframe not found at', dfPath);
+      return {
+        featureId: [],
+        featureFoldChange: [],
+        featureSignificance: [],
+      };
+    }
   }
 
   /**
@@ -101,7 +110,7 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
    * @returns {Promise<LoaderResult<FeatureStatsData>>}
    */
   async loadMulti(volcanoOptions) {
-    const { analysisType: targetAnalysisType = 'rank_genes_groups' } = this.options;
+    const { analysisType: targetAnalysisType = 'pydeseq2' } = this.options;
     const { sampleSetSelection, obsSetSelection } = volcanoOptions || {};
 
     // We expect these set paths to have already been transformed

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/neuroglancer",
-  "version": "3.9.5",
+  "version": "4.0.3",
   "author": "Gehlenborg Lab",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -35,11 +35,12 @@
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/gl": "workspace:*",
     "@vitessce/sets-utils": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/tooltip": "workspace:*",
+    "@vitessce/legend": "workspace:*",
     "lodash-es": "catalog:",
-    "three": "catalog:",
     "react": "catalog:"
   },
   "devDependencies": {

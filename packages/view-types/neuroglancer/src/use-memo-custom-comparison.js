@@ -82,6 +82,9 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('theme')) {
     forceUpdate = true;
   }
+  if (curriedShallowDiff('csvLoaded')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -100,7 +103,14 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'obsColorEncoding',
               'obsSetSelection',
               'additionalObsSets',
+              'spatialChannelColor',
+              'spatialChannelOpacity',
+              'featureValueColormap',
+              'featureValueColormapRange',
+              'featureSelection',
             ])
+            || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
+            || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
         ) {
           forceUpdate = true;
         }
@@ -126,6 +136,10 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   const curriedShallowDiffByLayerCoordinationWithKeys = (depName, layerScope, keys) => shallowDiffByLayerCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, keys);
   const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
   const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
+
+  if (['theme', 'showAxisLines'].some(curriedShallowDiff)) {
+    forceUpdate = true;
+  }
 
   // Segmentation layers/channels.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -171,6 +185,13 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'featureSelection',
             'featureFilterMode',
             'featureColor',
+            'spatialPointStrokeWidth',
+            'featureValueColormap',
+            'featureValueColormapRange',
+            'featureSelection',
+            'obsSetColor',
+            'obsSetSelection',
+            'additionalObsSets',
           ])
           // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
           || (

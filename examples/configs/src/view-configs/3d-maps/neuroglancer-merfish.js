@@ -35,6 +35,14 @@ function generateNeuroglancerMerfish() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
+    options: {
+      subsources: {
+        default: true,
+        bounds: false,
+        mesh: true,
+      },
+      enableDefaultSubsources: false,
+    },
     coordinationValues: {
       fileUid: 'merfish-meshes',
       obsType: 'cell',
@@ -77,8 +85,8 @@ function generateNeuroglancerMerfish() {
         tablePath: 'tables/gene_expression_baysor',
         obsSets: [
           {
-            name: 'Region',
-            path: 'tables/gene_expression_baysor/obs/region',
+            name: 'Cell Types',
+            path: 'tables/gene_expression_cellpose/obs/cluster',
           },
         ],
       },
@@ -95,11 +103,11 @@ function generateNeuroglancerMerfish() {
     // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState: {
       position: [
-        3630.5,
-        4469.5,
-        7.5,
+        3276962.5,
+        3271567.5,
+        1.72,
       ],
-      projectionScale: 11521.115426462216,
+      projectionScale: 11521,
       projectionOrientation: [
         -0.0017234950792044401,
         -0.031710099428892136,
@@ -107,8 +115,9 @@ function generateNeuroglancerMerfish() {
         0.999148964881897,
       ],
     },
+    showAxisLines: true,
   });
-  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
   const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
   const obsSets = config.addView(dataset, 'obsSets');
 
@@ -157,6 +166,7 @@ function generateNeuroglancerMerfish() {
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
+          spatialPointStrokeWidth: 0.0,
         },
       ]),
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });

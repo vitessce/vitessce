@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { VitS } from '@vitessce/vit-s';
 import { PluginViewType } from '@vitessce/plugins';
 import { CoordinationType } from '@vitessce/constants';
@@ -48,4 +48,4 @@ class App extends React.Component {
 }
 
 const domContainer = document.querySelector('#root');
-ReactDOM.render(e(App), domContainer);
+createRoot(domContainer).render(e(App));

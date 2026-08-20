@@ -1,11 +1,18 @@
 import {
-  Quaternion,
-  Euler,
-} from 'three';
-
+  interpolatePlasma,
+  interpolateViridis,
+  interpolateJet,
+  interpolateGreys,
+} from '@vitessce/sets-utils';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
+
+// Used by NG source code for decoding annotation chunks
+export const ANNOTATION_HEADER_OFFSET = 8;
+
+// TODO: Grey color used by Vitessce - maybe set globally
+export const GREY_HEX = '#323232';
 
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 100,
@@ -60,6 +67,20 @@ export const deg2rad = d => d * Math.PI / 180;
 //       && position.length === 3
 //   );
 // }
+
+//  Returns an [r, g, b] color array (0–255) for a normalized value t in [0, 1]
+// using the named colormap.
+export function applyColormap(colormap, t) {
+  const tClamped = Math.max(0, Math.min(1, t));
+  const interpolators = {
+    plasma: interpolatePlasma,
+    viridis: interpolateViridis,
+    jet: interpolateJet,
+    greys: interpolateGreys,
+  };
+  const fn = interpolators[colormap] ?? interpolateViridis;
+  return fn(tClamped);
+}
 
 /**
  * Returns true if the difference is greater than the epsilon for that key.
@@ -120,25 +141,50 @@ export function diffCameraState(prev, next) {
 }
 
 
-//  Convert WebGL's Quaternion rotation to DeckGL's Euler
-export function quaternionToEuler([x, y, z, w]) {
-  const quaternion = new Quaternion(x, y, z, w);
-  // deck.gl uses Y (yaw), X (pitch), Z (roll)
-  // TODO confirm the direction - YXZ
-  const euler = new Euler().setFromQuaternion(quaternion, 'YXZ');
-  const pitch = euler.x; // X-axis rotation
-  const yaw = euler.y; // Y-axis rotation
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-  // return [pitch * RAD2DEG, yaw * RAD2DEG];
+//  Convert WebGL's Quaternion rotation to DeckGL's Euler.
+//  Mirrors three.js Euler.setFromQuaternion(q, 'YXZ') exactly, but without
+//  pulling three into the bundle (deck.gl uses Y=yaw, X=pitch, Z=roll).
+export function quaternionToEuler([x, y, z, w]) {
+  const x2 = x + x;
+  const y2 = y + y;
+  const z2 = z + z;
+  const xx = x * x2;
+  const yy = y * y2;
+  const zz = z * z2;
+  const xz = x * z2;
+  const yz = y * z2;
+  const wx = w * x2;
+  const wy = w * y2;
+  const m11 = 1 - (yy + zz);
+  const m13 = xz + wy;
+  const m23 = yz - wx;
+  const m31 = xz - wy;
+  const m33 = 1 - (xx + yy);
+  const pitch = Math.asin(-clamp(m23, -1, 1)); // X-axis rotation
+  const yaw = Math.abs(m23) < 0.9999999 // Y-axis rotation
+    ? Math.atan2(m13, m33)
+    : Math.atan2(-m31, m11);
   return [pitch, yaw];
 }
 
 
-//  Convert DeckGL's rotation in Euler to WebGL's Quaternion
+//  Convert DeckGL's rotation in Euler to WebGL's Quaternion.
+//  Mirrors three.js Quaternion.setFromEuler(new Euler(pitch, yaw, roll, 'YXZ')).
 export function eulerToQuaternion(pitch, yaw, roll = 0) {
-  const euler = new Euler(pitch, yaw, roll, 'YXZ'); // rotation order
-  const quaternion = new Quaternion().setFromEuler(euler);
-  return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+  const c1 = Math.cos(pitch / 2);
+  const c2 = Math.cos(yaw / 2);
+  const c3 = Math.cos(roll / 2);
+  const s1 = Math.sin(pitch / 2);
+  const s2 = Math.sin(yaw / 2);
+  const s3 = Math.sin(roll / 2);
+  return [
+    s1 * c2 * c3 + c1 * s2 * s3,
+    c1 * s2 * c3 - s1 * c2 * s3,
+    c1 * c2 * s3 - s1 * s2 * c3,
+    c1 * c2 * c3 + s1 * s2 * s3,
+  ];
 }
 
 
@@ -155,3 +201,87 @@ export function makeVitNgZoomCalibrator(initialNgProjectionScale, initialDeckZoo
     },
   };
 }
+
+/**
+ * Apply a quaternion rotation to a 3D vector.
+ * @param {number[]} q Quaternion [x, y, z, w]
+ * @param {number[]} v Vector [x, y, z]
+ * @returns {number[]} Rotated vector [x, y, z]
+ */
+export function applyQuat(q, v) {
+  const [qx, qy, qz, qw] = q;
+  const [vx, vy, vz] = v;
+  const tx = 2 * (qy * vz - qz * vy);
+  const ty = 2 * (qz * vx - qx * vz);
+  const tz = 2 * (qx * vy - qy * vx);
+  return [
+    vx + qw * tx + qy * tz - qz * ty,
+    vy + qw * ty + qz * tx - qx * tz,
+    vz + qw * tz + qx * ty - qy * tx,
+  ];
+}
+
+/**
+ * Parse segment IDs and positions from annotation chunk binary data
+ * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
+*/
+export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
+  const dv = new DataView(buffer);
+  if (buffer.byteLength <= 8) return [];
+
+  const count = dv.getUint32(0, true);
+  // countHigh at bytes 4-7 should be 0
+  if (count === 0) return [];
+  // 32 for spatial0, 44 for spatial1/2/3
+  const numBytes = serializer.serializedBytes;
+  // float32 index in buffer:
+  // [0] x position
+  // [1] y position
+  // [2] z position
+  // [3] padding
+  // [4] phenotype   -> properties[0]
+  // [5] id          -> properties[1]
+  // [6] volume_norm -> properties[2]
+  // [7] random      -> properties[3]
+  // [7] random      -> properties[4]
+  const properties = [null, null, null, null, null];
+  const results = [];
+
+  for (let i = 0; i < count; i++) {
+    // Use serializer to read properties for annotation i
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
+    const phenotype = properties[0]; // phenotype int8
+    const segId = properties[1]; // 'id' property = mesh segment ID
+    // const indexInfo = properties[4]; // index_info
+    if (segId > 0) {
+      // Position x,y,z are the first 3 float32 in each annotation's property block
+      // at offset: 8 (header) + i * numBytes
+      const propBase = ANNOTATION_HEADER_OFFSET + i * numBytes;
+      const x = dv.getFloat32(propBase + 0, true);
+      const y = dv.getFloat32(propBase + 4, true);
+      const z = dv.getFloat32(propBase + 8, true);
+      // const indexInfo = dv.getInt32(propBase + 24, true);
+
+      if (x !== 0 || y !== 0 || z !== 0) {
+        results.push({
+          id: String(segId), // mesh segment ID - use for segments array
+          phenotype: Number(phenotype),
+          x,
+          y,
+          z,
+        });
+      }
+    }
+  }
+  return results;
+}
+
+
+export const remapCellColors = (ngCellColors, cellIdToMeshIdRef) => {
+  const remapped = {};
+  Object.entries(ngCellColors).forEach(([cellId, color]) => {
+    const meshId = cellIdToMeshIdRef.current[cellId] ?? cellId;
+    remapped[meshId] = color;
+  });
+  return remapped;
+};

@@ -87,6 +87,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_COLOR,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
+    CoordinationType.LEGEND_VISIBLE,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -323,6 +325,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
   ],
   [ViewType.HEATMAP]: [
@@ -470,6 +473,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_COLOR,
     CoordinationType.SPATIAL_SEGMENTATION_FILLED,
     CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,
@@ -504,6 +508,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
     CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

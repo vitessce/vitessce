@@ -813,6 +813,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'cellColorEncoding',
         'geneExpressionColormap',
         'segmentationLayerCallbacks',
+        'getExpressionValue',
       ].some(shallowDiff)
     ) {
       // Cells layer props changed.

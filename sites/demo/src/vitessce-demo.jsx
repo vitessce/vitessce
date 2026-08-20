@@ -5,6 +5,7 @@ import React, {
 import { Vitessce } from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
+import { fetchConfigFromGist } from '@vitessce/config';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -46,6 +47,30 @@ function logConfigUpgrade(prevConfig, nextConfig) {
   console.log(nextConfig);
 }
 
+function tryConfigText(configText, theme, debug) {
+  try {
+    const config = JSON.parse(configText);
+    return Promise.resolve(() => (
+      <Vitessce
+        config={config}
+        theme={theme}
+        onConfigChange={debug ? console.log : undefined}
+        onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+        validateOnConfigChange={debug}
+      />
+    ));
+  } catch (e) {
+    return Promise.resolve(() => (
+      <Warning
+        title="Error parsing JSON"
+        preformatted="Error parsing config JSON."
+        unformatted={`${e.message}: ${configText}`}
+        theme={theme}
+      />
+    ));
+  }
+}
+
 function checkResponse(response, theme, debug) {
   if (!response.ok) {
     return Promise.resolve(
@@ -58,30 +83,9 @@ function checkResponse(response, theme, debug) {
       ),
     );
   }
-  return response.text().then((text) => {
-    try {
-      const config = JSON.parse(text);
-      return Promise.resolve(() => (
-        <Vitessce
-          config={config}
-          theme={theme}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          validateOnConfigChange={debug}
-        />
-      ));
-    } catch (e) {
-      return Promise.resolve(() => (
-        <Warning
-          title="Error parsing JSON"
-          preformatted={preformattedDetails(response)}
-          unformatted={`${e.message}: ${text}`}
-          theme={theme}
-        />
-      ));
-    }
-  });
+  return response.text().then(text => tryConfigText(text, theme, debug));
 }
+
 
 /**
  * Use the theme provided if it is valid, otherwise fall back to the 'dark' theme.
@@ -115,6 +119,7 @@ export function VitessceDemo() {
     const isComparative = urlParams.get('comparative') === 'true';
     const debug = urlParams.get('debug') === 'true';
     const datasetUrl = urlParams.get('url');
+    const datasetGist = urlParams.get('gist');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
@@ -180,16 +185,20 @@ export function VitessceDemo() {
         </ContainerComponent>
       );
     }
-    if (datasetUrl) {
-      const responsePromise = fetch(datasetUrl)
-        .then(response => checkResponse(response, theme, debug))
-        .catch(error => Promise.resolve(() => (
-          <Warning
-            title="Error fetching"
-            unformatted={error.message}
-            theme={theme}
-          />
-        )));
+    if (datasetUrl || datasetGist) {
+      const responsePromise = (
+        datasetUrl
+          ? fetch(datasetUrl)
+            .then(response => checkResponse(response, theme, debug))
+          : fetchConfigFromGist(datasetGist)
+            .then(gistResult => tryConfigText(gistResult.configContents, theme, debug))
+      ).catch(error => Promise.resolve(() => (
+        <Warning
+          title="Error fetching"
+          unformatted={error.message}
+          theme={theme}
+        />
+      )));
       return (
         <ContainerComponent>
           {!pageMode ? (

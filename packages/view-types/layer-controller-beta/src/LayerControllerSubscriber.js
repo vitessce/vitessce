@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable dot-notation */
 /* eslint-disable no-unused-vars */
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import {
   TitleInfo,
   useReady,
@@ -28,6 +28,7 @@ import {
   ViewType,
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
+  ViewHelpMapping,
 } from '@vitessce/constants-internal';
 import LayerController from './LayerController.js';
 
@@ -40,6 +41,11 @@ import LayerController from './LayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
+ * @param {object[]} props.cameraPresets An array of camera preset objects,
+ * which can be applied by the user by pressing CTRL+[0-9].
+ * Each preset object can have the following coordination properties:
+ * spatialTargetX, spatialTargetY, spatialTargetZ, spatialTargetT,
+ * spatialRotationX, spatialRotationOrbit, and spatialZoom.
  */
 export function LayerControllerSubscriber(props) {
   const {
@@ -51,6 +57,9 @@ export function LayerControllerSubscriber(props) {
     theme,
     title = 'Spatial Layers',
     uuid,
+    layerPerFeatureForPoints = false,
+    cameraPresets,
+    helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
   } = props;
 
   const loaders = useLoaders();
@@ -81,6 +90,44 @@ export function LayerControllerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
     coordinationScopes,
   );
+
+
+  // Apply a camera preset by calling the coordination setters.
+  const applyPreset = useCallback((preset) => {
+    if (!preset) return;
+    if (typeof preset?.spatialZoom === 'number') setZoom(preset.spatialZoom);
+    if (typeof preset?.spatialTargetX === 'number') setTargetX(preset.spatialTargetX);
+    if (typeof preset?.spatialTargetY === 'number') setTargetY(preset.spatialTargetY);
+    if (typeof preset?.spatialTargetZ === 'number') setTargetZ(preset.spatialTargetZ);
+    if (typeof preset?.spatialTargetT === 'number') setTargetT(preset.spatialTargetT);
+    if (typeof preset?.spatialRotationX === 'number') setRotationX(preset.spatialRotationX);
+    if (typeof preset?.spatialRotationOrbit === 'number') setRotationOrbit(preset.spatialRotationOrbit);
+  }, [setZoom, setTargetX, setTargetY, setTargetZ, setTargetT, setRotationX, setRotationOrbit]);
+
+  // Listen for CTRL + digit keypresses to apply camera presets
+  useEffect(() => {
+    // Do not set up any listeners if no camera presets were passed.
+    if (!Array.isArray(cameraPresets)) return undefined;
+
+    const handleKeyDown = (e) => {
+      const isCtrl = e.ctrlKey;
+      if (!isCtrl) return;
+      const digitMatch = e.code.match(/^Digit(\d)$/);
+      if (!digitMatch || !Array.isArray(digitMatch) || digitMatch.length < 2) return;
+
+      // If we get to this point, digitMatch is an array like ['Digit1', '1'],
+      // so the digit is at index 1 as a string.
+      const index = parseInt(digitMatch[1], 10);
+      if (index >= 0 && index <= 9 && index < cameraPresets.length) {
+        const preset = cameraPresets[index];
+        applyPreset(preset);
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cameraPresets, applyPreset]);
 
   // Normalize arrays and non-arrays to always be arrays.
   const [segmentationLayerScopes, segmentationChannelScopesByLayer] = useMultiCoordinationScopesSecondaryNonNull(
@@ -165,6 +212,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
       CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+      CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -231,6 +279,45 @@ export function LayerControllerSubscriber(props) {
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
   );
+
+  // Pair point layers (centroids) with their matching segmentation layers
+  // by matching obsType between the two coordination objects.
+  const centroidSegmentationPairs = React.useMemo(() => {
+    const pairs = [];
+    const pairedSegScopes = new Set();
+    const pairedPointScopes = new Set();
+
+    pointLayerScopes.forEach((pointScope) => {
+      const pointCoord = pointLayerCoordination[0][pointScope];
+      if (!pointCoord) return;
+      const pointObsType = pointCoord[CoordinationType.OBS_TYPE];
+      if (!pointObsType) return;
+
+      const matchingSegScope = segmentationLayerScopes.find((segScope) => {
+        if (pairedSegScopes.has(segScope)) return false;
+        const channelScopes = segmentationChannelScopesByLayer[segScope] || [];
+        return channelScopes.some((chanScope) => {
+          const chanCoord = segmentationChannelCoordination[0]?.[segScope]?.[chanScope];
+          return chanCoord?.[CoordinationType.OBS_TYPE] === pointObsType;
+        });
+      });
+
+      if (matchingSegScope) {
+        pairs.push({ pointScope, segScope: matchingSegScope });
+        pairedSegScopes.add(matchingSegScope);
+        pairedPointScopes.add(pointScope);
+      }
+    });
+
+    return { pairs, pairedSegScopes, pairedPointScopes };
+  }, [
+    pointLayerScopes,
+    pointLayerCoordination,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationChannelCoordination,
+  ]);
+
 
   // Get volume loading status from auxiliary coordination (shared with Spatial view)
   const [
@@ -321,6 +408,7 @@ export function LayerControllerSubscriber(props) {
       theme={theme}
       isReady={isReady}
       errors={errors}
+      helpText={helpText}
     >
       <LayerController
         theme={theme}
@@ -351,9 +439,13 @@ export function LayerControllerSubscriber(props) {
         pointLayerScopes={pointLayerScopes}
         pointLayerCoordination={pointLayerCoordination}
         pointMultiIndicesData={pointMultiIndicesData}
-
+        layerPerFeatureForPoints={layerPerFeatureForPoints}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
+
+        centroidSegmentationPairs={centroidSegmentationPairs.pairs}
+        pairedSegScopes={centroidSegmentationPairs.pairedSegScopes}
+        pairedPointScopes={centroidSegmentationPairs.pairedPointScopes}
       />
     </TitleInfo>
   );

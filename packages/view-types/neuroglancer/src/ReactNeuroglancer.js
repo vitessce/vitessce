@@ -24,9 +24,7 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState } from './utils.js';
-// TODO: Grey color used by Vitessce - maybe set globally
-const GREY_HEX = '#323232';
+import { diffCameraState, GREY_HEX } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
@@ -67,6 +65,10 @@ let viewerNoKey;
  * @property {() => void} onSelectionDetailsStateChanged
  * A function of the form `() => {}` to respond to selection changes in the viewer.
  * @property {() => void} onViewerStateChanged
+ * @property {(isLoaded: boolean) => void} onLayerLoadingChange
+ * A function of the form `(isLoaded) => {}`, called when layer loading state changes.
+ * The `isLoaded` argument will be `true` when all segmentation layers have finished loading
+ * their data sources, or `false` when layers are still loading.
  *
  * @property {Array<Object>} callbacks
  * // ngServer: string,
@@ -411,6 +413,7 @@ export default class Neuroglancer extends React.Component {
     onVisibleChanged: null,
     onSelectionDetailsStateChanged: null,
     onViewerStateChanged: null,
+    onLayerLoadingChange: null,
     key: null,
     callbacks: [],
     ngServer: 'https://neuroglancer-demo.appspot.com/',
@@ -427,7 +430,7 @@ export default class Neuroglancer extends React.Component {
     this.disposers = [];
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
-    this.allKnownIds = new Set();
+    this.allKnownIdsByLayer = {};
   }
 
   minimalPoseSnapshot = () => {
@@ -467,7 +470,7 @@ export default class Neuroglancer extends React.Component {
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
       if (!l) return l;
-      const { segmentColors, ...rest } = l;
+      const { segmentColors, visible, shader, objectAlpha, segments, ...rest } = l;
       return rest;
     });
     const prevLayers = stripColors(prevVS?.layers);
@@ -475,38 +478,119 @@ export default class Neuroglancer extends React.Component {
     return JSON.stringify(prevLayers) !== JSON.stringify(nextLayers);
   };
 
-  /* To add colors to the segments, turning unselected to grey  */
-  applyColorsAndVisibility = (cellColorMapping) => {
-    if (!this.viewer) return;
-    // Track all ids we've ever seen so we can grey the ones
-    // that drop out of the current selection.
-    const selected = { ...(cellColorMapping || {}) }; // clone, don't mutate props
-    for (const id of Object.keys(selected)) this.allKnownIds.add(id);
-    // If empty on first call, seed from initial segmentColors (if present)
-    if (this.allKnownIds.size === 0) {
-      const init = this.props.viewerState?.layers?.[0]?.segmentColors || {};
-      for (const id of Object.keys(init)) this.allKnownIds.add(id);
+  // Helper to preserve dimensions across restoreState calls to prevent
+  // NG from permanently switching to the data source's native coordinate space.
+  preserveDimensions = (restoreFn) => {
+    const currentDimensions = this.viewer.state.toJSON().dimensions;
+    restoreFn();
+    if (currentDimensions) {
+      this.viewer.state.restoreState({ dimensions: currentDimensions });
     }
+  };
 
-    // Build a full color table: selected keep their hex, others grey
-    const fullSegmentColors = {};
-    for (const id of this.allKnownIds) {
-      fullSegmentColors[id] = selected[id] || GREY_HEX;
-    }
-    // Patch layers with the new segmentColors (pose untouched)
+  // Convert hex color string to NG's BGR integer format
+  hexToNgColor = (hex) => {
+    if (!hex || hex.length < 7) return 0;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return b * 65536 + g * 256 + r; // BGR format
+  };
+
+  /* To add colors to the segments, turning unselected to grey  */
+  applyColorsAndVisibility = (cellColorMappingByLayer) => {
+    if (!this.viewer) return;
+    // Build full color table per layer
     const baseLayers = (this.props.viewerState?.layers)
       ?? (this.viewer.state.toJSON().layers || []);
-
-    const newLayers = baseLayers.map((layer, idx) => {
-      // if only one layer, take that or check layer.type === 'segmentation'.
-      if (idx === 0 || layer?.type === 'segmentation') {
+    let defaultColor;
+    const newLayers = baseLayers.map((layer) => {
+      // Match layerScope by checking if the NG layer name contains the scope key.
+      // NG layer names are of the form:
+      // "obsSegmentations-init_A_obsSegmentations_0-init_A_obsSegmentations_0"
+      const layerScope = Object.keys(cellColorMappingByLayer).find(scope => layer.name?.includes(scope));
+      const selected = { ...(cellColorMappingByLayer[layerScope]?.colors || {}) };
+      defaultColor = cellColorMappingByLayer[layerScope]?.defaultColor ?? GREY_HEX;
+      // Only color segments that are currently in viewerState.segments
+      const currentSegments = layer.segments ?? [];
+      if (currentSegments.length > 0) {
+        // Culling active — only color visible segments
+        const segmentSet = new Set(currentSegments.map(String));
+        const fullSegmentColors = {};
+        for (const id of segmentSet) {
+          fullSegmentColors[id] = selected[id] || defaultColor;
+        }
         return { ...layer, segmentColors: fullSegmentColors };
       }
-      return layer;
+      // No culling — color all known segments
+      if (!this.allKnownIdsByLayer) this.allKnownIdsByLayer = {};
+      if (!this.allKnownIdsByLayer[layerScope]) {
+        this.allKnownIdsByLayer[layerScope] = new Set();
+      }
+      for (const id of Object.keys(selected)) {
+        this.allKnownIdsByLayer[layerScope].add(id);
+      }
+      const fullSegmentColors = {};
+      for (const id of this.allKnownIdsByLayer[layerScope]) {
+        fullSegmentColors[id] = selected[id] || defaultColor;
+      }
+      return { ...layer, segmentColors: fullSegmentColors };
     });
-    this.withoutEmitting(() => {
-      this.viewer.state.restoreState({ layers: newLayers });
-    });
+
+    /** Directly update segmentStatedColors instead of calling restoreState({ layers }).
+   * This prevents:
+   * 1. Mesh disappearance — restoreState clears GPU mesh cache
+   * 2. Random color flash — restoreState resets segmentStatedColors,
+   *    causing NG to assign random colors until next applyColorsAndVisibility call
+   */
+    let usedDirectUpdate = false;
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
+      const matchingNewLayer = newLayers.find(l => l.name === managedLayer.name);
+      if (!matchingNewLayer?.segmentColors) continue;
+      const segGroupState = managedLayer.layer.displayState
+        .segmentationColorGroupState?.value;
+      const statedColors = segGroupState?.segmentStatedColors;
+      if (!statedColors) continue;
+
+      // Clear and re-set all colors directly
+      const currentJson = statedColors.toJSON();
+      const newColors = matchingNewLayer.segmentColors;
+
+      // Remove entries no longer in new colors (reset to NG default)
+      // Reset removed entries to defaultColor
+      for (const id of Object.keys(currentJson)) {
+        if (!newColors[id]) {
+          const colorInt = this.hexToNgColor(defaultColor || GREY_HEX);
+          // eslint-disable-next-line no-underscore-dangle
+          statedColors.delete_({ low: Number(id), high: 0 });
+          // eslint-disable-next-line no-underscore-dangle
+          statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+        }
+      }
+
+      // Set/update new colors
+      for (const [id, hex] of Object.entries(newColors)) {
+        const colorInt = this.hexToNgColor(hex);
+        // eslint-disable-next-line no-underscore-dangle
+        statedColors.delete_({ low: Number(id), high: 0 });
+        // eslint-disable-next-line no-underscore-dangle
+        statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+      }
+      statedColors.changed.dispatch();
+      usedDirectUpdate = true;
+    }
+
+    // Fallback to restoreState if direct update not possible
+    if (!usedDirectUpdate) {
+      this.withoutEmitting(() => {
+        this.preserveDimensions(() => {
+          this.viewer.state.restoreState({ layers: newLayers });
+        });
+      });
+    }
+
+    this.viewer.display.scheduleRedraw();
     /* ** Vitessce integration update end ** */
   };
 
@@ -619,12 +703,101 @@ export default class Neuroglancer extends React.Component {
       viewerNoKey = this.viewer;
     }
 
-    // TODO: This is purely for debugging and we need to remove it.
-    // window.viewer = this.viewer;
+    const { visibleChunksChanged } = this.viewer.chunkQueueManager;
+    let firstChunkLoaded = false;
+
+
+    const checkAndMarkLoaded = () => {
+      if (firstChunkLoaded) return false;
+
+      for (const layer of this.viewer.layerManager.managedLayers) {
+        // Check segmentation layers
+        if (layer.layer instanceof SegmentationUserLayer) {
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+            if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
+            return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+            return true;
+          }
+        }
+        // Check Annotation layers
+        if (layer.layer instanceof AnnotationUserLayer) {
+          const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
+            const { numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
+            return numVisibleChunksNeeded > 0;
+          });
+          if (hasVisibleChunk) {
+            firstChunkLoaded = true;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              this.props.onLayerLoadingChange?.(true);
+            }));
+            const annotState = layer.layer.annotationStates?.states[0];
+            const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+            const serializers = annotState?.source?.annotationPropertySerializers;
+            if (t && serializers) {
+              this.props.onAnnotationSourceReady?.({
+                x: t[0],
+                y: t[5],
+                z: t[10],
+                serializers, // pass all serializers
+                serializer: serializers[0], // keep default for backward compat
+              });
+            }
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    // Subscribe to future changes
+    this.disposers.push(visibleChunksChanged.add(checkAndMarkLoaded));
+
+    // To fix infinite loading loop on subsequent page refresh due to cache
+    // Also check immediately in case chunks already loaded (cached)
+    setTimeout(() => {
+      if (!firstChunkLoaded) checkAndMarkLoaded();
+    }, 100);
+
+    // And check after a short delay as fallback
+    setTimeout(() => {
+      if (!firstChunkLoaded) checkAndMarkLoaded();
+    }, 1000);
+
+    this.disposers.push(() => { firstChunkLoaded = false; });
+
+    // Prevent browser pinch-zoom when using touchpad inside NG viewer
+    document.addEventListener('wheel', (e) => {
+      if (e.ctrlKey) e.preventDefault();
+    }, { passive: false });
+
+    this.disposers.push(() => {
+      document.removeEventListener('wheel', (e) => {
+        if (e.ctrlKey) e.preventDefault();
+      });
+    });
+
+    // In componentDidMount, after viewer setup:
+    this.disposers.push(
+      this.viewer.chunkQueueManager.visibleChunksChanged.add(() => {
+        if (this.props.cellColorMapping) {
+          this.applyColorsAndVisibility(this.props.cellColorMapping);
+        }
+      }),
+    );
+
+    // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
+    window.viewer = this.viewer;
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { viewerState, cellColorMapping } = this.props;
+    const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -635,6 +808,16 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         selectedSegments[layer.name] = segmentSelectionState.selectedSegment;
+      }
+    }
+
+    // Handle visibility directly without restoreState
+    for (const managedLayer of this.viewer.layerManager.managedLayers) {
+      const matchingLayer = (viewerState?.layers || [])
+        .find(l => l.name === managedLayer.name);
+      if (matchingLayer && typeof matchingLayer.visible === 'boolean'
+          && managedLayer.visible !== matchingLayer.visible) {
+        managedLayer.setVisible(matchingLayer.visible);
       }
     }
     // if (viewerState) {
@@ -661,6 +844,31 @@ export default class Neuroglancer extends React.Component {
       if (layer.layer instanceof SegmentationUserLayer) {
         const { segmentSelectionState } = layer.layer.displayState;
         segmentSelectionState.set(selectedSegments[layer.name]);
+        const layerScope = Object.keys(cellColorMappingByLayer).find(
+          scope => layer.name?.includes(scope),
+        );
+        if (layerScope) {
+          // meshOpacity prop takes precedence over coordination opacity
+          // when on-demand mesh loading is active
+          const opacity = this.props.meshOpacity !== undefined
+            ? this.props.meshOpacity
+            : (cellColorMappingByLayer[layerScope]?.opacity ?? 1.0);
+          layer.layer.displayState.objectAlpha.value = opacity;
+        }
+      }
+      // Update annotation layer shaders from viewerState config,
+      // skipping update if shader is unchanged to avoid costly re-renders
+      if (layer.layer instanceof AnnotationUserLayer) {
+        const matchingLayer = (viewerState?.layers || []).find(
+          l => l.name === layer.name,
+        );
+        if (matchingLayer?.shader) {
+          /* eslint-disable-next-line no-underscore-dangle */
+          const currentShader = layer.layer.annotationDisplayState.shader.value_;
+          if (currentShader !== matchingLayer.shader) {
+            layer.layer.annotationDisplayState.shader.value = matchingLayer.shader;
+          }
+        }
       }
     }
 
@@ -679,10 +887,13 @@ export default class Neuroglancer extends React.Component {
 
     /* ** Vitessce Integration update start ** */
     if (!viewerState) return;
-    // updates NG's viewerstate by calling `restoreState() for segment and position changes separately
+
     const prevVS = prevProps.viewerState;
+    const prevLayers = prevProps.viewerState?.layers;
+    const nextLayers = viewerState?.layers;
+
+    // Restore camera ONLY if it actually changed
     const camState = diffCameraState(prevVS, viewerState);
-    // Restore pose ONLY if it actually changed
     if (camState.changed) {
       const patch = {};
       if (camState.scale) {
@@ -693,63 +904,58 @@ export default class Neuroglancer extends React.Component {
         patch.position = viewerState.position;
       }
       if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
-
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
     }
-    // If layers changed (segment list / sources etc.): restore ONLY layers, then colors
+
+    // Structural layer changes (source URL, layer type, name, subsources etc.)
+    // segments/colors/visibility/opacity/shader are handled separately below
     if (this.didLayersChange(prevVS, viewerState)) {
       this.withoutEmitting(() => {
-        const layers = Array.isArray(viewerState.layers) ? viewerState.layers : [];
-        this.viewer.state.restoreState({ layers });
-        if (cellColorMapping && Object.keys(cellColorMapping).length) {
-          this.applyColorsAndVisibility(cellColorMapping);
-        }
+        this.preserveDimensions(() => {
+          this.viewer.state.restoreState({ layers: nextLayers });
+        });
       });
     }
 
-    // If colors changed (but layers didn’t): re-apply colors
-    // this was to avid NG randomly assigning colors to the segments by resetting them
-    const prevSize = prevProps.cellColorMapping
-      ? Object.keys(prevProps.cellColorMapping).length : 0;
-    const currSize = cellColorMapping ? Object.keys(cellColorMapping).length : 0;
-    const mappingRefChanged = prevProps.cellColorMapping !== cellColorMapping;
-    if (!this.didLayersChange(prevVS, viewerState)
-      && (mappingRefChanged || prevSize !== currSize)) {
+    // Colors or segments changed — re-apply colors and segment visibility.
+    // Also handles initial segment seeding (0 -> N segments) since cellColorMappingByLayer
+    // is populated at the same time segments first appear.
+    const stripOpacity = (mapping) => {
+      const result = {};
+      Object.entries(mapping || {}).forEach(([k, v]) => {
+        result[k] = { colors: v?.colors };
+      });
+      return result;
+    };
+    const prevColorsJSON = JSON.stringify(stripOpacity(prevProps.cellColorMapping));
+    const currColorsJSON = JSON.stringify(stripOpacity(cellColorMappingByLayer));
+    const colorsActuallyChanged = prevColorsJSON !== currColorsJSON;
+
+    if (!this.didLayersChange(prevVS, viewerState) && colorsActuallyChanged) {
       this.withoutEmitting(() => {
-        this.applyColorsAndVisibility(cellColorMapping);
+        this.applyColorsAndVisibility(cellColorMappingByLayer);
       });
     }
 
-    // Treat "real" layer source/type changes differently from segment list changes.
-    // We only restore layers (not pose) when sources change OR on the first time segments appear.
-    const stripSegFields = layers => (layers || []).map((l) => {
-      if (!l) return l;
-      const { segments, segmentColors, ...rest } = l;
-      return rest; // ignore segments + segmentColors for comparison
-    });
+    const prevSegIds = prevLayers?.[0]?.segments ?? [];
+    const nextSegIds = nextLayers?.[0]?.segments ?? [];
 
-    const prevLayers = prevProps.viewerState?.layers;
-    const nextLayers = viewerState?.layers;
+    // Segments changed (0 segments → N segments or pan/zoom culling update) — push new segments to NG
+    const segmentsChanged = prevSegIds.length !== nextSegIds.length
+      || prevSegIds[0] !== nextSegIds[0]
+      || prevSegIds[prevSegIds.length - 1] !== nextSegIds[nextSegIds.length - 1];
 
-    const prevCore = JSON.stringify(stripSegFields(prevLayers));
-    const nextCore = JSON.stringify(stripSegFields(nextLayers));
-    const sourcesChanged = prevCore !== nextCore; // real structural change?
-
-    const prevSegCount = (prevLayers && prevLayers[0] && Array.isArray(prevLayers[0].segments))
-      ? prevLayers[0].segments.length : 0;
-    const nextSegCount = (nextLayers && nextLayers[0] && Array.isArray(nextLayers[0].segments))
-      ? nextLayers[0].segments.length : 0;
-
-    // first-time seeding – from 0 segments → N segments
-    const initialSegmentsAdded = prevSegCount === 0 && nextSegCount > 0;
-
-    if (sourcesChanged || initialSegmentsAdded) {
-      this.withoutEmitting(() => {
+    if (segmentsChanged && nextSegIds.length > 0) {
+      this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
       });
+      // Re-apply colors immediately after restoreState clears segmentStatedColors
+      // this is useful when culling is activated to avoid randomcolor assignment by NG
+      this.applyColorsAndVisibility(cellColorMappingByLayer);
     }
+
     /* ** Vitessce Integration update end ** */
   }
 
@@ -778,7 +984,7 @@ export default class Neuroglancer extends React.Component {
    *
    */
   setCallbacks(callbacks) {
-    callbacks.forEach((callback) => {
+    (callbacks ?? []).forEach((callback) => {
       this.viewer.bindCallback(callback.name, callback.function);
       this.viewer.inputEventBindings.sliceView.set(
         callback.event,

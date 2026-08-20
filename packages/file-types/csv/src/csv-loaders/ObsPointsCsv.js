@@ -24,7 +24,7 @@ export default class ObsPointsCsvLoader extends CsvLoader {
 
     const coordinationValues = {
       pointLayer: CL({
-        obsType: 'point',
+        obsType: this.coordinationValues?.obsType ?? 'point',
         // obsColorEncoding: 'spatialLayerColor',
         // spatialLayerColor: [255, 255, 255],
         spatialLayerVisible: true,

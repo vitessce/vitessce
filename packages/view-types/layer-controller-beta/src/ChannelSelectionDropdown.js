@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   makeStyles,
   NativeSelect,
@@ -18,10 +18,12 @@ const useStyles = makeStyles()(() => ({
  * Dropdown for selecting a channel.
  * @prop {boolean} disabled Whether or not the component is disabled.
  * @prop {string[]} featureIndex The feature index.
+ * @prop {string} channelsSortOrder Either 'original' or 'alphabetical'.
  */
 export default function ChannelSelectionDropdown(props) {
   const {
     featureIndex,
+    channelsSortOrder,
     targetC,
     setTargetC,
     setWindow,
@@ -35,6 +37,21 @@ export default function ChannelSelectionDropdown(props) {
     setWindow(null); // Clear the window value so that it can be re-auto-calculated.
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
+
+  const sortedOptions = useMemo(() => {
+    if (!Array.isArray(featureIndex)) return [];
+    const options = featureIndex
+      .map((channelName, channelIndex) => ({ channelName, channelIndex }));
+    if (channelsSortOrder === 'alphabetical') {
+      // numeric: true ensures m/z-style numeric labels sort as 1, 2, 3, 10
+      // rather than lexicographically as 1, 10, 2, 3.
+      return options.sort((a, b) => a.channelName.localeCompare(
+        b.channelName, undefined, { numeric: true, sensitivity: 'base' },
+      ));
+    }
+    return options;
+  }, [featureIndex, channelsSortOrder]);
+
   return (Array.isArray(featureIndex) ? (
     <NativeSelect
       classes={{ root: selectClasses.selectRoot }}
@@ -43,8 +60,7 @@ export default function ChannelSelectionDropdown(props) {
       onChange={handleChange}
       inputProps={{ 'aria-label': 'Channel selector' }}
     >
-      {featureIndex.map((channelName, channelIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
+      {sortedOptions.map(({ channelName, channelIndex }) => (
         <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
           {channelName}
         </option>

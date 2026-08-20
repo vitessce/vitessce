@@ -4,7 +4,7 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-const sdataUrl = 'https://data-2.vitessce.io/sdata-xenium/xenium_rep1_io.spatialdata.zarr';
+const sdataUrl = 'https://data-2.vitessce.io/sdata-xenium/xenium_rep1_io_v2.spatialdata.zarr';
 
 function generateXeniumConfig() {
   const vc = new VitessceConfig({
@@ -73,7 +73,7 @@ function generateXeniumConfig() {
       options: {
         obsPoints: {
           path: 'points/transcripts_with_morton_codes',
-          featureIndexColumn: 'feature_index',
+          featureIndexColumn: 'feature_name_codes',
           mortonCodeColumn: 'morton_code_2d',
         },
         coordinateSystem: 'global',
@@ -88,7 +88,7 @@ function generateXeniumConfig() {
   }
 
   const spatialView = vc.addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 8, h: 8 });
-  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 });
+  const lcView = vc.addView(dataset, 'layerControllerBeta', { x: 8, y: 0, w: 4, h: 4 }).setProps({ layerPerFeatureForPoints: true });
   vc.addView(dataset, 'featureList', { x: 8, y: 4, w: 4, h: 4 }).setProps({ enableMultiSelect: true });
   vc.addView(dataset, 'heatmap', { x: 0, y: 8, w: 12, h: 4 }).setProps({ transpose: true });
 

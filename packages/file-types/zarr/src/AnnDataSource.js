@@ -119,17 +119,24 @@ export default class AnnDataSource extends ZarrDataSource {
         );
       }
     } else if (encodingType === 'categorical') {
-      const { dtype } = await zarrOpen(
-        storeRoot.resolve(`${path}/categories`),
-        { kind: 'array' },
-      );
-
-      if (dtype === 'v2:object' || dtype === '|O') {
-        categoriesValues = await this.getFlatArrDecompressed(
-          `${path}/categories`,
+      const categoriesZattrs = await this.getJson(`${path}/categories/.zattrs`);
+      const categoriesEncodingType = categoriesZattrs?.['encoding-type'];
+      if (categoriesEncodingType === 'nullable-string-array') {
+        categoriesValues = await this.getFlatArrDecompressed(`${path}/categories/values`);
+      } else if (categoriesEncodingType === 'string-array') {
+        categoriesValues = await this.getFlatArrDecompressed(`${path}/categories`);
+      } else {
+        const { dtype } = await zarrOpen(
+          storeRoot.resolve(`${path}/categories`),
+          { kind: 'array' },
         );
+        if (dtype === 'v2:object' || dtype === '|O') {
+          categoriesValues = await this.getFlatArrDecompressed(`${path}/categories`);
+        }
       }
       codesPath = `${path}/codes`;
+    } else if (encodingType === 'nullable-string-array') {
+      return this.getFlatArrDecompressed(`${path}/values`);
     } else if (encodingType === 'string-array') {
       return this.getFlatArrDecompressed(path);
     } else {

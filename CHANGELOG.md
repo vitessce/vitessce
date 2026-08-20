@@ -1,4 +1,131 @@
 
+## 4.0.3
+
+### Patch Changes
+
+- Added config examples to 3d tissue maps - neuroglancerView (`@vitessce/example-configs`) ([#2544](https://github.com/vitessce/vitessce/pull/2544))
+
+
+## 4.0.2
+
+### Patch Changes
+
+- In the Neuroglancer view, adds on-demand-mesh-loading when centroids for pointsLayer are available. If there are both meshes and points configured with the same `obsType`, we infer that the points represent centroids of the meshes. (`@vitessce/neuroglancer`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2470](https://github.com/vitessce/vitessce/pull/2470))
+
+- Added guard for no callbacks in Neuroglancer (`@vitessce/neuroglancer`) ([#2536](https://github.com/vitessce/vitessce/pull/2536))
+
+
+## 4.0.1
+
+### Patch Changes
+
+- Provides option to sort image channels by original order or alphabetical (`@vitessce/layer-controller-beta`, `@vitessce/layer-controller`, `@vitessce/constants-internal`) ([#2503](https://github.com/vitessce/vitessce/pull/2503))
+
+- Bump node version in github actions release workflow" (`vitessce`) ([#2532](https://github.com/vitessce/vitessce/pull/2532))
+
+- Adds help icon to both LayerControllerBeta and SpatialBeta views (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`, `@vitessce/constants-internal`) ([#2512](https://github.com/vitessce/vitessce/pull/2512))
+
+- Changes cursor to move/grab when panning and rotating in NG view. (`@vitessce/neuroglancer`) ([#2499](https://github.com/vitessce/vitessce/pull/2499))
+
+- Added support to preserve the current state of configuration via the Edit button (`docs`) ([#2518](https://github.com/vitessce/vitessce/pull/2518))
+
+- Install threeJS peer deps into app, demo, and docs sites. Fix multiple render target bug. (`@vitessce/spatial-accelerated`, `demo`, `docs`, `app`) ([#2535](https://github.com/vitessce/vitessce/pull/2535))
+
+- Update KPMP comparative example dataset. Improve volcano plot. (`@vitessce/comparative`) ([#2530](https://github.com/vitessce/vitessce/pull/2530))
+
+- Fix build errors in consumer bundlers when the optional `@react-three/xr` peer dependency is not installed. XR modules previously used static named imports of `@react-three/xr`, which bundlers resolve at build time even for lazy-loaded chunks (Vite stubs the missing optional peer, causing MISSING_EXPORT). All XR access now goes through a single dynamic namespace import, so the non-XR 3D view works without `@react-three/xr`. (`@vitessce/spatial-three`) ([#2525](https://github.com/vitessce/vitessce/pull/2525))
+
+
+## 4.0.0
+
+### Major Changes
+
+- Update to support React 19. `three` and `@react-three/{fiber,drei,xr}` are now peer dependencies — consumers using 3D/spatial/VR views must install them. (`vitessce`) ([#2415](https://github.com/vitessce/vitessce/pull/2415))
+
+### Patch Changes
+
+- Support loading JSON-based configs from GitHub gists with a `.vitessce.json` suffix. (`docs`) ([#2520](https://github.com/vitessce/vitessce/pull/2520))
+
+- - Fixed sort-order gene selection to click-based when FeatureList multi-select is enabled (`@vitessce/feature-list`, `@vitessce/example-configs`) ([#2502](https://github.com/vitessce/vitessce/pull/2502))
+  - Added the FeatureAggregateStrategy option for the spatial view to match the scatterplot view.
+
+- Add React 19 dependencies to sync-cdn script. (`@vitessce/dev`) ([#2519](https://github.com/vitessce/vitessce/pull/2519))
+
+- Make FetchStore logic for `getRange` consistent with `get` (`@vitessce/zarr-utils`) ([#2509](https://github.com/vitessce/vitessce/pull/2509))
+
+
+## 3.9.11
+
+### Patch Changes
+
+- Support for SpatialData shapes format 0.3. (`@vitessce/spatial-zarr`) ([#2495](https://github.com/vitessce/vitessce/pull/2495))
+
+
+## 3.9.10
+
+### Patch Changes
+
+- Updated tiled points loading implementation to rely on the first 2-4 rows of the points dataframe to compute the bounding box, rather than relying on non-standard metadata (as the new approach only requires sorting). (`@vitessce/spatial-zarr`) ([#2489](https://github.com/vitessce/vitessce/pull/2489))
+
+- Add support for zipped multivec zarr stores for the genomic profiles view. (`@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/config`) ([#2484](https://github.com/vitessce/vitessce/pull/2484))
+
+- Update comparative example dataset. (`@vitessce/comparative`) ([#2481](https://github.com/vitessce/vitessce/pull/2481))
+
+
+## 3.9.9
+
+### Patch Changes
+
+- Add test fixtures that use anndata Python package versions 0.11 and 0.12 and spatialdata Python package versions 0.3 and 0.7. The anndata 0.12 and spatialdata 0.7 fixtures are written to Zarr v3 format. New unit tests and configurations that use the new fixtures are added. Update the `anndata.zarr` \_loadColumn function to support string-array and nullable-string-array encoding types. Update the `spatialdata.zarr` points format validation to allow points format 0.2. (`@vitessce/zarr`) ([#2479](https://github.com/vitessce/vitessce/pull/2479))
+
+
+## 3.9.8
+
+### Patch Changes
+
+- Display loading indicator for Neuroglancer view while meshes are loading. (`@vitessce/neuroglancer`) ([#2398](https://github.com/vitessce/vitessce/pull/2398))
+
+- Hide zSlider in layerControllerBeta for 3D datasets (`@vitessce/layer-controller-beta`) ([#2469](https://github.com/vitessce/vitessce/pull/2469))
+
+- Add compatibility layer for loading zarr v3/ome 0.5 in spatialdata. (`@vitessce/spatial-zarr`, `@vitessce/spatial-utils`, `@vitessce/zarr-utils`) ([#2466](https://github.com/vitessce/vitessce/pull/2466))
+
+- Fix cell set expression plot crash on empty obs set selection. (`@vitessce/statistical-plots`) ([#2468](https://github.com/vitessce/vitessce/pull/2468))
+
+- Added per-feature (e.g., gene) controls for selected point features in the layerController. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`, `@vitessce/icons`) ([#2433](https://github.com/vitessce/vitessce/pull/2433))
+
+- Enable opacity change in Neuroglancer segmentation and annotation layers using their respective opacity sliders in layerController. (`@vitessce/neuroglancer`) ([#2461](https://github.com/vitessce/vitessce/pull/2461))
+
+
+## 3.9.7
+
+### Patch Changes
+
+- Dsiabled space interaction causing Neuroglancer view to switch to 4Panels layout (`@vitessce/neuroglancer`) ([#2445](https://github.com/vitessce/vitessce/pull/2445))
+
+- Added support for multiple segmentation (i.e., mesh) layers in the Neuroglancer view. (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2438](https://github.com/vitessce/vitessce/pull/2438))
+
+- Added navigation guide for the Neuroglancer View (`@vitessce/neuroglancer`, `@vitessce/styles`, `@vitessce/vit-s`, `docs`) ([#2442](https://github.com/vitessce/vitessce/pull/2442))
+
+- Map the zoom interaction in the `neuroglancer` view to plain mouse wheel events (i.e., do not require any extra key modifiers). (`@vitessce/neuroglancer`) ([#2446](https://github.com/vitessce/vitessce/pull/2446))
+
+- Added async_computation worker to handle sharded data format (`@vitessce/neuroglancer`, `@vitessce/neuroglancer-workers`) ([#2449](https://github.com/vitessce/vitessce/pull/2449))
+
+- Supports hotkeys to switch between multiple camera setting presets by passing the `layerControllerBeta` view a `cameraPresets` prop an array of objects like `{ spatialZoom, spatialX }`. (`@vitessce/layer-controller-beta`, `@vitessce/example-configs`) ([#2448](https://github.com/vitessce/vitessce/pull/2448))
+
+- No longer call onSegmentClick in Neuroglancer.js, for consistency with the 2D views and to resolve a bug causing accidental selections. (`@vitessce/neuroglancer`) ([#2439](https://github.com/vitessce/vitessce/pull/2439))
+
+
+## 3.9.6
+
+### Patch Changes
+
+- Define obsPoints.ng-annotations as a fileType, enabling users to specify Neuroglancer point annotations via the usual datasets part of the Vitessce configuration. Add logic for controlling segmentation and point layers via the existing layerControllerBeta UI, including coloring and filtering points via the featureList. (`@vitessce/spatial-zarr`, `@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2420](https://github.com/vitessce/vitessce/pull/2420))
+
+- Use obsType from coordinationValues for pointLayer and spotLayer when available. (`@vitessce/spatial-zarr`, `@vitessce/zarr`, `@vitessce/csv`) ([#2441](https://github.com/vitessce/vitessce/pull/2441))
+
+- Added legend to Neuroglancer view (`@vitessce/neuroglancer`, `@vitessce/constants-internal`) ([#2435](https://github.com/vitessce/vitessce/pull/2435))
+
+
 ## 3.9.5
 
 ### Patch Changes

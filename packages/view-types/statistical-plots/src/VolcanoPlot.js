@@ -9,6 +9,14 @@ import { capitalize, getDefaultForegroundColor } from '@vitessce/utils';
 import { colorArrayToString } from '@vitessce/sets-utils';
 import { getColorScale, useFilteredVolcanoData } from './utils.js';
 
+// Deterministic jitter for points clamped at the top of the y-axis.
+// Uses the golden-ratio sequence (index * φ mod 1) which is optimally
+// equidistributed — no clustering regardless of how many points there are.
+const GOLDEN_RATIO = 0.6180339887498948;
+function topJitter(index, rangePixels) {
+  return ((index * GOLDEN_RATIO) % 1) * rangePixels;
+}
+
 export default function VolcanoPlot(props) {
   const {
     theme,
@@ -215,7 +223,7 @@ export default function VolcanoPlot(props) {
         .data(filteredDf)
         .join('circle')
           .attr('cx', d => xScale(d.logFoldChange))
-          .attr('cy', d => yScale(d.minusLog10p))
+          .attr('cy', (d, i) => yScale(d.minusLog10p) + (!Number.isFinite(d.minusLog10p) ? topJitter(i, 20) : 0))
           .attr('r', 3)
           .attr('opacity', 0.5)
           .attr('fill', color)
@@ -230,7 +238,7 @@ export default function VolcanoPlot(props) {
           .text(d => d.featureId)
           .attr('text-anchor', d => (d.logFoldChange < 0 ? 'end' : 'start'))
           .attr('x', d => xScale(d.logFoldChange))
-          .attr('y', d => yScale(d.minusLog10p))
+          .attr('y', (d, i) => yScale(d.minusLog10p) + (!Number.isFinite(d.minusLog10p) ? topJitter(i, 20) : 0))
           .style('display', d => ((
             Math.abs(d.logFoldChange) < (featureLabelFoldChangeThreshold ?? 5.0)
             || (d.featureSignificance >= (featureLabelSignificanceThreshold ?? 0.01))

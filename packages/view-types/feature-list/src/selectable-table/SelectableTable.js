@@ -37,7 +37,7 @@ export default function SelectableTable(props) {
     data,
     onChange,
     idKey = 'id',
-    valueKey = 'value',
+    selectedIds,
     allowMultiple = false,
     allowUncheck = false,
     showTableHead = true,
@@ -113,25 +113,27 @@ export default function SelectableTable(props) {
     Array.isArray(selectedRows) && selectedRows.includes(id)
   ), [selectedRows]);
 
-  /* eslint-disable react-hooks/exhaustive-deps */
+  // When selectedIds is provided, sync selectedRows from it while preserving
+  // existing click order: keep already-selected items first, append newly selected ones.
   useEffect(() => {
-    // Check whether an initial set of rows should be selected.
-    const initialSelectedRows = data
-      .map((d) => {
-        if (d[valueKey]) {
-          return d[idKey];
-        }
-        return null;
-      })
-      .filter(Boolean);
-    if (!isEqual(initialSelectedRows, selectedRows)) {
-      if (initialSelectedRows.length > 0) {
-        setSelectedRows(initialSelectedRows);
-      } else {
-        setSelectedRows(null);
+    if (selectedIds === undefined) return;
+    setSelectedRows((prev) => {
+      // Determine the next selected rows state.
+      // For newly selected items,
+      // we want them to appear at the end of the list,
+      // so that featureAggregationStrategy: 'last' means
+      // both "final" and "most-recent".
+      const prevList = prev || [];
+      const nextList = selectedIds || [];
+      const sharedList = prevList.filter(id => nextList.includes(id));
+      const nextUnique = nextList.filter(id => !prevList.includes(id));
+      const merged = [...sharedList, ...nextUnique];
+      if (isEqual(merged, prevList)) {
+        return prev;
       }
-    }
-  }, [data, idKey, valueKey]);
+      return merged.length > 0 ? merged : null;
+    });
+  }, [selectedIds]);
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {

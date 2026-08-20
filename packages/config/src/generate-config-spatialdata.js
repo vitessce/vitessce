@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { flattenOmeAttrs } from '@vitessce/zarr-utils';
 import { hconcat, vconcat } from './VitessceConfig.js';
 import { AbstractAutoConfig } from './generate-config-helpers.js';
 
@@ -15,7 +16,8 @@ export class SpatialDataAutoConfig extends AbstractAutoConfig {
     availableElements.forEach(({ path, attrs }) => {
       const relPath = path.substring(1);
 
-      const firstCoordinateSystem = attrs
+      const omeAttrs = flattenOmeAttrs(attrs);
+      const firstCoordinateSystem = omeAttrs
         ?.multiscales?.[0]
         ?.coordinateTransformations?.[0]
         ?.output?.name;

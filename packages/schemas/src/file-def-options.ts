@@ -290,7 +290,7 @@ export const meshGlbSchema = z.object({
   materialSide: z.enum(['front', 'back']),
 }).partial().nullable();
 
-// NG
+// NG SegmentationLayer
 export const ngPrecomputedMeshSchema = z.object({
   // TODO: Should this explicitly specify sharded vs. unsharded?
   // Or can/should that be inferred from the data?
@@ -307,7 +307,14 @@ export const ngPrecomputedMeshSchema = z.object({
   // projectionScale: z.number(),
   // position: z.array(z.number()).length(3),
   // projectionOrientation: z.array(z.number()).length(4),
+  subsources: z.record(z.boolean())
+    .describe('Subsources are the individual data components of a source (e.g. meshes, skeletons, etc.). Each entry explicitly enables or disables a subsource.')
+    .optional(),
+  enableDefaultSubsources: z.boolean()
+    .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
+    .optional(),
 }).partial().nullable();
+// Annotation Layer
 export const ngPointAnnotationSchema = z.object({
   projectionAnnotationSpacing: z.number(),
   featureIndexProp: z.string()
@@ -316,6 +323,18 @@ export const ngPointAnnotationSchema = z.object({
   pointIndexProp: z.string()
     .optional()
     .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
+  transform: z.object({
+    matrix: z.array(z.array(z.number())),
+    outputDimensions: z.record(z.tuple([z.number(), z.string()])),
+  }).optional()
+    .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.'),
+  // Note: See comments in neuroglancer-sorger.js
+  // We may remove these in the future, pending clarification
+  // to questions in the tissue-map-tools repo
+  // - https://github.com/hms-dbmi/tissue-map-tools/issues/20
+  // - https://github.com/hms-dbmi/tissue-map-tools/issues/38
+  quantitativeColorProp: z.string().optional(),
+  quantitativeColorMax: z.number().optional(),
 }).partial().nullable();
 
 /**

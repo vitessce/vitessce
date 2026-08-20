@@ -1,0 +1,5 @@
+anndata>=0.12.0,<0.13
+zarr
+numpy
+pandas
+scipy
