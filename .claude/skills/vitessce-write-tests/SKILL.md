@@ -48,13 +48,11 @@ describe('root.ts', () => {
 
 ```bash
 pnpm run test              # unit tests only
-./scripts/test.sh          # full suite (lint + unit + e2e)
 pnpm run lint-fix          # fix linting issues
 ```
 
 ## Tips
 
-- Prefer testing pure utility functions over React components — they're faster and more reliable
-- Factor shared test data into `*.test.fixtures.js` rather than inlining it in every test
-- Test observable behavior, not implementation details
-- The `packages/utils/` directory contains pure utility functions that are easy to test without React
+- Prefer testing pure utility functions over React components — they're faster and more reliable. When component bodies get complex, refactor business logic into custom hooks or utility functions so that the core logic can be tested via plain unit tests.
+- Shared data fixtures for tests can be stored in `*.test.fixtures.js` files rather than inlining the data in test files.
+- Utility functions that are shared across subpackages can be refactored into the shared utility subpackages within the `packages/utils/` directory.
