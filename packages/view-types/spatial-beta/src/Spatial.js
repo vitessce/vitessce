@@ -16,7 +16,7 @@ import {
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
-import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
+import { getLayerLoaderTuple, isLayerVisible, renderSubBitmaskLayers } from './utils.js';
 
 const POINT_LAYER_PREFIX = 'point-layer-';
 const SPOT_LAYER_PREFIX = 'spot-layer-';
@@ -1186,6 +1186,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
 
+    // Skip hidden layers entirely in 3D. viv's VolumeLayer downloads a whole volume per channel
+    // from updateState, and DeckGL does not gate layer updates on `visible` -- so a hidden layer
+    // still pays full price. With one layer per image, a config holding several co-located
+    // acquisitions would fetch hundreds of megabytes the moment 3D is switched on, even though
+    // only one of them is on screen. The legacy `spatial` view never hit this because it filtered
+    // imageLayerDefs down to the single layer flagged `use3d`. Compared against `false` rather
+    // than falsy so that an unset value still counts as visible, matching ImageLayerController.
+    if (is3dMode && !isLayerVisible(visible)) {
+      return null;
+    }
 
     const extensions = getVivLayerExtensions(
       is3dMode, colormap, renderingMode,
