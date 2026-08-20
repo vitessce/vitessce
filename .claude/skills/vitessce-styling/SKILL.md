@@ -36,6 +36,8 @@ export function MyComponent() {
 }
 ```
 
+To specify multiple class names or to specify class names conditionally, use `clsx` (`import clsx from 'clsx';`).
+
 Note the double call: `makeStyles()(...)`. The first set of parens takes tss-react options.
 
 ## makeStyles keys must be globally unique
