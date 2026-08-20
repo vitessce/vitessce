@@ -488,6 +488,14 @@ export const baseCoordinationTypes = [
     })).nullable(),
   ),
   new PluginCoordinationType(
+    CoordinationType.OBS_SET_COLORMAP,
+    'default',
+    z.enum([
+      'default', 'tolBright', 'tolHighContrast', 'tolVibrant', 'tolMuted', 'tolMediumContrast', 'tolLight',
+      'tab10', 'set1', 'set2', 'set3', 'dark2', 'accent', 'pastel1', 'pastel2',
+    ]),
+  ),
+  new PluginCoordinationType(
     CoordinationType.FEATURE_COLOR,
     null,
     z.array(z.object({

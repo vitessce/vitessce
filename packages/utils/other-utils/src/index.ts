@@ -45,3 +45,21 @@ export {
   normalizeAggregatedFeatureArray,
   filterValidExpressionArrays,
 } from './expr.js';
+export {
+  TOL_BRIGHT,
+  TOL_HIGH_CONTRAST,
+  TOL_VIBRANT,
+  TOL_MUTED,
+  TOL_MEDIUM_CONTRAST,
+  TOL_LIGHT,
+  MPL_TAB10,
+  MPL_SET1,
+  MPL_SET2,
+  MPL_SET3,
+  MPL_DARK2,
+  MPL_ACCENT,
+  MPL_PASTEL1,
+  MPL_PASTEL2,
+  QUALITATIVE_COLORMAPS,
+  getQualitativeColor,
+} from './qualitative-colormaps.js';
