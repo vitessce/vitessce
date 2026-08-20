@@ -173,7 +173,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       return this.rootAttrs;
     }
     // Load the root attrs.
-    const rootAttrs = await this.getJson('.zattrs');
+    const rootAttrs = await this.getAttrs('');
     const { spatialdata_attrs } = rootAttrs;
     const {
       spatialdata_software_version: softwareVersion,
@@ -195,7 +195,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
     // TODO: normalize the elementPath to always end without a slash?
     // TODO: ensure that elementPath is a valid spatial element path?
-    const v0_4_0_attrs = await this.getJson(`${elementPath}/.zattrs`);
+    const v0_4_0_attrs = await this.getAttrs(elementPath);
 
     let result = v0_4_0_attrs;
     if (v0_4_0_attrs['encoding-type'] === 'anndata') {
@@ -423,7 +423,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadObsIndex(path = undefined) {
     const obsPath = getObsPath(path);
-    const { _index } = await this.getJson(`${obsPath}/.zattrs`);
+    const { _index } = await this.getAttrs(obsPath);
     let indexPath;
     if (_index) {
       indexPath = `${obsPath}/${_index}`;
@@ -462,7 +462,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     if (varPath in this.varIndices) {
       return this.varIndices[varPath];
     }
-    this.varIndices[varPath] = this.getJson(`${varPath}/.zattrs`)
+    this.varIndices[varPath] = this.getAttrs(varPath)
       .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
     return this.varIndices[varPath];
   }

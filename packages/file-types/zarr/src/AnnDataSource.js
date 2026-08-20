@@ -103,7 +103,7 @@ export default class AnnDataSource extends ZarrDataSource {
     const path = prependSlash(pathOrig);
     const prefixOrig = dirname(path);
     const prefix = prependSlash(prefixOrig);
-    const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
+    const { categories, 'encoding-type': encodingType } = await this.getAttrs(path);
     /** @type {string[]} */
     let categoriesValues;
     /** @type {undefined | string} */
@@ -119,7 +119,7 @@ export default class AnnDataSource extends ZarrDataSource {
         );
       }
     } else if (encodingType === 'categorical') {
-      const categoriesZattrs = await this.getJson(`${path}/categories/.zattrs`);
+      const categoriesZattrs = await this.getAttrs(`${path}/categories`);
       const categoriesEncodingType = categoriesZattrs?.['encoding-type'];
       if (categoriesEncodingType === 'nullable-string-array') {
         categoriesValues = await this.getFlatArrDecompressed(`${path}/categories/values`);
@@ -228,7 +228,7 @@ export default class AnnDataSource extends ZarrDataSource {
     if (this.obsIndex) {
       return this.obsIndex;
     }
-    this.obsIndex = this.getJson('obs/.zattrs')
+    this.obsIndex = this.getAttrs('obs')
       .then(({ _index }) => this._loadColumn(`/obs/${_index}`));
     return this.obsIndex;
   }
@@ -244,7 +244,7 @@ export default class AnnDataSource extends ZarrDataSource {
     path = undefined,
   ) {
     const dfPath = path ? dirname(path) : '';
-    return this.getJson(`${dfPath}/.zattrs`)
+    return this.getAttrs(dfPath)
       .then(({ _index }) => this._loadColumn(`${dfPath.length > 0 ? '/' : ''}${dfPath}/${_index}`));
   }
 
@@ -260,7 +260,7 @@ export default class AnnDataSource extends ZarrDataSource {
     if (this.varIndex) {
       return this.varIndex;
     }
-    this.varIndex = this.getJson('var/.zattrs')
+    this.varIndex = this.getAttrs('var')
       .then(({ _index }) => this._loadColumn(`/var/${_index}`));
     return this.varIndex;
   }
@@ -294,7 +294,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<object>}
    */
   async _loadAttrs(path) {
-    return this.getJson(`${path}/.zattrs`);
+    return this.getAttrs(path);
   }
 
   /**

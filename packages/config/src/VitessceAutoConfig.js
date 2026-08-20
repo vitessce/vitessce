@@ -1,5 +1,13 @@
 import { CoordinationType as ct, FileType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
+import { ZarrConventionError } from '@vitessce/error';
+import {
+  zarrOpenStore,
+  openListableRoot,
+  getAttrs,
+  findExistingPaths,
+} from '@vitessce/zarr-utils';
+
 import {
   VitessceConfig,
 } from './VitessceConfig.js';
@@ -231,101 +239,13 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
     return views;
   }
 
-  async setMetadataSummaryWithZmetadata(response) { /* eslint-disable-line class-methods-use-this */
-    const metadataFile = await response.json();
-    if (!metadataFile.metadata) {
-      throw new Error('Could not generate config: .zmetadata file is not valid.');
-    }
-
-    const obsmKeys = Object.keys(metadataFile.metadata)
-      .filter(key => key.startsWith('obsm/X_'))
-      .map(key => key.split('/.zarray')[0]);
-
-    const obsKeysArr = Object.keys(metadataFile.metadata)
-      .filter(key => key.startsWith('obs/')).map(key => key.split('/.za')[0]);
-
-    function uniq(a) {
-      return a.sort().filter((item, pos, ary) => !pos || item !== ary[pos - 1]);
-    }
-    const obsKeys = uniq(obsKeysArr);
-
-    const X = Object.keys(metadataFile.metadata).filter(key => key.startsWith('X'));
-
-    return {
-      // Array of keys in obsm that are found by the fetches above
-      obsm: obsmKeys,
-      // Array of keys in obs that are found by the fetches above
-      obs: obsKeys,
-      // Boolean indicating whether the X array was found by the fetches above
-      X: X.length > 0,
-    };
-  }
-
-  async setMetadataSummaryWithoutZmetadata() {
-    const knownMetadataFileSuffixes = [
-      '/obsm/X_pca/.zarray',
-      '/obsm/X_umap/.zarray',
-      '/obsm/X_tsne/.zarray',
-      '/obsm/X_spatial/.zarray',
-      '/obsm/X_segmentations/.zarray',
-      '/obs/.zattrs',
-      '/X/.zarray',
-      '/X/data/.zarray', // for https://data-1.vitessce.io/0.0.33/main/human-lymph-node-10x-visium/human_lymph_node_10x_visium.h5ad.zarr
-    ];
-
-    const getObsmKey = (url) => {
-      // Get the substring "X_pca" from a URL like
-      // http://example.com/foo/adata.zarr/obsm/X_pca/.zarray
-      const obsmKeyStartIndex = `${this.fileUrl}/`.length;
-      const obsmKeyEndIndex = url.length - '/.zarray'.length;
-      return url.substring(obsmKeyStartIndex, obsmKeyEndIndex);
-    };
-
-    const promises = knownMetadataFileSuffixes.map(suffix => fetch(`${this.fileUrl}${suffix}`));
-
-    const fetchResults = await Promise.all(promises);
-    const okFetchResults = fetchResults.filter(j => j.ok);
-    const metadataSummary = {
-      // Array of keys in obsm that are found by the fetches above
-      obsm: [],
-      // Array of keys in obs that are found by the fetches above
-      obs: [],
-      // Boolean indicating whether the X array was found by the fetches above
-      X: false,
-    };
-
-    const obsPromiseResult = okFetchResults.find(
-      r => r.url === (`${this.fileUrl}/obs/.zattrs`),
-    );
-
-    const isObsValid = obsAttr => Object.keys(obsAttr).includes('column-order')
-      && Object.keys(obsAttr).includes('encoding-version')
-      && Object.keys(obsAttr).includes('encoding-type')
-      && obsAttr['encoding-type'] === 'dataframe'
-      && (obsAttr['encoding-version'] === '0.1.0' || obsAttr['encoding-version'] === '0.2.0');
-
-    if (obsPromiseResult) {
-      const obsAttrs = await obsPromiseResult.json();
-      if (isObsValid(obsAttrs)) {
-        obsAttrs['column-order'].forEach(key => metadataSummary.obs.push(`obs/${key}`));
-      } else {
-        throw new Error('Could not generate config: /obs/.zattrs file is not valid.');
-      }
-    }
-
-    okFetchResults
-      .forEach((r) => {
-        if (r.url.startsWith(`${this.fileUrl}/obsm`)) {
-          const obsmKey = getObsmKey(r.url);
-          if (obsmKey) {
-            metadataSummary.obsm.push(obsmKey);
-          }
-        } else if (r.url.startsWith(`${this.fileUrl}/X`)) {
-          metadataSummary.X = true;
-        }
-      });
-
-    return metadataSummary;
+  // eslint-disable-next-line class-methods-use-this
+  isObsAttrsValid(obsAttrs) {
+    return Object.keys(obsAttrs).includes('column-order')
+      && Object.keys(obsAttrs).includes('encoding-version')
+      && Object.keys(obsAttrs).includes('encoding-type')
+      && obsAttrs['encoding-type'] === 'dataframe'
+      && (obsAttrs['encoding-version'] === '0.1.0' || obsAttrs['encoding-version'] === '0.2.0');
   }
 
   async setMetadataSummary() {
@@ -333,21 +253,60 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       return this.metadataSummary;
     }
 
-    const metadataExtension = '.zmetadata';
-    const url = [this.fileUrl, metadataExtension].join('/');
-    return fetch(url).then((response) => {
-      if (response.ok) {
-        return this.setMetadataSummaryWithZmetadata(response);
+    try {
+      const store = zarrOpenStore(this.fileUrl, this.fileType);
+      const { root, contents } = await openListableRoot(store);
+
+      // we trust `column-order` as-is (because column-order is a real AnnData rule),
+      // https://anndata.readthedocs.io/en/latest/fileformat-prose.html
+      // instead of verifying if each column really exists.
+      // fake ones get filtered out by supportedObsSetsKeys check
+      const obsAttrs = await getAttrs(root, 'obs');
+      let obsKeys = [];
+      if (Object.keys(obsAttrs).length > 0) {
+        if (!this.isObsAttrsValid(obsAttrs)) {
+          throw new ZarrConventionError('Could not generate config: obs attributes are not a valid AnnData dataframe.');
+        }
+        obsKeys = obsAttrs['column-order'].map(key => `obs/${key}`).sort();
       }
-      if (response.status === 404) {
-        return this.setMetadataSummaryWithoutZmetadata();
+
+      // obsm: when a manifest is available, match any obsm/X_* node directly so
+      // arbitrary embedding names are picked up (mirrors the old .zmetadata-key
+      // scan); otherwise fall back to probing the well-known embedding names.
+      let obsmKeys;
+      if (contents) {
+        obsmKeys = contents
+          .map(({ path }) => (path.startsWith('/') ? path.slice(1) : path))
+          .filter(path => path.startsWith('obsm/X_'));
+      } else {
+        const obsmCandidates = [
+          'obsm/X_pca',
+          'obsm/X_umap',
+          'obsm/X_tsne',
+          'obsm/X_spatial',
+          'obsm/X_segmentations',
+        ];
+        obsmKeys = await findExistingPaths(root, obsmCandidates, contents);
       }
-      throw new Error(`Could not generate config: ${response.statusText}`);
-    }).catch((error) => {
+
+      // X: some AnnData-Zarr stores nest the matrix under X/data.
+      const xMatches = await findExistingPaths(root, ['X', 'X/data'], contents);
+
+      this.metadataSummary = {
+        // Array of keys in obsm that are found by the checks above
+        obsm: obsmKeys,
+        // Array of keys in obs that are found by the checks above
+        obs: obsKeys,
+        // Boolean indicating whether the X array was found by the checks above
+        X: xMatches.length > 0,
+      };
+      return this.metadataSummary;
+    } catch (error) {
       throw new Error(`Could not generate config for URL ${this.fileUrl}: ${error}`);
-    });
+    }
   }
 }
+
 
 const configClasses = [
   {

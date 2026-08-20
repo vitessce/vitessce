@@ -9,7 +9,8 @@ import {
   ZarritaPixelSource,
 } from '@vitessce/spatial-utils';
 import { open as zarrOpen } from 'zarrita';
-import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, zarrOpenStore, openListableRoot,
+  createZarrArrayAdapter, discoverPyramidLevels } from '@vitessce/zarr-utils';
 import { LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
@@ -26,25 +27,27 @@ async function initLoader(imageData) {
         const { dimensions, isPyramid, transform } = metadata || {};
         const labels = dimensions.map(d => d.field);
         let source;
-        const root = await zarrOpenRoot(url, null, { requestInit });
 
         if (isPyramid) {
-          const metadataUrl = `${url}${url.slice(-1) === '/' ? '' : '/'}.zmetadata`;
-          const response = await fetch(metadataUrl);
-          if (!response.ok) throw new Error(`Failed to fetch metadata: ${response.status}`);
+          const store = zarrOpenStore(url, null, { requestInit });
+          const { root: listableRoot, contents } = await openListableRoot(store);
+          // Consolidated metadata (when present) is only an optimization --
+          // it isn't required. `discoverPyramidLevels` falls back to checking
+          // sequential resolution-level names ('0', '1', '2', ...) otherwise.
+          const paths = await discoverPyramidLevels(listableRoot, contents);
+          if (paths.length === 0) {
+            throw new Error(`Failed to discover any pyramid resolution levels for ${url}`);
+          }
 
-          const { metadata: zarrMetadata } = await response.json();
-          const paths = Object.keys(zarrMetadata)
-            .filter(metaKey => metaKey.includes('.zarray'))
-            .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
           const data = await Promise.all(
-            paths.map(path => zarrOpen(root.resolve(path), { kind: 'array' })),
+            paths.map(path => zarrOpen(listableRoot.resolve(path), { kind: 'array' })),
           );
           const tileSize = guessTileSize(data[0]);
           source = data.map(d => new ZarritaPixelSource(
             createZarrArrayAdapter(d), labels, tileSize,
           ));
         } else {
+          const root = await zarrOpenRoot(url, null, { requestInit });
           const data = await zarrOpen(root, { kind: 'array' });
           source = new ZarritaPixelSource(createZarrArrayAdapter(data), labels);
         }

@@ -8,7 +8,7 @@ export default class MatrixZarrAsObsFeatureMatrixLoader extends AbstractTwoStepL
       return this.attrs;
     }
     this.attrs = {
-      data: await this.dataSource.getJson('.zattrs'),
+      data: await this.dataSource.getAttrs(''),
       url: null,
     };
     return this.attrs;
