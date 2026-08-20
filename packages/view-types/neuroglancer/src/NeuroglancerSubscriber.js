@@ -34,10 +34,8 @@ import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-uti
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState, pointsHaveMatchingSegmentation } from './data-hook-ng-utils.js';
-import {
-  useMemoCustomComparison,
-  customIsEqualForCellColors,
-} from './use-memo-custom-comparison.js';
+import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
+import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,

@@ -107,3 +107,15 @@ export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
 export { createOnDrop } from './on-drop.js';
+export {
+  useMemoCustomComparison,
+  shallowDiff,
+  shallowDiffByLayer,
+  shallowDiffByLayerWithKeys,
+  shallowDiffByChannel,
+  shallowDiffByChannelWithKeys,
+  shallowDiffByLayerCoordination,
+  shallowDiffByLayerCoordinationWithKeys,
+  shallowDiffByChannelCoordination,
+  shallowDiffByChannelCoordinationWithKeys,
+} from './use-memo-custom-comparison.js';

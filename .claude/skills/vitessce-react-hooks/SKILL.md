@@ -26,6 +26,64 @@ Use `useState` for **user-driven interactive state** (hover position, open/close
 
 Use `useCallback` to memoize event handlers passed as props, so child components don't re-render unnecessarily.
 
+
+## useMemo with custom equality function for comparison of previous and next dependencies
+
+Vitessce provides a custom `useMemoCustomComparison` hook that allows you to provide a custom equality function for comparing previous and next dependencies. This is useful when you have complex objects or arrays as dependencies and want to avoid unnecessary re-computations.
+
+`useMemo`'s built-in dependency comparison is a shallow, per-element `Object.is` check. That breaks down when a dependency is a nested object (e.g. per-layer/per-channel coordination values) that gets a new reference every render even though its contents didn't meaningfully change — `useMemo` would re-run the factory on every render regardless. `useMemoCustomComparison(factory, dependencies, customIsEqual)` fixes this by letting you supply your own `(prevDeps, nextDeps) => boolean` function, e.g. using `isEqual` from `lodash-es` for a deep-equality check instead of relying on reference equality:
+
+```js
+import { isEqual } from 'lodash-es';
+import { useMemoCustomComparison } from '@vitessce/vit-s';
+
+// dependencies is a single object here (not an array) since we need
+// to pass both prevDeps and nextDeps as whole objects to customIsEqual.
+const dependencies = { obsSetColor, obsColorEncoding, spatialLayerColor };
+
+const cellColorMapping = useMemoCustomComparison(
+  () => computeCellColorMapping(dependencies),
+  dependencies,
+  isEqual,
+);
+```
+
+For cases where a deep equality check over the whole dependency object is too expensive (e.g. very large nested layer/channel coordination structures), `@vitessce/vit-s` also exports narrower comparison helpers (`shallowDiff`, `shallowDiffByLayer`, `shallowDiffByChannel`, and `*WithKeys` variants) for building a `customIsEqual` that only inspects the specific fields that matter — see `packages/view-types/neuroglancer/src/use-memo-custom-equals.js` for a real example.
+
+Each helper takes `(prevDeps, nextDeps, depName, ...)`, so a common pattern is to curry them once per `customIsEqual` call, then iterate over the layer/channel scopes to check only the keys relevant to the computation:
+
+```js
+import {
+  shallowDiff,
+  shallowDiffByLayer,
+  shallowDiffByLayerWithKeys,
+} from '@vitessce/vit-s';
+
+function customIsEqual(prevDeps, nextDeps) {
+  // Curry so we don't have to repeat prevDeps/nextDeps at every call site.
+  const curriedShallowDiff = depName => shallowDiff(prevDeps, nextDeps, depName);
+  const curriedShallowDiffByLayer = (depName, layerScope) => shallowDiffByLayer(
+    prevDeps, nextDeps, depName, layerScope,
+  );
+  const curriedShallowDiffByLayerWithKeys = (depName, layerScope, keys) => shallowDiffByLayerWithKeys(
+    prevDeps, nextDeps, depName, layerScope, keys,
+  );
+
+  // If the set of layers itself changed, everything needs to be recomputed.
+  if (curriedShallowDiff('layerScopes')) {
+    return false; // not equal -> recompute
+  }
+
+  // Otherwise, only recompute if a relevant field changed for any single layer.
+  const layerChanged = nextDeps.layerScopes.some(layerScope => (
+    curriedShallowDiffByLayer('obsData', layerScope)
+      || curriedShallowDiffByLayerWithKeys('layerCoordination', layerScope, ['spatialLayerVisible', 'spatialLayerColor'])
+  ));
+
+  return !layerChanged; // isEqual === true means "skip recomputation"
+}
+```
+
 ## Vitessce-specific hooks (from `@vitessce/vit-s`)
 
 | Hook | Purpose |
