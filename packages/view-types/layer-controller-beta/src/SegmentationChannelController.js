@@ -3,6 +3,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback } from 'react';
 import { useId } from 'react-aria';
+import clsx from 'clsx';
 import {
   makeStyles,
   Grid,
@@ -26,17 +27,27 @@ import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
+  channelRowContainerSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+  channelSliderCellSx,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 
 
 const useStyles = makeStyles()(() => ({
+  // Cap the channel name's width; imageLayerName ellipsizes the overflow.
+  channelName: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
   layerTypeSegmentationIcon: {
     height: '100%',
     marginLeft: '1px',
     fill: 'currentColor',
     fontSize: '24px',
-    width: '50%',
+    width: '24px',
     maxWidth: '24px',
   },
 }));
@@ -263,8 +274,8 @@ export default function SegmentationChannelController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -273,7 +284,7 @@ export default function SegmentationChannelController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -285,13 +296,16 @@ export default function SegmentationChannelController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
+          <Grid size={6} sx={channelSelectorCellSx}>
+            <Typography
+              className={clsx(menuClasses.imageLayerName, classes.channelName)}
+              title={capitalize(label)}
+            >
               {capitalize(label)}
               {/* capitalize(plur(label, 2)) */}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={channelSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -303,7 +317,7 @@ export default function SegmentationChannelController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <SegmentationChannelEllipsisMenu
               obsType={obsType}
               featureType={featureType}
@@ -327,7 +341,7 @@ export default function SegmentationChannelController(props) {
               setLegendVisible={setLegendVisible}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
           </Grid>
         </Grid>
