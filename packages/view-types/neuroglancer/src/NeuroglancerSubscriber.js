@@ -209,6 +209,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_LABEL,
     ],
     coordinationScopes,
     coordinationScopesBy,

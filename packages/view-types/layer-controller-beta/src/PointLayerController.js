@@ -239,6 +239,7 @@ export default function PointLayerController(props) {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
+    spatialLayerLabel,
     obsColorEncoding,
     featureColor,
     featureFilterMode,
@@ -265,8 +266,7 @@ export default function PointLayerController(props) {
     setLegendVisible,
   } = setLayerCoordination;
 
-  const label = capitalize(obsType);
-
+  const label = spatialLayerLabel ?? capitalize(obsType);
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = useMemo(() => (
     visibleSetting

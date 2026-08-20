@@ -140,6 +140,7 @@ function generateNeuroglancerMerfish() {
         fileUid: 'merfish-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Meshes',
         segmentationChannel: CL([
           {
             obsType: 'cell',
@@ -163,6 +164,7 @@ function generateNeuroglancerMerfish() {
           spatialLayerOpacity: 1,
           spatialLayerVisible: true,
           obsColorEncoding: 'geneSelection',
+          spatialLayerLabel: 'Transcripts',
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
