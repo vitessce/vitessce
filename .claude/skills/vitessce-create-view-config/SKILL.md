@@ -5,7 +5,8 @@ description: Use when creating a new Vitessce view config from scratch — the J
 
 # Creating a View Config
 
-A view config is a JSON object that defines what data to show, how to lay out views, and how to link them through the coordination space.
+A view config defines what data to show, how to lay out views, and how to link them through the
+coordination space.
 
 ## JSON Structure
 
@@ -13,7 +14,7 @@ A view config is a JSON object that defines what data to show, how to lay out vi
 export const myConfig = {
   name: 'My visualization',
   description: 'Example config',
-  version: '1.0.17',       // always use the latest schema version
+  version: '1.0.18',       // latest schema version
   initStrategy: 'auto',    // fills in missing coordination scopes automatically
   datasets: [
     {
@@ -24,6 +25,7 @@ export const myConfig = {
           fileType: 'obsEmbedding.csv',
           url: 'https://example.com/embedding.csv',
           coordinationValues: { obsType: 'cell', embeddingType: 'UMAP' },
+          options: { obsIndex: 'index', obsEmbedding: ['UMAP_1', 'UMAP_2'] },
         },
       ],
     },
@@ -48,40 +50,83 @@ export const myConfig = {
 ```
 
 Key points:
-- `version`: use the latest (currently `"1.0.17"`). Check `packages/schemas` for the current version.
-- `initStrategy: 'auto'` fills in missing coordination scopes — you only need to declare scopes you want to customize.
-- `files[].coordinationValues` disambiguates when multiple files provide the same data type (e.g., two embeddings with different `embeddingType`).
-- Layout uses a **12-column grid**. `x`/`y` are column/row positions, `w`/`h` are width/height in grid units.
+- `version`: the latest is **`1.0.18`**. Confirm with `latestConfigSchema` in
+  `packages/schemas/src/previous-config-meta.ts` rather than trusting this doc — the value moves.
+  Older versions still load; `upgradeAndParse` in `packages/schemas/src/view-config-versions.ts`
+  migrates them.
+- `initStrategy: 'auto'` fills in missing coordination scopes — you only need to declare scopes you
+  want to customize. `'none'` disables that.
+- `files[].coordinationValues` disambiguates when multiple files provide the same data type (e.g., two
+  embeddings with different `embeddingType`). It is matched against each data hook's `matchOn`.
+- `files[].options` is validated per file type; see `packages/schemas/src/file-def-options.ts`.
+- Layout uses a **12-column grid** (`packages/vit-s/src/vitessce-grid-layout/layout-utils.js`).
+  `x`/`y` are column/row positions; `w`/`h` are width/height in grid units and are optional in the
+  schema, though every real config sets them.
+- `coordinationScopesBy` (a sibling of `coordinationScopes`, added in schema `1.0.16`) holds
+  per-layer/per-channel scope mappings for the spatial and layer-controller views.
 
 ## VitessceConfig Programmatic API
 
-For complex configs, use the builder from `packages/config`:
+For complex configs, use the builder from `@vitessce/config` (`packages/config/src/VitessceConfig.js`):
 
 ```js
-import { VitessceConfig } from '@vitessce/config';
+import { VitessceConfig, hconcat, vconcat, CoordinationLevel as CL } from '@vitessce/config';
 
-const vc = new VitessceConfig({ schemaVersion: '1.0.17', name: 'My Config' });
-const dataset = vc.addDataset('my-dataset').addFile({
+const vc = new VitessceConfig({ schemaVersion: '1.0.18', name: 'My Config' });
+
+// addDataset(name, description) — the uid is auto-generated, not the first argument.
+const dataset = vc.addDataset('My Dataset').addFile({
   fileType: 'obsEmbedding.csv',
   url: 'https://example.com/embedding.csv',
   coordinationValues: { obsType: 'cell', embeddingType: 'UMAP' },
 });
-const [scatterplot] = vc.addView(dataset, 'scatterplot');
-const [description] = vc.addView(dataset, 'description');
-vc.layout(vc.hconcat(scatterplot, description));
+
+// addView returns a single view object (NOT an array — do not destructure it).
+const scatterplot = vc.addView(dataset, 'scatterplot');
+const description = vc.addView(dataset, 'description');
+
+// Set coordination values shared by a group of views.
+vc.linkViewsByObject([scatterplot], { embeddingType: 'UMAP' }, { meta: false });
+
+// hconcat/vconcat are standalone imports, not methods on vc.
+vc.layout(hconcat(scatterplot, description));
+
 const config = vc.toJSON();
 ```
 
-Source: `packages/config/src/VitessceConfig.js`
+Common `VitessceConfig` methods:
+
+| Method | Purpose |
+|---|---|
+| `addDataset(name, description)` | Add a dataset; returns a `VitessceConfigDataset`. |
+| `dataset.addFile({ fileType, url, coordinationValues, options })` | Add a file; returns the dataset for chaining. |
+| `addView(dataset, component, { x, y, w, h, uid, mapping })` | Add a view; returns one `VitessceConfigView`. |
+| `addCoordination(...cTypes)` | Returns an **array** of new scope objects — destructure this one. |
+| `linkViews(views, cTypes, cValues)` | Put a set of views on shared scopes for the given coordination types. |
+| `linkViewsByObject(views, valuesObject, { meta })` | Same, but keyed by coordination type name; supports nesting via `CoordinationLevel`. |
+| `layout(tree)` | Set the grid layout from an `hconcat`/`vconcat` tree; computes `x`/`y`/`w`/`h`. |
+| `toJSON()` | Produce the plain config object. |
+
+`hconcat`, `vconcat`, and `CoordinationLevel` (aliased `CL`) are named exports of `@vitessce/config`,
+alongside `VitessceConfig` — see `packages/config/src/index.js`.
 
 ## Example Configs
 
-Many examples live in `examples/configs/`. Study these for patterns before writing from scratch.
+Real examples live in `examples/configs/src/view-configs/` and are registered in
+`examples/configs/src/index.js` under a `<name>-example` key. Study these before writing from
+scratch; `lemur.js` is a good reference for the programmatic API including `linkViews` and nested
+`hconcat`/`vconcat`.
+
+Note many older example configs pin older schema versions (`1.0.0` through `1.0.17`) and still work
+via the upgraders — copy their structure, not their `version` string.
 
 ## Schema Versioning
 
-- Zod schemas are in `packages/schemas` (versioned).
-- When adding new coordination types, increment the schema version and add an upgrade function for backward compatibility.
+Zod schemas live in `packages/schemas/`. The **coordination types, file types, and view type names
+are all built dynamically from the registered plugins** (`schema-builders.ts`), so adding one of
+those does not require a version bump. Increment the version only for structural changes to the
+config format itself, and add a matching `upgradeFrom1_0_N` function in
+`previous-config-upgraders.ts`.
 
 ## For modifying an existing config
 

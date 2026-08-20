@@ -5,11 +5,13 @@ description: Use when wiring an existing coordination type into an existing Vite
 
 # Adding a Coordination Type to an Existing View
 
-This covers the case where the coordination type already exists and you're connecting it to a view that doesn't currently use it. To register a brand-new coordination type, see `vitessce-add-coordination-type` first.
+This covers the case where the coordination type already exists and you're connecting it to a view
+that doesn't currently use it. To register a brand-new coordination type, see
+`vitessce-add-coordination-type` first.
 
 ## 1. Update COMPONENT_COORDINATION_TYPES
 
-In `packages/constants-internal/src/component-coordination-types.ts`, add the type to the view's array:
+In `packages/constants-internal/src/coordination.ts`, add the type to the view's array:
 
 ```ts
 export const COMPONENT_COORDINATION_TYPES = {
@@ -20,13 +22,17 @@ export const COMPONENT_COORDINATION_TYPES = {
 };
 ```
 
-This is the most commonly missed step. If the type isn't listed here, `useCoordination` won't return it.
+This is the most commonly missed step. `useCoordination` only returns the parameters it is passed,
+and every subscriber passes `COMPONENT_COORDINATION_TYPES[ViewType.MY_VIEW]` — so if the type isn't
+listed here it will come back `undefined`.
 
 ## 2. Destructure in useCoordination
 
 In the subscriber component, add the new value and setter:
 
 ```ts
+const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+
 const [{
   obsType,
   myNewType,        // add
@@ -35,6 +41,12 @@ const [{
   setMyNewType,     // add setter if the view should be able to change this value
 }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.MY_VIEW], coordinationScopes);
 ```
+
+Setter names are derived mechanically as `set` + capitalized parameter name, so no registration is
+needed for the setter itself.
+
+Note that `coordinationScopes` must be the output of `useCoordinationScopes(coordinationScopesRaw)`,
+not the raw prop — that hook resolves `metaCoordinationScopes` indirection.
 
 ## 3. Pass to the child component
 
@@ -48,7 +60,8 @@ const [{
 
 ## 4. Update the view config
 
-Add the coordination scope to any layout entries that use this view, and declare its value in `coordinationSpace`:
+Add the coordination scope to any layout entries that use this view, and declare its value in
+`coordinationSpace`:
 
 ```js
 coordinationSpace: {
@@ -67,4 +80,15 @@ layout: [
 ],
 ```
 
-With `initStrategy: 'auto'` you can omit this — Vitessce will auto-assign a default scope — but explicit is clearer when you want a specific initial value.
+With `initStrategy: 'auto'` you can omit this — Vitessce will auto-assign a scope holding the
+coordination type's registered default value — but explicit is clearer when you want a specific
+initial value.
+
+## Per-layer / per-channel coordination
+
+If the coordination type is scoped per layer or per channel (as in the spatial and layer-controller
+views), the values live in `coordinationScopesBy` rather than `coordinationScopes`, and the
+subscriber reads them via `useCoordinationScopesBy` plus the multi-level variants in
+`packages/vit-s/src/state/hooks.js` (e.g. `useMultiCoordinationScopes`,
+`useMultiCoordinationScopesSecondary`) instead of a plain `useCoordination` call. Follow the pattern in
+`packages/view-types/spatial-beta/src/SpatialSubscriber.js` for that case.

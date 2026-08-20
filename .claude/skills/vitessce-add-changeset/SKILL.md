@@ -7,23 +7,39 @@ description: Use when the user has made changes within this repository and needs
 
 Vitessce uses [Changesets](https://github.com/changesets/changesets) to manage versioning and changelogs.
 
-**Never edit `CHANGELOG.md` directly.** All changelog entries are generated from changeset files.
+**Never edit any `CHANGELOG.md` directly.** All changelog entries are generated from changeset files.
 
-## How to add a changeset
+## Write the changeset file directly
 
-From the repository root:
+`pnpm changeset` is an interactive prompt, so it is not usable non-interactively. Create the
+markdown file in `.changeset/` yourself instead. The filename is arbitrary (the CLI generates
+`adjective-noun-verb.md`); only the contents matter:
 
-```bash
-pnpm changeset
+```markdown
+---
+"@vitessce/vit-s": patch
+---
+
+Add skills and refactor use-memo-custom-comparison into vit-s.
 ```
 
-This prompts you to:
-1. Select which packages were changed
-2. Choose a bump type (`major`, `minor`, or `patch`)
-3. Write a short summary of the change
+- Front matter maps package names (from each sub-package's `package.json` `name` field) to a bump
+  type: `major`, `minor`, or `patch`.
+- The body is the changelog entry. One sentence, imperative or descriptive, ending with a period.
+- List every sub-package you changed. Commit the file alongside your code changes.
 
-This creates a file in `.changeset/`. Commit it alongside your code changes.
 
 ## When to add a changeset
 
-Changesets are required for pull request checks to pass in CI.
+## CI check
+
+`.github/workflows/test.yml` runs `pnpm run changeset-status`, which is
+`changeset status --since=origin/main`. It fails the PR when a package was modified relative to
+`main` but has no changeset covering it. To check locally before pushing:
+
+```bash
+pnpm run changeset-status
+```
+
+Private packages (`docs`, `@vitessce/example-configs`, the sites) are still versioned and still
+appear in changeset front matter — see `.changeset/*.md` for existing examples.
