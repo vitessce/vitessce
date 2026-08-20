@@ -26,12 +26,4 @@ This creates a file in `.changeset/`. Commit it alongside your code changes.
 
 ## When to add a changeset
 
-Add one whenever you change a public API in any package under `packages/`. You generally don't need one for:
-
-- Changes to `sites/` (demo/docs websites)
-- Test-only changes
-- Pure internal refactors with no observable behavior change
-
-## Release flow
-
-Changesets are consumed during the release process (`pnpm run release`), which bumps package versions and updates `CHANGELOG.md` files automatically.
+Changesets are required for pull request checks to pass in CI.
