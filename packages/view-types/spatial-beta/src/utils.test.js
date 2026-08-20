@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Matrix4 } from 'math.gl';
 import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
-import { getVolumeModelMatrix } from './utils.js';
+import { getVolumeModelMatrix, isLayerVisible } from './utils.js';
 
 /**
  * Stand-in for a viv PixelSource. Only `meta.physicalSizes` is read.
@@ -88,6 +88,23 @@ describe('view-types/spatial-beta/utils', () => {
       expect(
         getVolumeModelMatrix(noPhysicalSizes, undefined),
       ).toEqual(new Matrix4().identity());
+    });
+  });
+
+  describe('isLayerVisible', () => {
+    it('is visible when explicitly true', () => {
+      expect(isLayerVisible(true)).toBe(true);
+    });
+
+    it('is hidden when explicitly false', () => {
+      expect(isLayerVisible(false)).toBe(false);
+    });
+
+    it('is visible when unset, matching the layer controller default', () => {
+      // ImageLayerController treats a non-boolean spatialLayerVisible as visible, so a layer
+      // whose config omits it must not be skipped in 3D.
+      expect(isLayerVisible(undefined)).toBe(true);
+      expect(isLayerVisible(null)).toBe(true);
     });
   });
 });

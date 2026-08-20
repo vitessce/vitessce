@@ -238,6 +238,16 @@ export function getInitialSpatialTargets({
 }
 
 /**
+ * Whether a layer should be rendered, given its `spatialLayerVisible` coordination value.
+ * An unset value counts as visible, matching the layer controller's own default.
+ * @param {boolean|undefined|null} spatialLayerVisible The coordination value.
+ * @returns {boolean} True if the layer should be rendered.
+ */
+export function isLayerVisible(spatialLayerVisible) {
+  return spatialLayerVisible !== false;
+}
+
+/**
  * Make a subtitle for the spatial component.
  * @param {object} data PixelSource | PixelSource[]
  * @returns {Array} [Layer, PixelSource | PixelSource[]] tuple.

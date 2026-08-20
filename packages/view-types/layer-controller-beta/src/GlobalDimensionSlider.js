@@ -37,6 +37,15 @@ const useStyles = makeStyles()(theme => ({
   },
 }));
 
+/**
+ * The Z variant of this slider also carries the view's 3D rendering-mode switch.
+ * `enable3d` allows a view config to withhold that switch, for data which cannot usefully be
+ * volume-rendered. It is a single boolean rather than the legacy `layerController`'s per-layer
+ * `disable3d` name list because the beta stack has one switch per view driving the shared
+ * `spatialRenderingMode`, and because beta layer names come from the image's own OME metadata
+ * (`ImageWrapper.getName()`) rather than from the view config, so a config author has no names to
+ * match against.
+ */
 export default function GlobalDimensionSlider(props) {
   const {
     label,
@@ -46,6 +55,7 @@ export default function GlobalDimensionSlider(props) {
     max = 0,
     spatialRenderingMode = null,
     setSpatialRenderingMode = null,
+    enable3d = true,
   } = props;
 
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -91,7 +101,7 @@ export default function GlobalDimensionSlider(props) {
             ) : null}
           </Grid>
           <Grid size={2}>
-            {isForZ ? (
+            {isForZ && enable3d ? (
               <FormGroup row className={classes.switchFormGroup}>
                 <FormControlLabel
                   control={<Switch color="primary" checked={spatialRenderingMode === '3D'} onChange={handleRenderingModeChange} name="is3dMode" />}
