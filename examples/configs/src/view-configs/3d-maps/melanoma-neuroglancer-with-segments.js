@@ -6,7 +6,7 @@ import {
   vconcat,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
-import { makeIdsCsvDataUrl } from '../../utils.js';
+import { makeIdsCsvDataUrl, makeColorsCsvDataUrl } from '../../utils.js';
 
 function generateNeuroglancerMinimalConfiguration() {
   const config = new VitessceConfig({
@@ -30,17 +30,6 @@ function generateNeuroglancerMinimalConfiguration() {
     coordinationValues: {
       fileUid: 'melanom-meshes',
     },
-    options: {
-      /*
-      segmentColors: {
-        612: '#d74242',
-        3351: '#b9d742',
-        4328: '#42d77d',
-        6531: '#427dd7',
-        8446: '#b942d7',
-        },
-      */
-    },
   });
 
   dataset.addFile({
@@ -50,6 +39,24 @@ function generateNeuroglancerMinimalConfiguration() {
       obsType: 'cell',
       featureType: 'feature',
       featureValueType: 'value',
+    },
+  });
+
+  dataset.addFile({
+    fileType: 'obsColors.csv',
+    url: makeColorsCsvDataUrl({
+      612: '#d74242',
+      3351: '#b9d742',
+      4328: '#42d77d',
+      6531: '#427dd7',
+      8446: '#b942d7',
+    }),
+    options: {
+      obsIndex: 'id',
+      obsColors: 'color',
+    },
+    coordinationValues: {
+      obsType: 'cell',
     },
   });
 
@@ -174,6 +181,7 @@ function generateNeuroglancerMinimalConfiguration() {
             featureType: 'feature',
             featureValueType: 'value',
             spatialChannelVisible: true,
+            obsColorEncoding: 'obsColors',
           },
         ]),
       },

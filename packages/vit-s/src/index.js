@@ -93,6 +93,7 @@ export {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsLocations,
   useSegmentationMultiObsSets,
+  useSegmentationMultiObsColors,
 } from './data-hooks-multilevel.js';
 export {
   useHasLoader,

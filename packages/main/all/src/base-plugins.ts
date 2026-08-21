@@ -28,6 +28,7 @@ import {
   obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
+  obsColorsCsvSchema,
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
@@ -118,6 +119,7 @@ import {
   ObsPointsCsvLoader,
   ObsLocationsCsvLoader,
   ObsLabelsCsvLoader,
+  ObsColorsCsvLoader,
   ObsFeatureMatrixCsvLoader,
   FeatureLabelsCsvLoader,
   SampleSetsCsvLoader,
@@ -297,6 +299,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_POINTS_CSV, DataType.OBS_POINTS, ObsPointsCsvLoader, CsvSource, obsPointsCsvSchema),
   makeFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource, obsLocationsCsvSchema),
   makeFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource, obsLabelsCsvSchema),
+  makeFileType(FileType.OBS_COLORS_CSV, DataType.OBS_COLORS, ObsColorsCsvLoader, CsvSource, obsColorsCsvSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource, z.null()),
   makeFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource, featureLabelsCsvSchema),
   makeFileType(FileType.SAMPLE_SETS_CSV, DataType.SAMPLE_SETS, SampleSetsCsvLoader, CsvSource, sampleSetsCsvSchema),
@@ -500,6 +503,8 @@ export const baseCoordinationTypes = [
     'cellSetSelection',
     z.enum([
       'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
+      // For per-observation colors loaded from an obsColors data type.
+      'obsColors',
       // For point coloring.
       'random', 'randomByFeature',
     ]),
