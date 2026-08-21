@@ -1,8 +1,6 @@
 import { isNil } from 'lodash-es';
 import { dsvFormat } from 'd3-dsv';
-// TODO(monorepo): try to find a different package for this.
-// Reference: https://github.com/zemirco/json2csv/issues/539
-import { Parser } from 'json2csv/dist/json2csv.umd.js';
+import { Parser } from '@json2csv/plainjs';
 import { getDefaultColor } from '@vitessce/utils';
 import { colorArrayToString, colorStringToArray } from './utils.js';
 import {
