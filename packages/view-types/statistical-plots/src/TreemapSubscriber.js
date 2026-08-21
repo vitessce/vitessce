@@ -183,8 +183,6 @@ export function TreemapSubscriber(props) {
     coordinationScopes,
   );
 
-  console.log(sampleSetFilter, sampleSetSelection);
-
   const [width, height, containerRef] = useGridItemSize();
 
   // TODO: how to deal with multimodal cases (multiple obsIndex, one per modality)?
