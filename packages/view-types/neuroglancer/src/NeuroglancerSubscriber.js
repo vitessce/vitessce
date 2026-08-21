@@ -372,7 +372,6 @@ export function NeuroglancerSubscriber(props) {
         const idsToColor = layerIndex;
         const knownIdSet = new Set((layerIndex ?? []).map(String));
 
-        console.log(layerIndex);
         const {
           obsSetColor,
           obsColorEncoding,

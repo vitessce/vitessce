@@ -31,13 +31,15 @@ function generateNeuroglancerMinimalConfiguration() {
       fileUid: 'melanom-meshes',
     },
     options: {
+      /*
       segmentColors: {
         612: '#d74242',
         3351: '#b9d742',
         4328: '#42d77d',
         6531: '#427dd7',
         8446: '#b942d7',
-      },
+        },
+      */
     },
   });
 
@@ -46,7 +48,7 @@ function generateNeuroglancerMinimalConfiguration() {
     url: makeIdsCsvDataUrl([612, 3351, 4328, 6531, 8446]),
     coordinationValues: {
       obsType: 'cell',
-      featureType:'feature',
+      featureType: 'feature',
       featureValueType: 'value',
     },
   });
@@ -169,7 +171,7 @@ function generateNeuroglancerMinimalConfiguration() {
         segmentationChannel: CL([
           {
             obsType: 'cell',
-            featureType:'feature',
+            featureType: 'feature',
             featureValueType: 'value',
             spatialChannelVisible: true,
           },
