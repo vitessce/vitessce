@@ -34,6 +34,9 @@ Filtering, selection, and highlighting are controlled by several coordination ty
 - sampleSelectionMode
 - sampleHighlight
 
+
+When filtering or selection is `null`, this means that all data items (or sets of data items) should be included/selected. The empty array means that nothing should be included/selected. When highlight is `null`, this means that nothing is currently highlighted.
+
 ## Control views such as the observation set manager view
 
 Control views are the only exception where items that are currently filtered-out may need to be included in the user interface, to facilitate users modifying the filtering criteria. For example, if immune cell types are currently the only cell types included according to the filtering criteria, users who become interested in non-immune cell types over the course of their analysis will need a mechanism to update the filtering criteria to specify that non-immune cell types should be included again. If there is no UI to facilitate this, then users will never be able to re-include data items that had been previously added to the exclusion list.
