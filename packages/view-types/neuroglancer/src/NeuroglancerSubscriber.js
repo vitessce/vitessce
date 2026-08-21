@@ -429,9 +429,7 @@ export function NeuroglancerSubscriber(props) {
                 }
               }
             });
-            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
-            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
-            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           }
         } else if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
