@@ -6,7 +6,7 @@ import {
   vconcat,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
-import { Parser } from '@json2csv/plainjs';
+import { makeIdsCsvDataUrl } from '../../utils.js';
 
 function generateNeuroglancerMinimalConfiguration() {
   const config = new VitessceConfig({
@@ -43,12 +43,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: `data:text/csv,${encodeURIComponent(`id,tSNE1,tSNE2
-612,0.1,0.2
-3351,0.3,0.4
-4328,0.5,0.6
-6531,0.7,0.8
-8446,0.9,1.0`)}`,
+    url: makeIdsCsvDataUrl([612, 3351, 4328, 6531, 8446]),
     coordinationValues: {
       obsType: 'cell',
       featureType:'feature',
