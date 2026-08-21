@@ -37,7 +37,15 @@ function extractInformationFromProps(
   const {
     spatialRenderingMode,
   } = props;
-  const data = image?.image?.instance?.getData();
+
+
+  // TODO: The code here should not rely on vivData.meta.physicalSizes,
+  // but should instead use imageWrapper.getModelMatrix() which is more general.
+  // Then, stripPhysicalSizes can be set to true and possibly removed as a parameter,
+  // making stripPhysicalSizes the default behavior in ImageWrapper.getData().
+  const stripPhysicalSizes = false;
+
+  const data = image?.image?.instance?.getData(stripPhysicalSizes);
   if (!data) {
     return {
       channelsVisible: null,

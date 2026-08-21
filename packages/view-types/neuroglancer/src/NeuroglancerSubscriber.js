@@ -22,7 +22,7 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
   useGridItemSize,
-} from '@vitessce/vit-s';
+  useMemoCustomComparison } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
   ViewType,
@@ -34,10 +34,7 @@ import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-uti
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import { useNeuroglancerViewerState, pointsHaveMatchingSegmentation } from './data-hook-ng-utils.js';
-import {
-  useMemoCustomComparison,
-  customIsEqualForCellColors,
-} from './use-memo-custom-comparison.js';
+import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import { useStyles } from './styles.js';
 import {
   quaternionToEuler,

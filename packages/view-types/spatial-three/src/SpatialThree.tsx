@@ -374,7 +374,6 @@ export function SpatialThree(props: SpatialThreeProps) {
     }
   }, [segmentationSettings, segmentationGroup]);
 
-
   // 1st Rendering Pass Load the Data in the given resolution OR Resolution Changed
   const dataToCheck = images[layerScope]?.image?.instance?.getData();
   if (
