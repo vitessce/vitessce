@@ -141,6 +141,7 @@ function SegmentationChannelEllipsisMenu(props) {
           <option value="spatialChannelColor">Static Color</option>
           <option value="geneSelection">Feature Value</option>
           <option value="cellSetSelection">Set Selection</option>
+          <option value="obsColors">Per-observation Colors</option>
         </NativeSelect>
       </MenuItem>
       <MenuItem dense disableGutters>
