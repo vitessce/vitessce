@@ -19,9 +19,20 @@ Filtering, selection, and highlighting are controlled by several coordination ty
 - obsSelectionMode: behavior-modifier, whether to use obsSelection versus obsSetSelection for the current selection criteria.
 - obsHighlight: a single observation ID to highlight
 - obsSetHighlight: a single observation set path to highlight
-- featureFilter: a list of filter-included feature IDs
-- featureSelection: a list of selected feature IDs
-- featureHighlight: a single feature ID to highlight
+- featureFilter
+- featureSetFilter
+- featureFilterMode
+- featureSelection
+- featureSetSelection
+- featureSelectionMode
+- featureHighlight
+- sampleFilter
+- sampleSetFilter
+- sampleFilterMode
+- sampleSelection
+- sampleSetSelection
+- sampleSelectionMode
+- sampleHighlight
 
 ## Control views such as the observation set manager view
 
