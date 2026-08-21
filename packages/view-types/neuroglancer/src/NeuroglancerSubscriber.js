@@ -22,7 +22,8 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
   useGridItemSize,
-  useMemoCustomComparison } from '@vitessce/vit-s';
+  useMemoCustomComparison,
+} from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
   ViewType,
@@ -50,8 +51,8 @@ import {
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
-  autoColorForId,
   remapCellColors,
+  autoColorForId,
 } from './utils.js';
 
 
@@ -360,9 +361,18 @@ export function NeuroglancerSubscriber(props) {
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
+        // Prefer obsFeatureMatrix.obsIndex from segmentationMultiIndicesData,
+        // but fall back to obsSets.obsIndex if not available.
         const { obsSets: layerSets, obsIndex: layerIndexFromSets } = obsSegmentationsSetsData
           ?.[layerScope]?.[channelScope] || {};
-        const layerIndex = layerIndexFromSets ?? null;
+        const { obsIndex: layerIndexFromMatrix } = segmentationMultiIndicesData
+          ?.[layerScope]?.[channelScope] || {};
+
+        const layerIndex = layerIndexFromMatrix ?? (layerIndexFromSets ?? null);
+        const idsToColor = layerIndex;
+        const knownIdSet = new Set((layerIndex ?? []).map(String));
+
+        console.log(layerIndex);
         const {
           obsSetColor,
           obsColorEncoding,
@@ -373,46 +383,14 @@ export function NeuroglancerSubscriber(props) {
           featureValueColormap,
           featureValueColormapRange,
         } = segmentationChannelCoordination[0][layerScope][channelScope];
-        // Segments provided directly via options
-        // `options.forceSegments: true` makes `segments` win as the *ID list*
-        // even when obsSets are also present — colors come from options.segmentColors if provided,
-        // otherwise colors for those IDs come from obsSets (cell set membership / expression)
-        const layerNgOptions = obsSegmentationsData?.[layerScope]?.neuroglancerOptions;
-        const configSegments = layerNgOptions?.segments ?? null;
-        const forceSegments = layerNgOptions?.forceSegments ?? false;
-        const configSegmentColors = layerNgOptions?.segmentColors ?? null;
-        // Priority for *which IDs* to show: obsSets (layerIndex) wins by
-        // default; configSegments is used only as a fallback when there is
-        // no layerIndex, unless forceSegments is set, in which case
-        // configSegments always wins as the ID list.
-        const useConfigSegmentIds = Boolean(configSegments?.length)
-          && (forceSegments || !layerIndex);
-        const segmentIds = useConfigSegmentIds ? configSegments : layerIndex;
-        // Applies the explicit segmentColors override (if any) on top of
-        // whatever colors were computed, then commits to `result`.
-        const finalizeChannelColors = (ngCellColors, opacity, defaultColor) => {
-          const merged = (configSegmentColors && useConfigSegmentIds)
-            ? { ...ngCellColors, ...configSegmentColors }
-            : ngCellColors;
-            // Store hex as default even if no layerIndex
-            // so applyColorsAndVisibility knows the intended color
-            // result[layerScope][channelScope] = ngCellColors;
-            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
-          result[layerScope][channelScope] = remapCellColors(merged, cellIdToMeshIdRef);
-          result[layerScope].opacity = opacity ?? 1.0;
-          if (defaultColor !== undefined) {
-            result[layerScope].defaultColor = defaultColor;
-          }
-        };
         if (obsColorEncoding === 'spatialChannelColor') {
-          // All segments get the same static channel color — this encoding
-          // is inherently flat, so segments/forceSegments only affects which
-          // IDs are included, not the (single) color used.
-          if (spatialChannelColor || useConfigSegmentIds) {
-            const hex = spatialChannelColor ? rgbToHex(spatialChannelColor) : autoColorForId(layerScope + channelScope);
+          // All segments get the same static channel color
+          if (spatialChannelColor) {
+            const hex = rgbToHex(spatialChannelColor);
             const ngCellColors = {};
-            if (segmentIds?.length) {
-              if (obsSetSelection?.length > 0 && layerSets) {
+            if (layerIndex) {
+              // Has obs sets — use layerIndex for IDs
+              if (obsSetSelection?.length > 0) {
                 const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
                 const selectedIds = new Set();
                 obsSetSelection.forEach((setPath) => {
@@ -422,26 +400,26 @@ export function NeuroglancerSubscriber(props) {
                     : rootNode;
                   leafNode?.set?.forEach(([id]) => selectedIds.add(String(id)));
                 });
-                // Every ID keeps a color: selected or unknown-to-obsSets gets flat color;
-                // known but deselected gets grey
-                const knownIds = new Set((layerIndex ?? []).map(String));
-                segmentIds.forEach((id) => {
+                layerIndex.forEach((id) => {
                   if (selectedIds.has(String(id))) {
-                    ngCellColors[id] = hex;
-                  } else if (knownIds.has(String(id))) {
-                    ngCellColors[id] = GREY_HEX;
-                  } else {
                     ngCellColors[id] = hex;
                   }
                 });
               } else {
-                // null or empty selection - show ALL segments in segmentIds
-                segmentIds.forEach((id) => {
+                // null or empty selection - show ALL segments
+                layerIndex.forEach((id) => {
                   ngCellColors[id] = hex;
                 });
               }
             }
-            finalizeChannelColors(ngCellColors, spatialChannelOpacity, hex);
+
+            // Store hex as default even if no layerIndex
+            // so applyColorsAndVisibility knows the intended color
+            // result[layerScope][channelScope] = ngCellColors;
+            // TODO: Remove remapping when Meshid/cellID mismatch is fixed
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = hex; // store default color
           }
         } else if (obsColorEncoding === 'geneSelection') {
           // For NG mesh segmentations, obsIndex comes from obsSegmentationsSetsData
@@ -451,10 +429,7 @@ export function NeuroglancerSubscriber(props) {
             ?.[layerScope]?.[channelScope]?.obsIndex;
           const expressionData = segmentationMultiExpressionNormData
             ?.[layerScope]?.[channelScope];
-          // IDs to color: the restricted/forced list if given, otherwise
-          // every ID obsSets knows about (existing default behavior).
-          const idsToColor = segmentIds?.length ? segmentIds : instanceObsIndex;
-          if (instanceObsIndex && matrixObsIndex && expressionData?.[0] && idsToColor) {
+          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
             // matrixObsIndex uses 'MIS_X' format, instanceObsIndex uses 'X'
             // Strip prefix to align the two index spaces
             const matrixIndexMap = new Map(
@@ -464,23 +439,11 @@ export function NeuroglancerSubscriber(props) {
                 return [normalizedKey, i];
               }),
             );
-            // Map each obsSets-known ID directly to its row in the expression matrix.
-            const idToRowIndex = new Map(
-              instanceObsIndex.map(id => [String(id), matrixIndexMap.get(String(id))]),
-            );
+            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(String(key)));
             const [low, high] = featureValueColormapRange ?? [0, 1];
             const ngCellColors = {};
-            idsToColor.forEach((id) => {
-              const rowIndex = idToRowIndex.get(String(id));
-              if (rowIndex === undefined) {
-                // A forced/config segment that obsSets/expression data
-                // doesn't know about — leave uncolored (rather than a flat
-                // filler color) unless segmentColors covers it; NG will
-                // apply its own default per-segment coloring, and the key
-                // stays present so the segment remains visible.
-                ngCellColors[id] = autoColorForId(id);
-                return;
-              }
+            instanceObsIndex.forEach((id, i) => {
+              const rowIndex = toMatrixIndex[i];
               const rawVal = expressionData[0][rowIndex] ?? 0;
               // Uint8Array values are 0-255, already normalized — convert to 0-1
               const t = rawVal / 255;
@@ -490,24 +453,25 @@ export function NeuroglancerSubscriber(props) {
               const color = applyColormap(featureValueColormap ?? 'viridis', tClamped);
               ngCellColors[id] = rgbToHex(color);
             });
-            finalizeChannelColors(ngCellColors, spatialChannelOpacity);
-          } else if (idsToColor) {
-            // No expression data available at all — leave IDs uncolored
-            // (segmentColors, applied in finalizeChannelColors, is the only
-            // explicit override; otherwise NG's own default coloring applies).
+            // TODO: Remove
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+            // result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+          } else if (instanceObsIndex) {
+            // No expression data available — use default color for all segments
+            const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
             const ngCellColors = {};
-            idsToColor.forEach((id) => {
-              ngCellColors[id] = autoColorForId(id);
+            instanceObsIndex.forEach((id) => {
+              ngCellColors[id] = fallbackColor;
             });
-            finalizeChannelColors(ngCellColors, spatialChannelOpacity);
+            // TODO: remove
+            result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+            // result[layerScope][channelScope] = ngCellColors;
+            result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
+            result[layerScope].defaultColor = fallbackColor;
           }
         } else if (layerSets && layerIndex) {
-          // cellSetSelection encoding — color by obs set membership.
-          // Colors are always computed from the full obsSets-derived
-          // layerIndex (so cell-set membership colors are correct), but only
-          // IDs in segmentIds are emitted — this is what lets a forced,
-          // smaller `segments` list still inherit obsSet colors rather than
-          // falling back to a flat color.
+          // cellSetSelection encoding — color by obs set membership
           const mergedCellSets = mergeObsSets(layerSets, additionalObsSets);
           const cellColors = getCellColors({
             cellSets: mergedCellSets,
@@ -516,37 +480,23 @@ export function NeuroglancerSubscriber(props) {
             obsIndex: layerIndex,
             theme,
           });
-          const idsToColor = segmentIds?.length ? segmentIds : layerIndex;
-          // getCellColors only returns entries for the currently *selected*
-          // sets — a deselected obsSets member and an ID obsSets has never
-          // heard of both come back as `cellColors.get(id) === undefined`.
-          // Distinguish them: a deselected (but known) obsSets member
-          // recedes to grey (the lasso-selection), while an ID obsSets
-          // has no record of at all gets an auto-generated color.
-          const knownIds = new Set(layerIndex.map(String));
           const ngCellColors = {};
+          // cellColors is a Map keyed by segment ID
           idsToColor.forEach((id) => {
-            const color = cellColors.get(id);
-            if (color) {
-              ngCellColors[id] = rgbToHex(color);
-            } else if (knownIds.has(String(id))) {
-              // Known to obsSets, just not part of the current selection.
-              ngCellColors[id] = GREY_HEX;
-            } else {
-              // Not part of obsSets at all — auto-color deterministically.
-              ngCellColors[id] = autoColorForId(id);
+            if (knownIdSet.has(String(id))) {
+              const color = cellColors.get(id);
+              if (color) {
+                ngCellColors[id] = rgbToHex(color);
+              } else {
+                // Not part of obsSets at all — auto-color deterministically.
+                ngCellColors[id] = autoColorForId(id);
+              }
             }
           });
-          finalizeChannelColors(ngCellColors, spatialChannelOpacity);
-        } else if (useConfigSegmentIds) {
-          // No obsSets at all (or forceSegments is set) and this channel isn't using
-          // spatialChannelColor/geneSelection encoding. There's no obsSet color data
-          // data to fall back on here, so each Id gets an auto-generated color
-          const ngCellColors = {};
-          segmentIds.forEach((id) => {
-            ngCellColors[id] = autoColorForId(id);
-          });
-          finalizeChannelColors(ngCellColors, spatialChannelOpacity);
+          // TODO: remove
+          result[layerScope][channelScope] = remapCellColors(ngCellColors, cellIdToMeshIdRef);
+          // result[layerScope][channelScope] = ngCellColors;
+          result[layerScope].opacity = spatialChannelOpacity ?? 1.0;
         }
       });
     });
@@ -557,7 +507,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
     obsSegmentationsSetsData,
-    obsSegmentationsData,
     segmentationChannelCoordination,
     theme,
     segmentationMultiExpressionNormData,
