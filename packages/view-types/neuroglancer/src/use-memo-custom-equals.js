@@ -50,6 +50,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
           curriedShallowDiffByChannelWithKeys('obsSegmentationsSetsData', layerScope, channelScope, [
             'obsSets', 'obsIndex',
           ])
+            || curriedShallowDiffByLayer('obsSegmentationsData', layerScope)
             || curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
               'obsSetColor',
               'obsColorEncoding',
