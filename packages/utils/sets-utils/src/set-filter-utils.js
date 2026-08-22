@@ -119,6 +119,30 @@ function siblingPathsAlongDescent(mergedSets, ancestorPath, targetPath) {
 }
 
 /**
+ * Determine the paths of the sets which share a parent with the target set,
+ * i.e. the sets which sit at the same level of the same part of the hierarchy.
+ * The target set's own path is included in the result. Level-zero nodes
+ * (hierarchies) are treated as siblings of each other.
+ * @param {object} mergedSets A merged sets tree object.
+ * @param {string[]} targetPath The path of the set in question.
+ * @returns {string[][]} Array of set paths, empty if they cannot be determined.
+ */
+export function getSiblingPaths(mergedSets, targetPath) {
+  if (!mergedSets?.tree || !Array.isArray(targetPath) || targetPath.length === 0) {
+    return [];
+  }
+  if (targetPath.length === 1) {
+    return mergedSets.tree.map(lzn => [lzn.name]);
+  }
+  const parentPath = targetPath.slice(0, -1);
+  const parentNode = treeFindNodeByNamePath(mergedSets, parentPath);
+  if (!parentNode?.children) {
+    return [];
+  }
+  return parentNode.children.map(child => [...parentPath, child.name]);
+}
+
+/**
  * Add a set (and its descendants) to the set-level filtering criteria.
  * @param {object} mergedSets A merged sets tree object.
  * @param {string[][]|null} filterPaths Value of obsSetFilter or sampleSetFilter.

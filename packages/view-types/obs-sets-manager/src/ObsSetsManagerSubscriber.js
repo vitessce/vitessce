@@ -37,7 +37,7 @@ import {
   PATH_SEP,
 
   isPathFilterIncluded,
-  normalizeFilterPaths,
+  getSiblingPaths,
   addPathToFilter,
   removePathFromFilter,
   restrictSelectionToFilter,
@@ -183,29 +183,15 @@ export function ObsSetsManagerSubscriber(props) {
 
   // Callback functions
 
-  // The user wants to select all nodes at a particular hierarchy level.
+  // The user wants to filter-include and select all nodes at a particular hierarchy level.
   const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
     const lzn = mergedObsSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
       const levelPaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-      // A set which does not meet the filtering criteria cannot be selected,
-      // so the sets at this level which are (even partially) filtered out
-      // are left out of the new selection.
       const newObsSetSelection = levelPaths.filter(
         levelPath => isPathFilterIncluded(obsSetFilter, levelPath),
       );
-      // Re-express the filtering criteria at this level, so that the sets
-      // which become selected are exactly the sets which are included.
-      // The criteria of the other hierarchies are left untouched, since a
-      // hierarchy which is left out of the filter entirely would be excluded.
-      const otherHierarchyPaths = (Array.isArray(obsSetFilter)
-        ? obsSetFilter.filter(d => d[0] !== levelZeroName)
-        // A null filter includes every set, so materialize that implicit
-        // "everything" as one path per remaining hierarchy.
-        : mergedObsSets.tree.filter(n => n.name !== levelZeroName).map(n => [n.name]));
-      setObsSetFilter(normalizeFilterPaths(
-        mergedObsSets, [...otherHierarchyPaths, ...newObsSetSelection],
-      ));
+      setObsSetFilter(newObsSetSelection);
       setObsSetSelection(newObsSetSelection);
       setObsSetColorEncoding();
     }
@@ -225,25 +211,38 @@ export function ObsSetsManagerSubscriber(props) {
       if (!isPathFilterIncluded(obsSetFilter, targetPath)) {
         return;
       }
+      // A null selection already includes every set which meets
+      // the filtering criteria.
+      if (!Array.isArray(obsSetSelection)) {
+        return;
+      }
       setObsSetSelection([...obsSetSelection, targetPath]);
     } else {
-      setObsSetSelection(obsSetSelection.filter(d => !isEqual(d, targetPath)));
+      const prevObsSetSelection = (Array.isArray(obsSetSelection)
+        ? obsSetSelection
+        // A null selection means that every set which meets the filtering
+        // criteria is selected. Materialize that as the target's sibling sets,
+        // so that un-checking one of them leaves the others selected.
+        : getSiblingPaths(mergedObsSets, targetPath).filter(
+          d => isPathFilterIncluded(obsSetFilter, d),
+        ));
+      setObsSetSelection(prevObsSetSelection.filter(d => !isEqual(d, targetPath)));
     }
     setObsSetColorEncoding();
-  }, [obsSetFilter, obsSetSelection, setObsSetColorEncoding, setObsSetSelection]);
+  }, [mergedObsSets, obsSetFilter, obsSetSelection,
+    setObsSetColorEncoding, setObsSetSelection,
+  ]);
 
-  // The user wants to include or exclude a cell set node
-  // in/from the current filtering criteria.
-  const onFilterNode = useCallback((targetPath, filtered) => {
-    const nextObsSetFilter = (filtered
-      ? addPathToFilter(mergedObsSets, obsSetFilter, targetPath)
-      : removePathFromFilter(mergedObsSets, obsSetFilter, targetPath)
-    );
+  // A helper function for applying new set-level filtering criteria.
+  // Pass nextObsSetSelectionOverride to replace the selection outright,
+  // rather than only dropping the sets which are no longer included.
+  const applyObsSetFilter = useCallback((nextObsSetFilter, nextObsSetSelectionOverride) => {
     setObsSetFilter(nextObsSetFilter);
     // Any set which no longer meets the filtering criteria must also be
     // un-selected, to uphold the invariant that the selection is not
     // a superset of the filter.
-    const nextObsSetSelection = restrictSelectionToFilter(nextObsSetFilter, obsSetSelection);
+    const nextObsSetSelection = nextObsSetSelectionOverride
+      ?? restrictSelectionToFilter(nextObsSetFilter, obsSetSelection);
     if (nextObsSetSelection !== obsSetSelection) {
       setObsSetSelection(nextObsSetSelection);
     }
@@ -252,9 +251,59 @@ export function ObsSetsManagerSubscriber(props) {
     if (obsFilterMode === 'obsFilter') {
       setObsFilterMode('obsSetFilter');
     }
-  }, [mergedObsSets, obsFilterMode, obsSetFilter, obsSetSelection,
-    setObsFilterMode, setObsSetFilter, setObsSetSelection,
+  }, [obsFilterMode, obsSetSelection, setObsFilterMode, setObsSetFilter,
+    setObsSetSelection,
   ]);
+
+  // The user wants to include or exclude a cell set node
+  // in/from the current filtering criteria.
+  const onFilterNode = useCallback((targetPath, filtered) => {
+    applyObsSetFilter(filtered
+      ? addPathToFilter(mergedObsSets, obsSetFilter, targetPath)
+      : removePathFromFilter(mergedObsSets, obsSetFilter, targetPath));
+  }, [mergedObsSets, obsSetFilter, applyObsSetFilter]);
+
+  // The user wants to narrow the filtering criteria down to a single cell set,
+  // excluding every other set (in every hierarchy).
+  const onFilterToOnlyNode = useCallback((targetPath) => {
+    // This set becomes the only one which is included, so it is also the only
+    // one which can be selected. A null selection already means exactly that,
+    // so it is left as-is rather than being materialized.
+    applyObsSetFilter(
+      [targetPath],
+      Array.isArray(obsSetSelection) ? [targetPath] : undefined,
+    );
+  }, [obsSetSelection, applyObsSetFilter]);
+
+  // The user wants to exclude a cell set node from the filtering criteria,
+  // narrowing those criteria down to the set's immediate siblings.
+  const onFilterToOthersInSiblings = useCallback((targetPath) => {
+    const siblingPaths = getSiblingPaths(mergedObsSets, targetPath);
+    applyObsSetFilter(siblingPaths.filter(d => !isEqual(d, targetPath)));
+  }, [mergedObsSets, applyObsSetFilter]);
+
+  // The user wants to exclude a cell set node from the filtering criteria,
+  // narrowing those criteria down to the rest of the set's hierarchy.
+  const onFilterToOthersInGroup = useCallback((targetPath) => {
+    // Removing the set from a filter of "the whole hierarchy" yields the
+    // sibling sets at every level on the way down to the set.
+    applyObsSetFilter(removePathFromFilter(
+      mergedObsSets, [[targetPath[0]]], targetPath,
+    ));
+  }, [mergedObsSets, applyObsSetFilter]);
+
+  // The user wants to select every set which meets the filtering criteria
+  // except for one. The filtering criteria themselves are left alone.
+  const onSelectComplement = useCallback((targetPath) => {
+    // Sets of other hierarchies are left out, since hierarchies overlap with
+    // each other: an observation belongs to one set per hierarchy, so a
+    // selection which spanned hierarchies would be ambiguous.
+    const includedPaths = (Array.isArray(obsSetFilter)
+      ? obsSetFilter.filter(d => d[0] === targetPath[0])
+      : [[targetPath[0]]]);
+    setObsSetSelection(removePathFromFilter(mergedObsSets, includedPaths, targetPath));
+    setObsSetColorEncoding();
+  }, [mergedObsSets, obsSetFilter, setObsSetSelection, setObsSetColorEncoding]);
 
   // The user wants to expand or collapse a node in the tree.
   const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
@@ -499,7 +548,9 @@ export function ObsSetsManagerSubscriber(props) {
       path: tryRenamePath(targetPath, d.path, nextNamePath),
       color: d.color,
     }));
-    const nextObsSetSelection = obsSetSelection.map(d => (
+    // A null selection or filter is not expressed in terms of paths,
+    // so there is nothing to rename.
+    const nextObsSetSelection = obsSetSelection?.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
     const nextObsSetFilter = obsSetFilter?.map(d => (
@@ -511,7 +562,9 @@ export function ObsSetsManagerSubscriber(props) {
     // Need to update the node path everywhere it may be present.
     setAdditionalObsSets(nextAdditionalObsSets);
     setObsSetColor(nextObsSetColor);
-    setObsSetSelection(nextObsSetSelection);
+    if (nextObsSetSelection) {
+      setObsSetSelection(nextObsSetSelection);
+    }
     if (nextObsSetFilter) {
       setObsSetFilter(nextObsSetFilter);
     }
@@ -550,12 +603,16 @@ export function ObsSetsManagerSubscriber(props) {
     // Delete state for all paths that have this node
     // path as a prefix (i.e. delete all descendents).
     const nextObsSetColor = obsSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
-    const nextObsSetSelection = obsSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
+    // A null selection or filter is not expressed in terms of paths,
+    // so there is nothing to delete.
+    const nextObsSetSelection = obsSetSelection?.filter(d => !isEqualOrPrefix(targetPath, d));
     const nextObsSetFilter = obsSetFilter?.filter(d => !isEqualOrPrefix(targetPath, d));
     const nextObsSetExpansion = prevObsSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
     setAdditionalObsSets(nextAdditionalObsSets);
     setObsSetColor(nextObsSetColor);
-    setObsSetSelection(nextObsSetSelection);
+    if (nextObsSetSelection) {
+      setObsSetSelection(nextObsSetSelection);
+    }
     if (nextObsSetFilter) {
       setObsSetFilter(nextObsSetFilter);
     }
@@ -739,6 +796,10 @@ export function ObsSetsManagerSubscriber(props) {
       onError={setWarning}
       onCheckNode={onCheckNode}
       onFilterNode={onFilterNode}
+      onFilterToOnlyNode={onFilterToOnlyNode}
+      onFilterToOthersInSiblings={onFilterToOthersInSiblings}
+      onFilterToOthersInGroup={onFilterToOthersInGroup}
+      onSelectComplement={onSelectComplement}
       onExpandNode={onExpandNode}
       onDropNode={onDropNode}
       onCheckLevel={onCheckLevel}
@@ -764,7 +825,9 @@ export function ObsSetsManagerSubscriber(props) {
     obsSetFilter, obsFilterMode,
     cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
-    onExportSetJSON, onFilterNode, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove,
+    onExportSetJSON, onFilterNode, onFilterToOnlyNode, onFilterToOthersInSiblings,
+    onFilterToOthersInGroup, onSelectComplement,
+    onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove,
     onNodeSetColor, onNodeSetName, onNodeView, onUnion, setWarning, theme,
   ]);
 

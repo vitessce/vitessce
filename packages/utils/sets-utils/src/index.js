@@ -36,6 +36,7 @@ export {
   isPathFilterIncluded,
   isPathFilterPartiallyIncluded,
   normalizeFilterPaths,
+  getSiblingPaths,
   addPathToFilter,
   removePathFromFilter,
   restrictSelectionToFilter,

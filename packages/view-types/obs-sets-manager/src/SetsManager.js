@@ -47,6 +47,30 @@ function getAllKeys(node, path = []) {
 }
 
 /**
+ * Collect the keys of every node in a sets tree whose set meets the current
+ * filtering criteria. Used when the selection is null, since a null selection
+ * means that every set which meets the filtering criteria is selected.
+ * @param {object} sets A sets tree object.
+ * @param {string[][]|null} setFilter The paths of the sets which meet the
+ * current filtering criteria.
+ * @returns {string[]} Array of node keys.
+ */
+function getFilterIncludedKeys(sets, setFilter) {
+  const result = [];
+  function visitNode(node, prevPath) {
+    const nodePath = [...prevPath, node.name];
+    if (isPathFilterIncluded(setFilter, nodePath)) {
+      result.push(pathToKey(nodePath));
+    }
+    // A node which is included also has all of its descendants included,
+    // but an excluded node may still have included descendants.
+    node.children?.forEach(child => visitNode(child, nodePath));
+  }
+  sets?.tree?.forEach(lzn => visitNode(lzn, []));
+  return result;
+}
+
+/**
  * A generic hierarchical set manager component.
  * @prop {object} tree An object representing set hierarchies.
  * @prop {string} datatype The data type for sets (e.g. "cell")
@@ -73,6 +97,14 @@ function getAllKeys(node, path = []) {
  * @prop {function} onCheckNode Function to call when a single node has been checked or un-checked.
  * @prop {function} onFilterNode Function to call when a single node has been included in or
  * excluded from the filtering criteria.
+ * @prop {function} onFilterToOnlyNode Function to call to narrow the filtering criteria down
+ * to a single node.
+ * @prop {function} onFilterToOthersInSiblings Function to call to narrow the filtering criteria
+ * down to a node's immediate siblings.
+ * @prop {function} onFilterToOthersInGroup Function to call to narrow the filtering criteria
+ * down to the rest of a node's hierarchy.
+ * @prop {function} onSelectComplement Function to call to select every filter-included node
+ * except one.
  * @prop {function} onExpandNode Function to call when a node has been expanded.
  * @prop {function} onDropNode Function to call when a node has been dragged-and-dropped.
  * @prop {function} onCheckLevel Function to call when an entire hierarchy level has been selected,
@@ -125,6 +157,10 @@ export default function SetsManager(props) {
     onError,
     onCheckNode,
     onFilterNode,
+    onFilterToOnlyNode,
+    onFilterToOthersInSiblings,
+    onFilterToOthersInGroup,
+    onSelectComplement,
     onExpandNode,
     onDropNode,
     onCheckLevel,
@@ -163,7 +199,18 @@ export default function SetsManager(props) {
     : []
   );
 
-  const allSetSelectionKeys = (setSelection || []).map(pathToKey);
+  // A null selection means that every set which meets the filtering criteria
+  // is selected, so in that case the checked state is derived from the trees
+  // rather than from an explicit list of paths. An empty array, on the other
+  // hand, means that nothing is selected.
+  const allSetSelectionKeys = useMemo(() => (
+    Array.isArray(setSelection)
+      ? setSelection.map(pathToKey)
+      : [
+        ...getFilterIncludedKeys(processedSets, setFilter),
+        ...getFilterIncludedKeys(processedAdditionalSets, setFilter),
+      ]
+  ), [setSelection, setFilter, processedSets, processedAdditionalSets]);
   const allSetExpansionKeys = (setExpansion || []).map(pathToKey);
 
   const setSelectionKeys = allSetSelectionKeys.filter(k => !additionalSetKeys.includes(k));
@@ -216,6 +263,10 @@ export default function SetsManager(props) {
 
           onCheckNode={onCheckNode}
           onFilterNode={onFilterNode}
+          onFilterToOnlyNode={onFilterToOnlyNode}
+          onFilterToOthersInSiblings={onFilterToOthersInSiblings}
+          onFilterToOthersInGroup={onFilterToOthersInGroup}
+          onSelectComplement={onSelectComplement}
           onCheckLevel={onCheckLevel}
           onNodeView={onNodeView}
           onNodeSetColor={onNodeSetColor}

@@ -24,6 +24,10 @@ function makeNodeViewMenuConfig(props) {
     height,
     onCheckNode,
     onFilterNode,
+    onFilterToOnlyNode,
+    onFilterToOthersInSiblings,
+    onFilterToOthersInGroup,
+    onSelectComplement,
     onNodeRemove,
     onNodeSetIsEditing,
     onExportLevelZeroNodeJSON,
@@ -42,6 +46,41 @@ function makeNodeViewMenuConfig(props) {
         title: (isFilterIncluded ? 'Exclude from filter' : 'Include in filter'),
         handler: () => { onFilterNode(path, !isFilterIncluded); },
         handlerKey: 'f',
+      },
+    ] : []),
+    ...(onFilterToOnlyNode ? [
+      {
+        title: 'Filter to only this',
+        subtitle: (level === 0 ? '(hierarchy)' : '(set)'),
+        handler: () => { onFilterToOnlyNode(path); },
+        handlerKey: 'o',
+      },
+    ] : []),
+    // "All others" is only meaningful relative to a scope. A level-one node's
+    // immediate siblings are its whole group of sets, so the two scopes
+    // coincide there and only the sibling-scoped option is offered.
+    ...(onFilterToOthersInSiblings && level > 0 ? [
+      {
+        title: 'Filter to all others',
+        subtitle: '(within immediate siblings)',
+        handler: () => { onFilterToOthersInSiblings(path); },
+        handlerKey: 'a',
+      },
+    ] : []),
+    ...(onFilterToOthersInGroup && level > 1 ? [
+      {
+        title: 'Filter to all others',
+        subtitle: '(within this group of sets)',
+        handler: () => { onFilterToOthersInGroup(path); },
+        handlerKey: 'g',
+      },
+    ] : []),
+    ...(onSelectComplement && level > 0 ? [
+      {
+        title: 'Select complement',
+        subtitle: '(within filter-included sets)',
+        handler: () => { onSelectComplement(path); },
+        handlerKey: 'c',
       },
     ] : []),
     ...(editable ? [

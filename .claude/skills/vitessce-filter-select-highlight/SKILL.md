@@ -35,7 +35,7 @@ Filtering, selection, and highlighting are controlled by several coordination ty
 - sampleHighlight
 
 
-When filtering or selection is `null`, this means that all data items (or sets of data items) should be included/selected. The empty array means that nothing should be included/selected. When highlight is `null`, this means that nothing is currently highlighted.
+When filtering is `null`, this means that all data items (or sets of data items, among the first group of sets) are included. When selection is `null`, this means that all data items (or sets of data items) that meet the filtering criteria are selected. An explicit empty array means that nothing should be included/selected. When highlight is `null`, this means that nothing is currently highlighted.
 
 ## Control views such as the observation set manager view
 

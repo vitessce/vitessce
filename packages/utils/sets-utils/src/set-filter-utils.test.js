@@ -3,6 +3,7 @@ import {
   isPathFilterIncluded,
   isPathFilterPartiallyIncluded,
   normalizeFilterPaths,
+  getSiblingPaths,
   addPathToFilter,
   removePathFromFilter,
   restrictSelectionToFilter,
@@ -112,6 +113,27 @@ describe('Tests for normalizeFilterPaths', () => {
   it('returns the paths as-is when the tree is unavailable', () => {
     const filterPaths = [['Cell Type Annotations', 'Immune']];
     expect(normalizeFilterPaths(null, filterPaths)).toEqual(filterPaths);
+  });
+});
+
+describe('Tests for getSiblingPaths', () => {
+  it('returns the level-zero paths for a level-zero node', () => {
+    expect(getSiblingPaths(TREE, ['Cell Type Annotations'])).toEqual([
+      ['Cell Type Annotations'],
+      ['Louvain Clustering'],
+    ]);
+  });
+
+  it('returns the parent\'s children, including the target', () => {
+    expect(getSiblingPaths(TREE, ['Cell Type Annotations', 'Vasculature', 'Pericytes'])).toEqual([
+      ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+      ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+    ]);
+  });
+
+  it('returns an empty array when the parent cannot be resolved', () => {
+    expect(getSiblingPaths(TREE, ['Nonexistent', 'Child'])).toEqual([]);
+    expect(getSiblingPaths(null, ['Cell Type Annotations'])).toEqual([]);
   });
 });
 
