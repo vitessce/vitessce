@@ -37,6 +37,7 @@ import {
   PATH_SEP,
 
   isPathFilterIncluded,
+  normalizeFilterPaths,
   addPathToFilter,
   removePathFromFilter,
   restrictSelectionToFilter,
@@ -154,6 +155,16 @@ export function ObsSetsManagerSubscriber(props) {
     setObsColorEncoding('cellSetSelection');
   }, [setObsColorEncoding]);
 
+  // A helper function for adding newly-created or newly-imported sets to the
+  // filtering criteria. Such a set cannot be covered by an existing filter,
+  // so it would otherwise appear as excluded (and therefore be un-selectable)
+  // as soon as it is created. A null filter already includes every set.
+  const includePathsInFilter = useCallback((newPaths) => {
+    if (Array.isArray(obsSetFilter) && newPaths.length > 0) {
+      setObsSetFilter([...obsSetFilter, ...newPaths]);
+    }
+  }, [obsSetFilter, setObsSetFilter]);
+
   // Merged cell sets are only to be used for convenience when reading
   // (if writing: update either `cellSets` _or_ `additionalObsSets`).
   const mergedObsSets = useMemo(
@@ -183,10 +194,24 @@ export function ObsSetsManagerSubscriber(props) {
       const newObsSetSelection = levelPaths.filter(
         levelPath => isPathFilterIncluded(obsSetFilter, levelPath),
       );
+      // Re-express the filtering criteria at this level, so that the sets
+      // which become selected are exactly the sets which are included.
+      // The criteria of the other hierarchies are left untouched, since a
+      // hierarchy which is left out of the filter entirely would be excluded.
+      const otherHierarchyPaths = (Array.isArray(obsSetFilter)
+        ? obsSetFilter.filter(d => d[0] !== levelZeroName)
+        // A null filter includes every set, so materialize that implicit
+        // "everything" as one path per remaining hierarchy.
+        : mergedObsSets.tree.filter(n => n.name !== levelZeroName).map(n => [n.name]));
+      setObsSetFilter(normalizeFilterPaths(
+        mergedObsSets, [...otherHierarchyPaths, ...newObsSetSelection],
+      ));
       setObsSetSelection(newObsSetSelection);
       setObsSetColorEncoding();
     }
-  }, [mergedObsSets, obsSetFilter, setObsSetColorEncoding, setObsSetSelection]);
+  }, [mergedObsSets, obsSetFilter, setObsSetColorEncoding, setObsSetSelection,
+    setObsSetFilter,
+  ]);
 
   // The user wants to check or uncheck a cell set node.
   const onCheckNode = useCallback((targetKey, checked) => {
@@ -394,12 +419,19 @@ export function ObsSetsManagerSubscriber(props) {
     newObsSetColor.push(...newColors);
     setObsSetColor(newObsSetColor);
     // The filter may also reference the dragged node or one of its descendants.
-    const nextObsSetFilter = obsSetFilter?.map(
-      path => (isEqualOrPrefix(dragPath, path)
-        ? [...newDragPath, ...path.slice(dragPath.length)]
-        : path),
-    );
-    if (nextObsSetFilter) {
+    if (Array.isArray(obsSetFilter)) {
+      const nextObsSetFilter = obsSetFilter.map(
+        path => (isEqualOrPrefix(dragPath, path)
+          ? [...newDragPath, ...path.slice(dragPath.length)]
+          : path),
+      );
+      // Moving a node should not change whether it meets the filtering
+      // criteria, but it may have been included only by way of its previous
+      // parent, in which case the moved node needs its own filter path.
+      if (isPathFilterIncluded(obsSetFilter, dragPath)
+        && !isPathFilterIncluded(nextObsSetFilter, newDragPath)) {
+        nextObsSetFilter.push(newDragPath);
+      }
       setObsSetFilter(nextObsSetFilter);
       // The dragged node was selected above, so drop it from the selection
       // again if it does not meet the filtering criteria.
@@ -577,49 +609,58 @@ export function ObsSetsManagerSubscriber(props) {
         },
       ],
     });
-  }, [additionalObsSets, setAdditionalObsSets]);
+    includePathsInFilter([[nextName]]);
+  }, [additionalObsSets, setAdditionalObsSets, includePathsInFilter]);
 
   // The user wants to create a new node corresponding to
   // the union of the selected sets.
   const onUnion = useCallback(() => {
     const newSet = treeToUnion(mergedObsSets, obsSetSelection);
-    setObsSelection(
+    const newPath = setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
       setObsColorEncoding,
       'Union ',
     );
+    // setObsSelection also selects the new set, so it must be included.
+    includePathsInFilter([newPath]);
   }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
     setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+    includePathsInFilter,
   ]);
 
   // The user wants to create a new node corresponding to
   // the intersection of the selected sets.
   const onIntersection = useCallback(() => {
     const newSet = treeToIntersection(mergedObsSets, obsSetSelection);
-    setObsSelection(
+    const newPath = setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
       setObsColorEncoding,
       'Intersection ',
     );
+    // setObsSelection also selects the new set, so it must be included.
+    includePathsInFilter([newPath]);
   }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
     setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+    includePathsInFilter,
   ]);
 
   // The user wants to create a new node corresponding to
   // the complement of the selected sets.
   const onComplement = useCallback(() => {
     const newSet = treeToComplement(mergedObsSets, obsSetSelection, allCellIds);
-    setObsSelection(
+    const newPath = setObsSelection(
       newSet, additionalObsSets, obsSetColor,
       setObsSetSelection, setAdditionalObsSets, setObsSetColor,
       setObsColorEncoding,
       'Complement ',
     );
+    // setObsSelection also selects the new set, so it must be included.
+    includePathsInFilter([newPath]);
   }, [additionalObsSets, allCellIds, obsSetColor, obsSetSelection,
     mergedObsSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
-    setObsSetSelection,
+    setObsSetSelection, includePathsInFilter,
   ]);
 
   // The user wants to import a cell set hierarchy,
@@ -642,9 +683,12 @@ export function ObsSetsManagerSubscriber(props) {
         ...obsSetColor,
         ...importAutoSetColors,
       ]);
+      // Imported hierarchies are included in the filtering criteria,
+      // rather than arriving in an excluded state.
+      includePathsInFilter(treeToImport.tree.map(lzn => [lzn.name]));
     }
   }, [additionalObsSets, obsSetColor, mergedObsSets, setAdditionalObsSets,
-    setObsSetColor,
+    setObsSetColor, includePathsInFilter,
   ]);
 
   // The user wants to download a particular hierarchy to a JSON file.
