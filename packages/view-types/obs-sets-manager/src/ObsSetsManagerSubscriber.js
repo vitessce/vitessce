@@ -36,6 +36,11 @@ import {
   tryRenamePath,
   PATH_SEP,
 
+  isPathFilterIncluded,
+  addPathToFilter,
+  removePathFromFilter,
+  restrictSelectionToFilter,
+
   downloadForUser,
   handleExportJSON,
   handleExportTabular,
@@ -87,12 +92,16 @@ export function ObsSetsManagerSubscriber(props) {
     dataset,
     obsType,
     obsSetSelection,
+    obsSetFilter,
+    obsFilterMode,
     obsSetExpansion,
     obsSetColor,
     additionalObsSets,
     obsColorEncoding,
   }, {
     setObsSetSelection,
+    setObsSetFilter,
+    setObsFilterMode,
     setObsColorEncoding,
     setObsSetColor,
     setObsSetExpansion,
@@ -167,11 +176,17 @@ export function ObsSetsManagerSubscriber(props) {
   const onCheckLevel = useCallback((levelZeroName, levelIndex) => {
     const lzn = mergedObsSets.tree.find(n => n.name === levelZeroName);
     if (lzn) {
-      const newObsSetSelection = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+      const levelPaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
+      // A set which does not meet the filtering criteria cannot be selected,
+      // so the sets at this level which are (even partially) filtered out
+      // are left out of the new selection.
+      const newObsSetSelection = levelPaths.filter(
+        levelPath => isPathFilterIncluded(obsSetFilter, levelPath),
+      );
       setObsSetSelection(newObsSetSelection);
       setObsSetColorEncoding();
     }
-  }, [mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
+  }, [mergedObsSets, obsSetFilter, setObsSetColorEncoding, setObsSetSelection]);
 
   // The user wants to check or uncheck a cell set node.
   const onCheckNode = useCallback((targetKey, checked) => {
@@ -180,12 +195,41 @@ export function ObsSetsManagerSubscriber(props) {
       return;
     }
     if (checked) {
+      // Sets which do not meet the filtering criteria cannot be selected,
+      // since the selection must not be a superset of the filter.
+      if (!isPathFilterIncluded(obsSetFilter, targetPath)) {
+        return;
+      }
       setObsSetSelection([...obsSetSelection, targetPath]);
     } else {
       setObsSetSelection(obsSetSelection.filter(d => !isEqual(d, targetPath)));
     }
     setObsSetColorEncoding();
-  }, [obsSetSelection, setObsSetColorEncoding, setObsSetSelection]);
+  }, [obsSetFilter, obsSetSelection, setObsSetColorEncoding, setObsSetSelection]);
+
+  // The user wants to include or exclude a cell set node
+  // in/from the current filtering criteria.
+  const onFilterNode = useCallback((targetPath, filtered) => {
+    const nextObsSetFilter = (filtered
+      ? addPathToFilter(mergedObsSets, obsSetFilter, targetPath)
+      : removePathFromFilter(mergedObsSets, obsSetFilter, targetPath)
+    );
+    setObsSetFilter(nextObsSetFilter);
+    // Any set which no longer meets the filtering criteria must also be
+    // un-selected, to uphold the invariant that the selection is not
+    // a superset of the filter.
+    const nextObsSetSelection = restrictSelectionToFilter(nextObsSetFilter, obsSetSelection);
+    if (nextObsSetSelection !== obsSetSelection) {
+      setObsSetSelection(nextObsSetSelection);
+    }
+    // The set-level filter is ignored while the observation-level filter is
+    // the active criteria, so switch modes to make this change take effect.
+    if (obsFilterMode === 'obsFilter') {
+      setObsFilterMode('obsSetFilter');
+    }
+  }, [mergedObsSets, obsFilterMode, obsSetFilter, obsSetSelection,
+    setObsFilterMode, setObsSetFilter, setObsSetSelection,
+  ]);
 
   // The user wants to expand or collapse a node in the tree.
   const onExpandNode = useCallback((expandedKeys, targetKey, expanded) => {
@@ -349,8 +393,20 @@ export function ObsSetsManagerSubscriber(props) {
     );
     newObsSetColor.push(...newColors);
     setObsSetColor(newObsSetColor);
-  }, [additionalObsSets, obsSetColor, setAdditionalObsSets, setObsSetColor,
-    setObsSetSelection,
+    // The filter may also reference the dragged node or one of its descendants.
+    const nextObsSetFilter = obsSetFilter?.map(
+      path => (isEqualOrPrefix(dragPath, path)
+        ? [...newDragPath, ...path.slice(dragPath.length)]
+        : path),
+    );
+    if (nextObsSetFilter) {
+      setObsSetFilter(nextObsSetFilter);
+      // The dragged node was selected above, so drop it from the selection
+      // again if it does not meet the filtering criteria.
+      setObsSetSelection(restrictSelectionToFilter(nextObsSetFilter, [newDragPath]));
+    }
+  }, [additionalObsSets, obsSetColor, obsSetFilter, setAdditionalObsSets, setObsSetColor,
+    setObsSetFilter, setObsSetSelection,
   ]);
 
   // The user wants to change the color of a cell set node.
@@ -414,6 +470,9 @@ export function ObsSetsManagerSubscriber(props) {
     const nextObsSetSelection = obsSetSelection.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
+    const nextObsSetFilter = obsSetFilter?.map(d => (
+      tryRenamePath(targetPath, d, nextNamePath)
+    ));
     const nextObsSetExpansion = prevObsSetExpansion.map(d => (
       tryRenamePath(targetPath, d, nextNamePath)
     ));
@@ -421,9 +480,12 @@ export function ObsSetsManagerSubscriber(props) {
     setAdditionalObsSets(nextAdditionalObsSets);
     setObsSetColor(nextObsSetColor);
     setObsSetSelection(nextObsSetSelection);
+    if (nextObsSetFilter) {
+      setObsSetFilter(nextObsSetFilter);
+    }
     setObsSetExpansion(nextObsSetExpansion);
-  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection,
-    setAdditionalObsSets, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection, obsSetFilter,
+    setAdditionalObsSets, setObsSetColor, setObsSetSelection, setObsSetFilter,
     setObsSetExpansion,
   ]);
 
@@ -457,13 +519,17 @@ export function ObsSetsManagerSubscriber(props) {
     // path as a prefix (i.e. delete all descendents).
     const nextObsSetColor = obsSetColor.filter(d => !isEqualOrPrefix(targetPath, d.path));
     const nextObsSetSelection = obsSetSelection.filter(d => !isEqualOrPrefix(targetPath, d));
+    const nextObsSetFilter = obsSetFilter?.filter(d => !isEqualOrPrefix(targetPath, d));
     const nextObsSetExpansion = prevObsSetExpansion.filter(d => !isEqualOrPrefix(targetPath, d));
     setAdditionalObsSets(nextAdditionalObsSets);
     setObsSetColor(nextObsSetColor);
     setObsSetSelection(nextObsSetSelection);
+    if (nextObsSetFilter) {
+      setObsSetFilter(nextObsSetFilter);
+    }
     setObsSetExpansion(nextObsSetExpansion);
-  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection,
-    setAdditionalObsSets, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetColor, obsSetExpansion, obsSetSelection, obsSetFilter,
+    setAdditionalObsSets, setObsSetColor, setObsSetSelection, setObsSetFilter,
     setObsSetExpansion,
   ]);
 
@@ -475,15 +541,18 @@ export function ObsSetsManagerSubscriber(props) {
     const setsToView = [];
     // Recursively determine which descendent nodes are currently expanded.
     function viewNode(node, nodePath) {
-      if (obsSetExpansion?.find(expandedPath => isEqual(nodePath, expandedPath))) {
-        if (node.children) {
-          node.children.forEach((c) => {
-            viewNode(c, [...nodePath, c.name]);
-          });
-        } else {
-          setsToView.push(nodePath);
-        }
-      } else {
+      const isExpanded = Boolean(
+        obsSetExpansion?.find(expandedPath => isEqual(nodePath, expandedPath)),
+      );
+      const isIncluded = isPathFilterIncluded(obsSetFilter, nodePath);
+      // Descend either because the node is expanded, or because only part of
+      // its subtree meets the filtering criteria, in which case the node
+      // itself cannot be selected but some of its descendants can.
+      if (node.children && (isExpanded || !isIncluded)) {
+        node.children.forEach((c) => {
+          viewNode(c, [...nodePath, c.name]);
+        });
+      } else if (isIncluded) {
         setsToView.push(nodePath);
       }
     }
@@ -491,7 +560,9 @@ export function ObsSetsManagerSubscriber(props) {
     viewNode(targetNode, targetPath);
     setObsSetSelection(setsToView);
     setObsSetColorEncoding();
-  }, [obsSetExpansion, mergedObsSets, setObsSetColorEncoding, setObsSetSelection]);
+  }, [obsSetExpansion, obsSetFilter, mergedObsSets,
+    setObsSetColorEncoding, setObsSetSelection,
+  ]);
 
   // The user wants to create a new level zero node.
   const onCreateLevelZeroNode = useCallback(() => {
@@ -615,12 +686,15 @@ export function ObsSetsManagerSubscriber(props) {
       additionalSets={additionalObsSets}
       levelSelection={checkedLevel}
       setSelection={obsSetSelection}
+      setFilter={obsSetFilter}
+      isSetFilterActive={obsFilterMode !== 'obsFilter'}
       setExpansion={obsSetExpansion}
       hasColorEncoding={obsColorEncoding === 'cellSetSelection'}
       draggable
       datatype={SETS_DATATYPE_OBS}
       onError={setWarning}
       onCheckNode={onCheckNode}
+      onFilterNode={onFilterNode}
       onExpandNode={onExpandNode}
       onDropNode={onDropNode}
       onCheckLevel={onCheckLevel}
@@ -643,10 +717,11 @@ export function ObsSetsManagerSubscriber(props) {
       theme={theme}
     />
   ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetExpansion, obsSetSelection,
+    obsSetFilter, obsFilterMode,
     cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
-    onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
-    onNodeSetName, onNodeView, onUnion, setWarning, theme,
+    onExportSetJSON, onFilterNode, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove,
+    onNodeSetColor, onNodeSetName, onNodeView, onUnion, setWarning, theme,
   ]);
 
 

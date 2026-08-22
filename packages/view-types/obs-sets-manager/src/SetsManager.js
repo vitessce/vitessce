@@ -1,7 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
 import { isEqual } from 'lodash-es';
-import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
+import {
+  nodeToRenderProps,
+  pathToKey,
+  isPathFilterIncluded,
+  isPathFilterPartiallyIncluded,
+} from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree.js';
 import TreeNode from './TreeNode.js';
@@ -60,8 +65,14 @@ function getAllKeys(node, path = []) {
  * By default, true.
  * @prop {boolean} importable Whether to enable importing hierarchies from files.
  * By default, true.
+ * @prop {string[][]|null} setFilter The paths of the sets which meet the current filtering
+ * criteria. A null value means that every set is included.
+ * @prop {boolean} isSetFilterActive Whether the set-level filtering criteria are the ones
+ * currently in effect (as opposed to item-level filtering criteria).
  * @prop {function} onError Function to call with error messages (failed import validation, etc).
  * @prop {function} onCheckNode Function to call when a single node has been checked or un-checked.
+ * @prop {function} onFilterNode Function to call when a single node has been included in or
+ * excluded from the filtering criteria.
  * @prop {function} onExpandNode Function to call when a node has been expanded.
  * @prop {function} onDropNode Function to call when a node has been dragged-and-dropped.
  * @prop {function} onCheckLevel Function to call when an entire hierarchy level has been selected,
@@ -99,6 +110,8 @@ export default function SetsManager(props) {
     setColor,
     levelSelection: checkedLevel,
     setSelection,
+    setFilter,
+    isSetFilterActive = true,
     setExpansion,
     hasColorEncoding,
     datatype,
@@ -111,6 +124,7 @@ export default function SetsManager(props) {
     importable = true,
     onError,
     onCheckNode,
+    onFilterNode,
     onExpandNode,
     onDropNode,
     onCheckLevel,
@@ -169,6 +183,12 @@ export default function SetsManager(props) {
     }
     return nodes.map((node) => {
       const newPath = [...currPath, node.name];
+      // Filtering: a set which does not meet the filtering criteria cannot be
+      // selected, since the selection must not be a superset of the filter.
+      // A partially-included set is a superset of the included sets within its
+      // own subtree, so it cannot be selected either.
+      const isFilterIncluded = isPathFilterIncluded(setFilter, newPath);
+      const isFilterPartiallyIncluded = isPathFilterPartiallyIncluded(setFilter, newPath);
       return (
         <TreeNode
           theme={theme}
@@ -189,7 +209,13 @@ export default function SetsManager(props) {
           checkedLevelPath={checkedLevel ? checkedLevel.levelZeroPath : null}
           checkedLevelIndex={checkedLevel ? checkedLevel.levelIndex : null}
 
+          isSetFilterActive={isSetFilterActive}
+          isFilterIncluded={isFilterIncluded}
+          isFilterPartiallyIncluded={isFilterPartiallyIncluded}
+          disableCheckbox={!isFilterIncluded}
+
           onCheckNode={onCheckNode}
+          onFilterNode={onFilterNode}
           onCheckLevel={onCheckLevel}
           onNodeView={onNodeView}
           onNodeSetColor={onNodeSetColor}

@@ -358,6 +358,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_SET_SELECTION,
     CoordinationType.OBS_SET_FILTER,
+    CoordinationType.OBS_FILTER_MODE,
     CoordinationType.OBS_SET_EXPANSION,
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
