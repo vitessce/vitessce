@@ -473,6 +473,8 @@ export const baseCoordinationTypes = [
     z.array(obsSetPath).nullable(),
   ),
   new PluginCoordinationType(CoordinationType.OBS_FILTER_MODE, null, z.enum(['obsFilter', 'obsSetFilter']).nullable()),
+  // TODO: define a new coordination type that specifies whether the selection is inclusion or exclusion?
+  // TODO: define a new coordination type that specifies whether the filtering is inclusion or exclusion?
   new PluginCoordinationType(
     CoordinationType.OBS_SET_EXPANSION,
     null,
