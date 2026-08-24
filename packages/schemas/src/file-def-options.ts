@@ -313,15 +313,6 @@ export const ngPrecomputedMeshSchema = z.object({
   enableDefaultSubsources: z.boolean()
     .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
     .optional(),
-  segments: z.array(z.union([z.number(), z.string()]))
-    .describe('An explicit list of segment IDs to display in this segmentation layer. Used as a fallback when no obsSets CSV is provided for this layer/channel. Ignored if obsSets are provided, unless `forceSegments` is true.')
-    .optional(),
-  segmentColors: z.record(z.string())
-    .describe('An explicit map of segment ID to hex color (e.g. `{"12": "#ff0000"}`). Keys are segment IDs as strings (object keys are always strings, even if the ID is numeric); values are hex color strings. Overrides any color computed from obsSets or `segments` for the given IDs, regardless of `forceSegments`.')
-    .optional(),
-  forceSegments: z.boolean()
-    .describe('When true, the `segments` list is always used to determine which segments to display, even if obsSets are also provided for this layer/channel. Defaults to false (obsSets take priority over `segments` when both are present).')
-    .optional(),
 }).partial().nullable();
 // Annotation Layer
 export const ngPointAnnotationSchema = z.object({
@@ -388,6 +379,16 @@ export const obsLocationsCsvSchema = z.object({
 export const obsLabelsCsvSchema = z.object({
   obsIndex: z.string(),
   obsLabels: z.string(),
+});
+export const obsColorsCsvSchema = z.object({
+  obsIndex: z.string(),
+  // Either a single column containing hex color strings (e.g., "#ff0000"),
+  // or three columns containing the R, G, and B channel values (each in [0, 255]).
+  obsColors: z.union([
+    z.string(),
+    z.array(z.string()).length(3),
+  ]),
+  // TODO: add an explicit format field?
 });
 export const featureLabelsCsvSchema = z.object({
   featureIndex: z.string(),
