@@ -1,7 +1,7 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import {
   initializeCellSetColor,
-  treeToMembershipMap,
+  lazyTreeToMembershipMap,
   dataToCellSetsTree,
 } from '@vitessce/sets-utils';
 
@@ -60,7 +60,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       ]).then(data => [data[0], dataToCellSetsTree([data[1], data[2], data[3]], options.obsSets)]);
     }
     const [obsIndex, obsSets] = await this.cachedResult;
-    const obsSetsMembership = treeToMembershipMap(obsSets);
+    const obsSetsMembership = lazyTreeToMembershipMap(obsSets, obsIndex);
     const coordinationValues = {};
     const { tree } = obsSets;
     const newAutoSetSelectionParentName = tree[0].name;

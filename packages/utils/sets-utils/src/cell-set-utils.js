@@ -403,7 +403,10 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor, theme) {
-  let cellColorsArray = [];
+  // Insert into the Map directly rather than accumulating an intermediate array of
+  // [cellId, color] tuples. Spreading the accumulator once per selected set is
+  // O(numObservations * numSelectedSets); this is O(numObservations).
+  const cellColors = new Map();
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
@@ -412,16 +415,15 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
         cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
         || getDefaultColor(theme)
       );
-      cellColorsArray = [
-        ...cellColorsArray,
-        ...nodeSet.map(([cellId, prob]) => [
+      nodeSet.forEach(([cellId, prob]) => {
+        cellColors.set(
           cellId,
           (isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob)),
-        ]),
-      ];
+        );
+      });
     }
   });
-  return new Map(cellColorsArray);
+  return cellColors;
 }
 
 /**
@@ -438,25 +440,24 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToSelectedSetMap(currTree, selectedNamePaths) {
-  let result = [];
+  const result = new Map();
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      result = [
-        ...result,
-        ...nodeSet.map(([cellId]) => [
+      nodeSet.forEach(([cellId]) => {
+        result.set(
           cellId,
           // TODO: should this be the full path
           // (rather than only the node name)?
           // Or the index of the selected set
           // with respect to the selectedNamePaths array?
           setNamePath,
-        ]),
-      ];
+        );
+      });
     }
   });
-  return new Map(result);
+  return result;
 }
 
 /**
@@ -472,22 +473,109 @@ export function treeToSelectedSetMap(currTree, selectedNamePaths) {
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToCellSetColorIndicesBySetNames(currTree, selectedNamePaths, cellSetColor) {
-  let cellColorsArray = [];
+  const cellColorIndices = new Map();
   selectedNamePaths?.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
       const nodeColorIndex = cellSetColor?.findIndex(d => isEqual(d.path, setNamePath));
-      cellColorsArray = [
-        ...cellColorsArray,
-        ...nodeSet.map(([cellId]) => [
-          cellId,
-          nodeColorIndex,
-        ]),
-      ];
+      nodeSet.forEach(([cellId]) => {
+        cellColorIndices.set(cellId, nodeColorIndex);
+      });
     }
   });
-  return new Map(cellColorsArray);
+  return cellColorIndices;
+}
+
+// Cache of observation-ID-to-position lookups, keyed weakly by the obsIndex array
+// itself. Loaders memoize obsIndex per store path, so views that share an
+// observation axis share the one Map rather than each building their own.
+const obsIndexMapCache = new WeakMap();
+
+/**
+ * Get a mapping from observation ID to its position in obsIndex, memoized on the
+ * obsIndex array reference.
+ * @param {string[]} obsIndex The observation index.
+ * @returns {Map<string, number>} Mapping from observation ID to integer position.
+ */
+export function getObsIndexMap(obsIndex) {
+  let obsIndexMap = obsIndexMapCache.get(obsIndex);
+  if (!obsIndexMap) {
+    obsIndexMap = new Map();
+    for (let i = 0; i < obsIndex.length; i += 1) {
+      obsIndexMap.set(obsIndex[i], i);
+    }
+    obsIndexMapCache.set(obsIndex, obsIndexMap);
+  }
+  return obsIndexMap;
+}
+
+/**
+ * Build a positionally-indexed color encoding for a set selection.
+ *
+ * Unlike treeToCellColorsBySetNames, the result is aligned to obsIndex by position
+ * rather than keyed by observation ID, so consumers index into it with the same
+ * integer they already use to read coordinates. That avoids both a per-observation
+ * string hash lookup on every render and the per-observation color array that
+ * uncertainty mixing would otherwise allocate.
+ *
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings, representing set "paths".
+ * @param {object[]} cellSetColor Array of objects with the properties `path` and `color`.
+ * @param {string[]} obsIndex The observation index to align the result to.
+ * @param {string} theme "light" or "dark" for the vitessce theme.
+ * @returns {object} An object `{ colorIndices, colorProbs, colors }` where
+ * `colorIndices` is a typed array parallel to obsIndex, holding 0 for observations
+ * in no selected set and `i + 1` for those in `selectedNamePaths[i]`;
+ * `colors` holds the [r, g, b] color per selected set;
+ * and `colorProbs` is a Float32Array of per-observation confidence scores, or null
+ * when no selected set carries them.
+ */
+export function treeToColorIndicesArray(
+  currTree, selectedNamePaths, cellSetColor, obsIndex, theme,
+) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  // Reserve 0 for "in no selected set", so the palette needs paths.length + 1 values.
+  // eslint-disable-next-line no-nested-ternary
+  const IndicesArrayType = paths.length + 1 <= 256
+    ? Uint8Array
+    : (paths.length + 1 <= 65536 ? Uint16Array : Uint32Array);
+  const colorIndices = new IndicesArrayType(numObs);
+  const colors = [];
+  // Allocated lazily: most set hierarchies carry no confidence scores, and skipping
+  // the array entirely lets consumers take a cheaper code path.
+  let colorProbs = null;
+
+  // Built for every selected path, including paths absent from the tree, so that
+  // colors[colorIndices[i] - 1] stays aligned with selectedNamePaths.
+  const obsIndexMap = numObs > 0 ? getObsIndexMap(obsIndex) : null;
+  paths.forEach((setNamePath, i) => {
+    colors.push(
+      cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+      || getDefaultColor(theme),
+    );
+    const node = obsIndexMap && treeFindNodeByNamePath(currTree, setNamePath);
+    if (node) {
+      const nodeSet = nodeToSet(node);
+      nodeSet.forEach(([cellId, prob]) => {
+        const obsI = obsIndexMap.get(cellId);
+        if (obsI !== undefined) {
+          // Later paths overwrite earlier ones, matching treeToCellColorsBySetNames.
+          colorIndices[obsI] = i + 1;
+          if (!isNil(prob)) {
+            if (colorProbs === null) {
+              colorProbs = new Float32Array(numObs).fill(1);
+            }
+            colorProbs[obsI] = prob;
+          } else if (colorProbs !== null) {
+            colorProbs[obsI] = 1;
+          }
+        }
+      });
+    }
+  });
+  return { colorIndices, colorProbs, colors };
 }
 
 /**
@@ -504,7 +592,7 @@ export function treeToCellSetColorIndicesBySetNames(currTree, selectedNamePaths,
  * `obsId`, `name`, and `color`.
  */
 export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, theme) {
-  let cellsArray = [];
+  const cellsArray = [];
   for (let i = 0; i < selectedNamePaths.length; i += 1) {
     const setNamePath = selectedNamePaths[i];
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -514,11 +602,13 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
         setColor?.find(d => isEqual(d.path, setNamePath))?.color
         || getDefaultColor(theme)
       );
-      cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
-        obsId: cellId,
-        name: node.name,
-        color: nodeColor,
-      })));
+      nodeSet.forEach(([cellId]) => {
+        cellsArray.push({
+          obsId: cellId,
+          name: node.name,
+          color: nodeColor,
+        });
+      });
     }
   }
   return cellsArray;
@@ -527,7 +617,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
 export function treeToCellPolygonsBySetNames(
   currTree, obsIndex, obsEmbedding, selectedNamePaths, cellSetColor, theme,
 ) {
-  const obsIndexMap = new Map(obsIndex.map((key, i) => ([key, i])));
+  const obsIndexMap = getObsIndexMap(obsIndex);
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -798,30 +888,47 @@ export function getCellSetPolygons(params) {
   return [];
 }
 
+/**
+ * Get every leaf set in a tree, with the path that identifies it.
+ *
+ * A single depth-first walk visits each leaf exactly once. Iterating one level at a
+ * time instead re-emitted any leaf shallower than the tree height once per remaining
+ * level, and re-resolved each path against the tree to find its node.
+ *
+ * @param {object} currTree A tree object.
+ * @returns {{ path: string[], set: array[] }[]} The leaf sets, in tree order.
+ */
+export function treeToLeafSets(currTree) {
+  const leafSets = [];
+  function visitNode(node, prevPath) {
+    const nodePath = [...prevPath, node.name];
+    if (node.children) {
+      node.children.forEach(child => visitNode(child, nodePath));
+    } else {
+      leafSets.push({ path: nodePath, set: nodeToSet(node) });
+    }
+  }
+  if (currTree) {
+    currTree.tree.forEach(lzn => visitNode(lzn, []));
+  }
+  return leafSets;
+}
+
+/**
+ * Get a mapping from observation ID to the paths of the leaf sets containing it.
+ * @param {object} currTree A tree object.
+ * @returns {Map<string, string[][]>} Mapping from observation ID to set paths.
+ */
 export function treeToMembershipMap(currTree) {
   const result = new Map();
-  if (currTree) {
-    currTree.tree.forEach((lzn) => {
-      const height = nodeToHeight(lzn);
-      range(height).forEach((i) => {
-        const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-        levelNodePaths.forEach((setNamePath) => {
-          const node = treeFindNodeByNamePath(currTree, setNamePath);
-          // If this is a child node, then we are interested.
-          if (node && !node.children) {
-            const nodeSet = nodeToSet(node);
-            nodeSet.forEach(([obsId]) => {
-              if (result.has(obsId)) {
-                result.get(obsId).push(setNamePath);
-              } else {
-                result.set(obsId, [setNamePath]);
-              }
-            });
-          }
-        });
-      });
+  treeToLeafSets(currTree).forEach(({ path, set }) => {
+    set.forEach(([obsId]) => {
+      if (result.has(obsId)) {
+        result.get(obsId).push(path);
+      } else {
+        result.set(obsId, [path]);
+      }
     });
-  }
+  });
   return result;
 }

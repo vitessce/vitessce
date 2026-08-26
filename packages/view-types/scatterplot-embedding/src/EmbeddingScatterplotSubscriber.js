@@ -28,8 +28,8 @@ import {
   useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
-  setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyArrays,
+  setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
+  getObsIndexMap, stratifyArrays,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
 import {
@@ -278,14 +278,12 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex: matrixObsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetSelection, cellSetColor, matrixObsIndex]);
+  // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
+  // Map costs one string hash lookup per point per render, plus a per-observation
+  // color array whenever the selected sets carry confidence scores.
+  const obsColorIndices = useMemo(() => treeToColorIndicesArray(
+    mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
+  ), [mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -314,8 +312,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
     obsEmbeddingIndex, obsEmbedding, mergedCellSets, cellSetSelection, cellSetColor]);
 
-
-  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     if (obsEmbedding && obsEmbedding.data && obsEmbedding.shape) {
@@ -373,10 +369,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
   );
 
-  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
+  // With no set selection every observation counts as selected, matching the
+  // behavior of the ID-keyed color map this replaced.
+  const allCellsSelected = !(cellSetSelection && mergedCellSets);
   const getCellIsSelected = useCallback((object, { index }) => (
-    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0
-  ), [cellSelectionSet, obsEmbeddingIndex]);
+    (allCellsSelected || obsColorIndices.colorIndices[index] !== 0) ? 1.0 : 0.0
+  ), [allCellsSelected, obsColorIndices]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -469,7 +467,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
     // Sort the embedding data according to the matrix obsIndex.
     if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
-      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+      const matrixIndexMap = getObsIndexMap(matrixObsIndex);
       const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
 
       const newEmbeddingIndex = new Array(obsEmbeddingIndex.length);
@@ -602,9 +600,8 @@ export function EmbeddingScatterplotSubscriber(props) {
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
-        cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        cellColors={cellColors}
+        obsColorIndices={obsColorIndices}
         cellSetPolygons={cellSetPolygons}
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}

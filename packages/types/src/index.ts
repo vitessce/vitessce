@@ -10,6 +10,7 @@ export type {
   ComparisonMetadata,
   FeatureStatsData,
   ObsLabelsData,
+  ObsSetsMembership,
   ObsSetsData,
   ObsSegmentationsPolygons,
   ObsSegmentationsBitmask,

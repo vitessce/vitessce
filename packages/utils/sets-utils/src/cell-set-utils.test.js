@@ -15,12 +15,20 @@ import {
   treeExport,
   filterNode,
   treeToSetSizesBySetNames,
+  treeToCellColorsBySetNames,
+  treeToSelectedSetMap,
+  treeToCellSetColorIndicesBySetNames,
+  treeToObjectsBySetNames,
+  treeToColorIndicesArray,
+  getObsIndexMap,
+  treeToMembershipMap,
 } from './cell-set-utils.js';
 
 import {
   levelTwoNodeLeaf,
   levelZeroNode,
   tree,
+  treeWithScores,
 } from './cell-set-utils.test.fixtures.js';
 
 describe('Hierarchical sets cell-set-utils', () => {
@@ -273,6 +281,190 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(exportedTree.tree[0].children[0].name).toEqual(tree.tree[0].children[0].name);
       expect(exportedTree.tree[0].children[0].children[0].name)
         .toEqual(tree.tree[0].children[0].children[0].name);
+    });
+  });
+
+  describe('Map observations to colors by set', () => {
+    const PERICYTES = ['Cell Type Annotations', 'Vasculature', 'Pericytes'];
+    const ENDOTHELIAL = ['Cell Type Annotations', 'Vasculature', 'Endothelial'];
+    const MISSING = ['Cell Type Annotations', 'Vasculature', 'Does Not Exist'];
+    // Pericytes and Endothelial both contain cell_3, so the later selected path wins.
+    const setColor = [
+      { path: PERICYTES, color: [255, 0, 0] },
+      { path: ENDOTHELIAL, color: [0, 255, 0] },
+    ];
+
+    it('treeToCellColorsBySetNames assigns each set its color', () => {
+      const cellColors = treeToCellColorsBySetNames(
+        tree, [PERICYTES, ENDOTHELIAL], setColor, 'light',
+      );
+      expect(cellColors.size).toEqual(5);
+      expect(cellColors.get('cell_1')).toEqual([255, 0, 0]);
+      expect(cellColors.get('cell_2')).toEqual([255, 0, 0]);
+      // cell_3 is in both sets; the later path in selectedNamePaths wins.
+      expect(cellColors.get('cell_3')).toEqual([0, 255, 0]);
+      expect(cellColors.get('cell_4')).toEqual([0, 255, 0]);
+      expect(cellColors.get('cell_5')).toEqual([0, 255, 0]);
+    });
+
+    it('treeToCellColorsBySetNames falls back to the theme default color', () => {
+      const cellColors = treeToCellColorsBySetNames(tree, [PERICYTES], [], 'light');
+      expect(cellColors.get('cell_1')).toEqual([200, 200, 200]);
+    });
+
+    it('treeToCellColorsBySetNames mixes in per-observation uncertainty', () => {
+      const cellColors = treeToCellColorsBySetNames(
+        treeWithScores,
+        [['Cell Type Annotations', 'Pericytes']],
+        [{ path: ['Cell Type Annotations', 'Pericytes'], color: [255, 0, 0] }],
+        'light',
+      );
+      // A score of 1.0 keeps the set color, 0.0 collapses to the [128, 128, 128]
+      // mixing color, and 0.5 lands halfway between.
+      expect(cellColors.get('cell_1')).toEqual([255, 0, 0]);
+      expect(cellColors.get('cell_2')).toEqual([191.5, 64, 64]);
+      expect(cellColors.get('cell_3')).toEqual([128, 128, 128]);
+    });
+
+    it('treeToCellColorsBySetNames skips paths absent from the tree', () => {
+      const cellColors = treeToCellColorsBySetNames(
+        tree, [PERICYTES, MISSING], setColor, 'light',
+      );
+      expect(cellColors.size).toEqual(3);
+      expect(treeToCellColorsBySetNames(tree, [], setColor, 'light').size).toEqual(0);
+    });
+
+    it('treeToSelectedSetMap maps each observation to its set path', () => {
+      const setMap = treeToSelectedSetMap(tree, [PERICYTES, ENDOTHELIAL]);
+      expect(setMap.size).toEqual(5);
+      expect(setMap.get('cell_1')).toEqual(PERICYTES);
+      expect(setMap.get('cell_3')).toEqual(ENDOTHELIAL);
+      expect(treeToSelectedSetMap(tree, [MISSING]).size).toEqual(0);
+    });
+
+    it('treeToCellSetColorIndicesBySetNames maps observations to palette indices', () => {
+      const colorIndices = treeToCellSetColorIndicesBySetNames(
+        tree, [PERICYTES, ENDOTHELIAL], setColor,
+      );
+      expect(colorIndices.size).toEqual(5);
+      expect(colorIndices.get('cell_1')).toEqual(0);
+      expect(colorIndices.get('cell_3')).toEqual(1);
+      expect(colorIndices.get('cell_5')).toEqual(1);
+    });
+
+    it('treeToCellSetColorIndicesBySetNames tolerates a null selection', () => {
+      expect(treeToCellSetColorIndicesBySetNames(tree, null, setColor).size).toEqual(0);
+    });
+
+    it('treeToObjectsBySetNames returns one entry per set membership', () => {
+      const objects = treeToObjectsBySetNames(tree, [PERICYTES, ENDOTHELIAL], setColor, 'light');
+      // An array rather than a Map, so cell_3 appears once per set it belongs to.
+      expect(objects.length).toEqual(6);
+      expect(objects[0]).toEqual({ obsId: 'cell_1', name: 'Pericytes', color: [255, 0, 0] });
+      expect(objects[3]).toEqual({ obsId: 'cell_3', name: 'Endothelial', color: [0, 255, 0] });
+      expect(objects.filter(d => d.obsId === 'cell_3').length).toEqual(2);
+      expect(treeToObjectsBySetNames(tree, [], setColor, 'light')).toEqual([]);
+    });
+  });
+
+  describe('Positionally-indexed set colors', () => {
+    const PERICYTES = ['Cell Type Annotations', 'Vasculature', 'Pericytes'];
+    const ENDOTHELIAL = ['Cell Type Annotations', 'Vasculature', 'Endothelial'];
+    const setColor = [
+      { path: PERICYTES, color: [255, 0, 0] },
+      { path: ENDOTHELIAL, color: [0, 255, 0] },
+    ];
+    // cell_6 and cell_7 are in the observation index but in neither selected set.
+    const obsIndex = ['cell_1', 'cell_2', 'cell_3', 'cell_4', 'cell_5', 'cell_6', 'cell_7'];
+
+    it('getObsIndexMap maps IDs to positions and memoizes on the array', () => {
+      const map = getObsIndexMap(obsIndex);
+      expect(map.get('cell_1')).toEqual(0);
+      expect(map.get('cell_7')).toEqual(6);
+      // Same array reference returns the very same Map, so views can share it.
+      expect(getObsIndexMap(obsIndex)).toBe(map);
+      expect(getObsIndexMap([...obsIndex])).not.toBe(map);
+    });
+
+    it('treeToColorIndicesArray aligns indices to obsIndex positions', () => {
+      const { colorIndices, colorProbs, colors } = treeToColorIndicesArray(
+        tree, [PERICYTES, ENDOTHELIAL], setColor, obsIndex, 'light',
+      );
+      expect(colors).toEqual([[255, 0, 0], [0, 255, 0]]);
+      // 0 means "in no selected set"; cell_3 is in both, so the later path wins.
+      expect(Array.from(colorIndices)).toEqual([1, 1, 2, 2, 2, 0, 0]);
+      expect(colorProbs).toEqual(null);
+      // Small selections fit in the narrowest typed array.
+      expect(colorIndices.BYTES_PER_ELEMENT).toEqual(1);
+    });
+
+    it('treeToColorIndicesArray agrees with treeToCellColorsBySetNames', () => {
+      const paths = [PERICYTES, ENDOTHELIAL];
+      const cellColors = treeToCellColorsBySetNames(tree, paths, setColor, 'light');
+      const { colorIndices, colors } = treeToColorIndicesArray(
+        tree, paths, setColor, obsIndex, 'light',
+      );
+      obsIndex.forEach((obsId, i) => {
+        const expected = cellColors.get(obsId) || [200, 200, 200];
+        const actual = colorIndices[i] === 0 ? [200, 200, 200] : colors[colorIndices[i] - 1];
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    it('treeToColorIndicesArray carries per-observation confidence scores', () => {
+      const path = ['Cell Type Annotations', 'Pericytes'];
+      const { colorIndices, colorProbs } = treeToColorIndicesArray(
+        treeWithScores, [path], [{ path, color: [255, 0, 0] }],
+        ['cell_1', 'cell_2', 'cell_3', 'cell_4'], 'light',
+      );
+      expect(Array.from(colorIndices)).toEqual([1, 1, 1, 0]);
+      // Observations outside any scored set default to full confidence.
+      expect(Array.from(colorProbs)).toEqual([1, 0.5, 0, 1]);
+    });
+
+    it('treeToColorIndicesArray keeps colors aligned when a path is absent', () => {
+      const MISSING = ['Cell Type Annotations', 'Vasculature', 'Does Not Exist'];
+      const { colorIndices, colors } = treeToColorIndicesArray(
+        tree, [MISSING, PERICYTES], setColor, obsIndex, 'light',
+      );
+      // The missing path still consumes index 1, so Pericytes must land on index 2.
+      expect(colors.length).toEqual(2);
+      expect(Array.from(colorIndices)).toEqual([2, 2, 2, 0, 0, 0, 0]);
+      expect(colors[colorIndices[0] - 1]).toEqual([255, 0, 0]);
+    });
+
+    it('treeToColorIndicesArray handles empty and absent inputs', () => {
+      const empty = treeToColorIndicesArray(tree, [], setColor, obsIndex, 'light');
+      expect(Array.from(empty.colorIndices)).toEqual([0, 0, 0, 0, 0, 0, 0]);
+      expect(treeToColorIndicesArray(tree, null, setColor, obsIndex, 'light').colors)
+        .toEqual([]);
+      const noObs = treeToColorIndicesArray(tree, [PERICYTES], setColor, [], 'light');
+      expect(noObs.colorIndices.length).toEqual(0);
+      // The palette is still built, so it stays usable regardless of obsIndex.
+      expect(noObs.colors).toEqual([[255, 0, 0]]);
+      // Observations in a selected set but absent from obsIndex are skipped.
+      const partial = treeToColorIndicesArray(
+        tree, [PERICYTES], setColor, ['cell_2'], 'light',
+      );
+      expect(Array.from(partial.colorIndices)).toEqual([1]);
+    });
+  });
+
+  describe('Observation set membership', () => {
+    const PERICYTES = ['Cell Type Annotations', 'Vasculature', 'Pericytes'];
+    const ENDOTHELIAL = ['Cell Type Annotations', 'Vasculature', 'Endothelial'];
+    const SQUAMOUS = ['Cell Type Annotations', 'Vasculature', 'Epithelial', 'Squamous'];
+
+    it('treeToMembershipMap records each leaf set once per observation', () => {
+      const membership = treeToMembershipMap(tree);
+      // Pericytes and Endothelial are leaves at depth 3, Squamous at depth 4.
+      // Leaves shallower than the tree height must not be recorded more than once.
+      expect(membership.get('cell_1')).toEqual([PERICYTES]);
+      expect(membership.get('cell_3')).toEqual([PERICYTES, ENDOTHELIAL]);
+      expect(membership.get('cell_5')).toEqual([ENDOTHELIAL, SQUAMOUS]);
+      expect(membership.get('cell_7')).toEqual([SQUAMOUS]);
+      expect(membership.size).toEqual(7);
+      expect(treeToMembershipMap(null).size).toEqual(0);
     });
   });
 });
