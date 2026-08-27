@@ -523,14 +523,26 @@ describe('Hierarchical sets cell-set-utils', () => {
         cellSetColor: setColor,
         theme: 'light',
       })).toEqual(null);
-      // The undefined-named set that holds missing codes.
-      expect(colorIndicesFromCodes({
+    });
+
+    it('resolves the placeholder-named set to observations with missing codes', () => {
+      // cell_3 has a missing Cell Type code; cell_4 has a missing Leiden code.
+      const missing = colorIndicesFromCodes({
         columns,
         obsIndex,
-        selectedNamePaths: [['Cell Type', undefined]],
+        selectedNamePaths: [['Cell Type', MISSING_VALUE_PLACEHOLDER]],
         cellSetColor: setColor,
         theme: 'light',
-      })).toEqual(null);
+      });
+      expect(Array.from(missing.colorIndices)).toEqual([0, 0, 1, 0, 0]);
+      expectSameAsTreeRoute([['Cell Type', MISSING_VALUE_PLACEHOLDER]]);
+      expectSameAsTreeRoute([['Leiden', MISSING_VALUE_PLACEHOLDER], ['Cell Type', 'T cell']]);
+      expectSameAsTreeRoute([
+        ['Cell Type', MISSING_VALUE_PLACEHOLDER], ['Leiden', MISSING_VALUE_PLACEHOLDER],
+      ]);
+    });
+
+    it('returns null for a wrong-depth path', () => {
       // A path with the wrong depth.
       expect(colorIndicesFromCodes({
         columns,
@@ -563,12 +575,20 @@ describe('Hierarchical sets cell-set-utils', () => {
 
 describe('Missing set names', () => {
   // A negative categorical code is a missing value. codesToCellSetsTree (like
-  // dataToCellSetsTree) places those observations in a set whose name is undefined.
+  // dataToCellSetsTree) places those observations in a set named by the placeholder.
   const obsIndex = ['c1', 'c2', 'c3', 'c4'];
   const columns = [{ codes: Int8Array.from([0, -1, 1, -1]), categories: ['A', 'B'] }];
   const missingTree = codesToCellSetsTree({ obsIndex, columns }, [{ name: 'Label' }]);
-  const missingPath = ['Label', undefined];
-  const missingNode = missingTree.tree[0].children.find(c => c.name === undefined);
+  const missingPath = ['Label', MISSING_VALUE_PLACEHOLDER];
+  const missingNode = missingTree.tree[0].children.find(c => c.name === MISSING_VALUE_PLACEHOLDER);
+
+  it('gives the missing set a real name that survives serialization', () => {
+    expect(missingNode).toBeDefined();
+    // A selection path into the set round-trips through JSON (as a view config
+    // does) and still resolves to the same node.
+    const roundTripped = JSON.parse(JSON.stringify(missingPath));
+    expect(treeFindNodeByNamePath(missingTree, roundTripped)).toBe(missingNode);
+  });
 
   it('titles the missing set with the shared placeholder in the sets manager', () => {
     const renderProps = nodeToRenderProps(missingNode, missingPath, []);

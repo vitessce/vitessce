@@ -4,4 +4,4 @@
 "@vitessce/tooltip": patch
 ---
 
-Render missing obs set labels consistently: tooltips, plot labels, and the sets manager now all show the same placeholder for observations whose categorical value is missing, instead of a blank in tooltips.
+Name the obs set that holds observations with a missing categorical value with a shared placeholder, so it renders identically in the sets manager, tooltips, and plots, and so selections of it survive view config serialization.

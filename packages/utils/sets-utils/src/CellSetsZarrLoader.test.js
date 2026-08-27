@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import { dataToCellSetsTree, codesToCellSetsTree } from './CellSetsZarrLoader.js';
 
 describe('loaders/CellSetsZarrLoader', () => {
@@ -184,8 +185,8 @@ describe('loaders/codesToCellSetsTree', () => {
   it('matches dataToCellSetsTree for negative (missing) codes', () => {
     const obsIndex = ['cell_1', 'cell_2', 'cell_3'];
     const categories = ['alpha', 'beta'];
-    // categories[-1] is undefined in the string route, which lands the
-    // observation in an undefined-named set.
+    // categories[-1] is undefined in the string route; both routes place the
+    // observation in a set named by the shared placeholder, ordered last.
     const codes = Int8Array.from([0, -1, 1]);
     const options = [{ name: 'Cell Type' }];
     const expected = dataToCellSetsTree(
@@ -193,6 +194,29 @@ describe('loaders/codesToCellSetsTree', () => {
     );
     const actual = codesToCellSetsTree({ obsIndex, columns: [{ codes, categories }] }, options);
     expect(actual).toEqual(expected);
+    expect(actual.tree[0].children.map(c => c.name))
+      .toEqual(['alpha', 'beta', MISSING_VALUE_PLACEHOLDER]);
+    expect(actual.tree[0].children[2].set).toEqual([['cell_2', null]]);
+    // The name is a real string, so the tree (and any selection path into it)
+    // survives serialization; an undefined name would be dropped by JSON.
+    expect(JSON.parse(JSON.stringify(actual))).toEqual(actual);
+  });
+
+  it('dataToCellSetsTree names missing values consistently across levels', () => {
+    const obsIndex = ['cell_1', 'cell_2', 'cell_3'];
+    const options = [{ name: 'Subclass Levels' }];
+    // A missing value at either level of a multi-level hierarchy.
+    const tree = dataToCellSetsTree([
+      [obsIndex],
+      [[['Immune', undefined, 'Immune'], ['B cell', 'T cell', null]]],
+      [undefined],
+    ], options);
+    const levelOne = tree.tree[0].children;
+    expect(levelOne.map(n => n.name)).toEqual([MISSING_VALUE_PLACEHOLDER, 'Immune']);
+    expect(levelOne[0].children.map(n => n.name)).toEqual(['T cell']);
+    expect(levelOne[1].children.map(n => n.name)).toEqual([MISSING_VALUE_PLACEHOLDER, 'B cell']);
+    expect(levelOne[1].children[0].set).toEqual([['cell_3', null]]);
+    expect(JSON.parse(JSON.stringify(tree))).toEqual(tree);
   });
 
   it('matches dataToCellSetsTree for numeric-string categories (key-order quirk)', () => {

@@ -535,9 +535,10 @@ export function getObsIndexMap(obsIndex) {
  * Build the positional color encoding directly from raw categorical codes,
  * skipping the tree walk that treeToColorIndicesArray performs. Applicable when
  * every selected path resolves to a (hierarchy, category) pair in the provided
- * columns; selections that do not resolve — user-defined selections from
- * additionalObsSets, paths deeper than two levels, or the undefined-named set
- * for missing values — return null so the caller can fall back to the tree route.
+ * columns, where the category MISSING_VALUE_PLACEHOLDER resolves to the
+ * observations with a negative (missing) code. Selections that do not resolve —
+ * user-defined selections from additionalObsSets, or paths deeper than two
+ * levels — return null so the caller can fall back to the tree route.
  *
  * The output is identical to treeToColorIndicesArray for the tree built from the
  * same columns: index 0 means "in no selected set", and where an observation is
@@ -566,6 +567,9 @@ export function colorIndicesFromCodes({
   const selIdxByCode = columns.map(
     ({ categories }) => new Int32Array(categories.length),
   );
+  // Per column, the (selected path index + 1) for observations with a negative
+  // (missing) code, when the placeholder-named set is selected.
+  const selIdxMissing = new Int32Array(columns.length);
   const colors = [];
   for (let i = 0; i < paths.length; i += 1) {
     const setNamePath = paths[i];
@@ -573,15 +577,24 @@ export function colorIndicesFromCodes({
       path.length === setNamePath.length - 1
       && path.every((part, k) => part === setNamePath[k])
     ));
-    const category = setNamePath[setNamePath.length - 1];
-    const catIndex = colIndex === -1
-      ? -1
-      : columns[colIndex].categories.indexOf(category);
-    if (catIndex === -1) {
+    if (colIndex === -1) {
       // Not resolvable from codes; the caller falls back to the tree route.
       return null;
     }
-    selIdxByCode[colIndex][catIndex] = i + 1;
+    const category = setNamePath[setNamePath.length - 1];
+    const catIndex = columns[colIndex].categories.indexOf(category);
+    if (category === MISSING_VALUE_PLACEHOLDER) {
+      // The set of observations whose code is negative. Should a real category
+      // share the placeholder name, the tree merges both into one set, so both
+      // are colored here as well.
+      selIdxMissing[colIndex] = i + 1;
+    } else if (catIndex === -1) {
+      // Not resolvable from codes; the caller falls back to the tree route.
+      return null;
+    }
+    if (catIndex !== -1) {
+      selIdxByCode[colIndex][catIndex] = i + 1;
+    }
     colors.push(
       cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
       || getDefaultColor(theme),
@@ -595,13 +608,12 @@ export function colorIndicesFromCodes({
   for (let j = 0; j < columns.length; j += 1) {
     const { codes } = columns[j];
     const table = selIdxByCode[j];
+    const missingSel = selIdxMissing[j];
     for (let i = 0; i < numObs; i += 1) {
       const code = codes[i];
-      if (code >= 0) {
-        const v = table[code];
-        if (v > colorIndices[i]) {
-          colorIndices[i] = v;
-        }
+      const v = code >= 0 ? table[code] : missingSel;
+      if (v > colorIndices[i]) {
+        colorIndices[i] = v;
       }
     }
   }

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import { cloneDeep } from 'lodash-es';
 import { buildMembershipCsr } from '@vitessce/workers';
 import { treeToLeafSets, treeToMembershipMap } from './cell-set-utils.js';
@@ -123,8 +124,8 @@ describe('membershipFromCodes', () => {
       expect(membership.has(obsId)).toEqual(true);
     });
     expect(membership.size).toEqual(expected.size);
-    // A missing code reports the undefined-named set, as the tree does.
-    expect(membership.get('cell_3')).toEqual([['Cell Type', undefined], ['Leiden', '0']]);
+    // A missing code reports the placeholder-named set, as the tree does.
+    expect(membership.get('cell_3')).toEqual([['Cell Type', MISSING_VALUE_PLACEHOLDER], ['Leiden', '0']]);
     expect(membership.get('not_a_cell')).toEqual(undefined);
     expect(membership.has('not_a_cell')).toEqual(false);
   });

@@ -1,4 +1,5 @@
 import { ObsSetsWorker, packStrings } from '@vitessce/workers';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import { treeToLeafSets, treeToMembershipMap, getObsIndexMap } from './cell-set-utils.js';
 
 // Built membership encodings, keyed weakly by the set tree they came from, so that
@@ -177,7 +178,7 @@ export function lazyTreeToMembershipMap(currTree, obsIndex = undefined) {
  * all: a lookup is a memoized obsIndexMap position plus one typed-array read per
  * hierarchy. Matches the answers a tree-based membership map would give for the
  * tree that codesToCellSetsTree builds from the same columns, including the
- * undefined-named set that holds observations with a negative (missing) code.
+ * placeholder-named set that holds observations with a negative (missing) code.
  * @param {string[]} obsIndex The observation index shared by all columns.
  * @param {{ name: string, codes: ArrayLike<number>, categories: string[] }[]} columns
  * Raw codes and category names per hierarchy, with the hierarchy name.
@@ -198,9 +199,9 @@ export function membershipFromCodes(obsIndex, columns) {
     for (let j = 0; j < columns.length; j += 1) {
       const { name, codes, categories } = columns[j];
       const code = codes[obsI];
-      // categories[negativeCode] is undefined, mirroring the undefined-named
-      // set in the tree; the path is still reported.
-      paths[j] = [name, code >= 0 ? categories[code] : undefined];
+      // A negative code is a missing value, which the tree places in the set
+      // named by the shared placeholder.
+      paths[j] = [name, code >= 0 ? categories[code] : MISSING_VALUE_PLACEHOLDER];
     }
     return paths;
   }
