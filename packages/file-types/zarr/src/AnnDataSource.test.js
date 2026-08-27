@@ -47,3 +47,88 @@ describe('sources/AnnDataSource', () => {
     });
   });
 });
+
+describe('AnnDataSource.loadNumericForDims', () => {
+  // Wrap the fixture store so that every chunk read is counted.
+  function createCountingStore(fixture) {
+    const inner = createStoreFromMapContents(fixture);
+    const calls = [];
+    return {
+      calls,
+      store: {
+        get: (key, opts) => {
+          calls.push(key);
+          return inner.get(key, opts);
+        },
+      },
+    };
+  }
+
+  it('reads each chunk once for contiguous dims', async () => {
+    const { store, calls } = createCountingStore(anndata_0_12_DenseFixture);
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.12/anndata-dense.zarr',
+      store,
+    });
+    const result = await dataSource.loadNumericForDims('obsm/X_umap', [0, 1]);
+    expect(result.shape).toEqual([2, 3]);
+    expect(Array.from(result.data[0])).toEqual([-1, 0, 1]);
+    expect(Array.from(result.data[1])).toEqual([-1, 0, 1]);
+    // Both dims live in the single chunk 0.0; the contiguous-slice path
+    // must read it exactly once rather than once per dim.
+    const chunkReads = calls.filter(key => /X_umap\/(c\/0\/0|0\.0)$/.test(key));
+    expect(chunkReads.length).toEqual(1);
+  });
+
+  it('returns the same data for non-contiguous dims via the per-dim path', async () => {
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.12/anndata-dense.zarr',
+      store: createStoreFromMapContents(anndata_0_12_DenseFixture),
+    });
+    // Both umap columns, requested in descending order: still a contiguous run.
+    const descending = await dataSource.loadNumericForDims('obsm/X_umap', [1, 0]);
+    expect(Array.from(descending.data[0])).toEqual([-1, 0, 1]);
+    expect(Array.from(descending.data[1])).toEqual([-1, 0, 1]);
+    // A single dim exercises the per-dim path (max - min + 1 === 1 === length,
+    // so it takes the slice path; a duplicated dim forces per-dim).
+    const duplicated = await dataSource.loadNumericForDims('obsm/X_umap', [1, 1]);
+    expect(Array.from(duplicated.data[0])).toEqual([-1, 0, 1]);
+    expect(Array.from(duplicated.data[1])).toEqual([-1, 0, 1]);
+  });
+});
+
+describe('AnnDataSource.loadObsColumnCodes', () => {
+  Object.entries({ 0.7: anndata_0_7_DenseFixture, 0.8: anndata_0_8_DenseFixture, 0.9: anndata_0_9_DenseFixture, '0.10': anndata_0_10_DenseFixture, 0.11: anndata_0_11_DenseFixture, 0.12: anndata_0_12_DenseFixture }).forEach(([version, fixture]) => {
+    it(`decodes to the same strings as loadObsColumns for AnnData v${version}`, async () => {
+      const dataSource = new AnnDataSource({
+        url: `@fixtures/zarr/anndata-${version}/anndata-dense.zarr`,
+        store: createStoreFromMapContents(fixture),
+      });
+      const result = await dataSource.loadObsColumnCodes('obs/leiden');
+      expect(result).not.toEqual(null);
+      const { codes, categories } = result;
+      const decoded = Array.from(codes).map(code => categories[code]);
+      const [expected] = await dataSource.loadObsColumns(['obs/leiden']);
+      expect(decoded).toEqual(expected);
+    });
+  });
+
+  it('returns null for a non-categorical column', async () => {
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
+      store: createStoreFromMapContents(anndata_0_8_DenseFixture),
+    });
+    expect(await dataSource.loadObsColumnCodes('obs/_index')).toEqual(null);
+  });
+
+  it('caches the promise per column path', async () => {
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.8/anndata-dense.zarr',
+      store: createStoreFromMapContents(anndata_0_8_DenseFixture),
+    });
+    const first = dataSource.loadObsColumnCodes('obs/leiden');
+    const second = dataSource.loadObsColumnCodes('obs/leiden');
+    expect(first).toBe(second);
+    expect((await first).codes).toBe((await second).codes);
+  });
+});

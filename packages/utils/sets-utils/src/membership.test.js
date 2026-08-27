@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { cloneDeep } from 'lodash-es';
 import { buildMembershipCsr } from '@vitessce/workers';
 import { treeToLeafSets, treeToMembershipMap } from './cell-set-utils.js';
-import { lazyTreeToMembershipMap } from './membership.js';
+import { lazyTreeToMembershipMap, membershipFromCodes } from './membership.js';
+import { codesToCellSetsTree } from './CellSetsZarrLoader.js';
 import { tree } from './cell-set-utils.test.fixtures.js';
 
 const PERICYTES = ['Cell Type Annotations', 'Vasculature', 'Pericytes'];
@@ -102,5 +103,33 @@ describe('obs set membership store', () => {
     // Without an obsIndex there is nothing to align to, so it stays on the
     // main-thread path.
     expect(lazyTreeToMembershipMap(tree).get('cell_1')).toEqual([PERICYTES]);
+  });
+});
+
+describe('membershipFromCodes', () => {
+  const obsIndex = ['cell_1', 'cell_2', 'cell_3', 'cell_4'];
+  const columns = [
+    { name: 'Cell Type', codes: Int8Array.from([0, 1, -1, 0]), categories: ['T cell', 'B cell'] },
+    { name: 'Leiden', codes: Int8Array.from([1, 1, 0, -1]), categories: ['0', '1'] },
+  ];
+
+  it('matches the tree-based membership map, including missing codes', () => {
+    const options = [{ name: 'Cell Type' }, { name: 'Leiden' }];
+    const codesTree = codesToCellSetsTree({ obsIndex, columns }, options);
+    const expected = treeToMembershipMap(codesTree);
+    const membership = membershipFromCodes(obsIndex, columns);
+    obsIndex.forEach((obsId) => {
+      expect(membership.get(obsId)).toEqual(expected.get(obsId));
+      expect(membership.has(obsId)).toEqual(true);
+    });
+    expect(membership.size).toEqual(expected.size);
+    // A missing code reports the undefined-named set, as the tree does.
+    expect(membership.get('cell_3')).toEqual([['Cell Type', undefined], ['Leiden', '0']]);
+    expect(membership.get('not_a_cell')).toEqual(undefined);
+    expect(membership.has('not_a_cell')).toEqual(false);
+  });
+
+  it('reports zero size with no columns', () => {
+    expect(membershipFromCodes(obsIndex, []).size).toEqual(0);
   });
 });

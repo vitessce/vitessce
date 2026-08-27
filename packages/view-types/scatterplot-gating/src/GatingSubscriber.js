@@ -25,6 +25,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   getCellSetPolygons, mergeObsSets, setObsSelection, treeToColorIndicesArray,
+  colorIndicesFromCodes,
 } from '@vitessce/sets-utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
@@ -155,7 +156,9 @@ export function GatingSubscriber(props) {
   ), [gatingFeatureSelectionY]);
 
   // Get data from loaders using the data hooks.
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsColumns }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
     { obsSetSelection: cellSetSelection, obsSetColor: cellSetColor },
@@ -271,9 +274,23 @@ export function GatingSubscriber(props) {
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
   // Map costs one string hash lookup per point per render, plus a per-observation
   // color array whenever the selected sets carry confidence scores.
-  const obsColorIndices = useMemo(() => treeToColorIndicesArray(
-    mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme,
-  ), [mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme]);
+  const obsColorIndices = useMemo(() => (
+    // When the loader provides raw categorical codes over this same observation
+    // axis (checked by reference), the encoding is one typed-array pass with no
+    // tree walk. colorIndicesFromCodes returns null for selections it cannot
+    // resolve (e.g. user-defined lasso selections), falling back to the tree.
+    (obsSetsColumns && obsSetsColumns.obsIndex === obsIndex
+      && colorIndicesFromCodes({
+        columns: obsSetsColumns.columns,
+        obsIndex,
+        selectedNamePaths: cellSetSelection,
+        cellSetColor,
+        theme,
+      }))
+    || treeToColorIndicesArray(
+      mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme,
+    )
+  ), [mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme, obsSetsColumns]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.

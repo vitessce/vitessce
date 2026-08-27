@@ -20,9 +20,11 @@ import {
   treeToCellSetColorIndicesBySetNames,
   treeToObjectsBySetNames,
   treeToColorIndicesArray,
+  colorIndicesFromCodes,
   getObsIndexMap,
   treeToMembershipMap,
 } from './cell-set-utils.js';
+import { codesToCellSetsTree } from './CellSetsZarrLoader.js';
 
 import {
   levelTwoNodeLeaf,
@@ -447,6 +449,95 @@ describe('Hierarchical sets cell-set-utils', () => {
         tree, [PERICYTES], setColor, ['cell_2'], 'light',
       );
       expect(Array.from(partial.colorIndices)).toEqual([1]);
+    });
+  });
+
+  describe('Color indices from raw codes', () => {
+    const obsIndex = ['cell_1', 'cell_2', 'cell_3', 'cell_4', 'cell_5'];
+    const columns = [
+      {
+        name: 'Cell Type',
+        path: ['Cell Type'],
+        codes: Int8Array.from([0, 1, -1, 0, 1]),
+        categories: ['T cell', 'B cell'],
+      },
+      {
+        name: 'Leiden',
+        path: ['Leiden'],
+        codes: Int8Array.from([1, 1, 0, -1, 0]),
+        categories: ['0', '1'],
+      },
+    ];
+    const options = [{ name: 'Cell Type' }, { name: 'Leiden' }];
+    const codesTree = codesToCellSetsTree({ obsIndex, columns }, options);
+    const setColor = [
+      { path: ['Cell Type', 'T cell'], color: [255, 0, 0] },
+      { path: ['Leiden', '0'], color: [0, 255, 0] },
+    ];
+
+    // The two routes must be interchangeable, so compare against the tree route
+    // on the tree built from the same columns.
+    function expectSameAsTreeRoute(selection) {
+      const expected = treeToColorIndicesArray(
+        codesTree, selection, setColor, obsIndex, 'light',
+      );
+      const actual = colorIndicesFromCodes({
+        columns, obsIndex, selectedNamePaths: selection, cellSetColor: setColor, theme: 'light',
+      });
+      expect(actual).not.toEqual(null);
+      expect(Array.from(actual.colorIndices)).toEqual(Array.from(expected.colorIndices));
+      expect(actual.colors).toEqual(expected.colors);
+      expect(actual.colorProbs).toEqual(expected.colorProbs);
+    }
+
+    it('matches the tree route for a single-hierarchy selection', () => {
+      expectSameAsTreeRoute([['Cell Type', 'T cell'], ['Cell Type', 'B cell']]);
+    });
+
+    it('matches the tree route across hierarchies (later path wins)', () => {
+      expectSameAsTreeRoute([['Cell Type', 'T cell'], ['Leiden', '1']]);
+      expectSameAsTreeRoute([['Leiden', '1'], ['Cell Type', 'T cell']]);
+    });
+
+    it('matches the tree route for missing colors and empty selections', () => {
+      // 'Leiden' > '1' has no entry in setColor, so it takes the theme default.
+      expectSameAsTreeRoute([['Leiden', '1']]);
+      expectSameAsTreeRoute([]);
+    });
+
+    it('returns null for selections it cannot resolve', () => {
+      // A user-defined selection from additionalObsSets.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['My Selections', 'Selection 1']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+      // A category that is not in the column.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', 'NK cell']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+      // The undefined-named set that holds missing codes.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', undefined]],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+      // A path with the wrong depth.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', 'T cell', 'extra']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
     });
   });
 

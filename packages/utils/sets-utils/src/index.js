@@ -3,6 +3,7 @@ export {
   treeToCellColorsBySetNames,
   treeToCellSetColorIndicesBySetNames,
   treeToColorIndicesArray,
+  colorIndicesFromCodes,
   getObsIndexMap,
   treeToSetSizesBySetNames,
   treeToObjectsBySetNames,
@@ -32,6 +33,7 @@ export {
 } from './cell-set-utils.js';
 export {
   lazyTreeToMembershipMap,
+  membershipFromCodes,
 } from './membership.js';
 export {
   findLongestCommonPath,
@@ -68,6 +70,7 @@ export {
 } from './constants.js';
 export {
   dataToCellSetsTree,
+  codesToCellSetsTree,
 } from './CellSetsZarrLoader.js';
 export {
   getCellColors,

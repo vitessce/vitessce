@@ -7,6 +7,67 @@ import {
   SETS_DATATYPE_OBS,
 } from './constants.js';
 
+/**
+ * Build a cell sets tree from raw categorical codes, without materializing one
+ * string per observation. Output is identical to what dataToCellSetsTree produces
+ * for the equivalent single-level string columns: observed categories only, the
+ * same child ordering (via the same plain-object construction), and an
+ * undefined-named set for observations with a negative (missing) code.
+ * @param {object} params
+ * @param {string[]} params.obsIndex The observation index shared by all columns.
+ * @param {{ codes: ArrayLike<number>, categories: string[] }[]} params.columns
+ * Raw codes and category names, one entry per obsSets option.
+ * @param {{ name: string }[]} options The obsSets options, providing hierarchy names.
+ * @returns {object} A tree object.
+ */
+export function codesToCellSetsTree({ obsIndex, columns }, options) {
+  const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
+  columns.forEach(({ codes, categories }, j) => {
+    const { name } = options[j];
+    let levelZeroNode = {
+      name,
+      children: [],
+    };
+    // Determine which categories are observed, since dataToCellSetsTree only
+    // creates sets for values that occur in the data.
+    const seen = new Uint8Array(categories.length);
+    let hasMissing = false;
+    for (let i = 0; i < codes.length; i += 1) {
+      const code = codes[i];
+      if (code >= 0) {
+        seen[code] = 1;
+      } else {
+        hasMissing = true;
+      }
+    }
+    const uniqueCellSetIds = categories.filter((_, k) => seen[k]);
+    if (hasMissing) {
+      // A negative code decodes to categories[-1] === undefined in the string
+      // path, which lands in an undefined-named set; sort() places it last.
+      uniqueCellSetIds.push(undefined);
+    }
+    uniqueCellSetIds.sort();
+    const clusters = {};
+    // eslint-disable-next-line no-return-assign
+    uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
+    // Resolve each observed code to its cluster once, so the per-observation
+    // loop is a typed-array read plus a push.
+    const clusterByCode = categories.map((cat, k) => (seen[k] ? clusters[cat] : null));
+    const missingCluster = hasMissing ? clusters[undefined] : null;
+    for (let i = 0; i < codes.length; i += 1) {
+      const code = codes[i];
+      const cluster = code >= 0 ? clusterByCode[code] : missingCluster;
+      cluster.set.push([obsIndex[i], null]);
+    }
+    Object.values(clusters).forEach(
+      // eslint-disable-next-line no-return-assign
+      cluster => (levelZeroNode = nodeAppendChild(levelZeroNode, cluster)),
+    );
+    cellSetsTree.tree.push(levelZeroNode);
+  });
+  return cellSetsTree;
+}
+
 export function dataToCellSetsTree(data, options) {
   // obsIndex is an array of all cell IDs, for the purposes of set complement operations only.
   // cellNames is per-cellSets arrays of cell IDs.
