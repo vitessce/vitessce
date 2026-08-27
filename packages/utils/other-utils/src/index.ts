@@ -11,6 +11,7 @@ export {
   getInitialCoordinationScopePrefix,
   getInitialCoordinationScopeName,
   unnestMap,
+  MISSING_VALUE_PLACEHOLDER,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {

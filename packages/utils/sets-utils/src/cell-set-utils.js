@@ -4,7 +4,7 @@ import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import { centroid } from '@turf/centroid';
 import concaveman from 'concaveman';
-import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { getDefaultColor, PALETTE, MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants.js';
@@ -360,7 +360,7 @@ export function treeInitialize(datatype) {
 export function nodeToRenderProps(node, path, cellSetColor) {
   const level = path.length - 1;
   return {
-    title: node.name,
+    title: node.name ?? MISSING_VALUE_PLACEHOLDER,
     nodeKey: pathToKey(path),
     path,
     size: getNodeLength(node),
@@ -682,7 +682,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
       nodeSet.forEach(([cellId]) => {
         cellsArray.push({
           obsId: cellId,
-          name: node.name,
+          name: node.name ?? MISSING_VALUE_PLACEHOLDER,
           color: nodeColor,
         });
       });
@@ -770,7 +770,7 @@ export function treeToSetSizesBySetNames(
           || getDefaultColor(theme);
       const nodeProps = {
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
@@ -805,7 +805,7 @@ export function treeToObsIdsBySetNames(currTree, selectedNamePaths) {
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing
@@ -836,7 +836,7 @@ export function treeToObsIndicesBySetNames(currTree, selectedNamePaths, obsIndex
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing

@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { describe, it, expect } from 'vitest';
 import { cloneDeep } from 'lodash-es';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 
 import {
   nodeToRenderProps,
@@ -557,5 +558,38 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(membership.size).toEqual(7);
       expect(treeToMembershipMap(null).size).toEqual(0);
     });
+  });
+});
+
+describe('Missing set names', () => {
+  // A negative categorical code is a missing value. codesToCellSetsTree (like
+  // dataToCellSetsTree) places those observations in a set whose name is undefined.
+  const obsIndex = ['c1', 'c2', 'c3', 'c4'];
+  const columns = [{ codes: Int8Array.from([0, -1, 1, -1]), categories: ['A', 'B'] }];
+  const missingTree = codesToCellSetsTree({ obsIndex, columns }, [{ name: 'Label' }]);
+  const missingPath = ['Label', undefined];
+  const missingNode = missingTree.tree[0].children.find(c => c.name === undefined);
+
+  it('titles the missing set with the shared placeholder in the sets manager', () => {
+    const renderProps = nodeToRenderProps(missingNode, missingPath, []);
+    expect(renderProps.title).toEqual(MISSING_VALUE_PLACEHOLDER);
+    expect(renderProps.size).toEqual(2);
+    // Named sets are untouched.
+    const namedNode = missingTree.tree[0].children.find(c => c.name === 'A');
+    expect(nodeToRenderProps(namedNode, ['Label', 'A'], []).title).toEqual('A');
+  });
+
+  it('labels the missing set with the same placeholder in plot data', () => {
+    const sizes = treeToSetSizesBySetNames(
+      missingTree, [['Label', 'A'], missingPath], [missingPath], [], 'dark',
+    );
+    expect(sizes.map(s => s.name)).toEqual(['A', MISSING_VALUE_PLACEHOLDER]);
+    expect(sizes[1].size).toEqual(2);
+    // The identity of the set is still carried by its path, not the display name.
+    expect(sizes[1].setNamePath).toEqual(missingPath);
+
+    const objects = treeToObjectsBySetNames(missingTree, [missingPath], [], 'dark');
+    expect(objects.map(o => o.obsId)).toEqual(['c2', 'c4']);
+    expect(objects.every(o => o.name === MISSING_VALUE_PLACEHOLDER)).toEqual(true);
   });
 });
