@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { AbsolutePath, RangeQuery } from 'zarrita';
-import { CachedStore, type QueryClientLike } from './normalize.js';
+import { CachedStore, UNCACHED_READ, type QueryClientLike } from './normalize.js';
 
 // A store whose responses resolve only when released, for testing coalescing.
 function makeGatedStore(withGetRange = true) {
@@ -133,5 +133,39 @@ describe('CachedStore', () => {
     // Same key, different URLs: both stores are read.
     expect(gatedA.calls.length).toEqual(1);
     expect(gatedB.calls.length).toEqual(1);
+  });
+
+  it('reads straight through when the UNCACHED_READ marker is set', async () => {
+    const seen: Array<[string, unknown]> = [];
+    const store = {
+      async get(key: AbsolutePath, opts?: RequestInit) {
+        seen.push([`get:${key}`, opts]);
+        return new TextEncoder().encode(key);
+      },
+      async getRange(key: AbsolutePath, range: RangeQuery, opts?: RequestInit) {
+        seen.push([`getRange:${key}`, opts]);
+        return new TextEncoder().encode(key);
+      },
+    };
+    const { queryClient, getFetchQueryCalls } = makeQueryClientStub();
+    const cached = new CachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const opts = { [UNCACHED_READ]: true, headers: { Authorization: 'Bearer x' } };
+    await cached.get('/X/indices/0', opts);
+    await cached.get('/X/indices/0', opts);
+    await cached.getRange?.('/X/indices/0', { offset: 0, length: 4 }, opts);
+    // Every read reached the store: nothing was coalesced or retained.
+    expect(seen.map(([label]) => label)).toEqual([
+      'get:/X/indices/0', 'get:/X/indices/0', 'getRange:/X/indices/0',
+    ]);
+    expect(getFetchQueryCalls()).toEqual(0);
+    // The marker is stripped, the remaining request options are preserved, and
+    // the caller's object is not mutated.
+    expect(seen[0][1]).toEqual({ headers: { Authorization: 'Bearer x' } });
+    expect(opts[UNCACHED_READ]).toEqual(true);
+    // Reads without the marker still go through the cache.
+    await cached.get('/X/indices/1');
+    await cached.get('/X/indices/1');
+    expect(getFetchQueryCalls()).toEqual(2);
+    expect(seen.filter(([label]) => label === 'get:/X/indices/1').length).toEqual(1);
   });
 });
