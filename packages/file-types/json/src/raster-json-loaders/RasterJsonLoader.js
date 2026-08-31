@@ -1,3 +1,4 @@
+/*
 import { viv } from '@vitessce/gl';
 import { log } from '@vitessce/globals';
 import {
@@ -12,8 +13,9 @@ import { open as zarrOpen } from 'zarrita';
 import { zarrOpenRoot, createZarrArrayAdapter } from '@vitessce/zarr-utils';
 import { LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
+*/
 import JsonLoader from '../json-loaders/JsonLoader.js';
-
+/*
 async function initLoader(imageData) {
   try {
     const {
@@ -130,10 +132,11 @@ async function initLoader(imageData) {
     throw error;
   }
 }
-
+*/
 
 export default class RasterLoader extends JsonLoader {
   constructor(dataSource, params) {
+    /*
     const { url, options } = params;
     if (!url && options) {
       // eslint-disable-next-line no-param-reassign
@@ -141,9 +144,12 @@ export default class RasterLoader extends JsonLoader {
     }
     super(dataSource, params);
     this.schema = rasterSchema;
+    */
   }
 
   async load() {
+    throw new Error('No longer used.');
+    /*
     const payload = await super.load();
     const { data: raster } = payload;
     const { images, renderLayers, usePhysicalSizeScaling = false } = raster;
@@ -184,5 +190,6 @@ export default class RasterLoader extends JsonLoader {
         coordinationValues,
       );
     });
+    */
   }
 }

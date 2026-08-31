@@ -55,7 +55,10 @@ export default class CellsJsonAsObsSegmentationsLoader extends JsonLoader {
     const { data, url } = payload;
     const result = this.loadFromCache(data);
     const coordinationValues = {
-      spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
+      // Old
+      // spatialSegmentationLayer: DEFAULT_CELLS_LAYER,
+      // New
+      // TODO
     };
     return new LoaderResult({
       ...result,
