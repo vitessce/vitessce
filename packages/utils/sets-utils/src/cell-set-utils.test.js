@@ -22,6 +22,8 @@ import {
   treeToObjectsBySetNames,
   treeToColorIndicesArray,
   colorIndicesFromCodes,
+  treeToSetIndicesArray,
+  setIndicesFromCodes,
   getObsIndexMap,
   treeToMembershipMap,
 } from './cell-set-utils.js';
@@ -611,5 +613,58 @@ describe('Missing set names', () => {
     const objects = treeToObjectsBySetNames(missingTree, [missingPath], [], 'dark');
     expect(objects.map(o => o.obsId)).toEqual(['c2', 'c4']);
     expect(objects.every(o => o.name === MISSING_VALUE_PLACEHOLDER)).toEqual(true);
+  });
+});
+
+describe('Positional set indices', () => {
+  const obsIndex = ['c1', 'c2', 'c3', 'c4', 'c5'];
+  const columns = [{
+    name: 'Cell Type',
+    path: ['Cell Type'],
+    codes: Int8Array.from([0, 1, -1, 0, 1]),
+    categories: ['T cell', 'B cell'],
+  }];
+  const codesTree = codesToCellSetsTree({ obsIndex, columns }, [{ name: 'Cell Type' }]);
+  const selection = [['Cell Type', 'B cell'], ['Cell Type', 'T cell']];
+
+  it('treeToSetIndicesArray gives 1-based selection positions, later paths winning', () => {
+    const indices = treeToSetIndicesArray(codesTree, selection, obsIndex);
+    expect(indices).toBeInstanceOf(Uint8Array);
+    expect(Array.from(indices)).toEqual([2, 1, 0, 2, 1]);
+    // Identical to the color encoding's indices.
+    expect(Array.from(indices)).toEqual(
+      Array.from(treeToColorIndicesArray(codesTree, selection, [], obsIndex, 'light').colorIndices),
+    );
+    // A doubly-selected observation takes the later path.
+    const both = [['Cell Type', 'T cell'], ['Cell Type', 'B cell'], ['Cell Type', 'T cell']];
+    expect(Array.from(treeToSetIndicesArray(codesTree, both, obsIndex))).toEqual([3, 2, 0, 3, 2]);
+  });
+
+  it('treeToSetIndicesArray handles empty selections and absent trees', () => {
+    expect(Array.from(treeToSetIndicesArray(codesTree, [], obsIndex))).toEqual([0, 0, 0, 0, 0]);
+    expect(Array.from(treeToSetIndicesArray(codesTree, null, obsIndex))).toEqual([0, 0, 0, 0, 0]);
+    expect(Array.from(treeToSetIndicesArray(null, selection, obsIndex))).toEqual([0, 0, 0, 0, 0]);
+    expect(treeToSetIndicesArray(codesTree, selection, []).length).toEqual(0);
+  });
+
+  it('setIndicesFromCodes matches the tree and resolves the missing-value set', () => {
+    expect(Array.from(setIndicesFromCodes({ columns, obsIndex, selectedNamePaths: selection })))
+      .toEqual(Array.from(treeToSetIndicesArray(codesTree, selection, obsIndex)));
+    const withMissing = [...selection, ['Cell Type', MISSING_VALUE_PLACEHOLDER]];
+    expect(Array.from(setIndicesFromCodes({ columns, obsIndex, selectedNamePaths: withMissing })))
+      .toEqual(Array.from(treeToSetIndicesArray(codesTree, withMissing, obsIndex)));
+    expect(Array.from(setIndicesFromCodes({ columns, obsIndex, selectedNamePaths: withMissing })))
+      .toEqual([2, 1, 3, 2, 1]);
+  });
+
+  it('setIndicesFromCodes returns null for selections it cannot resolve', () => {
+    const unresolvable = [
+      [['My Selections', 'Selection 1']],
+      [['Cell Type', 'NK cell']],
+      [['Cell Type', 'T cell', 'extra']],
+    ];
+    unresolvable.forEach((selectedNamePaths) => {
+      expect(setIndicesFromCodes({ columns, obsIndex, selectedNamePaths })).toEqual(null);
+    });
   });
 });

@@ -387,7 +387,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { cellsQuadTree } = this;
     const flipYTooltip = true;
     const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
     return getSelectionLayer(
@@ -398,7 +397,11 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         {
           getObsCoords: getCellCoords,
           obsIndex,
-          obsQuadTree: cellsQuadTree,
+          // The selection layer only visits the quadtree once a selection is
+          // drawn, so it is built on first use rather than per embedding change.
+          obsQuadTree: {
+            visit: callback => this.getCellsQuadTree()?.visit(callback),
+          },
           onSelect: (obsIds) => {
             setCellSelection(obsIds);
           },
@@ -422,11 +425,26 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     ];
   }
 
+  /**
+   * The quadtree over the embedding coordinates, used for lasso and rectangle
+   * selection. Built lazily: at millions of points it costs about a second, and
+   * most renders never select.
+   * @returns {object|null} The d3-quadtree, or null without embedding data.
+   */
+  getCellsQuadTree() {
+    const { obsEmbedding } = this.props;
+    if (!this.cellsQuadTree && obsEmbedding) {
+      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
+      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
+    }
+    return this.cellsQuadTree;
+  }
+
   onUpdateCellsData() {
     const { obsEmbedding } = this.props;
     if (obsEmbedding) {
-      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
-      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
+      // Invalidate the lazily built quadtree for the previous embedding.
+      this.cellsQuadTree = null;
       this.cellsData = {
         src: {
           obsEmbedding,
