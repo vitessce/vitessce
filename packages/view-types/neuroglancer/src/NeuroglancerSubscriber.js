@@ -430,6 +430,17 @@ export function NeuroglancerSubscriber(props) {
               }
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
+          } else if (idsToColor) {
+            // No obsColors data available yet (e.g. still loading, or none
+            // provided) -- fall back to flat grey for every
+            // known segment rather than leaving colors unset entirely.
+            const ngCellColors = {};
+            idsToColor.forEach((id) => {
+              if (knownIdSet.has(String(id))) {
+                ngCellColors[id] = GREY_HEX;
+              }
+            });
+            finalizeChannelColors(ngCellColors, spatialChannelOpacity, GREY_HEX);
           }
         } else if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
