@@ -51,6 +51,7 @@ import {
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 import SetsManager from './SetsManager.js';
+import ObsSetsManagerOptions from './ObsSetsManagerOptions.js';
 
 // TODO(monorepo): import package.json
 // import packageJson from '../../../package.json';
@@ -91,12 +92,14 @@ export function ObsSetsManagerSubscriber(props) {
     obsSetColor,
     additionalObsSets,
     obsColorEncoding,
+    obsSetColormap,
   }, {
     setObsSetSelection,
     setObsColorEncoding,
     setObsSetColor,
     setObsSetExpansion,
     setAdditionalObsSets,
+    setObsSetColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
@@ -616,6 +619,7 @@ export function ObsSetsManagerSubscriber(props) {
       levelSelection={checkedLevel}
       setSelection={obsSetSelection}
       setExpansion={obsSetExpansion}
+      obsSetColormap={obsSetColormap}
       hasColorEncoding={obsColorEncoding === 'cellSetSelection'}
       draggable
       datatype={SETS_DATATYPE_OBS}
@@ -642,7 +646,7 @@ export function ObsSetsManagerSubscriber(props) {
       hasCheckedSetsToComplement={obsSetSelection?.length > 0}
       theme={theme}
     />
-  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetExpansion, obsSetSelection,
+  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetColormap, obsSetExpansion, obsSetSelection,
     cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
@@ -662,6 +666,12 @@ export function ObsSetsManagerSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      options={(
+        <ObsSetsManagerOptions
+          obsSetColormap={obsSetColormap}
+          setObsSetColormap={setObsSetColormap}
+        />
+        )}
     >
       {manager}
     </TitleInfo>

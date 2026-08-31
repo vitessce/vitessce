@@ -26,6 +26,7 @@ export {
   getCellSetPolygons,
   treeToMembershipMap,
   nodeToSet,
+  computeNodeColorIndices,
 } from './cell-set-utils.js';
 export {
   findLongestCommonPath,

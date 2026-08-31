@@ -4,7 +4,7 @@ import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import { centroid } from '@turf/centroid';
 import concaveman from 'concaveman';
-import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { getDefaultColor, PALETTE, getQualitativeColor } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants.js';
@@ -351,20 +351,31 @@ export function treeInitialize(datatype) {
 }
 
 /**
+ * Resolve a node's color: explicit override in cellSetColor if present,
+ * otherwise a color from the named qualitative colormap based on the
+ * node's position among its siblings.
+ */
+function resolveNodeColor(path, index, cellSetColor, obsSetColormap) {
+  const explicit = cellSetColor?.find(d => isEqual(d.path, path))?.color;
+  if (explicit) return explicit;
+  return getQualitativeColor(obsSetColormap || 'default', index);
+}
+
+/**
  * For convenience, get an object with information required
  * to render a node as a component.
  * @param {object} node A node to be rendered.
  * @returns {object} An object containing properties required
  * by the TreeNode render functions.
  */
-export function nodeToRenderProps(node, path, cellSetColor) {
+export function nodeToRenderProps(node, path, cellSetColor, index, obsSetColormap) {
   const level = path.length - 1;
   return {
     title: node.name,
     nodeKey: pathToKey(path),
     path,
     size: getNodeLength(node),
-    color: cellSetColor?.find(d => isEqual(d.path, path))?.color,
+    color: resolveNodeColor(path, index, cellSetColor, obsSetColormap),
     level,
     isLeaf: (!node.children || node.children.length === 0) && Boolean(node.set),
     height: nodeToHeight(node),
@@ -402,16 +413,19 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * where cellIds is an array of strings,
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
-export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor, theme) {
+export function treeToCellColorsBySetNames(
+    currTree,
+    selectedNamePaths,
+    cellSetColor,
+    theme,
+    obsSetColormap,
+  ) {
   let cellColorsArray = [];
-  selectedNamePaths.forEach((setNamePath) => {
+  selectedNamePaths.forEach((setNamePath, index) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      const nodeColor = (
-        cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-        || getDefaultColor(theme)
-      );
+      const nodeColor = resolveNodeColor(setNamePath, index, cellSetColor, obsSetColormap);
       cellColorsArray = [
         ...cellColorsArray,
         ...nodeSet.map(([cellId, prob]) => [
@@ -824,4 +838,33 @@ export function treeToMembershipMap(currTree) {
     });
   }
   return result;
+}
+
+
+/**
+ * Precompute a mapping from node path (as a key string) to its position
+ * among nodes at the same hierarchy level, in the same traversal order
+ * used historically by initializeCellSetColor. This keeps "live" colormap
+ * lookups consistent with any colors that were previously baked in.
+ * @param {object} sets A sets tree object (e.g. cellSets).
+ * @returns {Map<string, number>} Map from pathToKey(path) to level-index.
+ */
+export function computeNodeColorIndices(sets) {
+  const indices = new Map();
+  if (!sets?.tree) return indices;
+  const nodeCountPerTreePerLevel = sets.tree.map(tree => Array
+    .from({ length: nodeToHeight(tree) + 1 }).fill(0));
+
+  function processNode(node, prevPath, hierarchyLevel, treeIndex) {
+    const index = nodeCountPerTreePerLevel[treeIndex][hierarchyLevel];
+    const nodePath = [...prevPath, node.name];
+    indices.set(pathToKey(nodePath), index);
+    nodeCountPerTreePerLevel[treeIndex][hierarchyLevel] += 1;
+    if (node.children) {
+      node.children.forEach(c => processNode(c, nodePath, hierarchyLevel + 1, treeIndex));
+    }
+  }
+
+  sets.tree.forEach((lzn, treeIndex) => processNode(lzn, [], 0, treeIndex));
+  return indices;
 }

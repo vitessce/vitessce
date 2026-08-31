@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import React, { useState, useMemo } from 'react';
 import { isEqual } from 'lodash-es';
-import { nodeToRenderProps, pathToKey } from '@vitessce/sets-utils';
+import { nodeToRenderProps, pathToKey, computeNodeColorIndices } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
 import Tree from './Tree.js';
 import TreeNode from './TreeNode.js';
@@ -98,6 +98,7 @@ export default function SetsManager(props) {
     additionalSets,
     setColor,
     levelSelection: checkedLevel,
+    obsSetColormap,
     setSelection,
     setExpansion,
     hasColorEncoding,
@@ -144,6 +145,14 @@ export default function SetsManager(props) {
     additionalSets, setColor, theme,
   ), [additionalSets, setColor, theme]);
 
+  // Precompute per-level node indices so real-time colormap lookups stay
+  // consistent with each other and with any colors baked in previously.
+
+  const colorIndices = useMemo(() => computeNodeColorIndices(sets), [sets]);
+  const additionalColorIndices = useMemo(
+    () => computeNodeColorIndices(additionalSets), [additionalSets],
+  );
+
   const additionalSetKeys = (processedAdditionalSets
     ? processedAdditionalSets.tree.flatMap(v => getAllKeys(v, []))
     : []
@@ -163,7 +172,7 @@ export default function SetsManager(props) {
    * @param {object[]} nodes An array of node objects.
    * @returns {TreeNode[]|null} Array of TreeNode components or null.
    */
-  function renderTreeNodes(nodes, readOnly, currPath) {
+  function renderTreeNodes(nodes, readOnly, currPath, nodeColorIndices) {
     if (!nodes) {
       return null;
     }
@@ -173,7 +182,7 @@ export default function SetsManager(props) {
         <TreeNode
           theme={theme}
           key={pathToKey(newPath)}
-          {...nodeToRenderProps(node, newPath, setColor)}
+          {...nodeToRenderProps(node, newPath, setColor, nodeColorIndices, obsSetColormap)}
 
           isEditing={isEqual(isEditingNodeName, newPath)}
 
@@ -208,7 +217,7 @@ export default function SetsManager(props) {
           onDragStart={() => setIsDragging(true)}
           onDragEnd={() => setIsDragging(false)}
         >
-          {renderTreeNodes(node.children, readOnly, newPath, theme)}
+          {renderTreeNodes(node.children, readOnly, newPath, nodeColorIndices, obsSetColormap)}
         </TreeNode>
       );
     });
@@ -238,7 +247,7 @@ export default function SetsManager(props) {
             info.expanded,
           )}
         >
-          {renderTreeNodes(processedSets.tree, true, [], theme)}
+          {renderTreeNodes(processedSets.tree, true, [], colorIndices)}
         </Tree>
         <Tree
           draggable /* TODO */
@@ -264,7 +273,7 @@ export default function SetsManager(props) {
             onDropNode(dropKey, dragKey, dropPosition, dropToGap);
           }}
         >
-          {renderTreeNodes(processedAdditionalSets.tree, false, [], theme)}
+          {renderTreeNodes(processedAdditionalSets.tree, false, [], additionalColorIndices)}
         </Tree>
 
         <PlusButton
