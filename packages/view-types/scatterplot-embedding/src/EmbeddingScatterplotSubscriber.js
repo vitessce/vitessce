@@ -262,6 +262,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
@@ -570,7 +571,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
       options={(
@@ -617,6 +618,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={setViewState}

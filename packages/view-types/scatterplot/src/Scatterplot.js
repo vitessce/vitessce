@@ -408,6 +408,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         },
       ],
       flipYTooltip,
+      this.props.onSelectionBusy,
     );
   }
 

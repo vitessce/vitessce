@@ -254,6 +254,7 @@ export function GatingSubscriber(props) {
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
@@ -433,7 +434,7 @@ export function GatingSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
       options={(
@@ -488,6 +489,7 @@ export function GatingSubscriber(props) {
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
         hideRecenter={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}

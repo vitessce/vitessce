@@ -341,6 +341,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
           },
         },
       ],
+      false,
+      this.props.onSelectionBusy,
     );
   }
 

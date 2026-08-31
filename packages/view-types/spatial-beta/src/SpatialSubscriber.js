@@ -600,6 +600,7 @@ export function SpatialSubscriber(props) {
   ]);
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -944,7 +945,7 @@ export function SpatialSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
       options={(
@@ -1071,6 +1072,7 @@ export function SpatialSubscriber(props) {
           <Spatial
             ref={deckRef}
             uuid={uuid}
+            onSelectionBusy={setIsSelectionPending}
             width={width}
             height={height}
             theme={theme}
