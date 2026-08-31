@@ -50,8 +50,14 @@ function generateSpatialAcceleratedConfiguration(imageId) {
   //   .setProps({ three: true, accelerated: false });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
   config.linkViewsByObject([spatialAcceleratedView, lcView], {
+    spatialZoom: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
     spatialTargetZ: 0,
     spatialTargetT: 0,
+    spatialRotationX: 0,
+    spatialRotationOrbit: 0,
+    spatialOrbitAxis: 'X',
     spatialRenderingMode: '3D',
     imageLayer: CL([
       {
