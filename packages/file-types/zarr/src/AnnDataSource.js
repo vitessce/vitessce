@@ -227,14 +227,23 @@ export default class AnnDataSource extends ZarrDataSource {
    * }>} A promise for a zarr array containing the data.
    */
   async loadNumericForDims(path, dims) {
-    const arr = this.openArray(path);
+    const loadedArr = await this.openArray(path);
     const minDim = Math.min(...dims);
     const maxDim = Math.max(...dims);
-    if (maxDim - minDim + 1 === dims.length) {
+    const isContiguous = maxDim - minDim + 1 === dims.length;
+    // A sliced read only helps when at least two requested dims live in the
+    // same chunk, where per-dim reads would fetch and decompress that chunk
+    // once per dim (e.g. chunks like [129578, 4]). When every dim maps to its
+    // own chunk column (e.g. chunks like [160497, 1]), per-dim reads fetch the
+    // same chunks but skip the sliced read's interleaved 2D assembly and
+    // per-column extraction, which cost ~0.5 s at millions of observations.
+    const chunkWidth = loadedArr.chunks[1] ?? 1;
+    const dimsShareChunks = new Set(
+      dims.map(dim => Math.floor(dim / chunkWidth)),
+    ).size < dims.length;
+    if (isContiguous && dimsShareChunks) {
       // The dims form a contiguous run (the common case, e.g. [0, 1]), so a single
-      // sliced read covers all of them. Requesting each dim separately would fetch
-      // and decompress any chunk containing multiple requested dims once per dim.
-      const loadedArr = await arr;
+      // sliced read covers all of them without fetching any shared chunk twice.
       const { data, shape, stride } = await zarrGet(
         loadedArr, [null, zarrSlice(minDim, maxDim + 1)],
       );
@@ -252,12 +261,11 @@ export default class AnnDataSource extends ZarrDataSource {
         shape: [dims.length, numRows],
       };
     }
-    // Non-contiguous dims: load per-dim. The store-level cache still coalesces
-    // concurrent reads of any shared chunks.
+    // Per-dim reads: chunk-disjoint dims fetch every chunk exactly once, and
+    // for non-contiguous dims the store-level cache still coalesces concurrent
+    // reads of any shared chunks.
     return Promise.all(
-      dims.map(dim => arr.then(
-        loadedArr => zarrGet(loadedArr, [null, dim]),
-      )),
+      dims.map(dim => zarrGet(loadedArr, [null, dim])),
     ).then(cols => ({
       data: /** @type {[ZarrTypedArray<any>, ZarrTypedArray<any>]} */ (
         cols.map(col => col.data)

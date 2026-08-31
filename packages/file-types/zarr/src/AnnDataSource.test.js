@@ -1,5 +1,6 @@
 /* eslint-disable camelcase, no-underscore-dangle */
 import { describe, it, expect } from 'vitest';
+import { root as zarrRoot, create as zarrCreate, set as zarrSet } from 'zarrita';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import AnnDataSource from './AnnDataSource.js';
 import anndata_0_7_DenseFixture from './json-fixtures/anndata-0.7/anndata-dense.json';
@@ -181,5 +182,46 @@ describe('AnnDataSource metadata caching', () => {
     await expect(dataSource.getJson('obs/missing/.zattrs')).rejects.toThrow();
     expect(calls.filter(key => key.includes('missing')).length)
       .toBeGreaterThan(probesAfterFirst);
+  });
+});
+
+describe('AnnDataSource.loadNumericForDims chunk-layout routing', () => {
+  it('reads each chunk once and skips unrequested columns on a column-chunked array', async () => {
+    const overlay = new Map();
+    const root = zarrRoot(overlay);
+    const numRows = 6;
+    const values = Float32Array.from({ length: numRows * 3 }, (_, i) => i);
+    const arr = await zarrCreate(root.resolve('obsm/X_test'), {
+      shape: [numRows, 3],
+      // One column per chunk, three row-chunks per column: the layout where
+      // the contiguous-slice route only adds 2D assembly overhead.
+      chunk_shape: [2, 1],
+      data_type: 'float32',
+      codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
+      fill_value: 0,
+    });
+    await zarrSet(arr, [null, null], {
+      data: values, shape: [numRows, 3], stride: [3, 1],
+    });
+    const calls = [];
+    const store = {
+      get: (key) => {
+        calls.push(key);
+        return overlay.get(key);
+      },
+    };
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/generated/column-chunked.zarr',
+      store,
+    });
+    const result = await dataSource.loadNumericForDims('obsm/X_test', [0, 1]);
+    expect(result.shape).toEqual([2, numRows]);
+    expect(Array.from(result.data[0])).toEqual([0, 3, 6, 9, 12, 15]);
+    expect(Array.from(result.data[1])).toEqual([1, 4, 7, 10, 13, 16]);
+    const chunkCalls = calls.filter(key => key.includes('/c/'));
+    // Every requested chunk exactly once, and column 2 never touched.
+    expect(new Set(chunkCalls).size).toEqual(chunkCalls.length);
+    expect(chunkCalls.length).toEqual(6);
+    expect(chunkCalls.filter(key => key.endsWith('/2')).length).toEqual(0);
   });
 });
