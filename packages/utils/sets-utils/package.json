@@ -38,7 +38,7 @@
     "concaveman": "^1.2.1",
     "d3-dsv": "catalog:",
     "internmap": "catalog:",
-    "json2csv": "^5.0.0",
+    "@json2csv/plainjs": "^7.0.8",
     "lodash-es": "catalog:",
     "tinycolor2": "^1.4.1",
     "uuid": "catalog:"

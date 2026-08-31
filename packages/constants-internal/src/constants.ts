@@ -38,6 +38,7 @@ export const ViewType = {
 
 export const DataType = {
   OBS_LABELS: 'obsLabels',
+  OBS_COLORS: 'obsColors',
   OBS_EMBEDDING: 'obsEmbedding',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
@@ -86,6 +87,7 @@ export const FileType = {
   OBS_POINTS_CSV: 'obsPoints.csv',
   OBS_LOCATIONS_CSV: 'obsLocations.csv',
   OBS_LABELS_CSV: 'obsLabels.csv',
+  OBS_COLORS_CSV: 'obsColors.csv',
   FEATURE_LABELS_CSV: 'featureLabels.csv',
   OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv',
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',

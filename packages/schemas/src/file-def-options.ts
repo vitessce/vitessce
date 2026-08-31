@@ -380,6 +380,16 @@ export const obsLabelsCsvSchema = z.object({
   obsIndex: z.string(),
   obsLabels: z.string(),
 });
+export const obsColorsCsvSchema = z.object({
+  obsIndex: z.string(),
+  // Either a single column containing hex color strings (e.g., "#ff0000"),
+  // or three columns containing the R, G, and B channel values (each in [0, 255]).
+  obsColors: z.union([
+    z.string(),
+    z.array(z.string()).length(3),
+  ]),
+  // TODO: add an explicit format field?
+});
 export const featureLabelsCsvSchema = z.object({
   featureIndex: z.string(),
   featureLabels: z.string(),
