@@ -1,4 +1,4 @@
-/* eslint-disable camelcase */
+/* eslint-disable camelcase, no-underscore-dangle */
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
 import AnnDataSource from './AnnDataSource.js';
@@ -130,5 +130,56 @@ describe('AnnDataSource.loadObsColumnCodes', () => {
     const second = dataSource.loadObsColumnCodes('obs/leiden');
     expect(first).toBe(second);
     expect((await first).codes).toBe((await second).codes);
+  });
+});
+
+describe('AnnDataSource metadata caching', () => {
+  // Wrap the fixture store so that every read is counted.
+  function createCountingStore(fixture) {
+    const inner = createStoreFromMapContents(fixture);
+    const calls = [];
+    return {
+      calls,
+      store: {
+        get: (key, opts) => {
+          calls.push(key);
+          return inner.get(key, opts);
+        },
+      },
+    };
+  }
+  const isMetadataKey = key => /\.z(attrs|array|group)$/.test(key);
+
+  it('reads each metadata document at most once per data source', async () => {
+    const { store, calls } = createCountingStore(anndata_0_11_DenseFixture);
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.11/anndata-dense.zarr',
+      store,
+    });
+    // Loading a categorical column both reads attributes and opens arrays on
+    // the same nodes; through the per-path node cache each metadata document
+    // is still requested only once.
+    const column = await dataSource._loadColumn('obs/leiden');
+    expect(column).toEqual(['1', '1', '2']);
+    const metaAfterFirst = calls.filter(isMetadataKey);
+    expect(new Set(metaAfterFirst).size).toEqual(metaAfterFirst.length);
+    // Repeating the load, and re-reading attributes directly, adds no reads.
+    await dataSource._loadColumn('obs/leiden');
+    await dataSource.getJson('obs/leiden/.zattrs');
+    expect(calls.filter(isMetadataKey).length).toEqual(metaAfterFirst.length);
+  });
+
+  it('does not cache a failed open, so a retry reaches the store again', async () => {
+    const { store, calls } = createCountingStore(anndata_0_11_DenseFixture);
+    const dataSource = new AnnDataSource({
+      url: '@fixtures/zarr/anndata-0.11/anndata-dense.zarr',
+      store,
+    });
+    await expect(dataSource.getJson('obs/missing/.zattrs')).rejects.toThrow();
+    const probesAfterFirst = calls.filter(key => key.includes('missing')).length;
+    expect(probesAfterFirst).toBeGreaterThan(0);
+    await expect(dataSource.getJson('obs/missing/.zattrs')).rejects.toThrow();
+    expect(calls.filter(key => key.includes('missing')).length)
+      .toBeGreaterThan(probesAfterFirst);
   });
 });

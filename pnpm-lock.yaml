@@ -584,9 +584,15 @@ importers:
 
   packages/file-types/abstract:
     dependencies:
+      '@vitessce/error':
+        specifier: workspace:*
+        version: link:../../error
       '@vitessce/globals':
         specifier: workspace:*
         version: link:../../globals
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
