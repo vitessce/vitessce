@@ -50,7 +50,10 @@ function makeQueryClientStub() {
 }
 
 function getCachedStore(store: AsyncReadable, url: string, queryClient?: QueryClientLike) {
-  return extendStore(store, (s: AsyncReadable) => withQueryClientCache(s, { cacheKeyPrefix: url, queryClient }));
+  return extendStore(
+    store,
+    (s: AsyncReadable) => withQueryClientCache(s, { cacheKeyPrefix: url, queryClient }),
+  );
 }
 
 describe('CachedStore', () => {
@@ -154,10 +157,13 @@ describe('CachedStore', () => {
     const { queryClient, getFetchQueryCalls } = makeQueryClientStub();
     const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
     const opts = { [UNCACHED_READ]: true, headers: { Authorization: 'Bearer x' } };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await cached.get('/X/indices/0', opts);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await cached.get('/X/indices/0', opts);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await cached.getRange?.('/X/indices/0', { offset: 0, length: 4 }, opts);
     // Every read reached the store: nothing was coalesced or retained.

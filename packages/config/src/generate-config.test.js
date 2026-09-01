@@ -53,7 +53,7 @@ describe('generateConfig', () => {
 
   it('store for SpatialData object supports withConsolidated', async () => {
     const initialStore = createStoreFromMapContents(spatialdataMouseLiverFixture);
-    const store = await extendStore(initialStore, (s) => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }));
+    const store = await extendStore(initialStore, s => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }));
 
     expect(store.contents().length).toEqual(41);
   });

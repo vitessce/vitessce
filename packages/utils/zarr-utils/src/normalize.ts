@@ -3,7 +3,7 @@ import { root as zarrRoot, FetchStore, type Readable, type AsyncReadable, type A
 import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
-import { withGetRange } from './base-getrange';
+import { withGetRange } from './base-getrange.js';
 
 
 // This allows returning `undefined` for 403 responses,
@@ -19,7 +19,7 @@ async function relaxedFetch(...args: Parameters<typeof fetch>) {
     return new Response(null, { status: 404 });
   }
   return response;
-};
+}
 
 // The subset of a TanStack Query QueryClient that the store cache uses. Typed
 // structurally so this package does not need a dependency on @tanstack/query-core;
@@ -120,14 +120,16 @@ function makeCacheFetch(queryClient?: QueryClientLike): CacheFetchFn {
  * (key, range) share one underlying request; see makeCacheFetch for retention.
  */
 export const withQueryClientCache = defineStoreExtension(
-  (innerStore: AsyncReadable, opts: { cacheKeyPrefix: string, queryClient?: QueryClientLike }) => {
-
-    const { cacheKeyPrefix, queryClient } = opts;
+  (
+    innerStore: AsyncReadable,
+    extOpts: { cacheKeyPrefix: string, queryClient?: QueryClientLike },
+  ) => {
+    const { cacheKeyPrefix, queryClient } = extOpts;
 
     const cacheFetch = makeCacheFetch(queryClient);
 
     return {
-      async get(...args: Parameters<typeof innerStore["get"]>): Promise<Uint8Array | undefined> {
+      async get(...args: Parameters<typeof innerStore['get']>): Promise<Uint8Array | undefined> {
         const [key, opts] = args;
         const [uncached, rest] = splitReadOptions(opts as ReadOptions);
         if (uncached) {
@@ -138,7 +140,7 @@ export const withQueryClientCache = defineStoreExtension(
           () => innerStore.get(key, rest),
         );
       },
-      async getRange(...args: Parameters<NonNullable<typeof innerStore["getRange"]>>): Promise<Uint8Array | undefined> {
+      async getRange(...args: Parameters<NonNullable<typeof innerStore['getRange']>>): Promise<Uint8Array | undefined> {
         const [key, range, opts] = args;
         const [uncached, rest] = splitReadOptions(opts as ReadOptions);
 
@@ -159,10 +161,10 @@ export const withQueryClientCache = defineStoreExtension(
             return innerStore.getRange(key, range, rest);
           },
         );
-      }
-    }
+      },
+    };
   },
-)
+);
 
 // Define a transformEntries function that expects a single top-level .zarr directory
 // and strips that prefix from all entries.
@@ -201,6 +203,7 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
   if (fileType && fileType.endsWith('.zip')) {
     store = ZipFileStore.fromUrl(url, {
       overrides: opts?.requestInit,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       transformEntries: transformEntriesForZipFileStore,
     });
@@ -236,7 +239,10 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
     // Wrap remote stores in a read-through cache, so that concurrent reads of the
     // same chunk (e.g. multiple embedding dims within one chunk column-block) share
     // one request instead of downloading it once per reader.
-    (s: AsyncReadable) => withQueryClientCache(s, { cacheKeyPrefix: url, queryClient: opts?.queryClient }),
+    (s: AsyncReadable) => withQueryClientCache(
+      s,
+      { cacheKeyPrefix: url, queryClient: opts?.queryClient },
+    ),
   );
 
   return zarrRoot(extendedStore);

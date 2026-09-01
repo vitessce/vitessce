@@ -162,14 +162,14 @@ export async function parsedUrlToZmetadata(parsedUrl) {
     try {
       store = await extendStore(
         initialStore,
-        (s) => withConsolidatedMetadata(s),
+        s => withConsolidatedMetadata(s),
       );
     } catch {
       // Try again with `zmetadata` rather than `.zmetadata`.
       // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
       store = await extendStore(
         initialStore,
-        (s) => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }),
+        s => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }),
       );
     }
     // Is consolidated.

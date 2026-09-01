@@ -71,7 +71,7 @@ export class AnnDataAutoConfig extends AbstractAutoConfig {
   // eslint-disable-next-line class-methods-use-this
   addViews(vc, dataset, layoutOption) {
     const geneList = vc.addView(dataset, 'featureList');
-    
+
     // Layout.
     vc.layout(geneList);
   }
