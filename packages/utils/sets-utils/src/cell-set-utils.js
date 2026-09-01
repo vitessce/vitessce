@@ -556,9 +556,70 @@ export function getObsIndexMap(obsIndex) {
  * treeToColorIndicesArray (colorProbs always null: the codes route carries no
  * per-observation scores), or null when a selected path does not resolve.
  */
-export function colorIndicesFromCodes({
-  columns, obsIndex, selectedNamePaths, cellSetColor, theme,
-}) {
+/**
+ * The smallest unsigned typed array able to index `count` selected sets, with 0
+ * reserved for "in no selected set".
+ * @param {number} count Number of selected sets.
+ * @returns {Uint8ArrayConstructor|Uint16ArrayConstructor|Uint32ArrayConstructor}
+ */
+function getIndicesArrayType(count) {
+  if (count + 1 <= 256) {
+    return Uint8Array;
+  }
+  return count + 1 <= 65536 ? Uint16Array : Uint32Array;
+}
+
+/**
+ * Positional membership for a set selection: element i is 1 + the position in
+ * selectedNamePaths of the selected set containing observation i, or 0 when it
+ * is in none. Where an observation is in several selected sets, the later path
+ * wins, matching treeToSelectedSetMap and treeToColorIndicesArray. The
+ * observation index map is only built once a selected path resolves to a node.
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of selected set "paths".
+ * @param {string[]} obsIndex The observation index to align to.
+ * @returns {Uint8Array|Uint16Array|Uint32Array} One entry per observation.
+ */
+export function treeToSetIndicesArray(currTree, selectedNamePaths, obsIndex) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  const IndicesArrayType = getIndicesArrayType(paths.length);
+  const indices = new IndicesArrayType(numObs);
+  let obsIndexMap = null;
+  paths.forEach((setNamePath, i) => {
+    const node = numObs > 0 && currTree
+      ? treeFindNodeByNamePath(currTree, setNamePath)
+      : null;
+    if (node) {
+      if (obsIndexMap === null) {
+        obsIndexMap = getObsIndexMap(obsIndex);
+      }
+      nodeToSet(node).forEach(([cellId]) => {
+        const obsI = obsIndexMap.get(cellId);
+        if (obsI !== undefined) {
+          indices[obsI] = i + 1;
+        }
+      });
+    }
+  });
+  return indices;
+}
+
+/**
+ * The same positional membership as treeToSetIndicesArray, computed from raw
+ * categorical codes without touching the tree: one typed-array read per
+ * observation per hierarchy. The category MISSING_VALUE_PLACEHOLDER resolves to
+ * observations with a negative (missing) code.
+ * @param {object} params
+ * @param {{ path: string[], codes: ArrayLike<number>,
+ *   categories: string[] }[]} params.columns Raw codes per hierarchy.
+ * @param {string[]} params.obsIndex The observation index the columns align to.
+ * @param {array} params.selectedNamePaths Array of selected set "paths".
+ * @returns {Uint8Array|Uint16Array|Uint32Array|null} One entry per observation,
+ * or null when a selected path does not resolve (a user-defined selection, a path
+ * deeper than two levels, or an unknown category) so the caller can use the tree.
+ */
+export function setIndicesFromCodes({ columns, obsIndex, selectedNamePaths }) {
   const numObs = obsIndex?.length || 0;
   const paths = selectedNamePaths || [];
   // Per column, a map from category code to (selected path index + 1). Later
@@ -570,7 +631,6 @@ export function colorIndicesFromCodes({
   // Per column, the (selected path index + 1) for observations with a negative
   // (missing) code, when the placeholder-named set is selected.
   const selIdxMissing = new Int32Array(columns.length);
-  const colors = [];
   for (let i = 0; i < paths.length; i += 1) {
     const setNamePath = paths[i];
     const colIndex = columns.findIndex(({ path }) => (
@@ -578,7 +638,6 @@ export function colorIndicesFromCodes({
       && path.every((part, k) => part === setNamePath[k])
     ));
     if (colIndex === -1) {
-      // Not resolvable from codes; the caller falls back to the tree route.
       return null;
     }
     const category = setNamePath[setNamePath.length - 1];
@@ -586,25 +645,17 @@ export function colorIndicesFromCodes({
     if (category === MISSING_VALUE_PLACEHOLDER) {
       // The set of observations whose code is negative. Should a real category
       // share the placeholder name, the tree merges both into one set, so both
-      // are colored here as well.
+      // are included here as well.
       selIdxMissing[colIndex] = i + 1;
     } else if (catIndex === -1) {
-      // Not resolvable from codes; the caller falls back to the tree route.
       return null;
     }
     if (catIndex !== -1) {
       selIdxByCode[colIndex][catIndex] = i + 1;
     }
-    colors.push(
-      cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
-      || getDefaultColor(theme),
-    );
   }
-  // eslint-disable-next-line no-nested-ternary
-  const IndicesArrayType = paths.length + 1 <= 256
-    ? Uint8Array
-    : (paths.length + 1 <= 65536 ? Uint16Array : Uint32Array);
-  const colorIndices = new IndicesArrayType(numObs);
+  const IndicesArrayType = getIndicesArrayType(paths.length);
+  const indices = new IndicesArrayType(numObs);
   for (let j = 0; j < columns.length; j += 1) {
     const { codes } = columns[j];
     const table = selIdxByCode[j];
@@ -612,11 +663,25 @@ export function colorIndicesFromCodes({
     for (let i = 0; i < numObs; i += 1) {
       const code = codes[i];
       const v = code >= 0 ? table[code] : missingSel;
-      if (v > colorIndices[i]) {
-        colorIndices[i] = v;
+      if (v > indices[i]) {
+        indices[i] = v;
       }
     }
   }
+  return indices;
+}
+
+export function colorIndicesFromCodes({
+  columns, obsIndex, selectedNamePaths, cellSetColor, theme,
+}) {
+  const colorIndices = setIndicesFromCodes({ columns, obsIndex, selectedNamePaths });
+  if (colorIndices === null) {
+    return null;
+  }
+  const colors = (selectedNamePaths || []).map(setNamePath => (
+    cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+    || getDefaultColor(theme)
+  ));
   return { colorIndices, colorProbs: null, colors };
 }
 
@@ -626,10 +691,7 @@ export function treeToColorIndicesArray(
   const numObs = obsIndex?.length || 0;
   const paths = selectedNamePaths || [];
   // Reserve 0 for "in no selected set", so the palette needs paths.length + 1 values.
-  // eslint-disable-next-line no-nested-ternary
-  const IndicesArrayType = paths.length + 1 <= 256
-    ? Uint8Array
-    : (paths.length + 1 <= 65536 ? Uint16Array : Uint32Array);
+  const IndicesArrayType = getIndicesArrayType(paths.length);
   const colorIndices = new IndicesArrayType(numObs);
   const colors = [];
   // Allocated lazily: most set hierarchies carry no confidence scores, and skipping
@@ -637,15 +699,22 @@ export function treeToColorIndicesArray(
   let colorProbs = null;
 
   // Built for every selected path, including paths absent from the tree, so that
-  // colors[colorIndices[i] - 1] stays aligned with selectedNamePaths.
-  const obsIndexMap = numObs > 0 ? getObsIndexMap(obsIndex) : null;
+  // colors[colorIndices[i] - 1] stays aligned with selectedNamePaths. The
+  // observation index map is only built once a selected path resolves to a node,
+  // so an empty selection costs nothing beyond the (zeroed) indices array.
+  let obsIndexMap = null;
   paths.forEach((setNamePath, i) => {
     colors.push(
       cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
       || getDefaultColor(theme),
     );
-    const node = obsIndexMap && treeFindNodeByNamePath(currTree, setNamePath);
+    const node = numObs > 0 && currTree
+      ? treeFindNodeByNamePath(currTree, setNamePath)
+      : null;
     if (node) {
+      if (obsIndexMap === null) {
+        obsIndexMap = getObsIndexMap(obsIndex);
+      }
       const nodeSet = nodeToSet(node);
       nodeSet.forEach(([cellId, prob]) => {
         const obsI = obsIndexMap.get(cellId);

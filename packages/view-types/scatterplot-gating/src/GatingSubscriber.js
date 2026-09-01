@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useDeferredValue,
 } from 'react';
 import { extent } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -254,6 +254,7 @@ export function GatingSubscriber(props) {
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
@@ -271,6 +272,13 @@ export function GatingSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
+  // A set selection or color change re-encodes every observation in the memos
+  // below, which at atlas scale takes longer than a frame. Deferring these values
+  // lets React commit the urgent update first — the sets manager checkbox that
+  // initiated the change paints immediately — and re-render this view afterwards.
+  const deferredCellSetSelection = useDeferredValue(cellSetSelection);
+  const deferredCellSetColor = useDeferredValue(cellSetColor);
+
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
   // Map costs one string hash lookup per point per render, plus a per-observation
   // color array whenever the selected sets carry confidence scores.
@@ -283,14 +291,15 @@ export function GatingSubscriber(props) {
       && colorIndicesFromCodes({
         columns: obsSetsColumns.columns,
         obsIndex,
-        selectedNamePaths: cellSetSelection,
-        cellSetColor,
+        selectedNamePaths: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
         theme,
       }))
     || treeToColorIndicesArray(
-      mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme,
+      mergedCellSets, deferredCellSetSelection, deferredCellSetColor, obsIndex, theme,
     )
-  ), [mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme, obsSetsColumns]);
+  ), [mergedCellSets, deferredCellSetSelection, deferredCellSetColor, obsIndex, theme,
+    obsSetsColumns]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -299,25 +308,27 @@ export function GatingSubscriber(props) {
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
+      && !cacheHas(cellSetPolygonCache, deferredCellSetSelection)
       && mergedCellSets?.tree?.length
       && obsXY
       && obsIndex
-      && cellSetColor?.length) {
+      && deferredCellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         obsIndex,
         obsEmbedding: obsXY,
         cellSets: mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
+        cellSetSelection: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache(
+        cache => [...cache, [deferredCellSetSelection, newCellSetPolygons]],
+      );
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
+    return cacheGet(cellSetPolygonCache, deferredCellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsIndex, obsXY, mergedCellSets, cellSetSelection, cellSetColor]);
+    obsIndex, obsXY, mergedCellSets, deferredCellSetSelection, deferredCellSetColor]);
 
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
@@ -372,7 +383,7 @@ export function GatingSubscriber(props) {
 
   // With no set selection every observation counts as selected, matching the
   // behavior of the ID-keyed color map this replaced.
-  const allCellsSelected = !(cellSetSelection && mergedCellSets);
+  const allCellsSelected = !(deferredCellSetSelection && mergedCellSets);
   const getCellIsSelected = useCallback((object, { index }) => (
     (allCellsSelected || obsColorIndices.colorIndices[index] !== 0) ? 1.0 : 0.0
   ), [allCellsSelected, obsColorIndices]);
@@ -423,7 +434,7 @@ export function GatingSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
       options={(
@@ -478,6 +489,7 @@ export function GatingSubscriber(props) {
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         theme={theme}
         hideTools={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}
         hideRecenter={!(gatingFeatureSelectionX && gatingFeatureSelectionY)}

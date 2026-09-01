@@ -4,6 +4,8 @@ export {
   treeToCellSetColorIndicesBySetNames,
   treeToColorIndicesArray,
   colorIndicesFromCodes,
+  treeToSetIndicesArray,
+  setIndicesFromCodes,
   getObsIndexMap,
   treeToSetSizesBySetNames,
   treeToObjectsBySetNames,

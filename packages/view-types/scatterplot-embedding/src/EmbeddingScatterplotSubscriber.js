@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useDeferredValue,
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -262,6 +262,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
@@ -279,6 +280,16 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
+  // A set selection or color change re-encodes every observation in the memos
+  // below, which at atlas scale takes longer than a frame. Deferring these values
+  // lets React commit the urgent update first — the sets manager checkbox that
+  // initiated the change paints immediately — and re-render this view afterwards.
+  // The urgent render sees the previous values, so the memos below keep their
+  // cached results and cost nothing in that first commit.
+  const deferredCellSetSelection = useDeferredValue(cellSetSelection);
+  const deferredCellSetColor = useDeferredValue(cellSetColor);
+  const deferredSampleSetSelection = useDeferredValue(sampleSetSelection);
+
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
   // Map costs one string hash lookup per point per render, plus a per-observation
   // color array whenever the selected sets carry confidence scores.
@@ -291,15 +302,16 @@ export function EmbeddingScatterplotSubscriber(props) {
       && colorIndicesFromCodes({
         columns: obsSetsColumns.columns,
         obsIndex: obsEmbeddingIndex,
-        selectedNamePaths: cellSetSelection,
-        cellSetColor,
+        selectedNamePaths: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
         theme,
       }))
     || treeToColorIndicesArray(
-      mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
+      mergedCellSets, deferredCellSetSelection, deferredCellSetColor,
+      obsEmbeddingIndex, theme,
     )
-  ), [mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
-    obsSetsColumns]);
+  ), [mergedCellSets, deferredCellSetSelection, deferredCellSetColor,
+    obsEmbeddingIndex, theme, obsSetsColumns]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -308,25 +320,28 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
+      && !cacheHas(cellSetPolygonCache, deferredCellSetSelection)
       && mergedCellSets?.tree?.length
       && obsEmbedding
       && obsEmbeddingIndex
-      && cellSetColor?.length) {
+      && deferredCellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         obsIndex: obsEmbeddingIndex,
         obsEmbedding,
         cellSets: mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
+        cellSetSelection: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache(
+        cache => [...cache, [deferredCellSetSelection, newCellSetPolygons]],
+      );
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
+    return cacheGet(cellSetPolygonCache, deferredCellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsEmbeddingIndex, obsEmbedding, mergedCellSets, cellSetSelection, cellSetColor]);
+    obsEmbeddingIndex, obsEmbedding, mergedCellSets, deferredCellSetSelection,
+    deferredCellSetColor]);
 
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
@@ -386,8 +401,9 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
 
   // With no set selection every observation counts as selected, matching the
-  // behavior of the ID-keyed color map this replaced.
-  const allCellsSelected = !(cellSetSelection && mergedCellSets);
+  // behavior of the ID-keyed color map this replaced. Uses the deferred selection
+  // so that it stays consistent with obsColorIndices within each commit.
+  const allCellsSelected = !(deferredCellSetSelection && mergedCellSets);
   const getCellIsSelected = useCallback((object, { index }) => (
     (allCellsSelected || obsColorIndices.colorIndices[index] !== 0) ? 1.0 : 0.0
   ), [allCellsSelected, obsColorIndices]);
@@ -482,7 +498,10 @@ export function EmbeddingScatterplotSubscriber(props) {
   // useExpressionValueGetter hook and getter function.
   const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
     // Sort the embedding data according to the matrix obsIndex.
-    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
+    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex
+      && obsEmbeddingIndex !== matrixObsIndex) {
+      // (The same index array, as when both come from one data source,
+      // is already aligned and skips this copy.)
       const matrixIndexMap = getObsIndexMap(matrixObsIndex);
       const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
 
@@ -503,42 +522,32 @@ export function EmbeddingScatterplotSubscriber(props) {
     return [obsEmbeddingIndex, obsEmbedding];
   }, [matrixObsIndex, obsEmbeddingIndex, obsEmbedding]);
 
-  const sampleIdToObsIdsMap = useMemo(() => {
-    // sampleEdges maps obsId -> sampleId.
-    // However when we stratify we want to map sampleId -> [obsId1, obsId2, ...].
-    // Here we create this reverse mapping.
-    if (sampleEdges) {
-      const result = new Map();
-      Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
-        if (!result.has(sampleId)) {
-          result.set(sampleId, [obsId]);
-        } else {
-          result.get(sampleId).push(obsId);
-        }
-      });
-      return result;
-    }
-    return null;
-  }, [sampleEdges]);
-
   // Stratify multiple arrays: per-cellSet and per-sampleSet.
+  // The strata feed only the contour layers and, when the points are hidden, the
+  // observation count shown in the title — so with contours off and points on,
+  // this per-observation pass is skipped entirely rather than recomputed on
+  // every selection change.
+  const isStratifiedDataNeeded = embeddingContoursVisible || !embeddingPointsVisible;
   const [stratifiedData, stratifiedDataCount] = useMemo(() => {
-    if (alignedEmbeddingData?.data) {
+    if (isStratifiedDataNeeded && alignedEmbeddingData?.data) {
       const [result, cellCountResult] = stratifyArrays(
-        sampleEdges, sampleIdToObsIdsMap,
-        sampleSets, sampleSetSelection,
-        alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
+        sampleEdges,
+        sampleSets, deferredSampleSetSelection,
+        alignedEmbeddingIndex, mergedCellSets, deferredCellSetSelection, {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
           ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
         }, featureAggregationStrategyToUse,
+        // Raw codes let the strata come from typed arrays when the indices match.
+        { obsSetsColumns },
       );
       return [result, cellCountResult];
     }
     return [null, null];
-  }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
-    sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
-    cellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
+  }, [isStratifiedDataNeeded, alignedEmbeddingIndex, alignedEmbeddingData,
+    uint8ExpressionData, sampleEdges, sampleSets, deferredSampleSetSelection,
+    deferredCellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
+    obsSetsColumns,
   ]);
 
   const setViewState = ({ zoom: newZoom, target }) => {
@@ -562,7 +571,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
       options={(
@@ -609,6 +618,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         theme={theme}
         viewState={{ zoom, target: [targetX, targetY, targetZ] }}
         setViewState={setViewState}
@@ -637,12 +647,12 @@ export function EmbeddingScatterplotSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
-        obsSetSelection={cellSetSelection}
-        sampleSetSelection={sampleSetSelection}
+        obsSetSelection={deferredCellSetSelection}
+        sampleSetSelection={deferredSampleSetSelection}
         // InternMap data structures where keys are
         // obsSet -> sampleSet -> arrayKey -> [].
         stratifiedData={stratifiedData}
-        obsSetColor={cellSetColor}
+        obsSetColor={deferredCellSetColor}
         sampleSetColor={sampleSetColor}
         contourThresholds={contourThresholds}
         contourColorEncoding={contourColorEncoding}
