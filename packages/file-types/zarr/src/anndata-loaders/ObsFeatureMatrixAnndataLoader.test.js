@@ -331,7 +331,7 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
         await zarrCreate(root.resolve(path), {
           shape: [values.length],
           chunkShape: [chunk],
-          dataType: dataType,
+          dtype: dataType,
           codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
           fillValue: 0,
         });
