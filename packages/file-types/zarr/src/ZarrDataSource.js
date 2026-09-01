@@ -20,6 +20,7 @@ export default class ZarrDataSource {
     this.queryClient = queryClient;
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
+      // TODO: use normalizeStore here so that it inherits the other store extensions?
       this.storeRoot = zarrRoot(store);
     } else if (url) {
       // The queryClient backs the store-level chunk cache, so that concurrent

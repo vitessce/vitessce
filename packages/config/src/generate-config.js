@@ -160,6 +160,7 @@ export async function parsedUrlToZmetadata(parsedUrl) {
 
   try {
     try {
+      // TODO: use normalizeStore here so that it inherits the other store extensions?
       store = await extendStore(
         initialStore,
         s => withConsolidatedMetadata(s),

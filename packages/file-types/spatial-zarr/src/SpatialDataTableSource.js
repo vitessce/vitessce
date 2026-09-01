@@ -274,6 +274,8 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
+    // TODO: assume the store has already been extended in the normalizeStore step,
+    // and then we can remove the store extension here.
     const extendedStore = await extendStore(store, withGetRange);
     // Step 1: Fetch last 8 bytes to get footer length and magic number
     const TAIL_LENGTH = 8;

@@ -105,6 +105,8 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
+      // TODO: assume the store has already been extended in the normalizeStore step,
+      // and then we can remove the store extension here.
       const extendedStore = await extendStore(store, withGetRange);
 
       // Step 1: Fetch last 8 bytes to get footer length and magic number
