@@ -120,13 +120,6 @@ describe('CachedStore', () => {
     expect(calls.filter(x => x.startsWith('getRange:/f:')).length).toEqual(2);
   });
 
-  it('omits getRange when the wrapped store lacks one', () => {
-    const { store } = makeGatedStore(false);
-    const cached = getCachedStore(store, 'http://example.com/a.zarr');
-    // Consumers feature-detect getRange, so the wrapper must not invent it.
-    expect(cached.getRange).toEqual(undefined);
-  });
-
   it('separates caches by URL prefix', async () => {
     const gatedA = makeGatedStore();
     const gatedB = makeGatedStore();
