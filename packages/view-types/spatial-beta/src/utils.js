@@ -1,8 +1,47 @@
 /* eslint-disable no-plusplus */
 import { Matrix4 } from 'math.gl';
 import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
+import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
 
+
+/**
+ * Get the modelMatrix to pass to viv's VolumeLayer for a given image.
+ *
+ * ImageWrapper.getModelMatrix() scales an image into absolute physical units
+ * (micrometers), which is the space the rest of the beta spatial stack works in
+ * (see ImageWrapper.getBoundingCube, which derives the clipping-plane ranges
+ * from it). But viv's VolumeLayer independently computes its own physical size
+ * scaling matrix from the same metadata, and the XR3DLayer vertex shader applies
+ * both of them:
+ *
+ *   gl_Position = proj * view * model * scale * resolution * vec4(positions, 1.);
+ *
+ * Passing the physical model matrix straight through therefore squares the
+ * anisotropy and stretches the volume along its coarsest axis by that ratio
+ * (e.g. a 1x1x2 um voxel renders twice as deep as it should). Divide viv's
+ * matrix out here so that `model * scale` still equals the physical model
+ * matrix, and 3D stays consistent with getBoundingCube() and with the legacy
+ * spatial view, which left modelMatrix as the identity and let viv do the
+ * scaling on its own.
+ *
+ * Note: viv compares the raw `physicalSizes[*].size` numbers and ignores units,
+ * whereas ImageWrapper normalizes them to micrometers. Deriving the inverse from
+ * those same `meta.physicalSizes` values keeps the cancellation exact even when
+ * the two disagree.
+ *
+ * @param {object|object[]} data PixelSource | PixelSource[]
+ * @param {number[]|undefined} modelMatrix The image's physical model matrix.
+ * @returns {Matrix4} The modelMatrix to pass to viv.VolumeLayer.
+ */
+export function getVolumeModelMatrix(data, modelMatrix) {
+  const source = Array.isArray(data) ? data[0] : data;
+  const vivPhysicalSizeScalingMatrix = getPhysicalSizeScalingMatrix(source);
+  const base = Array.isArray(modelMatrix) && modelMatrix.length === 16
+    ? new Matrix4(modelMatrix)
+    : new Matrix4().identity();
+  return base.multiplyRight(vivPhysicalSizeScalingMatrix.invert());
+}
 
 export function getInitialSpatialTargets({
   width,
@@ -33,12 +72,19 @@ export function getInitialSpatialTargets({
 
     if (imageLayerLoader) {
       const viewSize = { height, width };
+      // getDefaultInitialViewState composes modelMatrix with viv's own physical
+      // size scaling matrix, exactly like the VolumeLayer render path, so in 3D
+      // it needs the same corrected matrix or the camera will not frame the
+      // volume that actually gets drawn.
+      const viewStateModelMatrix = use3d
+        ? getVolumeModelMatrix(imageLayerLoader, modelMatrix)
+        : new Matrix4(modelMatrix);
       const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
         imageLayerLoader,
         viewSize,
         zoomBackoff,
         use3d,
-        new Matrix4(modelMatrix),
+        viewStateModelMatrix,
       );
 
       const maxExtent = Math.max(
@@ -189,6 +235,16 @@ export function getInitialSpatialTargets({
   return {
     initialTargetX, initialTargetY, initialZoom, initialTargetZ,
   };
+}
+
+/**
+ * Whether a layer should be rendered, given its `spatialLayerVisible` coordination value.
+ * An unset value counts as visible, matching the layer controller's own default.
+ * @param {boolean|undefined|null} spatialLayerVisible The coordination value.
+ * @returns {boolean} True if the layer should be rendered.
+ */
+export function isLayerVisible(spatialLayerVisible) {
+  return spatialLayerVisible !== false;
 }
 
 /**

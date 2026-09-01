@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/sets-utils",
-  "version": "4.0.2",
+  "version": "4.0.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -34,11 +34,12 @@
     "@turf/helpers": "catalog:turf",
     "@vitessce/schemas": "workspace:*",
     "@vitessce/utils": "workspace:*",
+    "@vitessce/workers": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "concaveman": "^1.2.1",
     "d3-dsv": "catalog:",
     "internmap": "catalog:",
-    "json2csv": "^5.0.0",
+    "@json2csv/plainjs": "^7.0.8",
     "lodash-es": "catalog:",
     "tinycolor2": "^1.4.1",
     "uuid": "catalog:"

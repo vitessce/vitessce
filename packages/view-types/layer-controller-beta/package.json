@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/layer-controller-beta",
-  "version": "4.0.2",
+  "version": "4.0.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -49,6 +49,7 @@
     "react-color-with-lodash": "^2.19.5"
   },
   "devDependencies": {
+    "@testing-library/react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",

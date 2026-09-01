@@ -85,11 +85,13 @@ import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
 import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
+import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-neuroglancer-with-segments.js';
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
+import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
 import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
@@ -211,11 +213,13 @@ export const configs = {
   'sorger-2024-4': bloodVesselNeighborhood,
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
+  'anisotropic-volume': anisotropicVolume,
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
   // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
+  'melanoma-neuroglancer-segments': melanomaNeuroglancerSegments,
   'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,

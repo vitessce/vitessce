@@ -1,7 +1,7 @@
 {
   "name": "@vitessce/example-configs",
   "private": true,
-  "version": "4.0.2",
+  "version": "4.0.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -22,6 +22,7 @@
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "react-sticky-el": "^2.1.1",
-    "clsx": "catalog:"
+    "clsx": "catalog:",
+    "@json2csv/plainjs": "^7.0.8"
   }
 }

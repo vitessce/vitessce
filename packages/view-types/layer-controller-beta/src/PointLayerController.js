@@ -38,6 +38,10 @@ import {
   useControllerSectionStyles,
   useEllipsisMenuStyles,
   useSelectStyles,
+  channelRowContainerSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+  channelSliderCellSx,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 import LayerPerFeatureController from './LayerPerFeatureController.js';
@@ -67,7 +71,7 @@ const useStyles = makeStyles()(() => ({
     fill: 'currentColor',
     fontSize: '14px',
     width: '50%',
-    maxWidth: '16px',
+    maxWidth: '20px',
   },
 }));
 
@@ -239,6 +243,7 @@ export default function PointLayerController(props) {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
+    spatialLayerLabel,
     obsColorEncoding,
     featureColor,
     featureFilterMode,
@@ -265,8 +270,7 @@ export default function PointLayerController(props) {
     setLegendVisible,
   } = setLayerCoordination;
 
-  const label = capitalize(obsType);
-
+  const label = spatialLayerLabel ?? capitalize(obsType);
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = useMemo(() => (
     visibleSetting
@@ -418,8 +422,8 @@ export default function PointLayerController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
               className={menuClasses.imageLayerVisibleButton}
@@ -428,7 +432,7 @@ export default function PointLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <ChannelColorPickerMenu
               theme={theme}
               color={color}
@@ -440,12 +444,12 @@ export default function PointLayerController(props) {
               visible={visible}
             />
           </Grid>
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
+          <Grid size={6} sx={channelSelectorCellSx}>
+            <Typography className={menuClasses.imageLayerName} title={label}>
               {label}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={channelSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -457,7 +461,7 @@ export default function PointLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <PointLayerEllipsisMenu
               featureSelection={featureSelection}
               obsColorEncoding={obsColorEncoding}
@@ -476,7 +480,7 @@ export default function PointLayerController(props) {
               setFeatureValueColormap={setFeatureValueColormap}
             />
           </Grid>
-          <Grid size={1} container direction="row">
+          <Grid size={1} container direction="row" sx={channelControlCellSx}>
             <PointsIconSVG className={classes.layerTypePointIcon} />
             {enableFeaturesAndSetsDropdown ? (
               <Button

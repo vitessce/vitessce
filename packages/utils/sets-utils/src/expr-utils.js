@@ -1,217 +1,272 @@
 /* eslint-disable camelcase */
 import { InternMap } from 'internmap';
 import { getValueTransformFunction } from '@vitessce/utils';
-import { isEqual } from 'lodash-es';
-import { log } from '@vitessce/globals';
 import {
   treeToSelectedSetMap,
-  treeToObsIdsBySetNames,
+  treeToSetIndicesArray,
+  setIndicesFromCodes,
 } from './cell-set-utils.js';
 
+const hasSelection = selection => Array.isArray(selection) && selection.length > 0;
+
 /**
- * Input: selections and data.
- * Output: expression data in a hierarchy like
- * [
- *   {
- *     "selectedCellSet1": {
- *       "selectedSampleSet1": [],
- *     }
- *   },
- *   exprMax
- * ]
- * @param {*} sampleEdges
- * @param {*} sampleSets
- * @param {*} sampleSetSelection
- * @param {*} expressionData
- * @param {*} obsIndex
- * @param {*} mergedCellSets
- * @param {*} geneSelection
- * @param {*} cellSetSelection
- * @param {*} cellSetColor
- * @param {*} featureValueTransform
- * @param {*} featureValueTransformCoefficient
- * @returns
+ * The smallest unsigned typed array able to hold 1..count plus 0.
+ * @param {number} count The number of selected sets.
+ * @returns {Uint8ArrayConstructor|Uint16ArrayConstructor|Uint32ArrayConstructor}
+ */
+function getSlotArrayType(count) {
+  if (count + 1 <= 256) {
+    return Uint8Array;
+  }
+  return count + 1 <= 65536 ? Uint16Array : Uint32Array;
+}
+
+/**
+ * Resolve the selections to positional "slot" arrays, so that the per-observation
+ * work below is a typed-array read rather than a string-keyed map lookup.
+ *
+ * cellSlot[i] is 1 + the position in cellSetSelection of the selected set
+ * containing observation i (0 when in none); null when there is no cell set
+ * selection. sampleSlot[i] is the same for sampleSetSelection via sampleEdges
+ * (obsId -> sampleId); null when there is no sample set selection.
+ *
+ * When raw categorical codes are available for this same observation index
+ * (checked by reference), the cell set slots come from the codes without
+ * walking the tree; otherwise from the tree, resolving each selected set's
+ * members once rather than once per observation.
+ * @param {object} params
+ * @returns {{ cellSlot: ArrayLike<number>|null, sampleSlot: ArrayLike<number>|null }}
+ */
+function computeStrata({
+  obsIndex, mergedCellSets, cellSetSelection, obsSetsColumns,
+  sampleEdges, sampleSets, sampleSetSelection,
+}) {
+  const numObs = obsIndex?.length || 0;
+  let cellSlot = null;
+  if (hasSelection(cellSetSelection)) {
+    if (obsSetsColumns && obsSetsColumns.obsIndex === obsIndex) {
+      cellSlot = setIndicesFromCodes({
+        columns: obsSetsColumns.columns,
+        obsIndex,
+        selectedNamePaths: cellSetSelection,
+      });
+    }
+    if (cellSlot === null) {
+      cellSlot = treeToSetIndicesArray(mergedCellSets, cellSetSelection, obsIndex);
+    }
+  }
+  let sampleSlot = null;
+  if (hasSelection(sampleSetSelection)) {
+    const SlotArrayType = getSlotArrayType(sampleSetSelection.length);
+    sampleSlot = new SlotArrayType(numObs);
+    if (sampleSets && sampleEdges) {
+      // Sample sets are small: resolve sampleId -> slot once, then one map lookup
+      // per observation to find its sample.
+      const slotByPath = new InternMap(
+        sampleSetSelection.map((path, i) => [path, i + 1]),
+        JSON.stringify,
+      );
+      const sampleIdToSlot = new Map();
+      treeToSelectedSetMap(sampleSets, sampleSetSelection).forEach((path, sampleId) => {
+        sampleIdToSlot.set(sampleId, slotByPath.get(path) ?? 0);
+      });
+      for (let i = 0; i < numObs; i += 1) {
+        const sampleId = sampleEdges.get(obsIndex[i]);
+        if (sampleId !== undefined) {
+          sampleSlot[i] = sampleIdToSlot.get(sampleId) ?? 0;
+        }
+      }
+    }
+  }
+  return { cellSlot, sampleSlot };
+}
+
+/**
+ * Assign every observation to a (cell set, sample set) group and count the
+ * members of each, so that per-group arrays can be allocated at their final size.
+ * @param {object} params
+ * @param {number} params.numObs
+ * @param {ArrayLike<number>|null} params.cellSlot From computeStrata.
+ * @param {ArrayLike<number>|null} params.sampleSlot From computeStrata.
+ * @param {number} params.numSampleGroups Number of sample set keys.
+ * @param {number} params.numCellGroups Number of cell set keys.
+ * @returns {{ groupOfObs: Int32Array, counts: Int32Array, numGroups: number }}
+ * groupOfObs[i] = cellGroup * numSampleGroups + sampleGroup, or -1 when excluded.
+ */
+function assignGroups({
+  numObs, cellSlot, sampleSlot, numSampleGroups, numCellGroups,
+}) {
+  const numGroups = numCellGroups * numSampleGroups;
+  const groupOfObs = new Int32Array(numObs);
+  const counts = new Int32Array(numGroups);
+  for (let i = 0; i < numObs; i += 1) {
+    const cellGroup = cellSlot ? cellSlot[i] - 1 : 0;
+    const sampleGroup = sampleSlot ? sampleSlot[i] - 1 : 0;
+    if (cellGroup < 0 || sampleGroup < 0) {
+      groupOfObs[i] = -1;
+    } else {
+      const group = cellGroup * numSampleGroups + sampleGroup;
+      groupOfObs[i] = group;
+      counts[group] += 1;
+    }
+  }
+  return { groupOfObs, counts, numGroups };
+}
+
+/**
+ * Stratify per-observation arrays (e.g. embedding coordinates) by selected cell
+ * set and selected sample set.
+ *
+ * Output: an InternMap keyed by cell set path (or null) of InternMaps keyed by
+ * sample set path (or null), each holding one array per key of arraysToStratify
+ * (of the same constructor as the input) plus 'obsIndex', all aligned with one
+ * another and in observation-index order.
+ * @param {Map<string, string>|null} sampleEdges Mapping from obsId to sampleId.
+ * @param {object|null} sampleSets Sample sets tree.
+ * @param {array|null} sampleSetSelection Selected sample set paths.
+ * @param {string[]} obsIndex The observation index the arrays align to.
+ * @param {object|null} mergedCellSets Cell sets tree.
+ * @param {array|null} cellSetSelection Selected cell set paths.
+ * @param {object} arraysToStratify Arrays aligned with obsIndex. The key
+ * 'featureValue' holds an array of per-feature arrays, aggregated per
+ * featureAggregationStrategy.
+ * @param {string|number} featureAggregationStrategy How to combine several
+ * features: 'first', 'last', a feature index, 'sum', or 'mean'.
+ * @param {object} [options]
+ * @param {object} [options.obsSetsColumns] Raw categorical columns for the
+ * observation sets, as loaded alongside the tree, for a code-based fast path.
+ * @returns {[InternMap, number]} The stratified arrays and the number of
+ * observations placed.
  */
 export function stratifyArrays(
-  sampleEdges, sampleIdToObsIdsMap,
-  sampleSets, sampleSetSelection,
+  sampleEdges, sampleSets, sampleSetSelection,
   obsIndex, mergedCellSets, cellSetSelection,
   arraysToStratify, // Assumed to be sorted with respect to the obsIndex.
   featureAggregationStrategy,
+  options = {},
 ) {
-  const result = new InternMap([], JSON.stringify);
-
-  const hasSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 0;
-  const hasCellSetSelection = Array.isArray(cellSetSelection) && cellSetSelection.length > 0;
-
-  const sampleSetKeys = hasSampleSetSelection ? sampleSetSelection : [null];
-  const cellSetKeys = hasCellSetSelection ? cellSetSelection : [null];
+  const { obsSetsColumns = null } = options;
   const arrKeys = Object.keys(arraysToStratify);
-
   if (arrKeys.includes('obsIndex') || arrKeys.includes('i')) {
     throw new Error('The keys "obsIndex" and "i" are reserved for internal use.');
   }
-  if (Object.entries(arraysToStratify).some(([arrKey, arr]) => {
-    if (arrKey === 'featureValue') {
-      // The featureValue array is an array of arrays, one per feature,
-      // so we instead expect each sub-array to have a length
-      // equal to the number of observations.
-      return arr.some(a => a.length !== obsIndex.length);
-    }
-    return arr.length !== obsIndex.length;
-  })) {
-    // throw new Error('All arrays must have the same length as the obsIndex.');
-  }
+  const hasSampleSetSelection = hasSelection(sampleSetSelection);
+  const hasCellSetSelection = hasSelection(cellSetSelection);
+  const sampleSetKeys = hasSampleSetSelection ? sampleSetSelection : [null];
+  const cellSetKeys = hasCellSetSelection ? cellSetSelection : [null];
+  const numObs = obsIndex?.length || 0;
 
-  const sampleSetInfo = sampleSets && sampleSetSelection
-    ? treeToObsIdsBySetNames(sampleSets, sampleSetSelection)
-    : null;
-  const cellSetInfo = mergedCellSets && cellSetSelection
-    ? treeToObsIdsBySetNames(mergedCellSets, cellSetSelection)
-    : null;
-
-  // First level: cell set
-  cellSetKeys.forEach((cellSetKey) => {
-    result.set(cellSetKey, new InternMap([], JSON.stringify));
-    // Second level: sample set
-    sampleSetKeys.forEach((sampleSetKey) => {
-      result.get(cellSetKey).set(sampleSetKey, new InternMap([], JSON.stringify));
-      // Third level: array
-
-      // Handle cellSetKey and sampleSetKey being null.
-      const sampleIdsInSampleSet = (sampleSetInfo && sampleSetKey
-        ? sampleSetInfo?.find(n => isEqual(n.path, sampleSetKey))
-        : null
-      )?.ids;
-      // The sampleSets contain sampleIds. We need to get the obsIds
-      // corresponding to each sampleId.
-      const obsIdsInSampleSet = sampleIdsInSampleSet
-        ? sampleIdsInSampleSet.flatMap(sampleId => sampleIdToObsIdsMap?.get(sampleId) || [])
-        : null;
-      const obsIdsInCellSet = (cellSetInfo && cellSetKey
-        ? cellSetInfo?.find(n => isEqual(n.path, cellSetKey))
-        : null
-      )?.ids;
-
-      // Handle cases where obsIdsInSampleSet and/or obsIdsInCellSet is null.
-      let subObsIndex = obsIndex;
-      if (obsIdsInSampleSet && obsIdsInCellSet) {
-        subObsIndex = Array.from(
-          (new Set(obsIdsInSampleSet)).intersection(new Set(obsIdsInCellSet)),
-        );
-      } else if (obsIdsInSampleSet) {
-        subObsIndex = obsIdsInSampleSet;
-      } else if (obsIdsInCellSet) {
-        subObsIndex = obsIdsInCellSet;
-      }
-      const arrLen = subObsIndex.length;
-
-      arrKeys.forEach((arrKey) => {
-        // Instantiate a new array of the appropriate size.
-        const newArr = new arraysToStratify[arrKey].constructor(arrLen);
-        result.get(cellSetKey).get(sampleSetKey).set(arrKey, newArr);
-      });
-      result.get(cellSetKey).get(sampleSetKey).set('obsIndex', subObsIndex);
-      // We initialize an incrementer to keep track of
-      // the next index to use for insertion into the array.
-      result.get(cellSetKey).get(sampleSetKey).set('i', 0);
-    });
+  const { cellSlot, sampleSlot } = computeStrata({
+    obsIndex,
+    mergedCellSets,
+    cellSetSelection,
+    obsSetsColumns,
+    sampleEdges,
+    sampleSets,
+    sampleSetSelection,
+  });
+  const { groupOfObs, counts, numGroups } = assignGroups({
+    numObs,
+    cellSlot,
+    sampleSlot,
+    numSampleGroups: sampleSetKeys.length,
+    numCellGroups: cellSetKeys.length,
   });
 
-  const sampleIdToSetMap = sampleSets && sampleSetSelection
-    ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
-    : null;
-  const cellIdToSetMap = mergedCellSets && cellSetSelection
-    ? treeToSelectedSetMap(mergedCellSets, cellSetSelection)
-    : null;
-
-  // Iterate over every observation.
-  // Insert the ID and all corresponding values into
-  // the appropriate arrays within the InternMap.
-  let cellCount = 0;
-  for (let i = 0; i < obsIndex.length; i += 1) {
-    const obsId = obsIndex[i];
-
-    const cellSet = cellIdToSetMap?.get(obsId) || null;
-    const sampleId = sampleEdges?.get(obsId);
-    const sampleSet = sampleId ? (sampleIdToSetMap?.get(sampleId) || null) : null;
-
-    if ((hasSampleSetSelection && !sampleSet) || (hasCellSetSelection && !cellSet)) {
-      // Skip this sample if it is not in the selected sample set.
-      // eslint-disable-next-line no-continue
-      continue;
+  // One accessor per array, resolved once rather than per observation.
+  const getters = arrKeys.map((arrKey) => {
+    const arr = arraysToStratify[arrKey];
+    if (arrKey !== 'featureValue') {
+      return i => arr[i];
     }
-
-    const insertionIndex = result.get(cellSet).get(sampleSet).get('i');
-
-    // eslint-disable-next-line no-loop-func
-    arrKeys.forEach((arrKey) => {
-      let value;
-      if (arrKey === 'featureValue') {
-        if (featureAggregationStrategy === 'first') {
-          value = arraysToStratify[arrKey][0][i];
-        } else if (featureAggregationStrategy === 'last') {
-          value = arraysToStratify[arrKey].at(-1)[i];
-        } else if (typeof featureAggregationStrategy === 'number') {
-          const j = featureAggregationStrategy;
-          // TODO: more checks here for array index validity.
-          value = arraysToStratify[arrKey][j][i];
-        } else if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
-          value = arraysToStratify[arrKey].reduce((a, h) => a + h[i], 0);
-          if (featureAggregationStrategy === 'mean') {
-            value /= arraysToStratify[arrKey].length;
-          }
+    if (featureAggregationStrategy === 'first') {
+      return i => arr[0][i];
+    }
+    if (featureAggregationStrategy === 'last') {
+      return i => arr[arr.length - 1][i];
+    }
+    if (typeof featureAggregationStrategy === 'number') {
+      // TODO: more checks here for array index validity.
+      const j = featureAggregationStrategy;
+      return i => arr[j][i];
+    }
+    if (featureAggregationStrategy === 'sum' || featureAggregationStrategy === 'mean') {
+      const divisor = featureAggregationStrategy === 'mean' ? arr.length : 1;
+      return (i) => {
+        let sum = 0;
+        for (let h = 0; h < arr.length; h += 1) {
+          sum += arr[h][i];
         }
-      } else {
-        value = arraysToStratify[arrKey][i];
-      }
-
-      result
-        .get(cellSet)
-        .get(sampleSet)
-        .get(arrKey)[insertionIndex] = value;
-    });
-    result.get(cellSet).get(sampleSet).set('i', insertionIndex + 1);
-    cellCount += 1;
-  }
-
-  cellSetKeys.forEach((cellSetKey) => {
-    // Second level: sample set
-    sampleSetKeys.forEach((sampleSetKey) => {
-      const finalInsertionIndex = result.get(cellSetKey).get(sampleSetKey).get('i');
-      if (finalInsertionIndex !== result.get(cellSetKey).get(sampleSetKey).get('obsIndex').length) {
-        log.warn('The final insertion index is lower than expected.');
-      }
-      result.get(cellSetKey).get(sampleSetKey).delete('i');
-    });
+        return sum / divisor;
+      };
+    }
+    return () => undefined;
   });
 
+  // Allocate every group's arrays at their final size.
+  const groupArrays = new Array(numGroups);
+  for (let g = 0; g < numGroups; g += 1) {
+    groupArrays[g] = {
+      arrays: arrKeys.map(arrKey => new arraysToStratify[arrKey].constructor(counts[g])),
+      obsIndex: new Array(counts[g]),
+    };
+  }
+  const positions = new Int32Array(numGroups);
+  let cellCount = 0;
+  for (let i = 0; i < numObs; i += 1) {
+    const g = groupOfObs[i];
+    if (g >= 0) {
+      const pos = positions[g];
+      positions[g] += 1;
+      const target = groupArrays[g];
+      for (let a = 0; a < arrKeys.length; a += 1) {
+        target.arrays[a][pos] = getters[a](i);
+      }
+      target.obsIndex[pos] = obsIndex[i];
+      cellCount += 1;
+    }
+  }
+
+  const result = new InternMap([], JSON.stringify);
+  cellSetKeys.forEach((cellSetKey, c) => {
+    const sampleMap = new InternMap([], JSON.stringify);
+    result.set(cellSetKey, sampleMap);
+    sampleSetKeys.forEach((sampleSetKey, s) => {
+      const group = groupArrays[c * sampleSetKeys.length + s];
+      const arrayMap = new InternMap([], JSON.stringify);
+      arrKeys.forEach((arrKey, a) => {
+        arrayMap.set(arrKey, group.arrays[a]);
+      });
+      arrayMap.set('obsIndex', group.obsIndex);
+      sampleMap.set(sampleSetKey, arrayMap);
+    });
+  });
   return [result, cellCount];
 }
 
 /**
- * Input: selections and data.
- * Output: expression data in a hierarchy like
- * [
- *   {
- *     "selectedCellSet1": {
- *       "selectedSampleSet1": [],
- *     }
- *   },
- *   exprMax
- * ]
- * @param {*} sampleEdges
- * @param {*} sampleSets
- * @param {*} sampleSetSelection
- * @param {*} expressionData
- * @param {*} obsIndex
- * @param {*} mergedCellSets
- * @param {*} geneSelection
- * @param {*} cellSetSelection
- * @param {*} cellSetColor
- * @param {*} featureValueTransform
- * @param {*} featureValueTransformCoefficient
- * @returns
+ * Stratify expression values by selected cell set, selected sample set, and gene.
+ *
+ * Output: an InternMap keyed by cell set path of InternMaps keyed by sample set
+ * path (or null) of InternMaps keyed by gene, each holding a plain array of
+ * transformed values in observation-index order, plus the maximum transformed
+ * value overall.
+ * @param {Map<string, string>|null} sampleEdges Mapping from obsId to sampleId.
+ * @param {object|null} sampleSets Sample sets tree.
+ * @param {array|null} sampleSetSelection Selected sample set paths.
+ * @param {ArrayLike<number>[]} expressionData One array per selected gene,
+ * aligned with obsIndex.
+ * @param {string[]} obsIndex The observation index.
+ * @param {object|null} mergedCellSets Cell sets tree.
+ * @param {string[]} geneSelection Selected genes.
+ * @param {array|null} cellSetSelection Selected cell set paths.
+ * @param {object[]} cellSetColor Unused; kept for call compatibility.
+ * @param {string|null} featureValueTransform Transform name, e.g. 'log1p'.
+ * @param {number} featureValueTransformCoefficient Transform coefficient.
+ * @param {object} [options]
+ * @param {object} [options.obsSetsColumns] Raw categorical columns for the
+ * observation sets, for a code-based fast path.
+ * @returns {[InternMap|null, number|null]} The stratified values and the maximum.
  */
 export function stratifyExpressionData(
   sampleEdges, sampleSets, sampleSetSelection,
@@ -219,80 +274,92 @@ export function stratifyExpressionData(
   geneSelection, cellSetSelection,
   cellSetColor, // TODO: remove this parameter
   featureValueTransform, featureValueTransformCoefficient,
+  options = {},
 ) {
-  const result = new InternMap([], JSON.stringify);
-
-  const hasSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.length > 0;
-  const hasCellSetSelection = Array.isArray(cellSetSelection) && cellSetSelection.length > 0;
-  const hasGeneSelection = Array.isArray(geneSelection) && geneSelection.length > 0;
-
+  const { obsSetsColumns = null } = options;
+  if (!(mergedCellSets && cellSetSelection
+    && geneSelection && geneSelection.length >= 1
+    && expressionData
+  )) {
+    return [null, null];
+  }
+  const hasSampleSetSelection = hasSelection(sampleSetSelection);
+  const hasCellSetSelection = hasSelection(cellSetSelection);
   const sampleSetKeys = hasSampleSetSelection ? sampleSetSelection : [null];
   const cellSetKeys = hasCellSetSelection ? cellSetSelection : [null];
-  const geneKeys = hasGeneSelection ? geneSelection : [null];
+  const geneKeys = geneSelection;
+  const numObs = obsIndex?.length || 0;
+  let exprMax = -Infinity;
 
-  // TODO: return a flat array with { cellSet, sampleSet, gene } objects.
-  // Then, use d3.group to create nested InternMaps.
+  const numGroups = cellSetKeys.length * sampleSetKeys.length;
+  // With an empty cell set selection nothing is assigned; the groups stay empty.
+  let groupOfObs = null;
+  let counts = new Int32Array(numGroups);
+  if (hasCellSetSelection) {
+    const { cellSlot, sampleSlot } = computeStrata({
+      obsIndex,
+      mergedCellSets,
+      cellSetSelection,
+      obsSetsColumns,
+      sampleEdges,
+      sampleSets,
+      sampleSetSelection,
+    });
+    ({ groupOfObs, counts } = assignGroups({
+      numObs,
+      cellSlot,
+      sampleSlot,
+      numSampleGroups: sampleSetKeys.length,
+      numCellGroups: cellSetKeys.length,
+    }));
+  }
 
+  const transform = getValueTransformFunction(
+    featureValueTransform, featureValueTransformCoefficient,
+  );
+  // leaves[group][geneI] is the plain array of values for that group and gene,
+  // allocated at its final size (consumers rely on Array methods such as flat()).
+  const leaves = new Array(numGroups);
+  for (let g = 0; g < numGroups; g += 1) {
+    leaves[g] = geneKeys.map(() => new Array(counts[g]));
+  }
+  if (groupOfObs) {
+    const positions = new Int32Array(numGroups);
+    geneKeys.forEach((geneKey, geneI) => {
+      const column = expressionData[geneI];
+      if (!column) {
+        // Not loaded yet; leave this gene's arrays unfilled.
+        return;
+      }
+      positions.fill(0);
+      for (let i = 0; i < numObs; i += 1) {
+        const g = groupOfObs[i];
+        if (g >= 0) {
+          const value = transform(column[i]);
+          if (value > exprMax) {
+            exprMax = value;
+          }
+          leaves[g][geneI][positions[g]] = value;
+          positions[g] += 1;
+        }
+      }
+    });
+  }
 
-  // First level: cell set
-  cellSetKeys.forEach((cellSetKey) => {
-    result.set(cellSetKey, new InternMap([], JSON.stringify));
-    // Second level: sample set
-    sampleSetKeys.forEach((sampleSetKey) => {
-      result.get(cellSetKey).set(sampleSetKey, new InternMap([], JSON.stringify));
-      // Third level: gene
-      geneKeys.forEach((geneKey) => {
-        result.get(cellSetKey).get(sampleSetKey).set(geneKey, []);
+  const result = new InternMap([], JSON.stringify);
+  cellSetKeys.forEach((cellSetKey, c) => {
+    const sampleMap = new InternMap([], JSON.stringify);
+    result.set(cellSetKey, sampleMap);
+    sampleSetKeys.forEach((sampleSetKey, s) => {
+      const geneMap = new InternMap([], JSON.stringify);
+      const group = leaves[c * sampleSetKeys.length + s];
+      geneKeys.forEach((geneKey, geneI) => {
+        geneMap.set(geneKey, group[geneI]);
       });
+      sampleMap.set(sampleSetKey, geneMap);
     });
   });
-
-
-  if (mergedCellSets && cellSetSelection
-      && geneSelection && geneSelection.length >= 1
-      && expressionData
-  ) {
-    const sampleIdToSetMap = sampleSets && sampleSetSelection
-      ? treeToSelectedSetMap(sampleSets, sampleSetSelection)
-      : null;
-    const cellIdToSetMap = treeToSelectedSetMap(mergedCellSets, cellSetSelection);
-
-    let exprMax = -Infinity;
-
-    for (let i = 0; i < obsIndex.length; i += 1) {
-      const obsId = obsIndex[i];
-
-      const cellSet = cellIdToSetMap?.get(obsId);
-      const sampleId = sampleEdges?.get(obsId);
-      const sampleSet = sampleId && hasSampleSetSelection
-        ? sampleIdToSetMap?.get(sampleId)
-        : null;
-
-      if (hasSampleSetSelection && !sampleSet) {
-        // Skip this sample if it is not in the selected sample set.
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-
-      // eslint-disable-next-line no-loop-func
-      geneKeys.forEach((geneKey, geneI) => {
-        const value = expressionData[geneI][i];
-        const transformFunction = getValueTransformFunction(
-          featureValueTransform, featureValueTransformCoefficient,
-        );
-        const transformedValue = transformFunction(value);
-        exprMax = Math.max(transformedValue, exprMax);
-
-        result
-          .get(cellSet)
-          ?.get(sampleSet)
-          ?.get(geneKey)
-          ?.push(transformedValue);
-      });
-    }
-    return [result, exprMax];
-  }
-  return [null, null];
+  return [result, exprMax];
 }
 
 /**

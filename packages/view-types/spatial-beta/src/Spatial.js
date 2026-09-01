@@ -16,7 +16,7 @@ import {
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
 import { CoordinationType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
-import { getLayerLoaderTuple, renderSubBitmaskLayers } from './utils.js';
+import { getLayerLoaderTuple, isLayerVisible, renderSubBitmaskLayers } from './utils.js';
 
 const POINT_LAYER_PREFIX = 'point-layer-';
 const SPOT_LAYER_PREFIX = 'spot-layer-';
@@ -232,7 +232,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const { obsIndex } = layerObsSegmentations;
     const layerData = this.obsSegmentationsData?.[layerScope];
 
-    const layerQuadTree = this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope];
     const layerColors = this.segmentationColors?.[layerScope]?.[channelScope];
     const getExpressionValue = this.segmentationExpressionGetters?.[layerScope]?.[channelScope];
 
@@ -934,7 +933,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
           .map(layerScope => ({
             getObsCoords: makeDefaultGetObsCoords(obsPoints?.[layerScope]?.obsPoints),
             obsIndex: obsPoints?.[layerScope]?.obsIndex,
-            obsQuadTree: this.obsPointsQuadTree?.[layerScope],
+            obsQuadTree: {
+              visit: callback => this.getObsPointsQuadTree(layerScope)?.visit(callback),
+            },
             // eslint-disable-next-line no-unused-vars
             onSelect: (obsIds) => {
               // TODO: should points be selectable?
@@ -949,7 +950,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
           .map(layerScope => ({
             getObsCoords: makeDefaultGetObsCoords(obsSpots?.[layerScope]?.obsSpots),
             obsIndex: obsSpots?.[layerScope]?.obsIndex,
-            obsQuadTree: this.obsSpotsQuadTree?.[layerScope],
+            obsQuadTree: {
+              visit: callback => this.getObsSpotsQuadTree(layerScope)?.visit(callback),
+            },
             onSelect: (obsIds) => {
               const {
                 obsSetColor,
@@ -985,7 +988,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
                 obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsLocations,
               ),
               obsIndex: obsSegmentationsLocations?.[layerScope]?.[channelScope]?.obsIndex,
-              obsQuadTree: this.obsSegmentationsQuadTree?.[layerScope]?.[channelScope],
+              obsQuadTree: {
+                visit: callback => this
+                  .getObsSegmentationsQuadTree(layerScope, channelScope)?.visit(callback),
+              },
               onSelect: (obsIds) => {
                 const {
                   obsSetColor,
@@ -1006,6 +1012,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
               },
             }))),
       ],
+      false,
+      this.props.onSelectionBusy,
     );
   }
 
@@ -1186,6 +1194,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const transparentColor = layerCoordination[CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR];
     const useTransparentColor = Array.isArray(transparentColor) && transparentColor.length === 3;
 
+    // Skip hidden layers entirely in 3D. viv's VolumeLayer downloads a whole volume per channel
+    // from updateState, and DeckGL does not gate layer updates on `visible` -- so a hidden layer
+    // still pays full price. With one layer per image, a config holding several co-located
+    // acquisitions would fetch hundreds of megabytes the moment 3D is switched on, even though
+    // only one of them is on screen. The legacy `spatial` view never hit this because it filtered
+    // imageLayerDefs down to the single layer flagged `use3d`. Compared against `false` rather
+    // than falsy so that an unset value still counts as visible, matching ImageLayerController.
+    if (is3dMode && !isLayerVisible(visible)) {
+      return null;
+    }
 
     const extensions = getVivLayerExtensions(
       is3dMode, colormap, renderingMode,
@@ -1527,14 +1545,84 @@ class Spatial extends AbstractSpatialOrScatterplot {
     });
   }
 
+  /**
+   * The quadtree over a spot layer's coordinates, for lasso/rectangle selection.
+   * Built lazily on first use and invalidated when the layer's data changes.
+   * @param {string} layerScope
+   * @returns {object|undefined} The d3-quadtree, or undefined without data.
+   */
+  getObsSpotsQuadTree(layerScope) {
+    if (!this.obsSpotsQuadTree[layerScope]) {
+      const { obsSpots } = this.props;
+      const { obsSpots: layerObsSpots } = obsSpots?.[layerScope] || {};
+      if (layerObsSpots) {
+        this.obsSpotsQuadTree[layerScope] = createQuadTree(
+          layerObsSpots, makeDefaultGetObsCoords(layerObsSpots),
+        );
+      }
+    }
+    return this.obsSpotsQuadTree[layerScope];
+  }
+
+  /**
+   * The quadtree over a (non-tiled) point layer's coordinates.
+   * @param {string} layerScope
+   * @returns {object|undefined} The d3-quadtree, or undefined without data.
+   */
+  getObsPointsQuadTree(layerScope) {
+    if (!this.obsPointsQuadTree[layerScope]) {
+      const { obsPoints } = this.props;
+      const {
+        obsPoints: layerObsPoints,
+        obsPointsTilingType,
+      } = obsPoints?.[layerScope] || {};
+      if (layerObsPoints && obsPointsTilingType !== 'tiled') {
+        this.obsPointsQuadTree[layerScope] = createQuadTree(
+          layerObsPoints, makeDefaultGetObsCoords(layerObsPoints),
+        );
+      }
+    }
+    return this.obsPointsQuadTree[layerScope];
+  }
+
+  /**
+   * The quadtree over a polygon segmentation channel's per-observation locations.
+   * @param {string} layerScope
+   * @param {string} channelScope
+   * @returns {object|undefined} The d3-quadtree, or undefined without locations.
+   */
+  getObsSegmentationsQuadTree(layerScope, channelScope) {
+    if (!this.obsSegmentationsQuadTree[layerScope]?.[channelScope]) {
+      const { obsSegmentations, obsSegmentationsLocations } = this.props;
+      const {
+        obsSegmentations: layerObsSegmentations,
+        obsSegmentationsType,
+      } = obsSegmentations?.[layerScope] || {};
+      const { obsLocations: layerObsLocations } = obsSegmentationsLocations
+        ?.[layerScope]?.[channelScope] || {};
+      if (layerObsSegmentations && obsSegmentationsType === 'polygon'
+        && layerObsLocations
+        && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]
+      ) {
+        if (!this.obsSegmentationsQuadTree[layerScope]) {
+          this.obsSegmentationsQuadTree[layerScope] = {};
+        }
+        this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(
+          layerObsLocations, makeDefaultGetObsCoords(layerObsLocations),
+        );
+      }
+    }
+    return this.obsSegmentationsQuadTree[layerScope]?.[channelScope];
+  }
+
   onUpdateSpotsData(layerScope) {
     const {
       obsSpots,
     } = this.props;
     const { obsSpots: layerObsSpots } = obsSpots?.[layerScope] || {};
     if (layerObsSpots) {
-      const getCellCoords = makeDefaultGetObsCoords(layerObsSpots);
-      this.obsSpotsQuadTree[layerScope] = createQuadTree(layerObsSpots, getCellCoords);
+      // The quadtree is built lazily on first selection; see getObsSpotsQuadTree.
+      delete this.obsSpotsQuadTree[layerScope];
       this.obsSpotsData[layerScope] = {
         src: {
           obsSpots: layerObsSpots,
@@ -1710,16 +1798,12 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ?.[layerScope]?.[channelScope] || {};
     if (layerObsSegmentations && obsSegmentationsType === 'polygon') {
       if (layerObsLocations && layerObsLocations.shape[1] === layerObsSegmentations.shape[0]) {
-        // If we have per-observation locations (e.g., centroids of each cell), we can use
-        // them for picking/lasso/etc.
-        const getCellCoords = makeDefaultGetObsCoords(layerObsLocations);
-        // Initialize layer-level objects if necessary.
-        if (!this.obsSegmentationsQuadTree[layerScope]) {
-          this.obsSegmentationsQuadTree[layerScope] = {};
+        // Per-observation locations (e.g., centroids of each cell) support
+        // picking/lasso/etc. The quadtree over them is built lazily on first
+        // selection; see getObsSegmentationsQuadTree.
+        if (this.obsSegmentationsQuadTree[layerScope]) {
+          delete this.obsSegmentationsQuadTree[layerScope][channelScope];
         }
-        this.obsSegmentationsQuadTree[layerScope][channelScope] = createQuadTree(
-          layerObsLocations, getCellCoords,
-        );
       }
     }
   }
@@ -1804,8 +1888,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // Not tiled.
       // eslint-disable-next-line no-lonely-if
       if (layerObsPoints) {
-        const getCellCoords = makeDefaultGetObsCoords(layerObsPoints);
-        this.obsPointsQuadTree[layerScope] = createQuadTree(layerObsPoints, getCellCoords);
+        // The quadtree is built lazily on first selection; see getObsPointsQuadTree.
+        delete this.obsPointsQuadTree[layerScope];
 
         let pointFeatureIndex = pointMatrixIndices?.[layerScope]?.featureIndex;
         if (!pointFeatureIndex) {

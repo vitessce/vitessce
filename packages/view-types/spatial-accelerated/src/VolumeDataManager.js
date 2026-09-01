@@ -755,8 +755,14 @@ export class VolumeDataManager {
 
       this.zarrStore.resolutions = resolutions;
 
+      // TODO: The code here should not rely on vivData.meta.physicalSizes,
+      // but should instead use imageWrapper.getModelMatrix() which is more general.
+      // Then, stripPhysicalSizes can be set to true and possibly removed as a parameter,
+      // making stripPhysicalSizes the default behavior in ImageWrapper.getData().
+      const stripPhysicalSizes = false;
+
       // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
-      const vivData = imageWrapper.getData();
+      const vivData = imageWrapper.getData(stripPhysicalSizes);
 
       if (!Array.isArray(vivData) || vivData.length < 1) {
         throw new Error('Not a multiresolution loader');

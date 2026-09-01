@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/abstract",
-  "version": "4.0.2",
+  "version": "4.0.4",
   "author": "HiDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,7 +31,9 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@vitessce/globals": "workspace:*"
+    "@vitessce/error": "workspace:*",
+    "@vitessce/globals": "workspace:*",
+    "@vitessce/utils": "workspace:*"
   },
   "devDependencies": {
     "@vitessce/types": "workspace:*"

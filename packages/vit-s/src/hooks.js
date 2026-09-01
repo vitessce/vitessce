@@ -5,6 +5,7 @@ import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
+import { getObsIndexMap } from '@vitessce/sets-utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
@@ -258,6 +259,10 @@ export function useUint8FeatureSelection(expressionData) {
   }, [expressionData]);
 }
 
+// Marks an instance index that equals the matrix row index, so that no
+// per-observation mapping needs to be built.
+const IDENTITY_MAPPING = 'identity';
+
 export function useExpressionValueGetter(
   { instanceObsIndex, matrixObsIndex, expressionData },
 ) {
@@ -267,18 +272,32 @@ export function useExpressionValueGetter(
   // we need a way to look up an obsFeatureMatrix obsIndex index
   // given an obsEmbedding obsIndex index.
   const toMatrixIndexMap = useMemo(() => {
-    if (instanceObsIndex && matrixObsIndex) {
-      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
-      return instanceObsIndex.map(key => matrixIndexMap.get(key));
+    if (!instanceObsIndex || !matrixObsIndex) {
+      return null;
     }
-    return null;
+    if (instanceObsIndex === matrixObsIndex) {
+      // The same array (the usual case when both come from one data source)
+      // is already aligned by position.
+      return IDENTITY_MAPPING;
+    }
+    // The map is shared with other consumers of this index via getObsIndexMap.
+    const matrixIndexMap = getObsIndexMap(matrixObsIndex);
+    const mapping = new Int32Array(instanceObsIndex.length);
+    for (let i = 0; i < instanceObsIndex.length; i += 1) {
+      const rowIndex = matrixIndexMap.get(instanceObsIndex[i]);
+      mapping[i] = rowIndex === undefined ? -1 : rowIndex;
+    }
+    return mapping;
   }, [instanceObsIndex, matrixObsIndex]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
     if (toMatrixIndexMap && expressionData && expressionData[0]) {
-      const rowIndex = toMatrixIndexMap[instanceIndex];
+      const rowIndex = toMatrixIndexMap === IDENTITY_MAPPING
+        ? instanceIndex
+        : toMatrixIndexMap[instanceIndex];
+      // An observation absent from the matrix (-1) reads as undefined, as before.
       const val = expressionData[0][rowIndex];
       return val;
     }

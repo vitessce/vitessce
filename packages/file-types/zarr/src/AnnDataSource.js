@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
-import { open as zarrOpen, get as zarrGet } from 'zarrita';
+import { get as zarrGet, slice as zarrSlice } from 'zarrita';
 import { log } from '@vitessce/globals';
 import { dirname } from './utils.js';
 import ZarrDataSource from './ZarrDataSource.js';
+import { maybeDowncastInt64 } from './anndata-loaders/utils.js';
 /** @import { DataSourceParams } from '@vitessce/types' */
 /** @import { TypedArray as ZarrTypedArray, Chunk, ByteStringArray } from 'zarrita' */
 
@@ -93,32 +94,36 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
-   *
+   * Inspect a dataframe column's encoding and resolve where its data lives,
+   * without materializing per-observation values. Shared by the string-decoding
+   * path (_loadColumn) and the raw-codes path (loadObsColumnCodes).
    * @param {string} pathOrig
-   * @returns
+   * @returns {Promise<
+   *   { kind: 'stringArray', valuesPath: string }
+   *   | { kind: 'codes', codesPath: string, categoriesValues: string[] | undefined }
+   * >} For 'codes', categoriesValues is undefined when the column is numeric or
+   * when its categories could not be decoded; codes are then stringified directly.
    */
-  async _loadColumn(pathOrig) {
-    const { storeRoot } = this;
-
+  async _getColumnSpec(pathOrig) {
     const path = prependSlash(pathOrig);
     const prefixOrig = dirname(path);
     const prefix = prependSlash(prefixOrig);
     const { categories, 'encoding-type': encodingType } = await this.getJson(`${path}/.zattrs`);
-    /** @type {string[]} */
+    /** @type {string[] | undefined} */
     let categoriesValues;
     /** @type {undefined | string} */
     let codesPath;
     if (categories) {
-      const { dtype } = await zarrOpen(
-        storeRoot.resolve(`${prefix}/${categories}`),
-        { kind: 'array' },
-      );
+      // AnnData 0.7-style: the column holds codes, and a sibling array
+      // (named by the `categories` attribute) holds the category strings.
+      const { dtype } = await this.openArray(`${prefix}/${categories}`);
       if (dtype === 'v2:object' || dtype === '|O') {
         categoriesValues = await this.getFlatArrDecompressed(
           `${prefix}/${categories}`,
         );
       }
     } else if (encodingType === 'categorical') {
+      // AnnData 0.8+ style: the column is a group with codes/ and categories/.
       const categoriesZattrs = await this.getJson(`${path}/categories/.zattrs`);
       const categoriesEncodingType = categoriesZattrs?.['encoding-type'];
       if (categoriesEncodingType === 'nullable-string-array') {
@@ -126,32 +131,37 @@ export default class AnnDataSource extends ZarrDataSource {
       } else if (categoriesEncodingType === 'string-array') {
         categoriesValues = await this.getFlatArrDecompressed(`${path}/categories`);
       } else {
-        const { dtype } = await zarrOpen(
-          storeRoot.resolve(`${path}/categories`),
-          { kind: 'array' },
-        );
+        const { dtype } = await this.openArray(`${path}/categories`);
         if (dtype === 'v2:object' || dtype === '|O') {
           categoriesValues = await this.getFlatArrDecompressed(`${path}/categories`);
         }
       }
       codesPath = `${path}/codes`;
     } else if (encodingType === 'nullable-string-array') {
-      return this.getFlatArrDecompressed(`${path}/values`);
+      return { kind: 'stringArray', valuesPath: `${path}/values` };
     } else if (encodingType === 'string-array') {
-      return this.getFlatArrDecompressed(path);
+      return { kind: 'stringArray', valuesPath: path };
     } else {
-      const { dtype } = await zarrOpen(
-        storeRoot.resolve(path),
-        { kind: 'array' },
-      );
+      const { dtype } = await this.openArray(path);
       if (dtype === 'v2:object' || dtype === '|O') {
-        return this.getFlatArrDecompressed(path);
+        return { kind: 'stringArray', valuesPath: path };
       }
     }
-    const arr = await zarrOpen(
-      storeRoot.resolve(codesPath || path),
-      { kind: 'array' },
-    );
+    return { kind: 'codes', codesPath: codesPath || path, categoriesValues };
+  }
+
+  /**
+   *
+   * @param {string} pathOrig
+   * @returns
+   */
+  async _loadColumn(pathOrig) {
+    const spec = await this._getColumnSpec(pathOrig);
+    if (spec.kind === 'stringArray') {
+      return this.getFlatArrDecompressed(spec.valuesPath);
+    }
+    const { codesPath, categoriesValues } = spec;
+    const arr = await this.openArray(codesPath);
     const values = await zarrGet(arr, [null]);
     const { data } = values;
     const mappedValues = Array.from(data).map(
@@ -161,13 +171,49 @@ export default class AnnDataSource extends ZarrDataSource {
   }
 
   /**
+   * Load a categorical column as its raw integer codes plus the (small) list of
+   * category strings, skipping the per-observation string materialization that
+   * _loadColumn performs. Codes are positional along the column's dataframe axis;
+   * a negative code means the value is missing.
+   * @param {string} path A path to a dataframe column, like "obs/leiden".
+   * @returns {Promise<{
+   *   codes: ZarrTypedArray<any>, categories: string[],
+   * } | null>} Null when the column is not categorical (callers should fall back
+   * to the string-based path).
+   */
+  loadObsColumnCodes(path) {
+    if (!this.codesPromises) {
+      /** @type {Map<string, Promise<any>>} */
+      this.codesPromises = new Map();
+    }
+    if (!this.codesPromises.has(path)) {
+      const promise = (async () => {
+        const spec = await this._getColumnSpec(path);
+        if (spec.kind !== 'codes' || !spec.categoriesValues) {
+          return null;
+        }
+        const arr = await this.openArray(spec.codesPath);
+        const { data } = await zarrGet(arr, [null]);
+        // Codes index into a small category list, so int64 codes (BigInt64Array)
+        // are safely downcast for plain numeric indexing.
+        return { codes: maybeDowncastInt64(data), categories: spec.categoriesValues };
+      })().catch((err) => {
+        // Clear from cache if the promise rejects, then propagate.
+        this.codesPromises.delete(path);
+        throw err;
+      });
+      this.codesPromises.set(path, promise);
+    }
+    return this.codesPromises.get(path);
+  }
+
+  /**
    * Class method for loading general numeric arrays.
    * @param {string} path A string like obsm.X_pca.
    * @returns {Promise<Chunk<any>>} A promise for a zarr array containing the data.
    */
   async loadNumeric(path) {
-    const { storeRoot } = this;
-    return zarrOpen(storeRoot.resolve(path), { kind: 'array' })
+    return this.openArray(path)
       .then(arr => zarrGet(arr));
   }
 
@@ -181,12 +227,45 @@ export default class AnnDataSource extends ZarrDataSource {
    * }>} A promise for a zarr array containing the data.
    */
   async loadNumericForDims(path, dims) {
-    const { storeRoot } = this;
-    const arr = zarrOpen(storeRoot.resolve(path), { kind: 'array' });
+    const loadedArr = await this.openArray(path);
+    const minDim = Math.min(...dims);
+    const maxDim = Math.max(...dims);
+    const isContiguous = maxDim - minDim + 1 === dims.length;
+    // A sliced read only helps when at least two requested dims live in the
+    // same chunk, where per-dim reads would fetch and decompress that chunk
+    // once per dim (e.g. chunks like [129578, 4]). When every dim maps to its
+    // own chunk column (e.g. chunks like [160497, 1]), per-dim reads fetch the
+    // same chunks but skip the sliced read's interleaved 2D assembly and
+    // per-column extraction, which cost ~0.5 s at millions of observations.
+    const chunkWidth = loadedArr.chunks[1] ?? 1;
+    const dimsShareChunks = new Set(
+      dims.map(dim => Math.floor(dim / chunkWidth)),
+    ).size < dims.length;
+    if (isContiguous && dimsShareChunks) {
+      // The dims form a contiguous run (the common case, e.g. [0, 1]), so a single
+      // sliced read covers all of them without fetching any shared chunk twice.
+      const { data, shape, stride } = await zarrGet(
+        loadedArr, [null, zarrSlice(minDim, maxDim + 1)],
+      );
+      const numRows = shape[0];
+      const cols = dims.map((dim) => {
+        const colIndex = dim - minDim;
+        const col = new /** @type {any} */ (data.constructor)(numRows);
+        for (let i = 0; i < numRows; i += 1) {
+          col[i] = data[i * stride[0] + colIndex * stride[1]];
+        }
+        return col;
+      });
+      return {
+        data: /** @type {[ZarrTypedArray<any>, ZarrTypedArray<any>]} */ (cols),
+        shape: [dims.length, numRows],
+      };
+    }
+    // Per-dim reads: chunk-disjoint dims fetch every chunk exactly once, and
+    // for non-contiguous dims the store-level cache still coalesces concurrent
+    // reads of any shared chunks.
     return Promise.all(
-      dims.map(dim => arr.then(
-        loadedArr => zarrGet(loadedArr, [null, dim]),
-      )),
+      dims.map(dim => zarrGet(loadedArr, [null, dim])),
     ).then(cols => ({
       data: /** @type {[ZarrTypedArray<any>, ZarrTypedArray<any>]} */ (
         cols.map(col => col.data)
@@ -202,8 +281,7 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<string[]>} The data from the zarr array.
    */
   async getFlatArrDecompressed(path) {
-    const { storeRoot } = this;
-    const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
+    const arr = await this.openArray(path);
     if (arr.shape[0] === 0) {
       return [];
     }
@@ -303,7 +381,6 @@ export default class AnnDataSource extends ZarrDataSource {
    * @returns {Promise<string>}
    */
   async _loadString(path) {
-    const { storeRoot } = this;
     const zattrs = await this._loadAttrs(path);
     if ('encoding-type' in zattrs && 'encoding-version' in zattrs) {
       const {
@@ -312,7 +389,7 @@ export default class AnnDataSource extends ZarrDataSource {
       } = zattrs;
 
       if (encodingType === 'string' && encodingVersion === '0.2.0') {
-        const arr = await zarrOpen(storeRoot.resolve(path), { kind: 'array' });
+        const arr = await this.openArray(path);
         // TODO: Use zarrGet once it supports zero-dimensional array access.
         const { data } = /** @type {{ data: ByteStringArray }} */ (await arr.getChunk([]));
         return data.get(0);

@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-beta",
-  "version": "4.0.2",
+  "version": "4.0.4",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -48,9 +48,11 @@
     "math.gl": "catalog:",
     "mathjs": "catalog:",
     "plur": "^5.1.0",
+    "react-aria": "catalog:",
     "short-number": "^1.0.6"
   },
   "devDependencies": {
+    "@testing-library/react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",

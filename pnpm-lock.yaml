@@ -209,8 +209,8 @@ catalogs:
       specifier: ^3.1.4
       version: 3.2.4
     zarrita:
-      specifier: 0.7.4
-      version: 0.7.4
+      specifier: 0.7.5
+      version: 0.7.5
     zod:
       specifier: ^3.21.4
       version: 3.22.4
@@ -462,6 +462,9 @@ importers:
 
   examples/configs:
     dependencies:
+      '@json2csv/plainjs':
+        specifier: ^7.0.8
+        version: 7.0.8
       '@vitessce/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -540,7 +543,7 @@ importers:
         version: 1.4.0
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
 
   packages/constants:
     dependencies:
@@ -581,9 +584,15 @@ importers:
 
   packages/file-types/abstract:
     dependencies:
+      '@vitessce/error':
+        specifier: workspace:*
+        version: link:../../error
       '@vitessce/globals':
         specifier: workspace:*
         version: link:../../globals
+      '@vitessce/utils':
+        specifier: workspace:*
+        version: link:../../utils/other-utils
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
@@ -708,7 +717,7 @@ importers:
         version: 4.17.21
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
       zod:
         specifier: 'catalog:'
         version: 3.22.4
@@ -798,7 +807,7 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
     devDependencies:
       '@tanstack/react-query':
         specifier: 'catalog:'
@@ -856,7 +865,7 @@ importers:
         version: 0.6.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
     devDependencies:
       '@vitessce/types':
         specifier: workspace:*
@@ -1618,9 +1627,18 @@ importers:
         specifier: workspace:*
         version: link:../vit-s
     devDependencies:
+      '@testing-library/jest-dom':
+        specifier: 'catalog:'
+        version: 6.6.3
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react:
         specifier: 'catalog:'
         version: 19.2.6
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.6(react@19.2.6)
       vite:
         specifier: 'catalog:'
         version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
@@ -1635,7 +1653,7 @@ importers:
         version: 0.16.0(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/react@8.8.27(@deck.gl/core@8.8.27)(@types/react@19.1.6)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/webgl@8.5.21)(react@19.2.6)
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1707,6 +1725,9 @@ importers:
 
   packages/utils/sets-utils:
     dependencies:
+      '@json2csv/plainjs':
+        specifier: ^7.0.8
+        version: 7.0.8
       '@turf/centroid':
         specifier: catalog:turf
         version: 7.2.0
@@ -1722,6 +1743,9 @@ importers:
       '@vitessce/utils':
         specifier: workspace:*
         version: link:../other-utils
+      '@vitessce/workers':
+        specifier: workspace:*
+        version: link:../../workers
       concaveman:
         specifier: ^1.2.1
         version: 1.2.1
@@ -1731,9 +1755,6 @@ importers:
       internmap:
         specifier: 'catalog:'
         version: 2.0.3
-      json2csv:
-        specifier: ^5.0.0
-        version: 5.0.7
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
@@ -1778,7 +1799,7 @@ importers:
         version: 9.5.2
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
 
   packages/utils/zarr-utils:
     dependencies:
@@ -1790,7 +1811,7 @@ importers:
         version: 0.2.0
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
     devDependencies:
       unzipit:
         specifier: ^2.0.1
@@ -2169,6 +2190,9 @@ importers:
         specifier: ^2.19.5
         version: 2.19.5(react@19.2.6)
     devDependencies:
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react:
         specifier: 'catalog:'
         version: 19.2.6
@@ -2595,7 +2619,7 @@ importers:
         version: 1.0.7
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
     devDependencies:
       '@react-three/drei':
         specifier: 'catalog:'
@@ -2678,10 +2702,16 @@ importers:
       plur:
         specifier: ^5.1.0
         version: 5.1.0
+      react-aria:
+        specifier: 'catalog:'
+        version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       short-number:
         specifier: ^1.0.6
         version: 1.0.7
     devDependencies:
+      '@testing-library/react':
+        specifier: 'catalog:'
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@18.0.6)(@types/react@19.1.6)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react:
         specifier: 'catalog:'
         version: 19.2.6
@@ -2957,7 +2987,7 @@ importers:
         version: 9.0.1
       zarrita:
         specifier: 'catalog:'
-        version: 0.7.4
+        version: 0.7.5
       zustand:
         specifier: 'catalog:'
         version: 5.0.5(@types/react@19.1.6)(immer@9.0.15)(react@19.2.6)(use-sync-external-store@1.6.0(react@19.2.6))
@@ -5369,6 +5399,12 @@ packages:
   '@jsdevtools/ono@7.1.3':
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
 
+  '@json2csv/formatters@7.0.8':
+    resolution: {integrity: sha512-YYpeZF7qKSX55FMYEl0m7Hn188l050k171/KwDHSMPHLHvWxDbzjmH1qVfXyV7XO7MMpDx1P7xksd/jXqlLxDw==}
+
+  '@json2csv/plainjs@7.0.8':
+    resolution: {integrity: sha512-bxsdb7tcHFyq6SGvDdHrxgSLxc8ScNyX+6B1aT+Anp8PEieZIenf6lPIJ2CnB4MQkrNANfFj6mXJlK9f8Bh5wg==}
+
   '@leichtgewicht/ip-codec@2.0.4':
     resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
 
@@ -6999,6 +7035,9 @@ packages:
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
 
+  '@streamparser/json@0.0.23':
+    resolution: {integrity: sha512-givIVGxVGwP2oh5wiGdjQBKLZAS6LMkvnOxKybKTZDWP9LCO20eAzAL8OkUg8iR7u28cB2Ti7lFfLHnAAZGN6A==}
+
   '@svgr/babel-plugin-add-jsx-attribute@6.5.1':
     resolution: {integrity: sha512-9PYGcXrAxitycIjRmZB+Q0JaN07GZIWaTBIGQzfaZv+qr1n8X1XUEJ5rZ/vx6OVD9RRYlrNnXWExQXcmZeD/BQ==}
     engines: {node: '>=10'}
@@ -7762,6 +7801,7 @@ packages:
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@use-gesture/core@10.3.1':
     resolution: {integrity: sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==}
@@ -11568,12 +11608,6 @@ packages:
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
 
-  json2csv@5.0.7:
-    resolution: {integrity: sha512-YRZbUnyaJZLZUJSRi2G/MqahCyRv9n/ds+4oIetjDF3jWQA7AG7iSeKTiZiCNqtMZM7HDyt0e/W6lEnoGEmMGA==}
-    engines: {node: '>= 10', npm: '>= 6.13.0'}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-    hasBin: true
-
   json5@1.0.2:
     resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
     hasBin: true
@@ -11588,10 +11622,6 @@ packages:
 
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
-
-  jsonparse@1.3.1:
-    resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
-    engines: {'0': node >= 0.2.0}
 
   jsprim@1.4.2:
     resolution: {integrity: sha512-P2bSOMAc/ciLz6DzgjVlGJP9+BrJWu5UDGK70C2iweC5QBIeFf0ZXRvGjEj2uYgrY2MkAAhsSWHDWlFtEroZWw==}
@@ -16211,8 +16241,8 @@ packages:
   zarrita@0.5.2:
     resolution: {integrity: sha512-BN/miFnvBuVqLLObrI08crkbyi+Oc/HWZpgCmWusrWUNIauIV9vR5zlvpSAnhOjZwjomEKFb728K7ax7FiDgJQ==}
 
-  zarrita@0.7.4:
-    resolution: {integrity: sha512-NChufj86SceFj45z4CYjndmI98dphaG7hU8Wj0UGpMyT21o0V3HTY6zo87aSobYWts1tNFivSXzH2AR1AkaWjA==}
+  zarrita@0.7.5:
+    resolution: {integrity: sha512-ZriOSEne+Wf2iuM0yjDZvUKpHNlug3dO7qJ6mAxXoOgsYV18DPOkAkwB9e0rf21bHcKcOffFuwoZwn5g6pvUeA==}
 
   zod-to-json-schema@3.21.1:
     resolution: {integrity: sha512-y5g0MPxDq+YG/T+cHGPYH4PcBpyCqwK6wxeJ76MR563y0gk/14HKfebq8xHiItY7lkc9GDFygCnkvNDTvAhYAg==}
@@ -19230,6 +19260,13 @@ snapshots:
 
   '@jsdevtools/ono@7.1.3': {}
 
+  '@json2csv/formatters@7.0.8': {}
+
+  '@json2csv/plainjs@7.0.8':
+    dependencies:
+      '@json2csv/formatters': 7.0.8
+      '@streamparser/json': 0.0.23
+
   '@leichtgewicht/ip-codec@2.0.4': {}
 
   '@loaders.gl/3d-tiles@3.2.10(@loaders.gl/core@3.2.10)':
@@ -21678,6 +21715,8 @@ snapshots:
       micromark-util-symbol: 1.1.0
 
   '@standard-schema/spec@1.0.0': {}
+
+  '@streamparser/json@0.0.23': {}
 
   '@svgr/babel-plugin-add-jsx-attribute@6.5.1(@babel/core@7.28.0)':
     dependencies:
@@ -27561,12 +27600,6 @@ snapshots:
 
   json-stringify-safe@5.0.1: {}
 
-  json2csv@5.0.7:
-    dependencies:
-      commander: 6.2.1
-      jsonparse: 1.3.1
-      lodash.get: 4.4.2
-
   json5@1.0.2:
     dependencies:
       minimist: 1.2.8
@@ -27582,8 +27615,6 @@ snapshots:
       universalify: 2.0.0
     optionalDependencies:
       graceful-fs: 4.2.11
-
-  jsonparse@1.3.1: {}
 
   jsprim@1.4.2:
     dependencies:
@@ -33356,7 +33387,7 @@ snapshots:
       '@zarrita/storage': 0.1.4
       numcodecs: 0.3.2
 
-  zarrita@0.7.4:
+  zarrita@0.7.5:
     dependencies:
       '@zarrita/storage': 0.2.0
       numcodecs: 0.3.2

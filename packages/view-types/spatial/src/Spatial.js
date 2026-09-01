@@ -322,7 +322,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
     return getSelectionLayer(
       tool,
@@ -332,12 +331,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
         {
           getObsCoords: getCellCoords,
           obsIndex: obsCentroidsIndex,
-          obsQuadTree: obsSegmentationsQuadTree,
+          // The selection layer only visits the quadtree once a selection is
+          // drawn, so it is built on first use rather than per data change.
+          obsQuadTree: {
+            visit: callback => this.getObsSegmentationsQuadTree()?.visit(callback),
+          },
           onSelect: (obsIds) => {
             setCellSelection(obsIds);
           },
         },
       ],
+      false,
+      this.props.onSelectionBusy,
     );
   }
 
@@ -594,6 +599,28 @@ class Spatial extends AbstractSpatialOrScatterplot {
     ];
   }
 
+  /**
+   * The quadtree over the segmentation centroids, used for lasso and rectangle
+   * selection. Built lazily: at millions of observations it costs about a
+   * second, and most renders never select.
+   * @returns {object|null} The d3-quadtree, or null without centroid data.
+   */
+  getObsSegmentationsQuadTree() {
+    const {
+      obsSegmentations,
+      obsSegmentationsType,
+      obsCentroids,
+    } = this.props;
+    if (!this.obsSegmentationsQuadTree
+      && ((obsSegmentations && obsSegmentationsType === 'polygon')
+        || (!obsSegmentations && obsCentroids))
+    ) {
+      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+    }
+    return this.obsSegmentationsQuadTree;
+  }
+
   onUpdateCellsData() {
     const {
       obsSegmentations,
@@ -603,8 +630,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if ((obsSegmentations && obsSegmentationsType === 'polygon')
       || (!obsSegmentations && obsCentroids)
     ) {
-      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      // Invalidate the lazily built quadtree for the previous data.
+      this.obsSegmentationsQuadTree = null;
       this.obsSegmentationsData = {
         src: {
           obsSegmentations,

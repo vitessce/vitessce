@@ -11,6 +11,7 @@ export {
   getInitialCoordinationScopePrefix,
   getInitialCoordinationScopeName,
   unnestMap,
+  MISSING_VALUE_PLACEHOLDER,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {
@@ -40,6 +41,12 @@ export {
   VALUE_TRANSFORM_OPTIONS,
 } from './gating.js';
 export { default as Pool } from './Pool.js';
+export {
+  DEFAULT_MAX_ALLOCATION_BYTES,
+  getJsHeapSizeLimit,
+  getAllocationBudgetBytes,
+  exceedsAllocationBudget,
+} from './memory.js';
 export {
   aggregateFeatureArrays,
   normalizeAggregatedFeatureArray,

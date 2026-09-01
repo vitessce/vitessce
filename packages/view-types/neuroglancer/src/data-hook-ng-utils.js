@@ -1,6 +1,7 @@
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep } from 'lodash-es';
-import { useMemoCustomComparison, customIsEqualForInitialViewerState } from './use-memo-custom-comparison.js';
+import { useMemoCustomComparison } from '@vitessce/vit-s';
+import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { getPointsShader } from './shader-utils.js';
 
 

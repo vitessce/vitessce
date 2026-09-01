@@ -1,4 +1,26 @@
 
+## 4.0.4
+
+### Patch Changes
+
+- Add skills and refactor use-memo-custom-comparison into vit-s. (`@vitessce/vit-s`) ([#2556](https://github.com/vitessce/vitessce/pull/2556))
+
+- Improve responsive layout for layer controller in small containers. (`@vitessce/layer-controller-beta`) ([#2527](https://github.com/vitessce/vitessce/pull/2527))
+
+- Color meshes in the merfish-dataset by cell-types (`@vitessce/example-configs`) ([#2549](https://github.com/vitessce/vitessce/pull/2549))
+
+- Fixed 3D volume rendering in the beta spatial view applying physical pixel size twice, which stretched anisotropic volumes along their coarsest axis by the anisotropy ratio (a 1x1x2 um voxel rendered twice as deep as it should). Restored the "Fix Camera Axis" control in the beta spatial view's plot options menu, so the orbit target can be pinned rather than drifting on every pan. The camera is also re-initialized when switching between 2D and 3D, so a volume is no longer left framed by (or panned out of view with) the camera from the previous mode, and spatialOrbitAxis now round-trips through the beta view's setViewState like the rest of the camera state. (`@vitessce/spatial-beta`) ([#2551](https://github.com/vitessce/vitessce/pull/2551))
+
+- The beta layer controller now honors a `globalDisable3d` prop, so a view config can hide the 3D rendering-mode switch as it could with the legacy layer controller. This matters for configs whose data cannot usefully be volume-rendered, which previously had no way to prevent a user from switching the spatial view into 3D. The beta spatial view also no longer builds a viv `VolumeLayer` for image layers that are hidden: `VolumeLayer` downloads a whole volume per channel from `updateState`, and DeckGL does not gate layer updates on `visible`, so a hidden layer previously paid the full cost of a volume load whenever 3D was switched on. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`) ([#2558](https://github.com/vitessce/vitessce/pull/2558))
+
+
+## 4.0.3
+
+### Patch Changes
+
+- Added config examples to 3d tissue maps - neuroglancerView (`@vitessce/example-configs`) ([#2544](https://github.com/vitessce/vitessce/pull/2544))
+
+
 ## 4.0.2
 
 ### Patch Changes
