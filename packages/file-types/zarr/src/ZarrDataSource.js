@@ -1,10 +1,10 @@
 // @ts-check
 import { log } from '@vitessce/globals';
-import { zarrOpenRoot } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, applyStoreExtensions } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot, Array as ZarrArray } from 'zarrita';
 import { ZarrNodeNotFoundError } from '@vitessce/error';
 
-/** @import { Location as ZarrLocation, Readable } from 'zarrita' */
+/** @import { Location as ZarrLocation, AsyncReadable } from 'zarrita' */
 /** @import { DataSourceParams } from '@vitessce/types' */
 
 /**
@@ -20,7 +20,9 @@ export default class ZarrDataSource {
     this.queryClient = queryClient;
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
-      this.storeRoot = zarrRoot(store);
+      // @ts-ignore
+      const extendedStore = applyStoreExtensions(store, url, queryClient);
+      this.storeRoot = zarrRoot(extendedStore);
     } else if (url) {
       // The queryClient backs the store-level chunk cache, so that concurrent
       // reads of the same chunk share one request. See CachedStore in zarr-utils.
@@ -47,6 +49,7 @@ export default class ZarrDataSource {
     // treats them the same, so the cache key must too.
     const key = path.startsWith('/') ? path : `/${path}`;
     if (!this.nodeCache.has(key)) {
+      // @ts-ignore
       const promise = zarrOpen(this.storeRoot.resolve(path)).catch((err) => {
         this.nodeCache.delete(key);
         throw err;
@@ -74,16 +77,17 @@ export default class ZarrDataSource {
   /**
    *
    * @param {string} path
-   * @returns {ZarrLocation<Readable>}
+   * @returns {ZarrLocation<AsyncReadable>}
    */
   getStoreRoot(path) {
+    // @ts-ignore
     return this.storeRoot.resolve(path);
   }
 
   /**
    * Method for accessing JSON attributes, relative to the store root.
    * @param {string} key A path to the item.
-   * @param {ZarrLocation<Readable>|null} storeRootParam An optional location,
+   * @param {ZarrLocation<AsyncReadable>|null} storeRootParam An optional location,
    * which if provided will override the default store root.
    * @returns {Promise<any>} This async function returns a promise
    * that resolves to the parsed JSON if successful.

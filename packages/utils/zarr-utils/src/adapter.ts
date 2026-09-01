@@ -41,9 +41,9 @@ export function createZarrArrayAdapter(arr: ZarrArray<ZarrDataType>): any {
         throw new Error('getRawChunk should not have been called');
         // TODO: match zarr.js handling of dimension ordering
         // Reference: https://github.com/hms-dbmi/vizarr/pull/172#issuecomment-1714497516
-        return (
-          selection: number[], options: { storeOptions: RequestInit },
-        ) => target.getChunk(selection, options.storeOptions);
+        // return (
+        //  selection: number[], options: { storeOptions: RequestInit },
+        // ) => target.getChunk(selection, options.storeOptions);
       }
       if (prop === 'dtype') {
         return getV2DataType(target.dtype);

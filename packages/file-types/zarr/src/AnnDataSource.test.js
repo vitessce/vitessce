@@ -195,10 +195,10 @@ describe('AnnDataSource.loadNumericForDims chunk-layout routing', () => {
       shape: [numRows, 3],
       // One column per chunk, three row-chunks per column: the layout where
       // the contiguous-slice route only adds 2D assembly overhead.
-      chunk_shape: [2, 1],
-      data_type: 'float32',
+      chunkShape: [2, 1],
+      dtype: 'float32',
       codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
-      fill_value: 0,
+      fillValue: 0,
     });
     await zarrSet(arr, [null, null], {
       data: values, shape: [numRows, 3], stride: [3, 1],

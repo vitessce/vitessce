@@ -1,7 +1,7 @@
 // TODO: ts-check
 
 import { FileType } from '@vitessce/constants-internal';
-import { withConsolidated, FetchStore, open as zarrOpen } from 'zarrita';
+import { withConsolidatedMetadata, extendStore, FetchStore, open as zarrOpen } from 'zarrita';
 // eslint-disable-next-line import/no-unresolved
 import ZipFileStore from '@zarrita/storage/zip';
 import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
@@ -160,11 +160,17 @@ export async function parsedUrlToZmetadata(parsedUrl) {
 
   try {
     try {
-      store = await withConsolidated(initialStore);
+      store = await extendStore(
+        initialStore,
+        s => withConsolidatedMetadata(s),
+      );
     } catch {
       // Try again with `zmetadata` rather than `.zmetadata`.
       // Reference: https://github.com/zarr-developers/zarr-python/issues/1121
-      store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
+      store = await extendStore(
+        initialStore,
+        s => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }),
+      );
     }
     // Is consolidated.
     const contents = store.contents();

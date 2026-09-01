@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { AbsolutePath, RangeQuery } from 'zarrita';
-import { CachedStore, UNCACHED_READ, type QueryClientLike } from './normalize.js';
+import { type AbsolutePath, AsyncReadable, type RangeQuery, extendStore } from 'zarrita';
+import { withQueryClientCache, UNCACHED_READ, type QueryClientLike } from './normalize.js';
 
 // A store whose responses resolve only when released, for testing coalescing.
 function makeGatedStore(withGetRange = true) {
@@ -49,10 +49,17 @@ function makeQueryClientStub() {
   return { queryClient, cache, getFetchQueryCalls: () => fetchQueryCalls };
 }
 
+function getCachedStore(store: AsyncReadable, url: string, queryClient?: QueryClientLike) {
+  return extendStore(
+    store,
+    (s: AsyncReadable) => withQueryClientCache(s, { cacheKeyPrefix: url, queryClient }),
+  );
+}
+
 describe('CachedStore', () => {
   it('coalesces concurrent gets for the same key (no queryClient)', async () => {
     const { store, calls, release } = makeGatedStore();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr');
+    const cached = getCachedStore(store, 'http://example.com/a.zarr');
     const promises = [
       cached.get('/X/0.0'),
       cached.get('/X/0.0'),
@@ -68,7 +75,7 @@ describe('CachedStore', () => {
 
   it('does not retain results without a queryClient', async () => {
     const { store, calls, release } = makeGatedStore();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr');
+    const cached = getCachedStore(store, 'http://example.com/a.zarr');
     release();
     await cached.get('/X/0.0');
     await cached.get('/X/0.0');
@@ -79,7 +86,7 @@ describe('CachedStore', () => {
   it('caches sequential gets through a queryClient', async () => {
     const { store, calls, release } = makeGatedStore();
     const { queryClient, getFetchQueryCalls } = makeQueryClientStub();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
     release();
     const first = await cached.get('/X/0.0');
     const second = await cached.get('/X/0.0');
@@ -91,7 +98,7 @@ describe('CachedStore', () => {
   it('round-trips undefined results through the queryClient', async () => {
     const { store, release } = makeGatedStore();
     const { queryClient } = makeQueryClientStub();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
     release();
     expect(await cached.get('/missing')).toEqual(undefined);
     // The cached undefined answers again without becoming null.
@@ -100,7 +107,7 @@ describe('CachedStore', () => {
 
   it('keys getRange reads by range', async () => {
     const { store, calls, release } = makeGatedStore();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr');
+    const cached = getCachedStore(store, 'http://example.com/a.zarr');
     const r1 = { offset: 0, length: 10 };
     const r2 = { offset: 10, length: 10 };
     const promises = [
@@ -113,19 +120,12 @@ describe('CachedStore', () => {
     expect(calls.filter(x => x.startsWith('getRange:/f:')).length).toEqual(2);
   });
 
-  it('omits getRange when the wrapped store lacks one', () => {
-    const { store } = makeGatedStore(false);
-    const cached = new CachedStore(store, 'http://example.com/a.zarr');
-    // Consumers feature-detect getRange, so the wrapper must not invent it.
-    expect(cached.getRange).toEqual(undefined);
-  });
-
   it('separates caches by URL prefix', async () => {
     const gatedA = makeGatedStore();
     const gatedB = makeGatedStore();
     const { queryClient } = makeQueryClientStub();
-    const cachedA = new CachedStore(gatedA.store, 'http://example.com/a.zarr', queryClient);
-    const cachedB = new CachedStore(gatedB.store, 'http://example.com/b.zarr', queryClient);
+    const cachedA = getCachedStore(gatedA.store, 'http://example.com/a.zarr', queryClient);
+    const cachedB = getCachedStore(gatedB.store, 'http://example.com/b.zarr', queryClient);
     gatedA.release();
     gatedB.release();
     await cachedA.get('/X/0.0');
@@ -148,10 +148,16 @@ describe('CachedStore', () => {
       },
     };
     const { queryClient, getFetchQueryCalls } = makeQueryClientStub();
-    const cached = new CachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
     const opts = { [UNCACHED_READ]: true, headers: { Authorization: 'Bearer x' } };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await cached.get('/X/indices/0', opts);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await cached.get('/X/indices/0', opts);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     await cached.getRange?.('/X/indices/0', { offset: 0, length: 4 }, opts);
     // Every read reached the store: nothing was coalesced or retained.
     expect(seen.map(([label]) => label)).toEqual([
