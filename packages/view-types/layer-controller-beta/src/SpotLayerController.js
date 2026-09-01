@@ -213,6 +213,7 @@ export default function SpotLayerController(props) {
   const {
     obsType,
     spatialLayerVisible: visible,
+    spatialLayerLabel,
     spatialLayerOpacity: opacity,
     spatialSpotRadius: radius,
     spatialSpotFilled: filled,
@@ -243,7 +244,7 @@ export default function SpotLayerController(props) {
     setLegendVisible,
   } = setLayerCoordination;
 
-  const label = capitalize(obsType);
+  const label = spatialLayerLabel || capitalize(obsType);
 
   const visibleSetting = typeof visible === 'boolean' ? visible : true;
   const Visibility = useMemo(() => (

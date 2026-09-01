@@ -442,6 +442,7 @@ export default function ImageLayerController(props) {
     spatialSliceY,
     spatialSliceZ,
     tooltipsVisible,
+    spatialLayerLabel,
     spatialChannelLabelsVisible: channelLabelsVisible,
     spatialChannelLabelsOrientation: channelLabelsOrientation,
     spatialChannelLabelSize: channelLabelSize,
@@ -475,7 +476,7 @@ export default function ImageLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const label = image?.getName();
+  const label = spatialLayerLabel || image?.getName();
   const imageNumChannels = image?.getNumChannels();
   const is3dMode = spatialRenderingMode === '3D';
 
