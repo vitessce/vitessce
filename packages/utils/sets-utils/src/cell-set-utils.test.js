@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import { describe, it, expect } from 'vitest';
 import { cloneDeep } from 'lodash-es';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 
 import {
   nodeToRenderProps,
@@ -20,9 +21,11 @@ import {
   treeToCellSetColorIndicesBySetNames,
   treeToObjectsBySetNames,
   treeToColorIndicesArray,
+  colorIndicesFromCodes,
   getObsIndexMap,
   treeToMembershipMap,
 } from './cell-set-utils.js';
+import { codesToCellSetsTree } from './CellSetsZarrLoader.js';
 
 import {
   levelTwoNodeLeaf,
@@ -450,6 +453,107 @@ describe('Hierarchical sets cell-set-utils', () => {
     });
   });
 
+  describe('Color indices from raw codes', () => {
+    const obsIndex = ['cell_1', 'cell_2', 'cell_3', 'cell_4', 'cell_5'];
+    const columns = [
+      {
+        name: 'Cell Type',
+        path: ['Cell Type'],
+        codes: Int8Array.from([0, 1, -1, 0, 1]),
+        categories: ['T cell', 'B cell'],
+      },
+      {
+        name: 'Leiden',
+        path: ['Leiden'],
+        codes: Int8Array.from([1, 1, 0, -1, 0]),
+        categories: ['0', '1'],
+      },
+    ];
+    const options = [{ name: 'Cell Type' }, { name: 'Leiden' }];
+    const codesTree = codesToCellSetsTree({ obsIndex, columns }, options);
+    const setColor = [
+      { path: ['Cell Type', 'T cell'], color: [255, 0, 0] },
+      { path: ['Leiden', '0'], color: [0, 255, 0] },
+    ];
+
+    // The two routes must be interchangeable, so compare against the tree route
+    // on the tree built from the same columns.
+    function expectSameAsTreeRoute(selection) {
+      const expected = treeToColorIndicesArray(
+        codesTree, selection, setColor, obsIndex, 'light',
+      );
+      const actual = colorIndicesFromCodes({
+        columns, obsIndex, selectedNamePaths: selection, cellSetColor: setColor, theme: 'light',
+      });
+      expect(actual).not.toEqual(null);
+      expect(Array.from(actual.colorIndices)).toEqual(Array.from(expected.colorIndices));
+      expect(actual.colors).toEqual(expected.colors);
+      expect(actual.colorProbs).toEqual(expected.colorProbs);
+    }
+
+    it('matches the tree route for a single-hierarchy selection', () => {
+      expectSameAsTreeRoute([['Cell Type', 'T cell'], ['Cell Type', 'B cell']]);
+    });
+
+    it('matches the tree route across hierarchies (later path wins)', () => {
+      expectSameAsTreeRoute([['Cell Type', 'T cell'], ['Leiden', '1']]);
+      expectSameAsTreeRoute([['Leiden', '1'], ['Cell Type', 'T cell']]);
+    });
+
+    it('matches the tree route for missing colors and empty selections', () => {
+      // 'Leiden' > '1' has no entry in setColor, so it takes the theme default.
+      expectSameAsTreeRoute([['Leiden', '1']]);
+      expectSameAsTreeRoute([]);
+    });
+
+    it('returns null for selections it cannot resolve', () => {
+      // A user-defined selection from additionalObsSets.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['My Selections', 'Selection 1']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+      // A category that is not in the column.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', 'NK cell']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+    });
+
+    it('resolves the placeholder-named set to observations with missing codes', () => {
+      // cell_3 has a missing Cell Type code; cell_4 has a missing Leiden code.
+      const missing = colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', MISSING_VALUE_PLACEHOLDER]],
+        cellSetColor: setColor,
+        theme: 'light',
+      });
+      expect(Array.from(missing.colorIndices)).toEqual([0, 0, 1, 0, 0]);
+      expectSameAsTreeRoute([['Cell Type', MISSING_VALUE_PLACEHOLDER]]);
+      expectSameAsTreeRoute([['Leiden', MISSING_VALUE_PLACEHOLDER], ['Cell Type', 'T cell']]);
+      expectSameAsTreeRoute([
+        ['Cell Type', MISSING_VALUE_PLACEHOLDER], ['Leiden', MISSING_VALUE_PLACEHOLDER],
+      ]);
+    });
+
+    it('returns null for a wrong-depth path', () => {
+      // A path with the wrong depth.
+      expect(colorIndicesFromCodes({
+        columns,
+        obsIndex,
+        selectedNamePaths: [['Cell Type', 'T cell', 'extra']],
+        cellSetColor: setColor,
+        theme: 'light',
+      })).toEqual(null);
+    });
+  });
+
   describe('Observation set membership', () => {
     const PERICYTES = ['Cell Type Annotations', 'Vasculature', 'Pericytes'];
     const ENDOTHELIAL = ['Cell Type Annotations', 'Vasculature', 'Endothelial'];
@@ -466,5 +570,46 @@ describe('Hierarchical sets cell-set-utils', () => {
       expect(membership.size).toEqual(7);
       expect(treeToMembershipMap(null).size).toEqual(0);
     });
+  });
+});
+
+describe('Missing set names', () => {
+  // A negative categorical code is a missing value. codesToCellSetsTree (like
+  // dataToCellSetsTree) places those observations in a set named by the placeholder.
+  const obsIndex = ['c1', 'c2', 'c3', 'c4'];
+  const columns = [{ codes: Int8Array.from([0, -1, 1, -1]), categories: ['A', 'B'] }];
+  const missingTree = codesToCellSetsTree({ obsIndex, columns }, [{ name: 'Label' }]);
+  const missingPath = ['Label', MISSING_VALUE_PLACEHOLDER];
+  const missingNode = missingTree.tree[0].children.find(c => c.name === MISSING_VALUE_PLACEHOLDER);
+
+  it('gives the missing set a real name that survives serialization', () => {
+    expect(missingNode).toBeDefined();
+    // A selection path into the set round-trips through JSON (as a view config
+    // does) and still resolves to the same node.
+    const roundTripped = JSON.parse(JSON.stringify(missingPath));
+    expect(treeFindNodeByNamePath(missingTree, roundTripped)).toBe(missingNode);
+  });
+
+  it('titles the missing set with the shared placeholder in the sets manager', () => {
+    const renderProps = nodeToRenderProps(missingNode, missingPath, []);
+    expect(renderProps.title).toEqual(MISSING_VALUE_PLACEHOLDER);
+    expect(renderProps.size).toEqual(2);
+    // Named sets are untouched.
+    const namedNode = missingTree.tree[0].children.find(c => c.name === 'A');
+    expect(nodeToRenderProps(namedNode, ['Label', 'A'], []).title).toEqual('A');
+  });
+
+  it('labels the missing set with the same placeholder in plot data', () => {
+    const sizes = treeToSetSizesBySetNames(
+      missingTree, [['Label', 'A'], missingPath], [missingPath], [], 'dark',
+    );
+    expect(sizes.map(s => s.name)).toEqual(['A', MISSING_VALUE_PLACEHOLDER]);
+    expect(sizes[1].size).toEqual(2);
+    // The identity of the set is still carried by its path, not the display name.
+    expect(sizes[1].setNamePath).toEqual(missingPath);
+
+    const objects = treeToObjectsBySetNames(missingTree, [missingPath], [], 'dark');
+    expect(objects.map(o => o.obsId)).toEqual(['c2', 'c4']);
+    expect(objects.every(o => o.name === MISSING_VALUE_PLACEHOLDER)).toEqual(true);
   });
 });

@@ -207,3 +207,11 @@ export function unnestMap(
     };
   });
 }
+
+/**
+ * Display string for a value that is missing (undefined or null), such as the
+ * name of the obs set that holds observations with no category label.
+ * This matches the default title that rc-tree renders for an undefined title,
+ * so the sets manager, tooltips, and plots all show a missing value the same way.
+ */
+export const MISSING_VALUE_PLACEHOLDER = '---';

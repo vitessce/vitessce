@@ -29,7 +29,7 @@ import {
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
-  getObsIndexMap, stratifyArrays,
+  colorIndicesFromCodes, getObsIndexMap, stratifyArrays,
 } from '@vitessce/sets-utils';
 import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
 import {
@@ -187,7 +187,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
   const [
-    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+    { obsSets: cellSets, obsSetsMembership, obsSetsColumns },
+    obsSetsStatus, obsSetsUrls, obsSetsError,
   ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -281,9 +282,24 @@ export function EmbeddingScatterplotSubscriber(props) {
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
   // Map costs one string hash lookup per point per render, plus a per-observation
   // color array whenever the selected sets carry confidence scores.
-  const obsColorIndices = useMemo(() => treeToColorIndicesArray(
-    mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
-  ), [mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme]);
+  const obsColorIndices = useMemo(() => (
+    // When the loader provides raw categorical codes over this same observation
+    // axis (checked by reference), the encoding is one typed-array pass with no
+    // tree walk. colorIndicesFromCodes returns null for selections it cannot
+    // resolve (e.g. user-defined lasso selections), falling back to the tree.
+    (obsSetsColumns && obsSetsColumns.obsIndex === obsEmbeddingIndex
+      && colorIndicesFromCodes({
+        columns: obsSetsColumns.columns,
+        obsIndex: obsEmbeddingIndex,
+        selectedNamePaths: cellSetSelection,
+        cellSetColor,
+        theme,
+      }))
+    || treeToColorIndicesArray(
+      mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
+    )
+  ), [mergedCellSets, cellSetSelection, cellSetColor, obsEmbeddingIndex, theme,
+    obsSetsColumns]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.

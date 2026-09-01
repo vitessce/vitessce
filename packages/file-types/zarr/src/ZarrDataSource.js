@@ -15,13 +15,16 @@ export default class ZarrDataSource {
   /**
    * @param {DataSourceParams & { refSpecUrl?: string }} params The parameters object.
    */
-  constructor({ url, requestInit, refSpecUrl, store, fileType }) {
+  constructor({ url, requestInit, refSpecUrl, store, fileType, queryClient }) {
     log.info('Using a Zarr-based data source. 403 and 404 HTTP responses for Zarr metadata files (.zattrs, .zarray, .zgroup, zarr.json) are to be expected and do not necessarily indicate errors.');
+    this.queryClient = queryClient;
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
       this.storeRoot = zarrRoot(store);
     } else if (url) {
-      this.storeRoot = zarrOpenRoot(url, fileType, { requestInit, refSpecUrl });
+      // The queryClient backs the store-level chunk cache, so that concurrent
+      // reads of the same chunk share one request. See CachedStore in zarr-utils.
+      this.storeRoot = zarrOpenRoot(url, fileType, { requestInit, refSpecUrl, queryClient });
     } else {
       throw new Error('Either a store or a URL must be provided to the ZarrDataSource constructor.');
     }

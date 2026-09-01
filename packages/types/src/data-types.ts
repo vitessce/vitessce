@@ -73,10 +73,32 @@ export type ObsSetsMembership = {
   readonly size: number;
 };
 
+/**
+ * Raw categorical columns backing a single-level obs sets hierarchy, positional
+ * along `obsIndex`. Produced by loaders that can read codes directly (e.g.
+ * AnnData categorical columns), so that views can build positional color
+ * encodings without walking the sets tree. Consumers must confirm alignment by
+ * comparing this `obsIndex` (by reference) with their own observation index.
+ */
+export type ObsSetsColumns = {
+  obsIndex: string[];
+  columns: {
+    /** The hierarchy (level-zero node) name. */
+    name: string;
+    /** The hierarchy's path in the tree, e.g. ['Cell Type Annotations']. */
+    path: string[];
+    /** Category code per observation; negative means missing. */
+    codes: ArrayLike<number>;
+    /** Category names indexed by code. */
+    categories: string[];
+  }[];
+};
+
 export type ObsSetsData = {
   obsIndex: string[];
   obsSets: SetsTree;
   obsSetsMembership: ObsSetsMembership;
+  obsSetsColumns?: ObsSetsColumns;
 };
 
 // Imaging

@@ -4,7 +4,7 @@ import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import { centroid } from '@turf/centroid';
 import concaveman from 'concaveman';
-import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { getDefaultColor, PALETTE, MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants.js';
@@ -360,7 +360,7 @@ export function treeInitialize(datatype) {
 export function nodeToRenderProps(node, path, cellSetColor) {
   const level = path.length - 1;
   return {
-    title: node.name,
+    title: node.name ?? MISSING_VALUE_PLACEHOLDER,
     nodeKey: pathToKey(path),
     path,
     size: getNodeLength(node),
@@ -531,6 +531,95 @@ export function getObsIndexMap(obsIndex) {
  * and `colorProbs` is a Float32Array of per-observation confidence scores, or null
  * when no selected set carries them.
  */
+/**
+ * Build the positional color encoding directly from raw categorical codes,
+ * skipping the tree walk that treeToColorIndicesArray performs. Applicable when
+ * every selected path resolves to a (hierarchy, category) pair in the provided
+ * columns, where the category MISSING_VALUE_PLACEHOLDER resolves to the
+ * observations with a negative (missing) code. Selections that do not resolve —
+ * user-defined selections from additionalObsSets, or paths deeper than two
+ * levels — return null so the caller can fall back to the tree route.
+ *
+ * The output is identical to treeToColorIndicesArray for the tree built from the
+ * same columns: index 0 means "in no selected set", and where an observation is
+ * in multiple selected sets (across hierarchies), the later path wins.
+ *
+ * @param {object} params
+ * @param {{ path: string[], codes: ArrayLike<number>,
+ *   categories: string[] }[]} params.columns Raw codes per hierarchy; path is the
+ * hierarchy's path in the tree, e.g. ['Cell Type Annotations'].
+ * @param {string[]} params.obsIndex The observation index the columns align to.
+ * @param {array} params.selectedNamePaths Array of selected set "paths".
+ * @param {object[]} params.cellSetColor Array of objects with `path` and `color`.
+ * @param {string} params.theme "light" or "dark" for the vitessce theme.
+ * @returns {object|null} `{ colorIndices, colorProbs, colors }` as in
+ * treeToColorIndicesArray (colorProbs always null: the codes route carries no
+ * per-observation scores), or null when a selected path does not resolve.
+ */
+export function colorIndicesFromCodes({
+  columns, obsIndex, selectedNamePaths, cellSetColor, theme,
+}) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  // Per column, a map from category code to (selected path index + 1). Later
+  // selected paths overwrite earlier ones within a column; across columns, the
+  // max index per observation reproduces the same later-path-wins rule.
+  const selIdxByCode = columns.map(
+    ({ categories }) => new Int32Array(categories.length),
+  );
+  // Per column, the (selected path index + 1) for observations with a negative
+  // (missing) code, when the placeholder-named set is selected.
+  const selIdxMissing = new Int32Array(columns.length);
+  const colors = [];
+  for (let i = 0; i < paths.length; i += 1) {
+    const setNamePath = paths[i];
+    const colIndex = columns.findIndex(({ path }) => (
+      path.length === setNamePath.length - 1
+      && path.every((part, k) => part === setNamePath[k])
+    ));
+    if (colIndex === -1) {
+      // Not resolvable from codes; the caller falls back to the tree route.
+      return null;
+    }
+    const category = setNamePath[setNamePath.length - 1];
+    const catIndex = columns[colIndex].categories.indexOf(category);
+    if (category === MISSING_VALUE_PLACEHOLDER) {
+      // The set of observations whose code is negative. Should a real category
+      // share the placeholder name, the tree merges both into one set, so both
+      // are colored here as well.
+      selIdxMissing[colIndex] = i + 1;
+    } else if (catIndex === -1) {
+      // Not resolvable from codes; the caller falls back to the tree route.
+      return null;
+    }
+    if (catIndex !== -1) {
+      selIdxByCode[colIndex][catIndex] = i + 1;
+    }
+    colors.push(
+      cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+      || getDefaultColor(theme),
+    );
+  }
+  // eslint-disable-next-line no-nested-ternary
+  const IndicesArrayType = paths.length + 1 <= 256
+    ? Uint8Array
+    : (paths.length + 1 <= 65536 ? Uint16Array : Uint32Array);
+  const colorIndices = new IndicesArrayType(numObs);
+  for (let j = 0; j < columns.length; j += 1) {
+    const { codes } = columns[j];
+    const table = selIdxByCode[j];
+    const missingSel = selIdxMissing[j];
+    for (let i = 0; i < numObs; i += 1) {
+      const code = codes[i];
+      const v = code >= 0 ? table[code] : missingSel;
+      if (v > colorIndices[i]) {
+        colorIndices[i] = v;
+      }
+    }
+  }
+  return { colorIndices, colorProbs: null, colors };
+}
+
 export function treeToColorIndicesArray(
   currTree, selectedNamePaths, cellSetColor, obsIndex, theme,
 ) {
@@ -605,7 +694,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
       nodeSet.forEach(([cellId]) => {
         cellsArray.push({
           obsId: cellId,
-          name: node.name,
+          name: node.name ?? MISSING_VALUE_PLACEHOLDER,
           color: nodeColor,
         });
       });
@@ -693,7 +782,7 @@ export function treeToSetSizesBySetNames(
           || getDefaultColor(theme);
       const nodeProps = {
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
@@ -728,7 +817,7 @@ export function treeToObsIdsBySetNames(currTree, selectedNamePaths) {
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing
@@ -759,7 +848,7 @@ export function treeToObsIndicesBySetNames(currTree, selectedNamePaths, obsIndex
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing

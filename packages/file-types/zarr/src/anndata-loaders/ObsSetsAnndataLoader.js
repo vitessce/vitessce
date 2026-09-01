@@ -3,6 +3,8 @@ import {
   initializeCellSetColor,
   lazyTreeToMembershipMap,
   dataToCellSetsTree,
+  codesToCellSetsTree,
+  membershipFromCodes,
 } from '@vitessce/sets-utils';
 
 
@@ -49,18 +51,84 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     return this.dataSource.loadObsColumns(cellSetScoreZarrLocation);
   }
 
+  /**
+   * Try to load every obsSets entry as raw categorical codes rather than
+   * per-observation strings. Applicable when this is the plain AnnData/MuData
+   * loader (not the SpatialData subclass), every entry is a single categorical
+   * column without scores, and all columns share one observation axis.
+   * @returns {Promise<object|null>} `{ obsIndex, columns }` where columns hold
+   * `{ name, path, codes, categories }` per entry, or null to fall back to the
+   * string-based route.
+   */
+  async loadCodesColumns() {
+    const { options } = this;
+    const entries = options.obsSets || [];
+    const eligible = entries.length > 0
+      && this.tablePath === null
+      && this.region === null
+      && typeof this.dataSource.loadObsColumnCodes === 'function'
+      && entries.every(entry => typeof entry.path === 'string' && !entry.scorePath);
+    if (!eligible) {
+      return null;
+    }
+    const codesResults = await Promise.all(
+      entries.map(entry => this.dataSource.loadObsColumnCodes(entry.path)),
+    );
+    if (codesResults.some(result => !result)) {
+      // At least one column is not categorical.
+      return null;
+    }
+    // The codes are positional along each column's dataframe axis; they can only
+    // be interpreted together when every column shares one observation index.
+    // loadObsIndex caches per obs path, so reference equality is the right check.
+    const columnObsIndices = await Promise.all(
+      entries.map(entry => this.dataSource.loadObsIndex(entry.path)),
+    );
+    const columnObsIndex = columnObsIndices[0];
+    if (
+      !columnObsIndices.every(obsIndex => obsIndex === columnObsIndex)
+      || codesResults.some(result => result.codes.length !== columnObsIndex.length)
+    ) {
+      return null;
+    }
+    return {
+      obsIndex: columnObsIndex,
+      columns: entries.map((entry, j) => ({
+        name: entry.name,
+        path: [entry.name],
+        codes: codesResults[j].codes,
+        categories: codesResults[j].categories,
+      })),
+    };
+  }
+
   async load() {
     if (!this.cachedResult) {
       const { options } = this;
-      this.cachedResult = Promise.all([
-        this.dataSource.loadObsIndex(this.tablePath),
-        this.loadObsIndices(),
-        this.loadCellSetIds(),
-        this.loadCellSetScores(),
-      ]).then(data => [data[0], dataToCellSetsTree([data[1], data[2], data[3]], options.obsSets)]);
+      this.cachedResult = (async () => {
+        const obsIndex = await this.dataSource.loadObsIndex(this.tablePath);
+        const codesData = await this.loadCodesColumns();
+        if (codesData) {
+          return [obsIndex, codesToCellSetsTree(codesData, options.obsSets), codesData];
+        }
+        const [obsIndices, cellSetIds, cellSetScores] = await Promise.all([
+          this.loadObsIndices(),
+          this.loadCellSetIds(),
+          this.loadCellSetScores(),
+        ]);
+        return [
+          obsIndex,
+          dataToCellSetsTree([obsIndices, cellSetIds, cellSetScores], options.obsSets),
+          null,
+        ];
+      })();
     }
-    const [obsIndex, obsSets] = await this.cachedResult;
-    const obsSetsMembership = lazyTreeToMembershipMap(obsSets, obsIndex);
+    const [obsIndex, obsSets, codesData] = await this.cachedResult;
+    // With codes available, membership lookups read the codes directly; otherwise
+    // the tree-based membership map is built lazily (in a worker when possible).
+    const obsSetsMembership = codesData
+      ? membershipFromCodes(codesData.obsIndex, codesData.columns)
+      : lazyTreeToMembershipMap(obsSets, obsIndex);
     const coordinationValues = {};
     const { tree } = obsSets;
     const newAutoSetSelectionParentName = tree[0].name;
@@ -73,6 +141,13 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
     const newAutoSetColors = initializeCellSetColor(obsSets, []);
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
-    return new LoaderResult({ obsIndex, obsSets, obsSetsMembership }, null, coordinationValues);
+    return new LoaderResult({
+      obsIndex,
+      obsSets,
+      obsSetsMembership,
+      // The raw columns let views build positional color encodings without
+      // walking the tree; consumers must check obsSetsColumns.obsIndex alignment.
+      ...(codesData ? { obsSetsColumns: codesData } : {}),
+    }, null, coordinationValues);
   }
 }

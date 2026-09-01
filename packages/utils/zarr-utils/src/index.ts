@@ -4,7 +4,9 @@ export {
 export {
   zarrOpenRoot,
   transformEntriesForZipFileStore,
+  CachedStore,
 } from './normalize.js';
+export type { QueryClientLike } from './normalize.js';
 export { createStoreFromMapContents } from './base64-store.js';
 export { createGetRange } from './base-getrange.js';
 export {

@@ -1,4 +1,5 @@
 import { ObsSetsWorker, packStrings } from '@vitessce/workers';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import { treeToLeafSets, treeToMembershipMap, getObsIndexMap } from './cell-set-utils.js';
 
 // Built membership encodings, keyed weakly by the set tree they came from, so that
@@ -167,6 +168,50 @@ export function lazyTreeToMembershipMap(currTree, obsIndex = undefined) {
         return count;
       }
       return currTree ? getSyncMap().size : 0;
+    },
+  };
+}
+
+/**
+ * Get an observation-ID-to-set-paths lookup backed directly by raw categorical
+ * codes, for single-level hierarchies. No per-observation structure is built at
+ * all: a lookup is a memoized obsIndexMap position plus one typed-array read per
+ * hierarchy. Matches the answers a tree-based membership map would give for the
+ * tree that codesToCellSetsTree builds from the same columns, including the
+ * placeholder-named set that holds observations with a negative (missing) code.
+ * @param {string[]} obsIndex The observation index shared by all columns.
+ * @param {{ name: string, codes: ArrayLike<number>, categories: string[] }[]} columns
+ * Raw codes and category names per hierarchy, with the hierarchy name.
+ * @returns {{ get: Function, has: Function, size: number }} A Map-like lookup
+ * exposing the subset of the Map interface that consumers use.
+ */
+export function membershipFromCodes(obsIndex, columns) {
+  // The only per-observation cost left is the obsId-to-position map, which is
+  // shared via getObsIndexMap. Warm it during idle time so the first tooltip
+  // hover does not pay for building it.
+  whenIdle(() => getObsIndexMap(obsIndex));
+  function get(obsId) {
+    const obsI = getObsIndexMap(obsIndex).get(obsId);
+    if (obsI === undefined) {
+      return undefined;
+    }
+    const paths = new Array(columns.length);
+    for (let j = 0; j < columns.length; j += 1) {
+      const { name, codes, categories } = columns[j];
+      const code = codes[obsI];
+      // A negative code is a missing value, which the tree places in the set
+      // named by the shared placeholder.
+      paths[j] = [name, code >= 0 ? categories[code] : MISSING_VALUE_PLACEHOLDER];
+    }
+    return paths;
+  }
+  return {
+    get,
+    has: obsId => get(obsId) !== undefined,
+    get size() {
+      // Every observation belongs to one set per hierarchy (possibly the
+      // undefined-named one), so membership covers the whole index.
+      return columns.length > 0 ? obsIndex.length : 0;
     },
   };
 }
