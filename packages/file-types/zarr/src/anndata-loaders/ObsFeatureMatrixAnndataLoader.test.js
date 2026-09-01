@@ -330,10 +330,10 @@ describe('loaders/ObsFeatureMatrixAnndataLoader', () => {
       const writeArray = async (path, values, dataType, chunk) => {
         await zarrCreate(root.resolve(path), {
           shape: [values.length],
-          chunk_shape: [chunk],
-          data_type: dataType,
+          chunkShape: [chunk],
+          dataType: dataType,
           codecs: [{ name: 'bytes', configuration: { endian: 'little' } }],
-          fill_value: 0,
+          fillValue: 0,
         });
         // Write the chunk bytes directly (the bytes codec is little-endian raw
         // bytes), padding the trailing chunk the way a zarr writer would.
