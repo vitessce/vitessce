@@ -39,6 +39,32 @@ type CacheFetchFn = (
 ) => Promise<Uint8Array | undefined>;
 
 /**
+ * Request-option marker that makes CachedStore read straight through to the
+ * wrapped store. Readers that stream a large array chunk by chunk (and never
+ * revisit a chunk) set it so that the react-query cache does not retain the
+ * whole array for CHUNK_GC_TIME. The marker rides on the zarrita request options
+ * object, which zarrita passes through to the store unchanged; it is stripped
+ * before the options reach the wrapped store (and therefore fetch).
+ */
+export const UNCACHED_READ = 'vitessceUncachedRead';
+
+type ReadOptions = RequestInit & { [UNCACHED_READ]?: boolean };
+
+/**
+ * Separate the UNCACHED_READ marker from the options passed to the wrapped store.
+ * @param opts Request options as received from zarrita.
+ * @returns Whether the read bypasses the cache, and the options without the marker.
+ */
+function splitReadOptions(opts?: ReadOptions): [boolean, RequestInit | undefined] {
+  if (!opts || !opts[UNCACHED_READ]) {
+    return [false, opts];
+  }
+  const rest: ReadOptions = { ...opts };
+  delete rest[UNCACHED_READ];
+  return [true, rest];
+}
+
+/**
  * Build the function through which all cached store reads flow.
  * @param queryClient A QueryClient, when available.
  * @returns With a queryClient: reads go through fetchQuery, which coalesces
@@ -85,7 +111,7 @@ export class CachedStore {
   cacheFetch: CacheFetchFn;
 
   getRange?: (
-    key: AbsolutePath, range: RangeQuery, opts?: RequestInit,
+    key: AbsolutePath, range: RangeQuery, opts?: ReadOptions,
   ) => Promise<Uint8Array | undefined>;
 
   constructor(store: Readable, cacheKeyPrefix: string, queryClient?: QueryClientLike) {
@@ -95,21 +121,33 @@ export class CachedStore {
     // getRange is part of zarrita's optional store interface and consumers
     // feature-detect it, so only define it when the wrapped store has one.
     if (typeof (store as { getRange?: unknown }).getRange === 'function') {
-      this.getRange = (key, range, opts) => this.cacheFetch(
-        ['zarrStore', this.cacheKeyPrefix, key, range],
-        () => (this.store as {
-          getRange: (
-            k: AbsolutePath, r: RangeQuery, o?: RequestInit,
-          ) => Promise<Uint8Array | undefined>,
-        }).getRange(key, range, opts),
-      );
+      const inner = this.store as {
+        getRange: (
+          k: AbsolutePath, r: RangeQuery, o?: RequestInit,
+        ) => Promise<Uint8Array | undefined>,
+      };
+      this.getRange = (key, range, opts) => {
+        const [uncached, rest] = splitReadOptions(opts);
+        if (uncached) {
+          return inner.getRange(key, range, rest);
+        }
+        return this.cacheFetch(
+          ['zarrStore', this.cacheKeyPrefix, key, range],
+          () => inner.getRange(key, range, rest),
+        );
+      };
     }
   }
 
-  get(key: AbsolutePath, opts?: RequestInit): Promise<Uint8Array | undefined> {
+  get(key: AbsolutePath, opts?: ReadOptions): Promise<Uint8Array | undefined> {
+    const [uncached, rest] = splitReadOptions(opts);
+    if (uncached) {
+      // Readable.get may resolve synchronously; normalize to a promise.
+      return Promise.resolve(this.store.get(key, rest));
+    }
     return this.cacheFetch(
       ['zarrStore', this.cacheKeyPrefix, key],
-      async () => this.store.get(key, opts),
+      async () => this.store.get(key, rest),
     );
   }
 }

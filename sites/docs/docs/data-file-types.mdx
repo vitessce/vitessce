@@ -361,6 +361,7 @@ To learn more, visit the [AnnData](https://anndata.readthedocs.io/en/latest/) do
 
 An observation-by-feature matrix with observations along the `obs` axis (rows) and features along the `var` axis (columns).
 Typically stored in `adata.X`, but the `"path"` option allows pointing to any array within the AnnData object.
+The matrix may be dense or sparse (`csc_matrix` or `csr_matrix`); dense and CSC matrices are preferred, because individual features can be read without scanning the whole matrix. See [sparse matrices](../data-troubleshooting/#anndata-zarr-obsfeaturematrix-with-sparse-matrices) in the data troubleshooting guide.
 
 <FileDefTabs
 fileName="my_adata.zarr"
