@@ -1,6 +1,6 @@
 // @ts-check
 import { log } from '@vitessce/globals';
-import { zarrOpenRoot } from '@vitessce/zarr-utils';
+import { zarrOpenRoot, applyStoreExtensions } from '@vitessce/zarr-utils';
 import { open as zarrOpen, root as zarrRoot, Array as ZarrArray } from 'zarrita';
 import { ZarrNodeNotFoundError } from '@vitessce/error';
 
@@ -20,8 +20,9 @@ export default class ZarrDataSource {
     this.queryClient = queryClient;
     if (store) {
       // TODO: check here that it is a valid Zarrita Readable?
-      // TODO: use normalizeStore here so that it inherits the other store extensions?
-      this.storeRoot = zarrRoot(store);
+      // @ts-ignore
+      const extendedStore = applyStoreExtensions(store, url, queryClient);
+      this.storeRoot = zarrRoot(extendedStore);
     } else if (url) {
       // The queryClient backs the store-level chunk cache, so that concurrent
       // reads of the same chunk share one request. See CachedStore in zarr-utils.

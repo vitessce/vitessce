@@ -198,6 +198,29 @@ export function transformEntriesForZipFileStore(entries: ZipInfo['entries']) {
   return newEntries;
 }
 
+
+
+export function applyStoreExtensions(
+  store: AsyncReadable,
+  url: string,
+  queryClient?: QueryClientLike,
+) {
+  // ExtendStore can be called non-async when no async extensions are used.
+  // Reference: https://github.com/manzt/zarrita.js/blob/80c1babcc11217aee643f3305d3176f9576016a8/packages/zarrita/src/extension/extend.ts#L33
+  return extendStore(
+    store,
+    withGetRange,
+    // Wrap remote stores in a read-through cache, so that concurrent reads of the
+    // same chunk (e.g. multiple embedding dims within one chunk column-block) share
+    // one request instead of downloading it once per reader.
+    (s: AsyncReadable) => withQueryClientCache(
+      s,
+      { cacheKeyPrefix: url, queryClient: queryClient },
+    ),
+  );
+}
+
+
 export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOpenRootOptions) {
   let store: any;
   if (fileType && fileType.endsWith('.zip')) {
@@ -231,19 +254,6 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
     store = new FetchStore(url, { overrides: opts?.requestInit, fetch: relaxedFetch });
   }
 
-  // ExtendStore can be called non-async when no async extensions are used.
-  // Reference: https://github.com/manzt/zarrita.js/blob/80c1babcc11217aee643f3305d3176f9576016a8/packages/zarrita/src/extension/extend.ts#L33
-  const extendedStore = extendStore(
-    store,
-    withGetRange,
-    // Wrap remote stores in a read-through cache, so that concurrent reads of the
-    // same chunk (e.g. multiple embedding dims within one chunk column-block) share
-    // one request instead of downloading it once per reader.
-    (s: AsyncReadable) => withQueryClientCache(
-      s,
-      { cacheKeyPrefix: url, queryClient: opts?.queryClient },
-    ),
-  );
-
+  const extendedStore = applyStoreExtensions(store, url, opts?.queryClient);
   return zarrRoot(extendedStore);
 }

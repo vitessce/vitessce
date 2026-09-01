@@ -274,20 +274,19 @@ export default class SpatialDataTableSource extends AnnDataSource {
    */
   async loadParquetSchemaBytes(parquetPath, partIndex = undefined) {
     const { store } = this.storeRoot;
-    // TODO: assume the store has already been extended in the normalizeStore step,
-    // and then we can remove the store extension here.
-    const extendedStore = await extendStore(store, withGetRange);
+    // Assume the store has already been extended (withGetRange)
+    // via applyStoreExtensions.
     // Step 1: Fetch last 8 bytes to get footer length and magic number
     const TAIL_LENGTH = 8;
     let partZeroPath = parquetPath;
     // Case 1: Parquet file (or still unknown if file vs. directory).
-    let tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+    let tailBytes = await store.getRange(`/${partZeroPath}`, {
       suffixLength: TAIL_LENGTH,
     });
     // We already know this is a directory, so we skip the single-file path altogether.
     // Case 2: Rather than a single file, this may be a directory with multiple parts.
     partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-    tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+    tailBytes = await store.getRange(`/${partZeroPath}`, {
       suffixLength: TAIL_LENGTH,
     });
 
@@ -312,7 +311,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     }
 
     // Step 3. Fetch the full footer bytes
-    const footerBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+    const footerBytes = await store.getRange(`/${partZeroPath}`, {
       suffixLength: footerLength + TAIL_LENGTH,
     });
     if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {

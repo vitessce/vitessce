@@ -2,6 +2,7 @@ export {
   createZarrArrayAdapter,
 } from './adapter.js';
 export {
+  applyStoreExtensions,
   zarrOpenRoot,
   transformEntriesForZipFileStore,
   UNCACHED_READ,

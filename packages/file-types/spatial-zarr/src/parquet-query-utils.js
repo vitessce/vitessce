@@ -105,23 +105,21 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
-      // TODO: assume the store has already been extended in the normalizeStore step,
-      // and then we can remove the store extension here.
-      const extendedStore = await extendStore(store, withGetRange);
-
+      // Assume the store has already been extended (withGetRange)
+      // via applyStoreExtensions.
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
       // Case 1: single file.
       let partZeroPath = parquetPath;
 
       // TODO: use _loadParquetBytes here and below instead?
-      let tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+      let tailBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: TAIL_LENGTH,
       });
       if (!tailBytes) {
         // Case 2: Rather than a single file, this may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-        tailBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+        tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
         });
       }
@@ -145,7 +143,7 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       }
 
       // Step 3. Fetch the full footer bytes
-      const footerBytes = await extendedStore.getRange(`/${partZeroPath}`, {
+      const footerBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: footerLength + TAIL_LENGTH,
       });
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {

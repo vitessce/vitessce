@@ -2,9 +2,10 @@
 import { DataFetchError } from '@vitessce/error';
 
 export default class JsonSource {
-  constructor({ url, requestInit }) {
+  constructor({ url, requestInit, queryClient }) {
     this.url = url;
     this.requestInit = requestInit;
+    this.queryClient = queryClient;
   }
 
   async loadJson() {
