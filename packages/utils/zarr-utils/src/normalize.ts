@@ -106,7 +106,10 @@ function makeCacheFetch(queryClient?: QueryClientLike): CacheFetchFn {
     const key = JSON.stringify(cacheKey);
     let promise = inflight.get(key);
     if (!promise) {
-      promise = fn().finally(() => {
+      // Stores are only required to return a value that can be awaited, not
+      // necessarily a native Promise (e.g. test fixture stores return synchronously),
+      // so wrap with Promise.resolve before relying on `.finally`.
+      promise = Promise.resolve(fn()).finally(() => {
         inflight.delete(key);
       });
       inflight.set(key, promise);
