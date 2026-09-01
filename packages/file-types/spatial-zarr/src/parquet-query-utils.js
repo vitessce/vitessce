@@ -7,8 +7,6 @@
 /* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
-import { withGetRange } from '@vitessce/zarr-utils';
-import { extendStore } from 'zarrita';
 import { log } from '@vitessce/globals';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 

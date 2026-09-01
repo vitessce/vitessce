@@ -5,8 +5,6 @@
 import { tableFromIPC } from 'apache-arrow';
 import { AnnDataSource } from '@vitessce/zarr';
 import { log } from '@vitessce/globals';
-import { extendStore } from 'zarrita';
-import { withGetRange } from '@vitessce/zarr-utils';
 import { range } from 'lodash-es';
 import {
   getParquetModule,

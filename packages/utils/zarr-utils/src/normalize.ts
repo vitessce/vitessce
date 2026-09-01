@@ -199,7 +199,6 @@ export function transformEntriesForZipFileStore(entries: ZipInfo['entries']) {
 }
 
 
-
 export function applyStoreExtensions(
   store: AsyncReadable,
   url: string,
@@ -215,7 +214,7 @@ export function applyStoreExtensions(
     // one request instead of downloading it once per reader.
     (s: AsyncReadable) => withQueryClientCache(
       s,
-      { cacheKeyPrefix: url, queryClient: queryClient },
+      { cacheKeyPrefix: url, queryClient },
     ),
   );
 }
