@@ -24,7 +24,7 @@ import {
   useCoordinationScopes,
 } from '@vitessce/vit-s';
 import {
-  getCellSetPolygons, mergeObsSets, setObsSelection, getCellColors,
+  getCellSetPolygons, mergeObsSets, setObsSelection, treeToColorIndicesArray,
 } from '@vitessce/sets-utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
@@ -268,14 +268,12 @@ export function GatingSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetSelection, cellSetColor, obsIndex]);
+  // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
+  // Map costs one string hash lookup per point per render, plus a per-observation
+  // color array whenever the selected sets carry confidence scores.
+  const obsColorIndices = useMemo(() => treeToColorIndicesArray(
+    mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme,
+  ), [mergedCellSets, cellSetSelection, cellSetColor, obsIndex, theme]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -304,8 +302,6 @@ export function GatingSubscriber(props) {
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
     obsIndex, obsXY, mergedCellSets, cellSetSelection, cellSetColor]);
 
-
-  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     if (obsXY && obsXY.data && obsXY.shape) {
@@ -357,10 +353,12 @@ export function GatingSubscriber(props) {
   }, [xRange, yRange, xExtent, yExtent, numCells,
     width, height, zoom, initialTargetX, initialTargetY, averageFillDensity]);
 
-  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
+  // With no set selection every observation counts as selected, matching the
+  // behavior of the ID-keyed color map this replaced.
+  const allCellsSelected = !(cellSetSelection && mergedCellSets);
   const getCellIsSelected = useCallback((object, { index }) => (
-    (cellSelectionSet || new Set([])).has(obsIndex[index]) ? 1.0 : 0.0
-  ), [cellSelectionSet, obsIndex]);
+    (allCellsSelected || obsColorIndices.colorIndices[index] !== 0) ? 1.0 : 0.0
+  ), [allCellsSelected, obsColorIndices]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -472,9 +470,8 @@ export function GatingSubscriber(props) {
         obsEmbeddingIndex={obsIndex}
         obsEmbedding={obsXY}
         cellFilter={cellFilter}
-        cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        cellColors={cellColors}
+        obsColorIndices={obsColorIndices}
         cellSetPolygons={cellSetPolygons}
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}

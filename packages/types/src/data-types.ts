@@ -63,10 +63,20 @@ export type ObsLabelsData = {
   obsLabelsMap: Map<string, string>;
 };
 
+// A Map-like lookup from observation ID to the set paths containing it. Loaders
+// return a lazy implementation that only materializes the underlying Map on first
+// lookup, so this is narrowed to the members consumers actually use rather than
+// being typed as a full Map.
+export type ObsSetsMembership = {
+  get: (obsId: string) => string[][] | undefined;
+  has: (obsId: string) => boolean;
+  readonly size: number;
+};
+
 export type ObsSetsData = {
   obsIndex: string[];
   obsSets: SetsTree;
-  obsSetsMembership: Map<string, string[][]>;
+  obsSetsMembership: ObsSetsMembership;
 };
 
 // Imaging

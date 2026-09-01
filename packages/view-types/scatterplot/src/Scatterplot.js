@@ -26,11 +26,39 @@ const TEXT_LAYER_Z_INDEX = 0;
 // certain zoom levels.
 const POINT_LAYER_Z_INDEX = 0;
 
+// The gray that set colors are mixed toward as confidence drops. Must match the
+// mixing color used by treeToCellColorsBySetNames in @vitessce/sets-utils.
+const UNCERTAINTY_MIXING_COLOR = 128;
+
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
     || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
+};
+// Positional equivalent of makeDefaultGetCellColors, for callers that supply
+// obsColorIndices. Reads a typed array by index rather than hashing an
+// observation ID string on every point.
+const makeColorIndicesGetCellColors = (obsColorIndices, theme) => {
+  const { colorIndices, colorProbs, colors } = obsColorIndices;
+  const defaultColor = getDefaultColor(theme);
+  return (object, { index }) => {
+    const colorIndex = colorIndices[index];
+    if (colorIndex === 0) {
+      return [defaultColor[0], defaultColor[1], defaultColor[2], 255];
+    }
+    const color = colors[colorIndex - 1] || defaultColor;
+    if (colorProbs) {
+      const p = colorProbs[index];
+      return [
+        ((color[0] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        ((color[1] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        ((color[2] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        255,
+      ];
+    }
+    return [color[0], color[1], color[2], 255];
+  };
 };
 const makeDefaultGetObsCoords = obsEmbedding => i => ([
   obsEmbedding.data[0][i],
@@ -69,8 +97,11 @@ const contourGetPosition = (object, { index, data, target }) => {
  * @param {object} props.cells
  * @param {string} props.mapping The name of the coordinate mapping field,
  * for each cell, for example "PCA" or "t-SNE".
- * @param {Map} props.cellColors Mapping of cell IDs to colors.
- * @param {array} props.cellSelection Array of selected cell IDs.
+ * @param {Map} props.cellColors Mapping of cell IDs to colors. Its keys are also
+ * the set of selected cell IDs. Ignored when props.obsColorIndices is provided.
+ * @param {object} props.obsColorIndices Positional set-color encoding aligned to
+ * props.obsEmbeddingIndex, as returned by treeToColorIndicesArray. Preferred over
+ * props.cellColors, which costs a string hash lookup per point.
  * @param {array} props.cellFilter Array of filtered cell IDs. By default, null.
  * @param {number} props.cellRadius The value for `radiusScale` to pass
  * to the deck.gl cells ScatterplotLayer.
@@ -221,12 +252,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellRadius = 1.0,
       cellOpacity = 1.0,
       // cellFilter,
-      cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      obsColorIndices,
+      getCellColor = (obsColorIndices
+        ? makeColorIndicesGetCellColors(obsColorIndices, theme)
+        : makeDefaultGetCellColors(cellColors, obsIndex, theme)),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -276,8 +309,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       updateTriggers: {
         getExpressionValue,
-        getFillColor: [cellColorEncoding, cellSelection, cellColors],
-        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getFillColor: [cellColorEncoding, cellColors, obsColorIndices],
+        getLineColor: [cellColorEncoding, cellColors, obsColorIndices],
         getCellIsSelected,
       },
     });
@@ -524,7 +557,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
+      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellColors', 'obsColorIndices',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
       'getExpressionValue', 'embeddingPointsVisible',
