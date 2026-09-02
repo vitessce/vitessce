@@ -1,4 +1,11 @@
 
+## 4.0.6
+
+### Patch Changes
+
+- Fix production build error - add webpack fallback for worker_threads (`docs`) ([#2580](https://github.com/vitessce/vitessce/pull/2580))
+
+
 ## 4.0.5
 
 ### Patch Changes
