@@ -84,6 +84,7 @@ import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
 import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
+import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-test-cube.js';
 import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
 import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-neuroglancer-with-segments.js';
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
@@ -219,6 +220,7 @@ export const configs = {
   'link-controller-minimal': linkControllerMinimal,
   // Neuroglancer
   'melanoma-neuroglancer': melanomaNeuroglancer,
+  'test-cube-neuroglancer': testCubeNeuroglancer,
   'melanoma-neuroglancer-segments': melanomaNeuroglancerSegments,
   'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
   'neuroglancer-merfish': neuroglancerMerfish,

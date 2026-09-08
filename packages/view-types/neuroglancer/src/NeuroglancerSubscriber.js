@@ -58,7 +58,6 @@ import {
 
 
 const VITESSCE_INTERACTION_DELAY = 50;
-const INIT_VIT_ZOOM = -3.6;
 const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
@@ -129,6 +128,12 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
+  // nm-per-voxel at mip 0 of the segmentation source, i.e. the factor between
+  // NG's world-space position/projectionScale (always nm) and Vitessce's
+  // pixel-index spatialTargetX/Y/spatialZoom. Defaults to [1, 1, 1] (no-op
+  // scaling) until fetched, which also matches datasets built with a
+  // unitless/1nm-per-voxel resolution (e.g. the melanoma example).
+  const voxelSizeNmRef = useRef([1, 1, 1]);
   const resizeObserverRef = useRef(null);
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
@@ -879,6 +884,12 @@ export function NeuroglancerSubscriber(props) {
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
 
+  // Get segmentation (precomputed) URL from obsSegmentationsUrls, to fetch
+  // its 'info' file for the mip-0 voxel resolution (nm/voxel).
+  const segmentationUrl = useMemo(() => {
+    const firstScope = segmentationLayerScopes?.[0];
+    return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [segmentationLayerScopes, obsSegmentationsUrls]);
 
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
@@ -912,6 +923,24 @@ export function NeuroglancerSubscriber(props) {
       .catch(err => console.error('failed to fetch annotation info:', err));
   }, [cellsUrl]);
 
+// Fetch the segmentation source's mip-0 voxel resolution (nm/voxel), used
+// to convert between NG's nm-space camera state and Vitessce's pixel-index
+// spatialTargetX/Y/spatialZoom. See voxelSizeNmRef above.
+useEffect(() => {
+  if (!segmentationUrl) return;
+  fetch(`${segmentationUrl}/info`)
+    .then(r => r.json())
+    .then((info) => {
+      const resolution = info?.scales?.[0]?.resolution;
+      console.log('resolution', resolution)
+      if (Array.isArray(resolution) && resolution.length === 3 && resolution.every(Number.isFinite)) {
+        voxelSizeNmRef.current = resolution;
+      }
+      // else: keep the [1, 1, 1] fallback.
+    })
+    .catch(err => console.warn('[NeuroglancerSubscriber] failed to fetch precomputed info for voxel size:', err));
+}, [segmentationUrl]);
+
 
   // Once both annotation info and transform are available, trigger the initial
   // mesh visibility update and mark the layer as loaded.
@@ -940,40 +969,41 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
-
+   // NG reports projectionScale/position in its own world units (nm, per
+   // the segmentation source's declared mip-0 resolution). Vitessce's
+   // spatialZoom/spatialTargetX/Y operate in pixel-index space. Convert to
+   // pixel-space here so the existing calibration/offset logic below (which
+   // assumes a 1:1 correspondence) works correctly regardless of voxel size.
+   const [vx, vy, vz] = voxelSizeNmRef.current;
+   const projectionScalePx = Number.isFinite(projectionScale) ? projectionScale / vx : projectionScale;
+   const positionPx = Array.isArray(position)
+     ? [position[0] / vx, position[1] / vy, position[2] / vz]
+     : position;
+    
     // Set the views on first mount
     if (!initialRenderCalibratorRef.current) {
       // wait for a real scale
-      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return;
+      if (!Number.isFinite(projectionScalePx) || projectionScalePx <= 0) return;
 
-      // anchor to current Vitessce zoom
+      // Anchor to NG's real current camera and whatever Vitessce's zoom
+      // currently is. NG is the source of truth — we don't move it here.
       const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
-      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
+      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScalePx, zRef);
 
-      const [px = 0, py = 0, pz = 0] = position;
+      const [px = 0, py = 0, pz = 0] = positionPx;
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
       translationOffsetRef.current = [px - tX, py - tY, pz];
-      // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-      const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
-      latestViewerStateRef.current = {
-        ...latestViewerStateRef.current,
-        projectionScale: syncedZoom,
-      };
-
-      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
-        setZoom(INIT_VIT_ZOOM);
-      }
       return;
     }
 
     // ZOOM (NG → Vitessce) — do this only after calibrator exists
-    if (Number.isFinite(projectionScale) && projectionScale > 0) {
-      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
+    if (Number.isFinite(projectionScalePx) && projectionScalePx > 0) {
+      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScalePx);
       const scaleChanged = lastNgScaleRef.current == null
-          || (Math.abs(projectionScale - lastNgScaleRef.current)
-          > 1e-6 * Math.max(1, projectionScale));
+          || (Math.abs(projectionScalePx - lastNgScaleRef.current)
+          > 1e-6 * Math.max(1, projectionScalePx));
       if (scaleChanged && Number.isFinite(vitZoomFromNg)
             && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
         if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
@@ -984,13 +1014,13 @@ export function NeuroglancerSubscriber(props) {
         // Trigger immediate mesh update on zoom change, don't wait for throttle
         updateVisibleSegments();
       }
-      // remember last NG scale
-      lastNgScaleRef.current = projectionScale;
+      // remember last NG scale (pixel-space, comparable across calls)
+      lastNgScaleRef.current = projectionScalePx;
     }
 
     // TRANSLATION
-    if (Array.isArray(position) && position.length >= 2) {
-      const [px, py] = position;
+    if (Array.isArray(positionPx) && positionPx.length >= 2) {
+      const [px, py] = positionPx;
       const [ox, oy] = translationOffsetRef.current;
       const tx = px - ox; // map NG → Vitessce
       const ty = py - oy;
@@ -1136,30 +1166,37 @@ export function NeuroglancerSubscriber(props) {
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
+    // current.position/projectionScale are in NG's nm space; convert to
+    // pixel space for comparison against spatialTarget*/spatialZoom and
+    // against translationOffsetRef, which is maintained in pixel space
+    // (see handleStateUpdate). See voxelSizeNmRef above.
+    const [vx, vy] = voxelSizeNmRef.current;
 
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
         && initialRenderCalibratorRef.current
         && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && zoomChangedNow) {
-      const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
-      if (Number.isFinite(s) && s > 0) {
-        nextProjectionScale = s;
+      const sPx = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
+      if (Number.isFinite(sPx) && sPx > 0) {
+        nextProjectionScale = sPx * vx; // back to NG's nm space
       }
     }
 
     // ** --- Translation handling --- ** //
     const [ox, oy, oz] = translationOffsetRef.current;
-    const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
+    const [pxNm = 0, pyNm = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
+    const px = pxNm / vx;
+    const py = pyNm / vy;
     const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
        && Number.isFinite(spatialTargetY);
     if (hasVitessceSpatialTarget
         && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && transChangedNow) {
-      const nx = spatialTargetX + ox; // Vitessce → NG
+      const nx = spatialTargetX + ox; // Vitessce → NG, pixel space
       const ny = spatialTargetY + oy;
       if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
-        nextPosition = [nx, ny, pz];
+        nextPosition = [nx * vx, ny * vy, pz]; // back to NG's nm space
       }
     }
 
@@ -1237,10 +1274,13 @@ export function NeuroglancerSubscriber(props) {
         initialRotationPushedRef.current = true;
         // Re-anchor NG -> Vitessce translation once we commit the initial orientation,
         // the center shows a right translated image
-        const [cx = 0, cy = 0,
+        const [cxNm = 0, cyNm = 0,
           cz = (nextPosition?.[2] ?? current.position?.[2] ?? 0),
         ] = nextPosition
           || current.position || [];
+        // nextPosition/current.position are nm; translationOffsetRef is pixel space.
+        const cx = cxNm / vx;
+        const cy = cyNm / vy;
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
         translationOffsetRef.current = [cx - tX, cy - tY, cz];
