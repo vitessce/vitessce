@@ -218,6 +218,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       updateViewInfo({
         uuid,
         project: viewport.project,
+        // Real rendered pixel dimensions of this view's canvas. Used e.g. by
+        // neuroglancer to calibrate its zoom conversion against this view's
+        // actual size (deck.gl zoom is canvas-size-dependent: zoom 0 means
+        // "1 image px == 1 screen px", so world-pixels-visible = width / 2**zoom).
+        width: viewport.width,
+        height: viewport.height,
+
         projectFromId: (obsId) => {
           try {
             if (obsIndex && obsLocations) {
