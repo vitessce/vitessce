@@ -1,8 +1,45 @@
 diff --git a/dist/module/chunk_worker.bundle.js b/dist/module/chunk_worker.bundle.js
-index 0db235d1bf5e5004d377f568621286aa3f9ba066..a4a41628c9cd2b2ec5a5543f9c13de6cfa9b782c 100644
+index 0db235d..548c892 100644
 --- a/dist/module/chunk_worker.bundle.js
 +++ b/dist/module/chunk_worker.bundle.js
-@@ -15599,13 +15599,10 @@ function require(x) { throw new Error('Cannot require ' + x) }
+@@ -10749,20 +10749,24 @@ function require(x) { throw new Error('Cannot require ' + x) }
+   function updateFixedCurPositionInChunks(tsource, globalPosition, localPosition) {
+     const { curPositionInChunks, fixedPositionWithinChunk } = tsource;
+     const { nonDisplayLowerClipBound, nonDisplayUpperClipBound } = tsource;
+-    const { rank, chunkDataSize } = tsource.source.spec;
++    const { rank, chunkDataSize, lowerChunkBound, upperChunkBound } = tsource.source.spec;
+     if (!getChunkPositionFromCombinedGlobalLocalPositions(curPositionInChunks, globalPosition, localPosition, tsource.layerRank, tsource.fixedLayerToChunkTransform)) {
+       return false;
+     }
++    const EPSILON = 1e-3;
+     for (let chunkDim = 0; chunkDim < rank; ++chunkDim) {
+       const x = curPositionInChunks[chunkDim];
+-      if (x < nonDisplayLowerClipBound[chunkDim] || x >= nonDisplayUpperClipBound[chunkDim]) {
++      if (x < nonDisplayLowerClipBound[chunkDim] - EPSILON || x > nonDisplayUpperClipBound[chunkDim] + EPSILON) {
+         if (DEBUG_VISIBLE_SOURCES) {
+           console.log("excluding source", tsource, `because of chunkDim=${chunkDim}, sum=${x}`, nonDisplayLowerClipBound, nonDisplayUpperClipBound, tsource.fixedLayerToChunkTransform);
+         }
+         return false;
+       }
+       const chunkSize = chunkDataSize[chunkDim];
+-      const chunk = curPositionInChunks[chunkDim] = Math.floor(x / chunkSize);
++      const chunk = curPositionInChunks[chunkDim] = Math.min(
++        upperChunkBound[chunkDim] - 1,
++        Math.max(lowerChunkBound[chunkDim], Math.floor(x / chunkSize))
++      );
+       fixedPositionWithinChunk[chunkDim] = x - chunk * chunkSize;
+     }
+     return true;
+@@ -12341,7 +12345,7 @@ function require(x) { throw new Error('Cannot require ' + x) }
+     },
+     "int8": {
+       serializedBytes() {
+-        return 2;
++        return 1;
+       },
+       alignment() {
+         return 1;
+@@ -15599,13 +15603,10 @@ function require(x) { throw new Error('Cannot require ' + x) }
    }
    function getNewWorker() {
      let port;
@@ -21,7 +58,7 @@ index 0db235d1bf5e5004d377f568621286aa3f9ba066..a4a41628c9cd2b2ec5a5543f9c13de6c
        const { id, value, error } = msg.data;
        returnWorker(port);
 diff --git a/dist/module/neuroglancer/async_computation/request.js b/dist/module/neuroglancer/async_computation/request.js
-index 2d6f86e8488e12ad7e14dcc0535eff84fd5b900e..9b83cdf8f114cf9144859f618731ef79fc967c66 100644
+index 2d6f86e..9b83cdf 100644
 --- a/dist/module/neuroglancer/async_computation/request.js
 +++ b/dist/module/neuroglancer/async_computation/request.js
 @@ -46,9 +46,7 @@ function getNewWorker() {
@@ -36,7 +73,7 @@ index 2d6f86e8488e12ad7e14dcc0535eff84fd5b900e..9b83cdf8f114cf9144859f618731ef79
          var _msg$data = msg.data;
          const id = _msg$data.id,
 diff --git a/dist/module/neuroglancer/viewer.js b/dist/module/neuroglancer/viewer.js
-index 3de16138d44b19d2ce2960e1160bec562a295ff2..6ebd20197a2ae8cdc0df528bcca917b87417f327 100644
+index 3de1613..6ebd201 100644
 --- a/dist/module/neuroglancer/viewer.js
 +++ b/dist/module/neuroglancer/viewer.js
 @@ -71,7 +71,20 @@ export class DataManagementContext extends RefCounted {
@@ -62,7 +99,7 @@ index 3de16138d44b19d2ce2960e1160bec562a295ff2..6ebd20197a2ae8cdc0df528bcca917b8
              gpuMemory: new CapacitySpecification({ defaultItemLimit: 1e6, defaultSizeLimit: 1e9 }),
              systemMemory: new CapacitySpecification({ defaultItemLimit: 1e7, defaultSizeLimit: 2e9 }),
 diff --git a/dist/module/neuroglancer/widget/delete_button.js b/dist/module/neuroglancer/widget/delete_button.js
-index a3d7bc19ad8d8af4dc186002065365a0d41ef572..a0ebc52ae07bb1dadea77397fc382c4d58b358f5 100644
+index a3d7bc1..a0ebc52 100644
 --- a/dist/module/neuroglancer/widget/delete_button.js
 +++ b/dist/module/neuroglancer/widget/delete_button.js
 @@ -19,7 +19,7 @@ import { makeIcon } from './icon';
@@ -74,3 +111,51 @@ index a3d7bc19ad8d8af4dc186002065365a0d41ef572..a0ebc52ae07bb1dadea77397fc382c4d
    return icon;
  }
  //# sourceMappingURL=delete_button.js.map
+diff --git a/dist/module/neuroglancer/annotation/index.js b/dist/module/neuroglancer/annotation/index.js
+index aac88e7..1a56ab0 100644
+--- a/dist/module/neuroglancer/annotation/index.js
++++ b/dist/module/neuroglancer/annotation/index.js
+@@ -223,7 +223,7 @@ export const annotationPropertyTypeHandlers = {
+     },
+     'int8': {
+         serializedBytes() {
+-            return 2;
++            return 1;
+         },
+         alignment() {
+             return 1;
+diff --git a/dist/module/neuroglancer/sliceview/base.js b/dist/module/neuroglancer/sliceview/base.js
+index 67606c4..191005a 100644
+--- a/dist/module/neuroglancer/sliceview/base.js
++++ b/dist/module/neuroglancer/sliceview/base.js
+@@ -63,21 +63,27 @@ function updateFixedCurPositionInChunks(tsource, globalPosition, localPosition)
+           nonDisplayUpperClipBound = tsource.nonDisplayUpperClipBound;
+     var _tsource$source$spec = tsource.source.spec;
+     const rank = _tsource$source$spec.rank,
+-          chunkDataSize = _tsource$source$spec.chunkDataSize;
++          chunkDataSize = _tsource$source$spec.chunkDataSize,
++          lowerChunkBound = _tsource$source$spec.lowerChunkBound,
++          upperChunkBound = _tsource$source$spec.upperChunkBound;
+ 
+     if (!getChunkPositionFromCombinedGlobalLocalPositions(curPositionInChunks, globalPosition, localPosition, tsource.layerRank, tsource.fixedLayerToChunkTransform)) {
+         return false;
+     }
++    const EPSILON = 1e-3;
+     for (let chunkDim = 0; chunkDim < rank; ++chunkDim) {
+         const x = curPositionInChunks[chunkDim];
+-        if (x < nonDisplayLowerClipBound[chunkDim] || x >= nonDisplayUpperClipBound[chunkDim]) {
++        if (x < nonDisplayLowerClipBound[chunkDim] - EPSILON || x > nonDisplayUpperClipBound[chunkDim] + EPSILON) {
+             if (DEBUG_VISIBLE_SOURCES) {
+                 console.log('excluding source', tsource, `because of chunkDim=${chunkDim}, sum=${x}`, nonDisplayLowerClipBound, nonDisplayUpperClipBound, tsource.fixedLayerToChunkTransform);
+             }
+             return false;
+         }
+         const chunkSize = chunkDataSize[chunkDim];
+-        const chunk = curPositionInChunks[chunkDim] = Math.floor(x / chunkSize);
++        const chunk = curPositionInChunks[chunkDim] = Math.min(
++            upperChunkBound[chunkDim] - 1,
++            Math.max(lowerChunkBound[chunkDim], Math.floor(x / chunkSize))
++        );
+         fixedPositionWithinChunk[chunkDim] = x - chunk * chunkSize;
+     }
+     return true;
