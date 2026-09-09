@@ -35,6 +35,7 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  useViewConfig,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -601,6 +602,17 @@ export function SpatialSubscriber(props) {
 
   const [originalViewState, setOriginalViewState] = useState(null);
   const [isSelectionPending, setIsSelectionPending] = useState(false);
+  // Is this dataset also shown in a paired neuroglancer view? If so, that
+  // view's real camera state is authoritative -- Viv's own auto-fit default
+  // (below) should not fight it. See hasPairedNeuroglancerView usage below.
+  const viewConfig = useViewConfig();
+  const hasPairedNeuroglancerView = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return false;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    return layout.some(v => v.component === 'neuroglancer'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+  }, [viewConfig, coordinationScopes]);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -667,11 +679,25 @@ export function SpatialSubscriber(props) {
   // completely different extent. The legacy layer controller did this reset
   // explicitly whenever its resolution select moved between 2D and a 3D
   // resolution (see LayerOptions in @vitessce/layer-controller).
+
+  // Skipped entirely when a paired neuroglancer view exists: NG's camera
+  // state (which target/zoom/rotation are already synced from) doesn't
+  // depend on whether spatialBeta happens to render as a flat image or a
+  // volume, so there's nothing here to reset to -- doing so anyway
+  // overwrites the real synced values with Viv's own auto-fit default
+  // (including its 1.5 zoomBackoff for 3D), and since target/zoom are
+  // shared coordination values, that reset also drags NG's own camera into
+  // the same wrong framing, confirmed via screen recording.
+
   const prevIs3dMode = useRef(is3dMode);
   useEffect(() => {
     if (prevIs3dMode.current === is3dMode) {
       return;
     }
+       if (hasPairedNeuroglancerView) {
+           prevIs3dMode.current = is3dMode;
+           return;
+         }
     if (typeof defaultTargetX !== 'number' || typeof defaultTargetY !== 'number') {
       // Not computable yet. Leave the camera alone and re-run once the data for
       // the new mode is ready, rather than resetting the target to null.
@@ -688,7 +714,7 @@ export function SpatialSubscriber(props) {
     // Deliberate dependency omissions: the setters, which are not referentially
     // stable across renders and would re-run this on every one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
+  }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom, hasPairedNeuroglancerView]);
 
 
   const setViewState = ({
@@ -781,6 +807,7 @@ export function SpatialSubscriber(props) {
       && rotationX !== null && rotationOrbit !== null && orbitAxis !== null
     )
     : zoom !== null && targetX !== null && targetY !== null;
+
 
   /**
    * @param {object} hoverInfo The hoverInfo object passed to the DeckGL layer's onHover callback.
@@ -934,7 +961,7 @@ export function SpatialSubscriber(props) {
       }
     }
   };
-
+  console.log(rotationX ,rotationOrbit, orbitAxis)
   return (
     <TitleInfo
       title={title}
@@ -1086,6 +1113,14 @@ export function SpatialSubscriber(props) {
               rotationOrbit,
             }) : DEFAULT_VIEW_STATE}
             orbitAxis={orbitAxis}
+            // Match neuroglancer's fixed 45deg fovy (perspective_view/panel.ts),
+             // rather than deck.gl's OrbitView default of 50deg -- otherwise the
+             // two cameras' perspective distortion diverges away from the
+             // target point, showing up as a residual scale mismatch even with
+             // zoom calibrated correctly. NOTE: this applies to every 3D
+             // spatialBeta render, not just ones paired with neuroglancer --
+             // narrowing that down is a follow-up if it matters for other uses.
+            // orbitFovy={45}
             spatialAxisFixed={spatialAxisFixed}
             setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
             originalViewState={originalViewState}
