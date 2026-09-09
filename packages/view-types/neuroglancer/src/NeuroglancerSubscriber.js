@@ -45,11 +45,8 @@ import {
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   nearEq,
-  conjQuat,
-  multiplyQuat,
   rad2deg,
   deg2rad,
-  Q_Y_UP,
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
@@ -1020,6 +1017,7 @@ useEffect(() => {
    // Set the translation offset on first mount (still needs an anchor —
    // there's no known formula for whatever coordinate-origin offset exists
    // between NG's position and Vitessce's spatialTarget).
+   console.log('canvasPx check', { width: viewInfo?.width, height: viewInfo?.height, projectionScalePx });
    if (!hasSetTranslationOffsetRef.current) {
       if (!Number.isFinite(projectionScalePx) || projectionScalePx <= 0) return;
 
@@ -1072,9 +1070,7 @@ useEffect(() => {
       lastNgPushOrientationRef.current = projectionOrientation;
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
-        // Remove the Y-up correction before converting to Euler for Vitessce
-        const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
-        const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
+        const [pitchRad, yawRad] = quaternionToEuler(projectionOrientation); // radians
         const currPitchRad = deg2rad(spatialRotationX ?? 0);
         const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
 
@@ -1117,8 +1113,8 @@ useEffect(() => {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [[spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
-    +    setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]]);
+  }, [spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
+       setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -1252,7 +1248,8 @@ useEffect(() => {
     );
 
     // Apply Y-up to have both views with same axis-direction (xy)
-    const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
+    // const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
+    const vitessceRotation = vitessceRotationRaw;
 
     // // Round-trip check: NG -> Vit (remove Y-UP)
     // const qVitBack = multiplyQuat(conjQuat(Q_Y_UP), vitessceRotation);
