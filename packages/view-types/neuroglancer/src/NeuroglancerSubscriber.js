@@ -52,6 +52,7 @@ import {
   GREY_HEX,
   remapCellColors,
   autoColorForId,
+  quatdotAbs,
 } from './utils.js';
 
 
@@ -106,7 +107,6 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
 
-  const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
   const obsIdToMeshIdRef = useRef({});
   const meshIdToCellIdRef = useRef({});
@@ -912,6 +912,31 @@ export function NeuroglancerSubscriber(props) {
     spatialBetaViewInfoRef.current = spatialBetaViewInfo ?? null;
   }, [spatialBetaViewInfo]);
 
+
+  // Recalibrate Vitessce's zoom whenever spatialBeta's own container
+  // resizes, independent of any NG interaction. NG's camera is
+  // resize-invariant -- a fixed projectionScale always shows the same world
+  // extent regardless of container pixel size (confirmed from NG's own
+  // perspective_view/panel.ts: vertical NDC range is a fixed [-1,1],
+  // independent of canvas size). deck.gl's OrbitView is NOT: at a fixed
+  // zoom, world-units-visible = canvasPx / 2**zoom, so resizing the canvas
+  // alone changes how much of the world is shown. Without this, a resize
+  // with no corresponding NG event leaves Vitessce's zoom stale relative to
+  // NG's (correctly resize-invariant) framing -- confirmed via screen
+  // recording showing spatialBeta's rendered content staying pixel-fixed
+  // across several resizes while NG's correctly rescaled.
+  useEffect(() => {
+    const { width, height } = spatialBetaViewInfo ?? {};
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+    const canvasPx = Math.min(width, height);
+    const lastScale = lastNgScaleRef.current;
+    if (!Number.isFinite(lastScale) || lastScale <= 0) return;
+    const recalibratedZoom = Math.log2(canvasPx / lastScale);
+    if (Number.isFinite(recalibratedZoom)) {
+      setZoom(recalibratedZoom);
+    }
+  }, [spatialBetaViewInfo?.width, spatialBetaViewInfo?.height, setZoom]);
+
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
   const hasMatchingAnnotationSource = useMemo(() => {
@@ -953,7 +978,7 @@ useEffect(() => {
     .then(r => r.json())
     .then((info) => {
       const resolution = info?.scales?.[0]?.resolution;
-      console.log('resolution', resolution)
+      console.log("resultion",resolution )
       if (Array.isArray(resolution) && resolution.length === 3 && resolution.every(Number.isFinite)) {
         voxelSizeNmRef.current = resolution;
       }
@@ -1017,7 +1042,7 @@ useEffect(() => {
    // Set the translation offset on first mount (still needs an anchor —
    // there's no known formula for whatever coordinate-origin offset exists
    // between NG's position and Vitessce's spatialTarget).
-   console.log('canvasPx check', { width: viewInfo?.width, height: viewInfo?.height, projectionScalePx });
+  //  console.log('canvasPx check', { width: viewInfo?.width, height: viewInfo?.height, projectionScalePx });
    if (!hasSetTranslationOffsetRef.current) {
       if (!Number.isFinite(projectionScalePx) || projectionScalePx <= 0) return;
 
@@ -1027,6 +1052,19 @@ useEffect(() => {
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
       translationOffsetRef.current = [px - tX, py - tY, pz];
       hasSetTranslationOffsetRef.current = true;
+      // Also derive Vitessce's initial zoom FROM NG's real projectionScale --
+      // without this, spatialBeta keeps whatever default zoom the config set
+      // (unrelated to NG's actual scale) until some later interaction
+      // happens to reach the ZOOM block below for the first time.
+      if (canvasPx && projectionScalePx > 0) {
+        console.log("canvasPx && projectionScalePx", canvasPx , projectionScalePx)
+        const initZoom = Math.log2(canvasPx / projectionScalePx);
+        if (Number.isFinite(initZoom)) {
+          setZoom(initZoom);
+          lastNgScaleRef.current = projectionScalePx;
+        }
+      }
+
       return;
     }
 
@@ -1071,6 +1109,8 @@ useEffect(() => {
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
         const [pitchRad, yawRad] = quaternionToEuler(projectionOrientation); // radians
+        const qReconstructed = eulerToQuaternion(pitchRad, yawRad, 0);
+        console.log('roll-loss check, dot (near 1 = no roll lost):', quatdotAbs(qReconstructed, projectionOrientation));
         const currPitchRad = deg2rad(spatialRotationX ?? 0);
         const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
 
@@ -1265,15 +1305,12 @@ useEffect(() => {
     // const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
     // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 
-    // If NG quat != Vitessce quat on first render, push Vitessce once.
-    const shouldForceInitialVitPush = !initialRotationPushedRef.current
-      && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
     // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const ngFresh = (performance.now() - (ngRotPushAtRef.current || 0)) < NG_ROT_COOLDOWN_MS;
 
     const changedNowOrIInitialVitPush = rotChangedNow
-      || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
+      // || zoomChangedNow || transChangedNow;
 
     const src = ngFresh ? LAST_INTERACTION_SOURCE.neuroglancer
       : (lastInteractionSource.current
@@ -1312,7 +1349,6 @@ useEffect(() => {
           z: spatialRotationZ,
           orbit: spatialRotationOrbit,
         };
-        initialRotationPushedRef.current = true;
         // Re-anchor NG -> Vitessce translation once we commit the initial orientation,
         // the center shows a right translated image
         const [cxNm = 0, cyNm = 0,
