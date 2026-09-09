@@ -100,12 +100,13 @@ import {
       spatialRenderingMode: '3D',
       spatialZoom: 0,
       spatialTargetT: 0,
-      spatialTargetX: 0,
-      spatialTargetY: 0,
+      spatialTargetX: 40,
+      spatialTargetY: 32,
       spatialTargetZ: 0,
       spatialRotationX: 0,
       spatialRotationY: 0,
       spatialRotationOrbit: 0,
+    //   spatialOrbitAxis: 0,
     }, { meta: false });
   
     // Image layer (spatialBeta + layer controller)

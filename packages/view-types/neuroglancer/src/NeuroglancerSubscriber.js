@@ -24,6 +24,8 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
+  useViewConfig,
+  useComponentViewInfo,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -43,7 +45,6 @@ import {
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   nearEq,
-  makeVitNgZoomCalibrator,
   conjQuat,
   multiplyQuat,
   rad2deg,
@@ -119,7 +120,7 @@ export function NeuroglancerSubscriber(props) {
   const lastInteractionSource = useRef(null);
   const applyNgUpdateTimeoutRef = useRef(null);
   const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
+  const hasSetTranslationOffsetRef = useRef(false);
   const translationOffsetRef = useRef([0, 0, 0]);
   const zoomRafRef = useRef(null);
   const lastNgQuatRef = useRef([0, 0, 0, 1]);
@@ -891,6 +892,29 @@ export function NeuroglancerSubscriber(props) {
     return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [segmentationLayerScopes, obsSegmentationsUrls]);
 
+
+  // Find the spatialBeta view showing the same dataset as this view, so we
+  // can read its real rendered pixel size (published via the viewInfo
+  // registry — see AbstractSpatialOrScatterplot.viewInfoDidUpdate) and use
+  // it to calibrate the NG <-> Vitessce zoom conversion. See canvasPx in
+  // handleStateUpdate/derivedViewerState below.
+  const viewConfig = useViewConfig();
+  const spatialBetaUuid = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return null;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    const match = layout.find(v => v.component === 'spatialBeta'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+    return match?.uid ?? null;
+  }, [viewConfig, coordinationScopes]);
+  const spatialBetaViewInfo = useComponentViewInfo(spatialBetaUuid);
+  // Refs so handleStateUpdate (a useCallback with an unrelated dep array)
+  // and derivedViewerState always read the latest value, not a stale one.
+  const spatialBetaViewInfoRef = useRef(null);
+  useEffect(() => {
+    spatialBetaViewInfoRef.current = spatialBetaViewInfo ?? null;
+  }, [spatialBetaViewInfo]);
+
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
   const hasMatchingAnnotationSource = useMemo(() => {
@@ -980,27 +1004,38 @@ useEffect(() => {
      ? [position[0] / vx, position[1] / vy, position[2] / vz]
      : position;
     
-    // Set the views on first mount
-    if (!initialRenderCalibratorRef.current) {
-      // wait for a real scale
+   // Real rendered pixel size of spatialBeta's canvas, read from the
+   // viewInfo registry (see spatialBetaViewInfoRef above). Per Viv's
+   // convention (getInitialSpatialTargets in spatial-beta/src/utils.js),
+   // deck.gl zoom 0 means "1 image pixel == 1 screen pixel", i.e.
+   // world-pixels-visible = canvasPx / 2**zoom. This gives a direct,
+   // closed-form NG <-> Vitessce zoom conversion — no empirical anchor
+   // needed, unlike translation (below), which still needs one since
+   // there's no equivalent formula for a coordinate-origin offset between
+   // the two spaces.
+   const viewInfo = spatialBetaViewInfoRef.current;
+   const canvasPx = (viewInfo && Number.isFinite(viewInfo.width) && Number.isFinite(viewInfo.height))
+     ? Math.min(viewInfo.width, viewInfo.height)
+     : null;
+   // Set the translation offset on first mount (still needs an anchor —
+   // there's no known formula for whatever coordinate-origin offset exists
+   // between NG's position and Vitessce's spatialTarget).
+   if (!hasSetTranslationOffsetRef.current) {
       if (!Number.isFinite(projectionScalePx) || projectionScalePx <= 0) return;
-
-      // Anchor to NG's real current camera and whatever Vitessce's zoom
-      // currently is. NG is the source of truth — we don't move it here.
-      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
-      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScalePx, zRef);
 
       const [px = 0, py = 0, pz = 0] = positionPx;
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
       translationOffsetRef.current = [px - tX, py - tY, pz];
+      hasSetTranslationOffsetRef.current = true;
       return;
     }
 
-    // ZOOM (NG → Vitessce) — do this only after calibrator exists
-    if (Number.isFinite(projectionScalePx) && projectionScalePx > 0) {
-      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScalePx);
+   // ZOOM (NG → Vitessce)
+   if (canvasPx && Number.isFinite(projectionScalePx) && projectionScalePx > 0) {
+     const vitZoomFromNg = Math.log2(canvasPx / projectionScalePx);
+
       const scaleChanged = lastNgScaleRef.current == null
           || (Math.abs(projectionScalePx - lastNgScaleRef.current)
           > 1e-6 * Math.max(1, projectionScalePx));
@@ -1082,7 +1117,8 @@ useEffect(() => {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [updateVisibleSegmentsThrottledRef]);
+  }, [[spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
+    +    setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -1173,11 +1209,19 @@ useEffect(() => {
     const [vx, vy] = voxelSizeNmRef.current;
 
     // ** --- Zoom handling --- ** //
-    if (typeof spatialZoom === 'number'
-        && initialRenderCalibratorRef.current
+    // Closed-form conversion (see the matching comment in handleStateUpdate):
+    // world-pixels-visible = canvasPx / 2**zoom, where canvasPx is
+    // spatialBeta's own real rendered pixel size, read via the viewInfo
+    // registry (see spatialBetaViewInfoRef above).
+    const viewInfo = spatialBetaViewInfoRef.current;
+    const canvasPx = (viewInfo && Number.isFinite(viewInfo.width) && Number.isFinite(viewInfo.height))
+      ? Math.min(viewInfo.width, viewInfo.height)
+      : null;
+    if (canvasPx
+        && typeof spatialZoom === 'number'
         && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && zoomChangedNow) {
-      const sPx = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
+      const sPx = canvasPx * (2 ** -spatialZoom);
       if (Number.isFinite(sPx) && sPx > 0) {
         nextProjectionScale = sPx * vx; // back to NG's nm space
       }
@@ -1357,7 +1401,7 @@ useEffect(() => {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
-    latestViewerStateIteration, hasMatchingAnnotationSource]);
+    latestViewerStateIteration, hasMatchingAnnotationSource, spatialBetaViewInfo]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
