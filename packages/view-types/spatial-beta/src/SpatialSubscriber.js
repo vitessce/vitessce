@@ -613,6 +613,11 @@ export function SpatialSubscriber(props) {
     return layout.some(v => v.component === 'neuroglancer'
       && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
   }, [viewConfig, coordinationScopes]);
+  // A resize alone doesn't tell us whether the camera was ever really set yet
+  // or not — so we stopped trying to guess from that, and just remember
+  // directly whether we've already set it once. This was wiping out
+  // spatialBeta's NG-synced camera position every time the window resized.
+  const hasAppliedDefaultViewStateRef = useRef(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -646,12 +651,18 @@ export function SpatialSubscriber(props) {
     if (width && height) {
       if (typeof initialTargetX !== 'number' || typeof initialTargetY !== 'number') {
         const notYetInitialized = (typeof targetX !== 'number' || typeof targetY !== 'number');
-        const stillDefaultInitialized = (targetX === defaultTargetX && targetY === defaultTargetY);
+        // Apply the default camera only the very first time. After that, don't
+        // touch target/zoom here again — a resize recalculating a new default
+        // value is not a reason to overwrite whatever's already there, whether
+        // that came from NG syncing or the user moving the camera themselves.
+        const stillDefaultInitialized = !hasAppliedDefaultViewStateRef.current
+          && (targetX === defaultTargetX && targetY === defaultTargetY);
         if (notYetInitialized || stillDefaultInitialized) {
           setTargetX(defaultTargetX);
           setTargetY(defaultTargetY);
           setTargetZ(defaultTargetZ);
           setZoom(defaultZoom);
+          hasAppliedDefaultViewStateRef.current = true;
         }
         setOriginalViewState(
           { target: [defaultTargetX, defaultTargetY, defaultTargetZ], zoom: defaultZoom },
