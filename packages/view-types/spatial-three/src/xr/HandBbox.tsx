@@ -4,8 +4,6 @@ import type { Mesh } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { getXRModule } from './xrModule.js';
 
-const { useXRInputSourceState } = getXRModule();
-
 // XRHand is typed as Map<number, XRJointSpace> in TS lib, but the WebXR spec
 // and runtime use string joint names. This helper casts for string-keyed access.
 function getHandJoint(hand: XRHand, jointName: string): XRJointSpace | undefined {
@@ -13,6 +11,7 @@ function getHandJoint(hand: XRHand, jointName: string): XRJointSpace | undefined
 }
 
 export function HandBbox() {
+  const { useXRInputSourceState } = getXRModule();
   const rightHand = useXRInputSourceState('hand', 'right');
   const leftHand = useXRInputSourceState('hand', 'left');
   const rightTipRef = useRef<Mesh>(null);
