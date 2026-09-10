@@ -234,7 +234,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     vc.layout(biomarkerSelect);
   } else {
     const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
-    const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.9 });
+    const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.8 });
     const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
     const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
     const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
