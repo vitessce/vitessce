@@ -58,7 +58,7 @@ export default function VolcanoPlot(props) {
       return [null, null];
     }
     let xExtentResult = d3_extent(
-      computedData.flatMap(d => d3_extent(d.df.logFoldChange)),
+      computedData.flatMap(d => d3_extent(d.df.logFoldChange.filter(v => Number.isFinite(v)))),
     );
     const xAbsMax = Math.max(Math.abs(xExtentResult[0]), Math.abs(xExtentResult[1]));
     xExtentResult = [-xAbsMax, xAbsMax];
@@ -207,7 +207,17 @@ export default function VolcanoPlot(props) {
     filteredData.forEach((comparisonObject) => {
       const obsSetG = g.append('g');
 
-      const { df: filteredDf, metadata } = comparisonObject;
+      const { df: rawFilteredDf, metadata } = comparisonObject;
+      // Points with a NaN minusLog10p (e.g. missing/invalid p-value) cannot be
+      // positioned on the y-axis, even with clamping/jitter, so drop them here.
+      // Points with an Infinite minusLog10p (p-value of zero) are kept, since
+      // those are meaningfully clamped to the top of the axis below.
+      // Points with a non-finite logFoldChange (e.g. zero or negative fold-change,
+      // which are invalid inputs to log2) have no position on the x-axis, so
+      // those are dropped too since there is no x-axis clamping/jitter fallback.
+      const filteredDf = rawFilteredDf.filter(d => (
+        !Number.isNaN(d.minusLog10p) && !Number.isNaN(d.logFoldChange)
+      ));
       const coordinationValues = metadata.coordination_values;
 
       const rawObsSetPath = coordinationValues.obsSetFilter
