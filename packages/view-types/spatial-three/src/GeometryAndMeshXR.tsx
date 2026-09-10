@@ -12,8 +12,6 @@ import { MeasureLine } from './xr/MeasureLine.js';
 import type { GeometryAndMeshProps, MeasureLineData, ClickEvent, PointerOverEvent } from './types.js';
 import { isValidGeometrySize, stringifyLineData } from './three-utils.js';
 
-const { useXR, useXRInputSourceState } = getXRModule();
-
 // XRHand is typed as Map<number, XRJointSpace> in TS lib, but the WebXR spec
 // and runtime use string joint names. This helper casts for string-keyed access.
 function getHandJoint(hand: XRHand, jointName: string): XRJointSpace | undefined {
@@ -50,6 +48,7 @@ function isPinching(hand: { inputSource: { hand: XRHand } } | null | undefined, 
 // XR-aware version of GeometryAndMesh.
 // Handles both XR and non-XR rendering based on session state.
 export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
+  const { useXR, useXRInputSourceState } = getXRModule();
   const {
     segmentationGroup, segmentationSettings, segmentationSceneScale,
     renderingSettings, materialRef, highlightEntity, setObsHighlight,
