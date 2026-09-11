@@ -136,8 +136,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     })
     .addFile({
       fileType: 'anndata.zarr',
-      // TODO: fix obs/subclass_l1 column
-      url: 'https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr',
+      url: baseUrl,
       coordinationValues: {
         obsType: 'cell',
         featureType: 'gene',
@@ -234,7 +233,10 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     vc.layout(biomarkerSelect);
   } else {
     const comparativeHeading = vc.addView(dataset, 'comparativeHeading', { uid: 'comparative-heading' });
-    const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({ circleScaleFactor: 0.8 });
+    const dualScatterplot = vc.addView(dataset, 'dualScatterplot', { uid: 'scatterplot' }).setProps({
+      // TODO: this is a hack. adjust the Densmap extent in the pipeline itself
+      circleScaleFactor: baseUrl.includes('sn-rna-seq') ? 0.5 : 0.8,
+    });
     const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' });
     const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
     const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
