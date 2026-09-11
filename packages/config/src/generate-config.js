@@ -4,7 +4,7 @@ import { FileType } from '@vitessce/constants-internal';
 import { withConsolidatedMetadata, extendStore, FetchStore, open as zarrOpen } from 'zarrita';
 // eslint-disable-next-line import/no-unresolved
 import ZipFileStore from '@zarrita/storage/zip';
-import { transformEntriesForZipFileStore } from '@vitessce/zarr-utils';
+import { transformEntriesForZipFileStore, relaxedFetch } from '@vitessce/zarr-utils';
 import { VitessceConfig } from './VitessceConfig.js';
 // Classes for different types of objects
 import { AnnDataAutoConfig } from './generate-config-anndata.js';
@@ -88,7 +88,9 @@ function getStore(parsedUrl) {
     ? ZipFileStore.fromUrl(url, {
       transformEntries: transformEntriesForZipFileStore,
     })
-    : new FetchStore(url);
+    // relaxedFetch maps 403 to 404, since buckets that deny s3:ListBucket
+    // return AccessDenied for keys that do not exist.
+    : new FetchStore(url, { fetch: relaxedFetch });
 }
 
 /**

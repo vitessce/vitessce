@@ -13,7 +13,7 @@ import { withGetRange } from './base-getrange.js';
 // custom error handling function or additional options
 // to the zarrita FetchStore so that a subclass is not required.
 // Reference: https://zarrita.dev/migration/v0.7.html
-async function relaxedFetch(...args: Parameters<typeof fetch>) {
+export async function relaxedFetch(...args: Parameters<typeof fetch>) {
   const response = await fetch(...args);
   if (response.status === 403) {
     return new Response(null, { status: 404 });
