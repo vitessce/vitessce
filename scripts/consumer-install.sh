@@ -9,6 +9,15 @@ set -o pipefail
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
+# Install the exact React version the workspace builds and tests against, read
+# from the pnpm-workspace.yaml catalog, rather than floating to the latest 19.x.
+# @react-three/fiber caps its peer range at ">=19 <19.3" because useTransition()
+# inside an R3F tree throws on React 19.3, so floating here makes npm fail to
+# resolve the 3D view peers as soon as React releases ahead of react-three.
+# Reference: https://github.com/pmndrs/react-three-fiber/issues/3915
+REACT_VERSION=$(sed -n 's/^[[:space:]]*"react":[[:space:]]*\([0-9][^[:space:]#]*\).*/\1/p' pnpm-workspace.yaml)
+[[ -n "$REACT_VERSION" ]] || die 'Could not read the react version from the pnpm-workspace.yaml catalog.'
+
 # Delete existing packed packages
 # and start from a fresh directory.
 cd consumer
@@ -33,7 +42,7 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 # Install packed tgz
 cd consumer
-npm install react@^19.0.0 react-dom@^19.0.0
+npm install react@$REACT_VERSION react-dom@$REACT_VERSION
 # Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
 npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.162.0"
 npm install --save-dev vite@7
