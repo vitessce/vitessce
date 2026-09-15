@@ -464,12 +464,12 @@ export function ComparativePageComponent() {
               <DualScatterplot />
             </div>
           </div>
-          <div className={clsx('view-row')}>
+          {/* <div className={clsx('view-row')}>
             <div className="view-row-left" />
             <div className="view-row-center">
               <Link component="button" href="#" variant="body2">Show analysis details</Link>
             </div>
-          </div>
+          </div> */}
           <div className={clsx('view-row')}>
             <div className="view-row-left">
               <p className="tabs-description">Use the tabs to switch the visualization rendered below.</p>
@@ -494,12 +494,12 @@ export function ComparativePageComponent() {
                   <Treemap />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {visTab === 1 ? (
@@ -512,12 +512,12 @@ export function ComparativePageComponent() {
                   <VolcanoPlot />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {visTab === 2 ? (
@@ -530,12 +530,12 @@ export function ComparativePageComponent() {
                   <DotPlot />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {visTab === 3 ? (
@@ -548,12 +548,12 @@ export function ComparativePageComponent() {
                   <ViolinPlot />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {visTab === 4 ? (
@@ -569,17 +569,17 @@ export function ComparativePageComponent() {
                   <SccodaPlot />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {/* End plots; Begin tables */}
 
-          <div className={clsx('view-row')}>
+          {/* <div className={clsx('view-row')}>
             <div className="view-row-left">
               <p className="tabs-description">Use the tabs to switch the table rendered below.</p>
             </div>
@@ -589,7 +589,7 @@ export function ComparativePageComponent() {
                 <Tab label="Gene Set Enrichment Analysis Results" />
               </Tabs>
             </div>
-          </div>
+          </div> */}
           {tableTab === 0 ? (
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
@@ -600,12 +600,12 @@ export function ComparativePageComponent() {
                   <VolcanoPlotTable />
                 </div>
               </div>
-              <div className={clsx('view-row')}>
+              {/* <div className={clsx('view-row')}>
                 <div className="view-row-left" />
                 <div className="view-row-center">
                   <Link component="button" href="#" variant="body2">Show analysis details</Link>
                 </div>
-              </div>
+              </div> */}
             </>
           ) : null}
           {/* Add more tables once implemented (all gene DE results, GSEA results) */}

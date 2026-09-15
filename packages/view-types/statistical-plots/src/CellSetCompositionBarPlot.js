@@ -143,6 +143,10 @@ export default function CellSetCompositionBarPlot(props) {
     return 'center';
   }, [computedData]);
 
+  const areAnySignificant = useMemo(() => computedData?.some(
+    d => d.isCredibleEffect,
+  ), [computedData]);
+
   const xScale = {
     domain: xExtent,
   };
@@ -256,11 +260,17 @@ export default function CellSetCompositionBarPlot(props) {
   ), [captializedObsType]);
 
   return (
-    <VegaPlot
-      data={computedData}
-      spec={spec}
-      signalListeners={signalListeners}
-      getTooltipText={getTooltipText}
-    />
+    <>
+      {areAnySignificant ? (
+        <VegaPlot
+          data={computedData}
+          spec={spec}
+          signalListeners={signalListeners}
+          getTooltipText={getTooltipText}
+        />
+      ) : (
+        <p>No results were significant for the selected conditions.</p>
+      )}
+    </>
   );
 }
