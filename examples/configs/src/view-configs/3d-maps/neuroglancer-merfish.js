@@ -14,7 +14,8 @@ function generateNeuroglancerMerfish() {
   });
 
   const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
-  const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
+  const pointsUrl = 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/merfish_mouse_ileum_precomputed_all_prop/molecule_baysor';
+  // const pointsUrl =  'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
 
   // TODO: check if these meshes are sharded or not (sharded may not be compatible with NG version that we are currently using).
   const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
