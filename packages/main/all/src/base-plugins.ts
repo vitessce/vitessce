@@ -107,6 +107,7 @@ import {
   FeatureStatsTableSubscriber,
   CellSetCompositionBarPlotSubscriber,
   FeatureSetEnrichmentBarPlotSubscriber,
+  SingleCellSetSelectorSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -280,6 +281,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
+  makeViewType(ViewType.SINGLE_OBS_SET_SELECTOR, SingleCellSetSelectorSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT_ALT, BiomarkerSelectAltSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),

@@ -637,6 +637,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD,
     CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD,
   ],
+  [ViewType.SINGLE_OBS_SET_SELECTOR]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_SET_SELECTION,
+  ],
   [ViewType.OBS_SET_COMPOSITION_BAR_PLOT]: [
     CoordinationType.DATASET,
     CoordinationType.OBS_TYPE,
