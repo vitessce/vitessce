@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import AnnDataSource from './AnnDataSource.js';
 
 // If the array path starts with mod/something/rest
