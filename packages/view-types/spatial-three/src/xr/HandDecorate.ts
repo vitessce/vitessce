@@ -2,12 +2,11 @@ import type { BufferGeometry, Mesh, MeshStandardMaterial } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { getXRModule } from './xrModule.js';
 
-const { useXR } = getXRModule();
-
 // Modifies the auto-rendered hand model materials to make fingertips semi-transparent.
 // In xr v6, hands are auto-rendered. We traverse the scene to find hand meshes.
 // TODO: can this just be a hook (since it does not return any JSX)?
 export function HandDecorate() {
+  const { useXR } = getXRModule();
   const session = useXR(state => state.session);
   const { scene } = useThree();
 
