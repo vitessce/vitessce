@@ -1,4 +1,13 @@
 
+## 4.0.8
+
+### Patch Changes
+
+- Add single-cell comparative example to demos. (`@vitessce/statistical-plots`, `@vitessce/comparative`) ([#2588](https://github.com/vitessce/vitessce/pull/2588))
+
+- Updated janelia-flyem-neuroglancer patch to allow rendering annotations with multiple properties (`@vitessce/example-configs`) ([#2583](https://github.com/vitessce/vitessce/pull/2583))
+
+
 ## 4.0.7
 
 ### Patch Changes
