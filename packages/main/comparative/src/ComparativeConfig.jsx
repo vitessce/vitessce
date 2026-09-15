@@ -153,10 +153,10 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
             name: 'Subclass L2',
             path: 'obs/subclass_l2',
           },
-          /*{
+          /* {
             name: 'Subclass L3',
             path: 'obs/subclass_l3',
-          },*/
+          }, */
           /* {
             name: 'Donor ID',
             path: 'obs/patient',
