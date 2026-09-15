@@ -52,44 +52,76 @@ export function useWindowDimensions() {
   return windowDimensions;
 }
 
+const EMPTY_SIZE = { width: undefined, height: undefined };
+
 /**
- * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * Custom hook, observes the size of a grid item's container element.
+ *
+ * The size is obtained from a ResizeObserver on the container element itself,
+ * so it stays in sync with window resizes, react-grid-layout resizes, and any
+ * other layout change, without the view needing to listen for those events or
+ * to broadcast anything to sibling views.
  * @returns {array} `[width, height, containerRef]` where width and height
  * are numbers and containerRef is a React ref.
  */
 export function useGridItemSize() {
   const containerRef = useRef();
+  const observerRef = useRef(null);
+  const observedRef = useRef(null);
 
-  const [height, setHeight] = useState();
-  const [width, setWidth] = useState();
+  const [size, setSize] = useState(EMPTY_SIZE);
 
-  const resizeCount = useGridResize();
-  const incrementResizeCount = useEmitGridResize();
-
-  // On window resize events, increment the grid resize count.
+  // Create one ResizeObserver for the lifetime of the component.
   useEffect(() => {
-    function onWindowResize() {
-      incrementResizeCount();
+    if (typeof ResizeObserver === 'undefined') {
+      // Environments without a ResizeObserver implementation (such as jsdom)
+      // do not receive size updates.
+      return () => {};
     }
-    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
-    window.addEventListener('resize', onResizeDebounced);
-    onWindowResize();
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      // Prefer getBoundingClientRect over the ResizeObserver entry's box sizes,
+      // so that the result accounts for CSS transforms on ancestor elements.
+      const { width, height } = entry.target.getBoundingClientRect();
+      // Bail out when the size is unchanged, both to avoid a wasted re-render
+      // and to guarantee that a callback cannot feed back into itself.
+      setSize(prevSize => (
+        prevSize.width === width && prevSize.height === height
+          ? prevSize
+          : { width, height }
+      ));
+    });
+    observerRef.current = observer;
     return () => {
-      window.removeEventListener('resize', onResizeDebounced);
+      observer.disconnect();
+      observerRef.current = null;
+      observedRef.current = null;
     };
-  }, [incrementResizeCount]);
+  }, []);
 
-  // On new grid resize counts, re-compute the component
-  // width/height.
+  // The container element is not necessarily mounted on the first render, and
+  // some views swap it out or assign containerRef.current imperatively, so
+  // re-check which element to observe after every render rather than only once.
   useEffect(() => {
-    if (!containerRef.current) return;
-    const container = containerRef.current;
-    const containerRect = container.getBoundingClientRect();
-    setHeight(containerRect.height);
-    setWidth(containerRect.width);
-  }, [resizeCount]);
+    const observer = observerRef.current;
+    const element = containerRef.current ?? null;
+    if (!observer || element === observedRef.current) {
+      return;
+    }
+    if (observedRef.current) {
+      observer.unobserve(observedRef.current);
+    }
+    observedRef.current = element;
+    if (element) {
+      // ResizeObserver invokes its callback once upon observe(),
+      // which provides the initial measurement.
+      observer.observe(element);
+    }
+    // Deliberately no dependency array: the effect body is a cheap
+    // identity comparison in the common case where nothing changed.
+  });
 
-  return [width, height, containerRef];
+  return [size.width, size.height, containerRef];
 }
 
 /**
