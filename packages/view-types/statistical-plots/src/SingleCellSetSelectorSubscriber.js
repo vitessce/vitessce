@@ -18,8 +18,8 @@ import {
   DataType,
   CoordinationType,
 } from '@vitessce/constants-internal';
-import SingleCellSetSelector from './SingleCellSetSelector.js';
 import { isEqual } from 'lodash-es';
+import SingleCellSetSelector from './SingleCellSetSelector.js';
 
 export function SingleCellSetSelectorSubscriber(props) {
   const {
@@ -67,21 +67,26 @@ export function SingleCellSetSelectorSubscriber(props) {
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SINGLE_OBS_SET_SELECTOR],
     { obsSetSelection: obsSetSelectionScopes?.[1] },
-    );
+  );
 
   const singleObsSetSelection = singleObsSetSelectionArr?.[0];
 
 
   useEffect(() => {
     // If multiObsSetSelection changes, there are multiple things that can occur:
-    // - length is one and does not match the current singleObsSetSelection -> we update singleObsSetSelection
-    // - length is zero or does not contain the current singleObsSetSelection -> we set singleObsSetSelection to null
+    // - length is one and does not match the current singleObsSetSelection
+    //   -> we update singleObsSetSelection.
+    // - length is zero or does not contain the current singleObsSetSelection
+    //   -> we set singleObsSetSelection to null or the first entry of the
+    //      multiple selection array.
     // - otherwise, do nothing.
 
     if (!Array.isArray(multiObsSetSelection) || multiObsSetSelection.length === 0) {
       setSingleObsSetSelection(null);
     } else {
-      const multiContainsSingle = multiObsSetSelection.some(setPath => isEqual(setPath, singleObsSetSelection));
+      const multiContainsSingle = multiObsSetSelection.some(
+        setPath => isEqual(setPath, singleObsSetSelection),
+      );
       if (!multiContainsSingle) {
         setSingleObsSetSelection([multiObsSetSelection?.[0]]);
       }

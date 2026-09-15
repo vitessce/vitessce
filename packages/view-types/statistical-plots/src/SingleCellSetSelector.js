@@ -1,5 +1,5 @@
-import React, { useMemo, useCallback } from 'react';
-import { Grid, NativeSelect, makeStyles } from '@vitessce/styles';
+import React, { useCallback } from 'react';
+import { Grid, NativeSelect } from '@vitessce/styles';
 
 function pathToKey(pathArr) {
   return pathArr.join('___');
@@ -11,9 +11,6 @@ function keyToPath(keyStr) {
 
 export default function SingleCellSetSelector(props) {
   const {
-    theme,
-    obsType,
-    obsSetColor,
     multiObsSetSelection,
     singleObsSetSelection,
     setSingleObsSetSelection,
@@ -24,14 +21,16 @@ export default function SingleCellSetSelector(props) {
       setSingleObsSetSelection(null);
     } else {
       const nextPath = keyToPath(event.target.value);
-;      setSingleObsSetSelection([
+      setSingleObsSetSelection([
         nextPath,
       ]);
     }
   }, []);
 
-
-  const hasMultiOptions = Array.isArray(multiObsSetSelection) && multiObsSetSelection.length > 0;
+  const hasMultiOptions = (
+    Array.isArray(multiObsSetSelection)
+    && multiObsSetSelection.length > 0
+  );
 
   return (
     <Grid container size={12}>

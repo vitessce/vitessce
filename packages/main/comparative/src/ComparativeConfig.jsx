@@ -256,7 +256,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     const obsSets = vc.addView(dataset, 'obsSets', { uid: 'cell-sets' }).setProps({ title: 'Cell Types' });
     const obsSetSelector = vc.addView(dataset, 'singleObsSetSelector', { uid: 'single-cell-set' });
     const sampleSets = vc.addView(dataset, 'sampleSetPairManager', { uid: 'sample-sets' });
-    //const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
+    // const obsSetSizes = vc.addView(dataset, 'obsSetSizes');
     const featureList = vc.addView(dataset, 'featureList');
     const violinPlots = vc.addView(dataset, 'obsSetFeatureValueDistribution', { uid: 'violin-plot' });
     const dotPlot = vc.addView(dataset, 'dotPlot', { uid: 'dot-plot' });
@@ -272,8 +272,6 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
       embeddingPointsVisible: false,
       embeddingObsSetLabelsVisible: true,
     }, { meta: false });
-
-
 
 
     vc.linkViews([dualScatterplot, obsSets, featureList, violinPlots, dotPlot, treemap, volcanoPlot, volcanoPlotTable, comparativeHeading, obsSetCompositionBarPlot, featureSetEnrichmentBarPlot, sampleSets], ['sampleType'], ['sample']);
@@ -293,7 +291,7 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
 
     // TODO: add a dedicated VitessceConfig method to avoid the need for this
     // kind of "private" manipulation of the internals of the instance.
-    obsSetSelector.view.coordinationScopes['obsSetSelection'] = ['__multi__', '__single__'];
+    obsSetSelector.view.coordinationScopes.obsSetSelection = ['__multi__', '__single__'];
 
     vc.linkViewsByObject([dualScatterplot, violinPlots, featureList, dotPlot], {
       obsColorEncoding: 'geneSelection',
@@ -319,7 +317,6 @@ export function generateComparativeConfig(baseUrl, isBiomarkerSelectOnly) {
     ));
   }
   const configJSON = vc.toJSON();
-  console.log(configJSON)
   return configJSON;
 }
 

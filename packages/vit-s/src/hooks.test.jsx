@@ -57,8 +57,10 @@ describe('useGridItemSize', () => {
   beforeEach(() => {
     observers = [];
     rect = { width: 0, height: 0 };
+    // eslint-disable-next-line no-undef
     originalResizeObserver = globalThis.ResizeObserver;
     // jsdom does not implement ResizeObserver.
+    // eslint-disable-next-line no-undef
     globalThis.ResizeObserver = class {
       constructor(callback) {
         this.callback = callback;
@@ -85,6 +87,7 @@ describe('useGridItemSize', () => {
   });
 
   afterEach(() => {
+    // eslint-disable-next-line no-undef
     globalThis.ResizeObserver = originalResizeObserver;
     vi.restoreAllMocks();
   });
