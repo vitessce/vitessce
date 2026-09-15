@@ -88,6 +88,7 @@ export default function CellSetCompositionBarPlot(props) {
           interceptExpectedSample: df.interceptExpectedSample[i],
           effectExpectedSample: df.effectExpectedSample[i],
           isCredibleEffect: df.isCredibleEffect[i],
+          significanceText: df.isCredibleEffect[i] ? ' ' : 'NS',
           // Boolean flag for wasReferenceObsSet (check metadata)
           isReferenceSet: (obsSetId === referenceCellType),
         };
@@ -134,69 +135,103 @@ export default function CellSetCompositionBarPlot(props) {
     return undefined;
   }, [computedData]);
 
+  const nsTextAlign = useMemo(() => {
+    if (computedData) {
+      const firstNotSig = computedData.find(d => !d.isCredibleEffect);
+      return firstNotSig?.logFoldChange < 0 ? 'right' : 'left';
+    }
+    return 'center';
+  }, [computedData]);
+
   const xScale = {
     domain: xExtent,
   };
 
   const spec = {
-    mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
-    params: [
+    layer: [
       {
-        name: 'bar_select',
-        select: {
-          type: 'point',
-          on: 'click[event.shiftKey === false]',
-          fields: ['obsSetPath'],
-          empty: 'none',
+        params: [
+          {
+            name: 'bar_select',
+            select: {
+              type: 'point',
+              on: 'click[event.shiftKey === false]',
+              fields: ['obsSetPath'],
+              empty: 'none',
+            },
+          },
+          {
+            name: 'shift_bar_select',
+            select: {
+              type: 'point',
+              on: 'click[event.shiftKey]',
+              fields: ['obsSetPath'],
+              empty: 'none',
+            },
+          },
+        ],
+        mark: { type: 'bar', stroke: 'black', cursor: 'pointer' },
+        encoding: {
+          y: {
+            field: 'keyName',
+            type: 'nominal',
+            axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+            title: `${captializedObsType} Set`,
+            sort: keys,
+          },
+          x: {
+            // TODO: support using intercept+effect here based on user-selected options?
+            field: 'logFoldChange',
+            type: 'quantitative',
+            title: 'Log fold-change',
+            scale: xScale,
+          },
+          color: {
+            field: 'key',
+            type: 'nominal',
+            scale: colorScale,
+            legend: null,
+          },
+          fillOpacity: {
+            field: 'isCredibleEffect',
+            type: 'nominal',
+            scale: opacityScale,
+          },
+          strokeWidth: {
+            field: 'isReferenceSet',
+            type: 'nominal',
+            scale: strokeWidthScale,
+            legend: null,
+          },
+          tooltip: {
+            field: 'effectExpectedSample',
+            type: 'quantitative',
+          },
         },
       },
       {
-        name: 'shift_bar_select',
-        select: {
-          type: 'point',
-          on: 'click[event.shiftKey]',
-          fields: ['obsSetPath'],
-          empty: 'none',
+        mark: { type: 'text', align: nsTextAlign, dx: nsTextAlign === 'right' ? -5 : 5 },
+        encoding: {
+          y: {
+            field: 'keyName',
+            type: 'nominal',
+            axis: { labelExpr: `substring(datum.label, ${keyLength})` },
+            title: `${captializedObsType} Set`,
+            sort: keys,
+          },
+          x: {
+            field: 'logFoldChange',
+            type: 'quantitative',
+            title: 'Log fold-change',
+            scale: xScale,
+          },
+          text: {
+            field: 'significanceText',
+          },
         },
       },
     ],
-    encoding: {
-      y: {
-        field: 'keyName',
-        type: 'nominal',
-        axis: { labelExpr: `substring(datum.label, ${keyLength})` },
-        title: `${captializedObsType} Set`,
-        sort: keys,
-      },
-      x: {
-        // TODO: support using intercept+effect here based on user-selected options?
-        field: 'logFoldChange',
-        type: 'quantitative',
-        title: 'Log fold-change',
-        scale: xScale,
-      },
-      color: {
-        field: 'key',
-        type: 'nominal',
-        scale: colorScale,
-        legend: null,
-      },
-      fillOpacity: {
-        field: 'isCredibleEffect',
-        type: 'nominal',
-        scale: opacityScale,
-      },
-      strokeWidth: {
-        field: 'isReferenceSet',
-        type: 'nominal',
-        scale: strokeWidthScale,
-        legend: null,
-      },
-      tooltip: {
-        field: 'effectExpectedSample',
-        type: 'quantitative',
-      },
-    },
+
     // TODO: for width, also subtract length of longest y-axis set name label.
     width: clamp(width - marginRight, 10, Infinity),
     height: clamp(height - marginBottom, 10, Infinity),

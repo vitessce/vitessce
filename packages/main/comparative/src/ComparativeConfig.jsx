@@ -560,7 +560,10 @@ export function ComparativePageComponent() {
             <>
               <div className={clsx('view-row', 'view-row-tall')}>
                 <div className="view-row-left">
-                  <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021). Cell types with significantly different composition between the selected sample groups are displayed opaque while not-signficant results are displayed with transparent bars. The single outlined bar denotes the automatically-selected reference cell type.</p>
+                  <p>This view displays the results of a cell type composition analysis performed using the ScCODA algorithm (Büttner et al. 2021).
+                    <br /><br /> The NS annotation indicates cell types which do not significantly differ in their abundance between the selected conditions.
+                    <br /><br /> The single outlined bar denotes the automatically-selected reference cell type.
+                  </p>
                 </div>
                 <div className="view-row-center">
                   <SccodaPlot />
