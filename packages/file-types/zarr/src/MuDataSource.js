@@ -35,7 +35,7 @@ export default class MuDataSource extends AnnDataSource {
       return this.obsIndex[obsPath];
     }
     this.obsIndex[obsPath] = this.getJson(`${obsPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${obsPath}/${_index}`));
+      .then(({ _index }) => this._loadColumn(`${obsPath}/${_index}`));
     return this.obsIndex[obsPath];
   }
 
@@ -52,7 +52,7 @@ export default class MuDataSource extends AnnDataSource {
       return this.varIndex[varPath];
     }
     this.varIndex[varPath] = this.getJson(`${varPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
+      .then(({ _index }) => this._loadColumn(`${varPath}/${_index}`));
     return this.varIndex[varPath];
   }
 

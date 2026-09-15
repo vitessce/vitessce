@@ -463,7 +463,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       return this.varIndices[varPath];
     }
     this.varIndices[varPath] = this.getJson(`${varPath}/.zattrs`)
-      .then(({ _index }) => this.getFlatArrDecompressed(`${varPath}/${_index}`));
+      .then(({ _index }) => this._loadColumn(`${varPath}/${_index}`));
     return this.varIndices[varPath];
   }
 
