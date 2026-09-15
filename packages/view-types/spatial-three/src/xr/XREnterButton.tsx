@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { xrStore } from './xrStore.js';
+import { getXrStore } from './xrStore.js';
 
 export default function XREnterButton() {
   const [supported, setSupported] = useState(false);
@@ -17,7 +17,7 @@ export default function XREnterButton() {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = xrStore.subscribe((state) => {
+    const unsubscribe = getXrStore().subscribe((state) => {
       setEntered(state.session != null);
     });
     return unsubscribe;
@@ -27,10 +27,10 @@ export default function XREnterButton() {
 
   const handleClick = () => {
     if (entered) {
-      const { session } = xrStore.getState();
+      const { session } = getXrStore().getState();
       if (session) session.end();
     } else {
-      xrStore.enterAR();
+      getXrStore().enterAR();
     }
   };
 
