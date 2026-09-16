@@ -32,7 +32,17 @@ async function getSingleSelectionStats2D({ loader, selection }) {
   const filteredSelection = filterSelection(loader, selection);
   const raster = await data.getRaster({ selection: filteredSelection });
   const selectionStats = viv.getChannelStats(raster.data);
-  const { domain, contrastLimits: slider } = selectionStats;
+  const { domain, contrastLimits, mean, sd } = selectionStats;
+  // If contrastLimits already gives a useful range (not equal to domain),
+  // use it directly. Otherwise fall back to mean + 2*sd.
+  let slider;
+  const contrastLimitsUseful = contrastLimits[1] < domain[1];
+  if (contrastLimitsUseful) {
+    slider = contrastLimits;
+  } else {
+    const upperBound = Math.min(Math.round(mean + 2 * sd), domain[1]);
+    slider = upperBound > domain[0] ? [contrastLimits[0], upperBound] : contrastLimits;
+  }
   return { domain, slider };
 }
 
