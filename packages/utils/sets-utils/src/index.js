@@ -43,6 +43,15 @@ export {
   findChangedHierarchy,
 } from './set-path-utils.js';
 export {
+  isPathFilterIncluded,
+  isPathFilterPartiallyIncluded,
+  normalizeFilterPaths,
+  getSiblingPaths,
+  addPathToFilter,
+  removePathFromFilter,
+  restrictSelectionToFilter,
+} from './set-filter-utils.js';
+export {
   isEqualOrPrefix,
   tryRenamePath,
   PATH_SEP,

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable react-refresh/only-export-components */
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import RcTreeNode from 'rc-tree/es/TreeNode.js';
 import { getDataAndAria } from 'rc-tree/es/util.js';
@@ -23,6 +23,11 @@ function makeNodeViewMenuConfig(props) {
     level,
     height,
     onCheckNode,
+    onFilterNode,
+    onFilterToOnlyNode,
+    onFilterToOthersInSiblings,
+    onFilterToOthersInGroup,
+    onSelectComplement,
     onNodeRemove,
     onNodeSetIsEditing,
     onExportLevelZeroNodeJSON,
@@ -32,9 +37,52 @@ function makeNodeViewMenuConfig(props) {
     editable,
     exportable,
     checked,
+    isFilterIncluded = true,
   } = props;
 
   return [
+    ...(onFilterNode ? [
+      {
+        title: (isFilterIncluded ? 'Exclude from filter' : 'Include in filter'),
+        handler: () => { onFilterNode(path, !isFilterIncluded); },
+        handlerKey: 'f',
+      },
+    ] : []),
+    ...(onFilterToOnlyNode ? [
+      {
+        title: 'Filter to only this',
+        subtitle: (level === 0 ? '(hierarchy)' : '(set)'),
+        handler: () => { onFilterToOnlyNode(path); },
+        handlerKey: 'o',
+      },
+    ] : []),
+    // "All others" is only meaningful relative to a scope. A level-one node's
+    // immediate siblings are its whole group of sets, so the two scopes
+    // coincide there and only the sibling-scoped option is offered.
+    ...(onFilterToOthersInSiblings && level > 0 ? [
+      {
+        title: 'Filter to all others',
+        subtitle: '(within immediate siblings)',
+        handler: () => { onFilterToOthersInSiblings(path); },
+        handlerKey: 'a',
+      },
+    ] : []),
+    ...(onFilterToOthersInGroup && level > 1 ? [
+      {
+        title: 'Filter to all others',
+        subtitle: '(within this group of sets)',
+        handler: () => { onFilterToOthersInGroup(path); },
+        handlerKey: 'g',
+      },
+    ] : []),
+    ...(onSelectComplement && level > 0 ? [
+      {
+        title: 'Select complement',
+        subtitle: '(within filter-included sets)',
+        handler: () => { onSelectComplement(path); },
+        handlerKey: 'c',
+      },
+    ] : []),
     ...(editable ? [
       {
         title: 'Rename',
@@ -65,7 +113,9 @@ function makeNodeViewMenuConfig(props) {
       ] : []),
     ] : []),
     ...(level > 0 ? [
-      ...(checkable ? [
+      // A set which does not meet the filtering criteria cannot be checked,
+      // but a set which is already checked can always be un-checked.
+      ...(checkable && (checked || isFilterIncluded) ? [
         {
           title: (checked ? 'Uncheck' : 'Check'),
           handler: () => { onCheckNode(path, !checked); },
@@ -82,6 +132,62 @@ function makeNodeViewMenuConfig(props) {
       ] : []),
     ] : []),
   ];
+}
+
+/**
+ * The checkbox which controls whether a set meets the current
+ * filtering criteria. Distinct from the (square) checkbox which controls
+ * whether a set is selected.
+ * @param {object} props The props for the TreeNode component.
+ */
+function FilterCheckbox(props) {
+  const {
+    path,
+    datatype,
+    isSetFilterActive,
+    isFilterIncluded,
+    isFilterPartiallyIncluded,
+    onFilterNode,
+    disableTooltip,
+  } = props;
+  const inputRef = useRef();
+  // The "partially included" state has no declarative equivalent,
+  // so it must be set on the DOM node imperatively.
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = Boolean(isFilterPartiallyIncluded);
+    }
+  }, [isFilterPartiallyIncluded]);
+
+  let tooltipText;
+  if (!isSetFilterActive) {
+    tooltipText = `Set-level filtering is inactive, since individual ${datatype} items are currently being filtered. Click to filter by set instead.`;
+  } else if (isFilterIncluded) {
+    tooltipText = 'Exclude this set from the filtering criteria';
+  } else if (isFilterPartiallyIncluded) {
+    tooltipText = 'Some sets below this one are excluded from the filtering criteria. Click to include all of them.';
+  } else {
+    tooltipText = 'Include this set in the filtering criteria';
+  }
+  const tooltipProps = (disableTooltip ? { visible: false } : {});
+
+  const { classes } = useStyles();
+  return (
+    <HelpTooltip title={tooltipText} {...tooltipProps}>
+      <span className={classes.filterCheckboxWrapper}>
+        <input
+          ref={inputRef}
+          className={clsx(classes.filterCheckbox, {
+            [classes.filterCheckboxInactive]: !isSetFilterActive,
+          })}
+          type="checkbox"
+          aria-label={tooltipText}
+          checked={Boolean(isFilterIncluded)}
+          onChange={e => onFilterNode(path, e.target.checked)}
+        />
+      </span>
+    </HelpTooltip>
+  );
 }
 
 /**
@@ -110,7 +216,13 @@ function NamedSetNodeStatic(props) {
     datatype,
     editable,
     theme,
+    onFilterNode,
+    isFilterIncluded = true,
+    isFilterPartiallyIncluded = false,
   } = props;
+  // A set is fully excluded when neither it nor any of its
+  // descendants meet the current filtering criteria.
+  const isFilterExcluded = !isFilterIncluded && !isFilterPartiallyIncluded;
   const shouldCheckNextLevel = (level === 0 && !expanded);
   const nextLevelToCheck = (
     (checkedLevelIndex && isEqual(path, checkedLevelPath) && checkedLevelIndex < height)
@@ -120,7 +232,11 @@ function NamedSetNodeStatic(props) {
   const numberFormatter = new Intl.NumberFormat('en-US');
   const niceSize = numberFormatter.format(size);
   let tooltipText;
-  if (shouldCheckNextLevel) {
+  if (isFilterExcluded) {
+    // Filtered-out sets cannot be selected, so explain that rather than
+    // describing the coloring behavior that is unavailable.
+    tooltipText = 'Excluded by the current filtering criteria, so it cannot be selected. Use the round checkbox to include it again.';
+  } else if (shouldCheckNextLevel) {
     tooltipText = getLevelTooltipText(nextLevelToCheck);
   } else if (isLeaf || !expanded) {
     tooltipText = `Color individual set (${niceSize} ${datatype}${(size === 1 ? '' : 's')})`;
@@ -146,7 +262,10 @@ function NamedSetNodeStatic(props) {
           type="button"
           onClick={onClick}
           onKeyPress={e => callbackOnKeyPress(e, 'v', () => onNodeView(path))}
-          className={classes.titleButton}
+          className={clsx(classes.titleButton, {
+            [classes.titleButtonFilterExcluded]: isFilterExcluded,
+          })}
+          disabled={isFilterExcluded}
         >
           {title}
         </button>
@@ -162,8 +281,17 @@ function NamedSetNodeStatic(props) {
           </span>
         </PopoverMenu>
       ) : null}
+      {onFilterNode ? (<FilterCheckbox {...props} />) : null}
       {level > 0 && isChecking ? checkbox : null}
-      {level > 0 && (<span className={classes.nodeSizeLabel}>{niceSize}</span>)}
+      {level > 0 && (
+        <span
+          className={clsx(classes.nodeSizeLabel, {
+            [classes.nodeSizeLabelFilterExcluded]: isFilterExcluded,
+          })}
+        >
+          {niceSize}
+        </span>
+      )}
     </span>
   );
 }
