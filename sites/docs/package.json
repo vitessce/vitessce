@@ -27,7 +27,7 @@
     "@docusaurus/utils": "^3.0.0",
     "@docusaurus/utils-common": "^3.0.0",
     "@docusaurus/utils-validation": "^3.0.0",
-    "@mui/material": "^7.1.0",
+    "@mui/material": "catalog:",
     "@mdx-js/react": "^3.0.0",
     "@vitessce/all": "workspace:*",
     "@vitessce/config": "workspace:*",
