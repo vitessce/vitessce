@@ -81,7 +81,13 @@ export default function GlobalDimensionSlider(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
           <Grid size={1} sx={channelControlCellSx}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>

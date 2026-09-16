@@ -101,7 +101,14 @@ export function ConfirmatoryStepper(props) {
           </Stepper>
         </Box>
       </Grid>
-      <Grid container size={12} sx={{ marginTop: '20px' }} alignItems="flex-start">
+      <Grid
+        container
+        size={12}
+        sx={{
+          alignItems: 'flex-start',
+          marginTop: '20px',
+        }}
+      >
         {/* Step contents to left of cart */}
         <Grid container size={8}>
           {activeStep === steps.length ? (

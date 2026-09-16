@@ -229,7 +229,10 @@ function ImageLayerEllipsisMenu(props) {
             valueLabelDisplay="off"
             {...lodSliderRangeConfig}
           />
-          <Box px={1} />
+          <Box sx={{
+            px: 1,
+          }}
+          />
           <Input
             value={localLodSliderValue}
             onChange={handleLodFactorInputChange}
@@ -502,7 +505,13 @@ export default function ImageLayerController(props) {
   return (
     <Grid className={controllerSectionClasses.layerControllerGrid}>
       <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
           <Grid size={1} sx={channelControlCellSx}>
             <Button
               className={menuClasses.imageLayerVisibleButton}
@@ -578,8 +587,10 @@ export default function ImageLayerController(props) {
           <Grid
             container
             direction="column"
-            justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
+            sx={{
+              justifyContent: 'space-between',
+            }}
           >
             {channelScopes.map((cScope) => {
               const {
@@ -653,8 +664,10 @@ export default function ImageLayerController(props) {
           <Grid
             container
             direction="column"
-            justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
+            sx={{
+              justifyContent: 'space-between',
+            }}
           >
             <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
             <Grid size={12} className={classes.clippingSliders}>

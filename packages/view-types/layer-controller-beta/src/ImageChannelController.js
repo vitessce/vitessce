@@ -99,7 +99,13 @@ export default function ImageChannelController(props) {
   }
 
   return (
-    <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+    <Grid
+      container
+      direction="row"
+      sx={[{
+        justifyContent: 'space-between',
+      }, channelRowContainerSx]}
+    >
       <Grid size={1} sx={channelControlCellSx}>
         <ChannelVisibilityCheckbox
           color={color}

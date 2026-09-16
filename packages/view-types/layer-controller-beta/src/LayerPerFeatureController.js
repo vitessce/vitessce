@@ -162,7 +162,13 @@ export default function LayerPerFeatureController(props) {
   return (
     <Grid key={featureName} className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-        <Grid container direction="row" justifyContent="space-between">
+        <Grid
+          container
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+          }}
+        >
           <Grid size={1}>
             <Button
               onClick={handleRemoveFeature}
@@ -227,8 +233,10 @@ export default function LayerPerFeatureController(props) {
             size={12}
             container
             direction="column"
-            justifyContent="space-between"
             className={classes.layerFeatureControllerGrid}
+            sx={{
+              justifyContent: 'space-between',
+            }}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}

@@ -422,7 +422,13 @@ export default function PointLayerController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
           <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
@@ -498,8 +504,10 @@ export default function PointLayerController(props) {
             size={12}
             container
             direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              justifyContent: 'space-between',
+            }}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
@@ -511,8 +519,10 @@ export default function PointLayerController(props) {
           <Grid
             container
             direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              justifyContent: 'space-between',
+            }}
           >
             <Tabs
               value={coloringTabIndex}
@@ -567,7 +577,13 @@ export default function PointLayerController(props) {
           ))}
           <Grid className={lcClasses.layerControllerGrid}>
             <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-              <Grid container direction="row" justifyContent="space-between">
+              <Grid
+                container
+                direction="row"
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Grid size={1}>
                   <Button
                     onClick={() => setFeatureFilterMode(
