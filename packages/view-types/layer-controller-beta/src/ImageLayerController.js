@@ -586,9 +586,9 @@ export default function ImageLayerController(props) {
         {isMultiChannel && open ? (
           <Grid
             container
-            direction="column"
             className={classes.imageChannelControllerGrid}
             sx={{
+              flexDirection: 'column',
               justifyContent: 'space-between',
             }}
           >
@@ -663,9 +663,9 @@ export default function ImageLayerController(props) {
         {is3dMode && image ? (
           <Grid
             container
-            direction="column"
             className={classes.imageChannelControllerGrid}
             sx={{
+              flexDirection: 'column',
               justifyContent: 'space-between',
             }}
           >

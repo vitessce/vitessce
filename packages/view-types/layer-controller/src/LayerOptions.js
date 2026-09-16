@@ -395,7 +395,7 @@ function LayerOptions({
   const opacitySliderId = useId();
   const zeroTransparentId = useId();
   return (
-    <Grid container direction="column" sx={{ width: '100%' }}>
+    <Grid container sx={{ flexDirection: 'column', width: '100%' }}>
       {hasZStack
         && !disable3d
         && hasViewableResolutions

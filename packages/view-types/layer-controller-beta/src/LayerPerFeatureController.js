@@ -232,9 +232,9 @@ export default function LayerPerFeatureController(props) {
           <Grid
             size={12}
             container
-            direction="column"
             className={classes.layerFeatureControllerGrid}
             sx={{
+              flexDirection: 'column',
               justifyContent: 'space-between',
             }}
           >

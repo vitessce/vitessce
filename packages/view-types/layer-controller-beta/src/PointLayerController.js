@@ -503,9 +503,9 @@ export default function PointLayerController(props) {
           <Grid
             size={12}
             container
-            direction="column"
             className={classes.pointFeatureControllerGrid}
             sx={{
+              flexDirection: 'column',
               justifyContent: 'space-between',
             }}
           >
@@ -518,9 +518,9 @@ export default function PointLayerController(props) {
         {enableFeaturesAndSetsDropdown && open ? (
           <Grid
             container
-            direction="column"
             className={classes.pointFeatureControllerGrid}
             sx={{
+              flexDirection: 'column',
               justifyContent: 'space-between',
             }}
           >
@@ -532,7 +532,7 @@ export default function PointLayerController(props) {
               <Tab label="Feature List" />
             </Tabs>
             {coloringTabIndex === 0 && (
-              <Grid size={12} container direction="column">
+              <Grid size={12} container sx={{ flexDirection: 'column' }}>
                 <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
                   {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
                     <MenuItem

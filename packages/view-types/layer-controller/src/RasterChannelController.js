@@ -188,8 +188,8 @@ function RasterChannelController({
   return (
     <Grid
       container
-      direction="column"
       sx={{
+        flexDirection: 'column',
         justifyContent: 'center',
       }}
     >

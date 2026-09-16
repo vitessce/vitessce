@@ -488,8 +488,8 @@ export default function LayerController(props) {
       >
         <Grid
           container
-          direction="column"
           sx={{
+            flexDirection: 'column',
             justifyContent: 'center',
             flexGrow: 1,
           }}
