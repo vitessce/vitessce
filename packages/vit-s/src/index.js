@@ -22,6 +22,8 @@ export {
 export {
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useRawViewMapping,
+  useViewMapping,
   useInitialCoordination,
   useCoordination,
   useComplexCoordination,

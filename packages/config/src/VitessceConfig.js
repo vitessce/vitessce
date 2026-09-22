@@ -253,8 +253,10 @@ export class VitessceConfigView {
    * @param {number} y The y-coordinate of the view in the layout.
    * @param {number} w The width of the view in the layout.
    * @param {number} h The height of the view in the layout.
+   * @param {object} coordinationValues A mapping from coordination type names
+   * to coordination values which this view defines directly.
    */
-  constructor(component, coordinationScopes, x, y, w, h, uid) {
+  constructor(component, coordinationScopes, x, y, w, h, uid, coordinationValues) {
     this.view = {
       component,
       coordinationScopes,
@@ -264,6 +266,7 @@ export class VitessceConfigView {
       w,
       h,
       uid,
+      coordinationValues,
     };
   }
 
@@ -301,6 +304,22 @@ export class VitessceConfigView {
     );
     this.view.coordinationScopes = nextCoordinationScopes;
     this.view.coordinationScopesBy = nextCoordinationScopesBy;
+    return this;
+  }
+
+  /**
+   * Set coordination values on this view directly, without a coordination
+   * scope in the coordination space as an intermediary.
+   * These values take precedence over any coordination scope
+   * (from coordinationScopes or metaCoordinationScopes) for the same type.
+   * @param {object} cValues A mapping from coordination type names to values.
+   * @returns {VitessceConfigView} This, to allow chaining.
+   */
+  setCoordinationValues(cValues) {
+    this.view.coordinationValues = {
+      ...(this.view.coordinationValues || {}),
+      ...cValues,
+    };
     return this;
   }
 
@@ -1012,6 +1031,7 @@ export class VitessceConfig {
           fileType: f.fileType,
           coordinationValues: f.coordinationValues,
           options: f.options,
+          requestInit: f.requestInit,
         });
       });
     });
@@ -1028,7 +1048,7 @@ export class VitessceConfig {
     });
     config.layout.forEach((c) => {
       const newView = new VitessceConfigView(
-        c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid,
+        c.component, c.coordinationScopes, c.x, c.y, c.w, c.h, c.uid, c.coordinationValues,
       );
       vc.config.layout.push(newView);
     });
