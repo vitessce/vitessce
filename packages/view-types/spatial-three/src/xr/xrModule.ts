@@ -12,8 +12,10 @@ export async function loadXRModule(): Promise<typeof XRModuleType> {
   return xrModule;
 }
 
-// Only call from modules that are lazy-loaded after loadXRModule() resolves
-// (i.e., gated behind the xrAvailable state in SpatialWrapper).
+// Never call at module scope. Whether a module is evaluated lazily depends on
+// the consumer's bundler chunking (e.g. Vite manualChunks / Webpack
+// splitChunks can fold a dynamically-imported module into an eager chunk), so
+// call this at render/effect time, inside a function body.
 export function getXRModule(): typeof XRModuleType {
   if (!xrModule) {
     throw new Error('@react-three/xr is not loaded; call loadXRModule() first.');

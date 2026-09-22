@@ -10,6 +10,8 @@ export type {
   ComparisonMetadata,
   FeatureStatsData,
   ObsLabelsData,
+  ObsSetsMembership,
+  ObsSetsColumns,
   ObsSetsData,
   ObsSegmentationsPolygons,
   ObsSegmentationsBitmask,
@@ -19,6 +21,7 @@ export type {
 } from './data-types.js';
 export type {
   DataSourceParams,
+  QueryClientLike,
 } from './data-sources.js';
 export type {
   AbstractImageWrapper,

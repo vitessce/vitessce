@@ -84,6 +84,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_LAYER_COLOR,
     CoordinationType.SPATIAL_LAYER_OPACITY,
     CoordinationType.SPATIAL_LAYER_VISIBLE,
+    CoordinationType.SPATIAL_LAYER_LABEL,
     CoordinationType.SPATIAL_CHANNEL_COLOR,
     CoordinationType.SPATIAL_CHANNEL_OPACITY,
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
@@ -466,6 +467,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FILE_UID,
     CoordinationType.SPATIAL_TARGET_C,
     CoordinationType.SPATIAL_LAYER_VISIBLE,
+    CoordinationType.SPATIAL_LAYER_LABEL,
     CoordinationType.SPATIAL_LAYER_OPACITY,
     CoordinationType.SPATIAL_LAYER_COLORMAP,
     CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
@@ -634,6 +636,11 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD,
     CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD,
     CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD,
+  ],
+  [ViewType.SINGLE_OBS_SET_SELECTOR]: [
+    CoordinationType.OBS_TYPE,
+    CoordinationType.OBS_SET_COLOR,
+    CoordinationType.OBS_SET_SELECTION,
   ],
   [ViewType.OBS_SET_COMPOSITION_BAR_PLOT]: [
     CoordinationType.DATASET,

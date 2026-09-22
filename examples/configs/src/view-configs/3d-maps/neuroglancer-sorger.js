@@ -149,6 +149,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         fileUid: 'sorger-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Meshes',
         segmentationChannel: CL([
           {
             obsType: 'cell',
@@ -183,6 +184,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         featureValueColormap: 'plasma',
         featureSelection: ['MX1_SPOTS'],
         featureValueColormapRange: [0.0, 1.0],
+        spatialLayerLabel: 'Centroids',
         featureFilterMode: 'featureSelection',
       },
     ]),

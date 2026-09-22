@@ -62,6 +62,6 @@ This section contains an evolving set of code style guidelines that are not curr
 - Use `.js` extensions for relative imports, [even in TypeScript contexts](https://github.com/microsoft/TypeScript/issues/42151#issuecomment-914472944).
 - Do not use `.js` extensions for third-party packages, unless either:
   - The function or variable that needs to be accessed is not exported from the main entrypoint of the package.
-  - The package is published as CommonJS or UMD rather than ESM (or the ESM build is broken as with [json2csv](https://github.com/zemirco/json2csv/issues/539) and [react-virtualized](https://github.com/bvaughn/react-virtualized/issues/1632)).
+  - The package is published as CommonJS or UMD rather than ESM (or the ESM build is broken).
 
 

@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -45,6 +45,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+import SpatialOptions from './SpatialOptions.js';
 import {
   useAggregatedNormalizedExpressionDataForLayers,
   useAggregatedNormalizedExpressionDataForChannels,
@@ -193,6 +194,8 @@ export function SpatialSubscriber(props) {
     setSpatialRotationY: setRotationY,
     setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialOrbitAxis: setOrbitAxis,
+    setSpatialAxisFixed,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -597,6 +600,7 @@ export function SpatialSubscriber(props) {
   ]);
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -655,12 +659,44 @@ export function SpatialSubscriber(props) {
     initialTargetX, initialTargetY, initialTargetZ, initialZoom,
   ]);
 
+  // Re-initialize the camera when the user switches between 2D and 3D.
+  //
+  // The effect above deliberately does not re-run after a pan or zoom, so on its
+  // own it leaves the camera wherever the previous mode left it: switch to 3D
+  // after panning in 2D and the volume can be off-screen or framed for a
+  // completely different extent. The legacy layer controller did this reset
+  // explicitly whenever its resolution select moved between 2D and a 3D
+  // resolution (see LayerOptions in @vitessce/layer-controller).
+  const prevIs3dMode = useRef(is3dMode);
+  useEffect(() => {
+    if (prevIs3dMode.current === is3dMode) {
+      return;
+    }
+    if (typeof defaultTargetX !== 'number' || typeof defaultTargetY !== 'number') {
+      // Not computable yet. Leave the camera alone and re-run once the data for
+      // the new mode is ready, rather than resetting the target to null.
+      return;
+    }
+    prevIs3dMode.current = is3dMode;
+    setTargetX(defaultTargetX);
+    setTargetY(defaultTargetY);
+    setTargetZ(defaultTargetZ);
+    setZoom(defaultZoom);
+    // Rotation is meaningless outside of the OrbitView used in 3D.
+    setRotationX(is3dMode ? 0 : null);
+    setRotationOrbit(is3dMode ? 0 : null);
+    // Deliberate dependency omissions: the setters, which are not referentially
+    // stable across renders and would re-run this on every one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
+
 
   const setViewState = ({
     zoom: newZoom,
     target,
     rotationX: newRotationX,
     rotationOrbit: newRotationOrbit,
+    orbitAxis: newOrbitAxis,
   }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -671,6 +707,13 @@ export function SpatialSubscriber(props) {
       }
       setRotationX(newRotationX);
       setRotationOrbit(newRotationOrbit);
+      // spatialOrbitAxis is a declared camera coordination type for this view,
+      // so it has to round-trip through here like the rest of the camera state.
+      // DeckGL does not emit it (orbitAxis is an OrbitView prop rather than part
+      // of its viewState), but callers that reset the camera do supply it.
+      if (newOrbitAxis !== undefined) {
+        setOrbitAxis(newOrbitAxis);
+      }
     }
   };
 
@@ -902,9 +945,16 @@ export function SpatialSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
+      options={(
+        <SpatialOptions
+          spatialAxisFixed={spatialAxisFixed}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          use3d={is3dMode}
+        />
+      )}
     >
       {
         shouldUseThree ? (
@@ -1022,6 +1072,7 @@ export function SpatialSubscriber(props) {
           <Spatial
             ref={deckRef}
             uuid={uuid}
+            onSelectionBusy={setIsSelectionPending}
             width={width}
             height={height}
             theme={theme}

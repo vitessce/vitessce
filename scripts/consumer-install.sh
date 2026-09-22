@@ -9,6 +9,14 @@ set -o pipefail
 
 die() { set +v; echo "$*" 1>&2 ; exit 1; }
 
+# Install the same exact react version the monorepo builds against (the
+# pinned catalog: value in pnpm-workspace.yaml). A range here would resolve to
+# whatever react is newest at install time, which breaks as soon as a peer
+# caps it: @react-three/fiber 9.7.0 requires react ">=19 <19.3", so an
+# unpinned ^19.0.0 started resolving react 19.3.0 and failing with ERESOLVE.
+REACT_VERSION="$(node -p "require('react/package.json').version")"
+[ -n "${REACT_VERSION}" ] || die "Could not determine the monorepo react version; run pnpm install first."
+
 # Delete existing packed packages
 # and start from a fresh directory.
 cd consumer
@@ -33,7 +41,7 @@ pnpm -r exec pnpm pack --pack-destination $(pwd)/consumer/
 
 # Install packed tgz
 cd consumer
-npm install react@^19.0.0 react-dom@^19.0.0
+npm install --save-exact react@"${REACT_VERSION}" react-dom@"${REACT_VERSION}"
 # Install @react-three peer deps for 3D views (fiber v9 + drei v10 + xr v6 for React 19)
 npm install @react-three/fiber@^9.0.0 @react-three/drei@^10.0.0 @react-three/xr@^6.0.0 three@">=0.162.0"
 npm install --save-dev vite@7

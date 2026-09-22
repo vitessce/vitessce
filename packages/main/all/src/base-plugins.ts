@@ -28,6 +28,7 @@ import {
   obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
+  obsColorsCsvSchema,
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
@@ -106,6 +107,7 @@ import {
   FeatureStatsTableSubscriber,
   CellSetCompositionBarPlotSubscriber,
   FeatureSetEnrichmentBarPlotSubscriber,
+  SingleCellSetSelectorSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -118,6 +120,7 @@ import {
   ObsPointsCsvLoader,
   ObsLocationsCsvLoader,
   ObsLabelsCsvLoader,
+  ObsColorsCsvLoader,
   ObsFeatureMatrixCsvLoader,
   FeatureLabelsCsvLoader,
   SampleSetsCsvLoader,
@@ -278,6 +281,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
+  makeViewType(ViewType.SINGLE_OBS_SET_SELECTOR, SingleCellSetSelectorSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT_ALT, BiomarkerSelectAltSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
@@ -297,6 +301,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_POINTS_CSV, DataType.OBS_POINTS, ObsPointsCsvLoader, CsvSource, obsPointsCsvSchema),
   makeFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource, obsLocationsCsvSchema),
   makeFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource, obsLabelsCsvSchema),
+  makeFileType(FileType.OBS_COLORS_CSV, DataType.OBS_COLORS, ObsColorsCsvLoader, CsvSource, obsColorsCsvSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource, z.null()),
   makeFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource, featureLabelsCsvSchema),
   makeFileType(FileType.SAMPLE_SETS_CSV, DataType.SAMPLE_SETS, SampleSetsCsvLoader, CsvSource, sampleSetsCsvSchema),
@@ -500,6 +505,8 @@ export const baseCoordinationTypes = [
     'cellSetSelection',
     z.enum([
       'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
+      // For per-observation colors loaded from an obsColors data type.
+      'obsColors',
       // For point coloring.
       'random', 'randomByFeature',
     ]),
@@ -582,6 +589,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().or(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_LABEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),

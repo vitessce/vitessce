@@ -335,6 +335,7 @@ export function SpatialSubscriber(props) {
   const locationsCount = obsLocationsIndex?.length || 0;
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -634,7 +635,7 @@ export function SpatialSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       options={options}
       helpText={helpText}
       errors={errors}
@@ -662,6 +663,7 @@ export function SpatialSubscriber(props) {
       <Spatial
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         width={width}
         height={height}
         viewState={{

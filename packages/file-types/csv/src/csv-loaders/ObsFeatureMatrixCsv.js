@@ -1,3 +1,4 @@
+import { allocateDenseMatrix } from '@vitessce/abstract';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsFeatureMatrixCsvLoader extends CsvLoader {
@@ -9,7 +10,11 @@ export default class ObsFeatureMatrixCsvLoader extends CsvLoader {
     const featureIndex = [...data.columns];
     featureIndex.shift(); // Remove first element which is index colname.
     const shape = [obsIndex.length, featureIndex.length];
-    const out = new Float32Array(shape[0] * shape[1]);
+    const out = allocateDenseMatrix({
+      source: `"${this.url?.split('?')[0]}"`,
+      shape,
+      allocate: () => new Float32Array(shape[0] * shape[1]),
+    });
     data.forEach((row, obsI) => {
       const floatRow = featureIndex.map(
         featureId => parseFloat(row[featureId]),

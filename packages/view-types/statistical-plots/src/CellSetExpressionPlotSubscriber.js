@@ -74,6 +74,7 @@ function useExpressionByCellSet(
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
   theme, yMinProp, featureAggregationStrategy,
+  obsSetsColumns,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -88,6 +89,8 @@ function useExpressionByCellSet(
       expressionData, obsIndex, mergedCellSets,
       geneSelection, cellSetSelection, cellSetColor,
       featureValueTransform, featureValueTransformCoefficient,
+      // Raw codes let the strata come from typed arrays when the indices match.
+      { obsSetsColumns },
     );
     if (stratifiedData) {
       const aggregateData = aggregateStratifiedExpressionData(
@@ -106,7 +109,7 @@ function useExpressionByCellSet(
     mergedCellSets, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     yMinProp, sampleEdges, sampleSets, sampleSetSelection,
-    featureAggregationStrategy,
+    featureAggregationStrategy, obsSetsColumns,
   ]);
 
   // From the cell sets hierarchy and the list of selected cell sets,
@@ -207,7 +210,9 @@ export function CellSetExpressionPlotSubscriber(props) {
     loaders, dataset, false,
     { obsType, featureType, featureValueType },
   );
-  const [{ obsSets: cellSets }, obsSetsStatus, obsSetsUrls, obsSetsError] = useObsSetsData(
+  const [
+    { obsSets: cellSets, obsSetsColumns }, obsSetsStatus, obsSetsUrls, obsSetsError,
+  ] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
   );
@@ -263,6 +268,7 @@ export function CellSetExpressionPlotSubscriber(props) {
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     theme, yMin, featureAggregationStrategyToUse,
+    obsSetsColumns,
   );
 
   const featureSuffix = useMemo(() => {

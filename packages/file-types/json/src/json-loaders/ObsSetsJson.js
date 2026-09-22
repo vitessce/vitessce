@@ -2,7 +2,7 @@ import {
   tryUpgradeTreeToLatestSchema,
   initializeCellSetColor,
   nodeToSet,
-  treeToMembershipMap,
+  lazyTreeToMembershipMap,
 } from '@vitessce/sets-utils';
 import { LoaderResult } from '@vitessce/abstract';
 import { obsSetsSchema } from '@vitessce/schemas';
@@ -25,12 +25,11 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       obsSetSelection: [],
       obsSetColor: [],
     };
-    let obsSetsMembership = new Map();
+    let obsSetsMembership = lazyTreeToMembershipMap(null);
 
     // Set up the initial coordination values.
     if (upgradedData && upgradedData.tree.length >= 1) {
       const { tree } = upgradedData;
-      obsSetsMembership = treeToMembershipMap(upgradedData);
       const newAutoSetSelectionParentName = tree[0].name;
       // Create a list of set paths to initally select.
       const newAutoSetSelections = tree[0].children
@@ -41,6 +40,10 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       coordinationValues.obsSetColor = newAutoSetColors;
 
       obsIndex = nodeToSet(tree[0]).map(d => d[0]);
+      // Built after obsIndex, which the positional encoding is aligned to. obsIndex
+      // covers only the first hierarchy here, so any set member outside it makes the
+      // lookup fall back to the main-thread map rather than answer incorrectly.
+      obsSetsMembership = lazyTreeToMembershipMap(upgradedData, obsIndex);
     }
     return Promise.resolve(new LoaderResult({
       obsIndex,

@@ -40,6 +40,7 @@ export default function LayerController(props) {
     volumeLoadingStatus,
     tiledPointsLoadingProgress,
     layerPerFeatureForPoints,
+    globalDisable3d,
     centroidSegmentationPairs = [],
     pairedSegScopes = new Set(),
     pairedPointScopes = new Set(),
@@ -89,6 +90,7 @@ export default function LayerController(props) {
           max={maxZ}
           spatialRenderingMode={spatialRenderingMode}
           setSpatialRenderingMode={setSpatialRenderingMode}
+          enable3d={!globalDisable3d}
         />
       ) : null}
       {anyLayerHasT ? (

@@ -14,6 +14,7 @@ import {
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import { MatrixTooLargeError } from '@vitessce/error';
 import {
   log,
   setLogLevel, setDebugMode,
@@ -248,7 +249,12 @@ export function VitS(props) {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        retry: 2,
+        // A matrix that does not fit the browser's budget will not fit on a
+        // retry either; surface that message immediately rather than after
+        // two more attempts and their backoff.
+        retry: (failureCount, error) => (
+          failureCount < 2 && !(error instanceof MatrixTooLargeError)
+        ),
       },
     },
     // Reference: https://tkdodo.eu/blog/react-query-error-handling#the-global-callbacks

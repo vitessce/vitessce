@@ -1,4 +1,80 @@
 
+## 4.0.8
+
+### Patch Changes
+
+- Add single-cell comparative example to demos. (`@vitessce/statistical-plots`, `@vitessce/comparative`) ([#2588](https://github.com/vitessce/vitessce/pull/2588))
+
+- Updated janelia-flyem-neuroglancer patch to allow rendering annotations with multiple properties (`@vitessce/example-configs`) ([#2583](https://github.com/vitessce/vitessce/pull/2583))
+
+
+## 4.0.7
+
+### Patch Changes
+
+- Update how adata.var index columns are loaded so that they handle nullable arrays via the \_loadColumn function. (`@vitessce/spatial-zarr`, `@vitessce/zarr`) ([#2594](https://github.com/vitessce/vitessce/pull/2594))
+
+- Fix `Uncaught Error: @react-three/xr is not loaded; call loadXRModule() first.` at page load in consumer bundles. Five XR modules called `getXRModule()` at module scope, which made them depend on the consuming application's chunking: a bundler that folds the lazy XR chunks into an eagerly-evaluated chunk (for example a Vite `manualChunks` rule that groups all of `node_modules`, or an equivalent Webpack `splitChunks` config) evaluated them before `SpatialWrapper` had awaited `loadXRModule()`, throwing before any React component mounted and taking down the whole application rather than just the spatial view. All `getXRModule()` calls now happen at render time inside function bodies, and `xrStore` is replaced by a lazily-created `getXrStore()`, so evaluation order no longer matters. (`@vitessce/spatial-three`) ([#2587](https://github.com/vitessce/vitessce/pull/2587))
+
+
+## 4.0.6
+
+### Patch Changes
+
+- Fix production build error - add webpack fallback for worker_threads (`docs`) ([#2580](https://github.com/vitessce/vitessce/pull/2580))
+
+
+## 4.0.5
+
+### Patch Changes
+
+- Make cell set selection changes paint immediately on large datasets: the scatterplot views now defer set selection and color values into a non-urgent render (via useDeferredValue), so the sets manager checkbox updates in the first commit and the per-observation recoloring follows, and the contour stratification pass only runs when contours are visible or the points layer is hidden, instead of on every selection change. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`) ([#2571](https://github.com/vitessce/vitessce/pull/2571))
+
+- Three follow-up optimizations surfaced by the 2M-cell dataset. The remaining dense obs-by-feature loaders (AnnData `obsFeatureColumns`, plain matrix zarr, CSV) now share an allocation guard: an over-budget estimate logs a warning before the attempt, and an allocation failure is rethrown as a descriptive `MatrixTooLargeError` naming the matrix. The spatial views build their lasso/rectangle-selection quadtrees lazily on first use instead of on every data update. Zarr data sources memoize node opens per path, so a node's metadata documents (`.zattrs`/`.zarray`/`.zgroup`) are read once per data source instead of once per access pattern. `loadNumericForDims` uses the contiguous sliced read only when the requested dims actually share chunks, and per-dim reads when each dim has its own chunk column, avoiding needless 2D assembly on per-column-chunked embeddings. (`@vitessce/abstract`, `@vitessce/csv`, `@vitessce/zarr`, `@vitessce/spatial`, `@vitessce/spatial-beta`) ([#2571](https://github.com/vitessce/vitessce/pull/2571))
+
+- Adds support to provide a list of segments (cell-ids) to the neuroglancer view to avoid dependence on obsSets to generate the view (`@vitessce/neuroglancer`, `@vitessce/example-configs`, `@vitessce/schemas`) ([#2547](https://github.com/vitessce/vitessce/pull/2547))
+
+- Cache zarr store reads through the react-query client so concurrent requests for the same chunk share one download (fixes duplicate embedding chunk fetches), load contiguous embedding dims with a single sliced read, and read single-level categorical obs sets as raw codes end-to-end — building the sets tree, membership lookups, and the scatterplot color encoding from typed arrays instead of per-observation strings, with a fallback to the string-based route for scored, multi-level, or non-categorical columns. (`@vitessce/zarr-utils`, `@vitessce/zarr`, `@vitessce/sets-utils`, `@vitessce/types`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`) ([#2568](https://github.com/vitessce/vitessce/pull/2568))
+
+- Improve obs set performance on large datasets: accumulate set colors, memberships, and color indices in linear rather than quadratic time; color the embedding and gating scatterplots from a positional typed array instead of an observation-ID-keyed Map; and build the observation set membership encoding in a web worker, dispatched during idle time and transferred as typed arrays, falling back to the main thread when workers are unavailable. Also fixes `treeToMembershipMap` reporting duplicate set paths for leaf sets shallower than the height of their hierarchy. (`@vitessce/sets-utils`, `@vitessce/workers`, `@vitessce/scatterplot`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/types`, `@vitessce/zarr`, `@vitessce/csv`, `@vitessce/json`) ([#2567](https://github.com/vitessce/vitessce/pull/2567))
+
+- Added a layer coordination type (spatialLayerLabel) that allows users to specify a label for the layers' (`@vitessce/layer-controller-beta`, `@vitessce/neuroglancer`, `@vitessce/constants-internal`, `@vitessce/all`, `@vitessce/example-configs`) ([#2552](https://github.com/vitessce/vitessce/pull/2552))
+
+- Name the obs set that holds observations with a missing categorical value with a shared placeholder, so it renders identically in the sets manager, tooltips, and plots, and so selections of it survive view config serialization. (`@vitessce/utils`, `@vitessce/sets-utils`, `@vitessce/tooltip`) ([#2568](https://github.com/vitessce/vitessce/pull/2568))
+
+- Show a loading overlay while a lasso/rectangle selection is being calculated and applied. At millions of observations the hit test and the selection-driven re-render block the main thread for seconds; the selection layer now signals a busy state, lets the browser paint the view's loading indicator first, and clears it in the same commit that shows the applied selection. (`@vitessce/gl`, `@vitessce/scatterplot`, `@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`, `@vitessce/spatial`, `@vitessce/spatial-beta`) ([#2571](https://github.com/vitessce/vitessce/pull/2571))
+
+- Read individual features from CSR-encoded obsFeatureMatrix stores by scanning `indices`/`data` in chunks instead of densifying the whole matrix, coalescing concurrent selections into one scan and refusing scans beyond the browser's allocation budget with a descriptive `MatrixTooLargeError`; warn before full-matrix densification that exceeds the budget and report allocation failures descriptively; fix CSC selection on int64 `indptr` and the silent last-column result for unknown features on dense matrices; document that `csc_matrix` is the preferred sparse encoding. (`@vitessce/zarr`, `@vitessce/zarr-utils`, `@vitessce/utils`, `@vitessce/error`, `@vitessce/vit-s`, `docs`) ([#2570](https://github.com/vitessce/vitessce/pull/2570))
+
+- Speed up per-observation work on large datasets: stratify expression values and embedding arrays (violin/dot plots, scatterplot contours) from positional set indices instead of string-keyed map lookups per observation, using raw categorical codes when available; build the observation index map only when a set selection resolves; skip embedding re-alignment and the expression index mapping when the observation indices are the same array; and build the scatterplot's selection quadtree on first use rather than on every embedding change. `stratifyArrays` no longer takes a sampleId-to-obsIds map argument. (`@vitessce/sets-utils`, `@vitessce/vit-s`, `@vitessce/scatterplot`, `@vitessce/scatterplot-embedding`, `@vitessce/statistical-plots`) ([#2571](https://github.com/vitessce/vitessce/pull/2571))
+
+- Upgrade zarrita package version to fix bug reading sharded zarr v3 data. (`@vitessce/spatial-zarr`, `@vitessce/zarr-utils`, `@vitessce/zarr`) ([#2546](https://github.com/vitessce/vitessce/pull/2546))
+
+- Add an obsColors data type (one RGB color per observation), an obsColors.csv file type, a useSegmentationMultiObsColors multi-level data hook, and support for the new obsColors option of obsColorEncoding in the Neuroglancer view. (`@vitessce/constants-internal`, `@vitessce/schemas`, `@vitessce/csv`, `@vitessce/vit-s`, `@vitessce/neuroglancer`, `@vitessce/all`) ([#2547](https://github.com/vitessce/vitessce/pull/2547))
+
+
+## 4.0.4
+
+### Patch Changes
+
+- Add skills and refactor use-memo-custom-comparison into vit-s. (`@vitessce/vit-s`) ([#2556](https://github.com/vitessce/vitessce/pull/2556))
+
+- Improve responsive layout for layer controller in small containers. (`@vitessce/layer-controller-beta`) ([#2527](https://github.com/vitessce/vitessce/pull/2527))
+
+- Color meshes in the merfish-dataset by cell-types (`@vitessce/example-configs`) ([#2549](https://github.com/vitessce/vitessce/pull/2549))
+
+- Fixed 3D volume rendering in the beta spatial view applying physical pixel size twice, which stretched anisotropic volumes along their coarsest axis by the anisotropy ratio (a 1x1x2 um voxel rendered twice as deep as it should). Restored the "Fix Camera Axis" control in the beta spatial view's plot options menu, so the orbit target can be pinned rather than drifting on every pan. The camera is also re-initialized when switching between 2D and 3D, so a volume is no longer left framed by (or panned out of view with) the camera from the previous mode, and spatialOrbitAxis now round-trips through the beta view's setViewState like the rest of the camera state. (`@vitessce/spatial-beta`) ([#2551](https://github.com/vitessce/vitessce/pull/2551))
+
+- The beta layer controller now honors a `globalDisable3d` prop, so a view config can hide the 3D rendering-mode switch as it could with the legacy layer controller. This matters for configs whose data cannot usefully be volume-rendered, which previously had no way to prevent a user from switching the spatial view into 3D. The beta spatial view also no longer builds a viv `VolumeLayer` for image layers that are hidden: `VolumeLayer` downloads a whole volume per channel from `updateState`, and DeckGL does not gate layer updates on `visible`, so a hidden layer previously paid the full cost of a volume load whenever 3D was switched on. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-beta`) ([#2558](https://github.com/vitessce/vitessce/pull/2558))
+
+
+## 4.0.3
+
+### Patch Changes
+
+- Added config examples to 3d tissue maps - neuroglancerView (`@vitessce/example-configs`) ([#2544](https://github.com/vitessce/vitessce/pull/2544))
+
+
 ## 4.0.2
 
 ### Patch Changes

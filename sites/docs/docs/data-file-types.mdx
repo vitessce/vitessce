@@ -239,6 +239,38 @@ coordinationValues={`{
 }`}
 />
 
+### `obsColors.csv`
+
+A two-column (minimum; the file may contain extra columns) CSV file.
+One column stores the observation index (unique ID for each observation) and the other stores a color per observation.
+Colors can either be stored in a single column of hex strings, or in three columns of R, G, and B channel values (each in the range `[0, 255]`).
+The column names are configurable.
+For example, the file contents might look like:
+
+| cell_id | color |
+| ----- | ----- |
+| cell_1 | #ff0000 |
+| cell_2 | #00ff00 |
+| ... | ... |
+
+<FileDefTabs
+fileName="my_cell_colors.csv"
+fileType="obsColors.csv"
+fileConst="OBS_COLORS_CSV"
+options={`{
+    // The column containing the observation index.
+    "obsIndex": "cell_id",
+    // The column containing the hex color strings.
+    // Alternatively, an array of three columns
+    // containing the R, G, and B channel values,
+    // e.g., ["r", "g", "b"].
+    "obsColors": "color"
+}`}
+coordinationValues={`{
+    "obsType": "cell"
+}`}
+/>
+
 ### `featureLabels.csv`
 
 A two-column (minimum; the file may contain extra columns) CSV file.
@@ -329,6 +361,7 @@ To learn more, visit the [AnnData](https://anndata.readthedocs.io/en/latest/) do
 
 An observation-by-feature matrix with observations along the `obs` axis (rows) and features along the `var` axis (columns).
 Typically stored in `adata.X`, but the `"path"` option allows pointing to any array within the AnnData object.
+The matrix may be dense or sparse (`csc_matrix` or `csr_matrix`); dense and CSC matrices are preferred, because individual features can be read without scanning the whole matrix. See [sparse matrices](../data-troubleshooting/#anndata-zarr-obsfeaturematrix-with-sparse-matrices) in the data troubleshooting guide.
 
 <FileDefTabs
 fileName="my_adata.zarr"
