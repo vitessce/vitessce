@@ -24,6 +24,8 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
+  useViewConfig,
+  useComponentViewInfo,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -43,29 +45,28 @@ import {
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   nearEq,
-  makeVitNgZoomCalibrator,
-  conjQuat,
-  multiplyQuat,
   rad2deg,
   deg2rad,
-  Q_Y_UP,
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
   remapCellColors,
   autoColorForId,
+  quatdotAbs,
+  multiplyQuat,
+  Q_Y_UP,
 } from './utils.js';
 
 
 const VITESSCE_INTERACTION_DELAY = 50;
-const INIT_VIT_ZOOM = -3.6;
 const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
-
+const NG_FOVY_RAD = Math.PI / 4; // NG's fixed 45°, from perspective_view/panel.js
+const NG_ZOOM_CORRECTION = 0.5 / Math.tan(NG_FOVY_RAD / 2); // ≈ 1.207
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 const MESH_OPACITY = 0.6;
@@ -109,7 +110,6 @@ export function NeuroglancerSubscriber(props) {
 
   const { classes } = useStyles();
 
-  const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
   const obsIdToMeshIdRef = useRef({});
   const meshIdToCellIdRef = useRef({});
@@ -120,7 +120,7 @@ export function NeuroglancerSubscriber(props) {
   const lastInteractionSource = useRef(null);
   const applyNgUpdateTimeoutRef = useRef(null);
   const lastNgPushOrientationRef = useRef(null);
-  const initialRenderCalibratorRef = useRef(null);
+  const hasSetTranslationOffsetRef = useRef(false);
   const translationOffsetRef = useRef([0, 0, 0]);
   const zoomRafRef = useRef(null);
   const lastNgQuatRef = useRef([0, 0, 0, 1]);
@@ -129,6 +129,12 @@ export function NeuroglancerSubscriber(props) {
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
+  // nm-per-voxel at mip 0 of the segmentation source, i.e. the factor between
+  // NG's world-space position/projectionScale (always nm) and Vitessce's
+  // pixel-index spatialTargetX/Y/spatialZoom. Defaults to [1, 1, 1] (no-op
+  // scaling) until fetched, which also matches datasets built with a
+  // unitless/1nm-per-voxel resolution (e.g. the melanoma example).
+  const voxelSizeNmRef = useRef([1, 1, 1]);
   const resizeObserverRef = useRef(null);
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
@@ -176,6 +182,8 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  console.log("spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY, spatialRotationZ, spatialRotationOrbit", spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY, spatialRotationZ, spatialRotationOrbit)
 
   const csvUrlRef = useRef(null);
   const csvUrl = useMemo(() => {
@@ -879,6 +887,60 @@ export function NeuroglancerSubscriber(props) {
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
 
+  // Get segmentation (precomputed) URL from obsSegmentationsUrls, to fetch
+  // its 'info' file for the mip-0 voxel resolution (nm/voxel).
+  const segmentationUrl = useMemo(() => {
+    const firstScope = segmentationLayerScopes?.[0];
+    return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [segmentationLayerScopes, obsSegmentationsUrls]);
+
+
+  // Find the spatialBeta view showing the same dataset as this view, so we
+  // can read its real rendered pixel size (published via the viewInfo
+  // registry — see AbstractSpatialOrScatterplot.viewInfoDidUpdate) and use
+  // it to calibrate the NG <-> Vitessce zoom conversion. See canvasPx in
+  // handleStateUpdate/derivedViewerState below.
+  const viewConfig = useViewConfig();
+  const spatialBetaUuid = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return null;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    const match = layout.find(v => v.component === 'spatialBeta'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+    return match?.uid ?? null;
+  }, [viewConfig, coordinationScopes]);
+  const spatialBetaViewInfo = useComponentViewInfo(spatialBetaUuid);
+  // Refs so handleStateUpdate (a useCallback with an unrelated dep array)
+  // and derivedViewerState always read the latest value, not a stale one.
+  const spatialBetaViewInfoRef = useRef(null);
+  useEffect(() => {
+    spatialBetaViewInfoRef.current = spatialBetaViewInfo ?? null;
+  }, [spatialBetaViewInfo]);
+
+
+  // Recalibrate Vitessce's zoom whenever spatialBeta's own container
+  // resizes, independent of any NG interaction. NG's camera is
+  // resize-invariant -- a fixed projectionScale always shows the same world
+  // extent regardless of container pixel size (confirmed from NG's own
+  // perspective_view/panel.ts: vertical NDC range is a fixed [-1,1],
+  // independent of canvas size). deck.gl's OrbitView is NOT: at a fixed
+  // zoom, world-units-visible = canvasPx / 2**zoom, so resizing the canvas
+  // alone changes how much of the world is shown. Without this, a resize
+  // with no corresponding NG event leaves Vitessce's zoom stale relative to
+  // NG's (correctly resize-invariant) framing -- confirmed via screen
+  // recording showing spatialBeta's rendered content staying pixel-fixed
+  // across several resizes while NG's correctly rescaled.
+  useEffect(() => {
+    const { width, height } = spatialBetaViewInfo ?? {};
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+    const canvasPx = Math.min(width, height);
+    const lastScale = lastNgScaleRef.current;
+    if (!Number.isFinite(lastScale) || lastScale <= 0) return;
+    const recalibratedZoom = Math.log2(canvasPx / lastScale);
+    if (Number.isFinite(recalibratedZoom)) {
+      setZoom(recalibratedZoom);
+    }
+  }, [spatialBetaViewInfo?.width, spatialBetaViewInfo?.height, setZoom]);
 
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
@@ -912,6 +974,24 @@ export function NeuroglancerSubscriber(props) {
       .catch(err => console.error('failed to fetch annotation info:', err));
   }, [cellsUrl]);
 
+// Fetch the segmentation source's mip-0 voxel resolution (nm/voxel), used
+// to convert between NG's nm-space camera state and Vitessce's pixel-index
+// spatialTargetX/Y/spatialZoom. See voxelSizeNmRef above.
+useEffect(() => {
+  if (!segmentationUrl) return;
+  fetch(`${segmentationUrl}/info`)
+    .then(r => r.json())
+    .then((info) => {
+      const resolution = info?.scales?.[0]?.resolution;
+      console.log("resultion",resolution )
+      if (Array.isArray(resolution) && resolution.length === 3 && resolution.every(Number.isFinite)) {
+        voxelSizeNmRef.current = resolution;
+      }
+      // else: keep the [1, 1, 1] fallback.
+    })
+    .catch(err => console.warn('[NeuroglancerSubscriber] failed to fetch precomputed info for voxel size:', err));
+}, [segmentationUrl]);
+
 
   // Once both annotation info and transform are available, trigger the initial
   // mesh visibility update and mark the layer as loaded.
@@ -940,40 +1020,84 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
+   // NG reports projectionScale/position in its own world units (nm, per
+   // the segmentation source's declared mip-0 resolution). Vitessce's
+   // spatialZoom/spatialTargetX/Y operate in pixel-index space. Convert to
+   // pixel-space here so the existing calibration/offset logic below (which
+   // assumes a 1:1 correspondence) works correctly regardless of voxel size.
+   const [vx, vy, vz] = voxelSizeNmRef.current;
 
-    // Set the views on first mount
-    if (!initialRenderCalibratorRef.current) {
-      // wait for a real scale
-      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return;
 
-      // anchor to current Vitessce zoom
-      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
-      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
+   const projectionScalePx = Number.isFinite(projectionScale)
+  ? (projectionScale / vx) * NG_ZOOM_CORRECTION
+  : projectionScale;
 
-      const [px = 0, py = 0, pz = 0] = position;
+   const positionPx = Array.isArray(position)
+     ? [position[0] / vx, position[1] / vy, position[2] / vz]
+     : position;
+    
+   // Real rendered pixel size of spatialBeta's canvas, read from the
+   // viewInfo registry (see spatialBetaViewInfoRef above). Per Viv's
+   // convention (getInitialSpatialTargets in spatial-beta/src/utils.js),
+   // deck.gl zoom 0 means "1 image pixel == 1 screen pixel", i.e.
+   // world-pixels-visible = canvasPx / 2**zoom. This gives a direct,
+   // closed-form NG <-> Vitessce zoom conversion — no empirical anchor
+   // needed, unlike translation (below), which still needs one since
+   // there's no equivalent formula for a coordinate-origin offset between
+   // the two spaces.
+   const viewInfo = spatialBetaViewInfoRef.current;
+   const canvasPx = (viewInfo && Number.isFinite(viewInfo.width) && Number.isFinite(viewInfo.height))
+     ? Math.min(viewInfo.width, viewInfo.height)
+     : null;
+   // Set the translation offset on first mount (still needs an anchor —
+   // there's no known formula for whatever coordinate-origin offset exists
+   // between NG's position and Vitessce's spatialTarget).
+  //  console.log('canvasPx check', { width: viewInfo?.width, height: viewInfo?.height, projectionScalePx });
+   if (!hasSetTranslationOffsetRef.current) {
+      if (!Number.isFinite(projectionScalePx) || projectionScalePx <= 0) return;
+
+      const [px = 0, py = 0, pz = 0] = positionPx;
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
-      translationOffsetRef.current = [px - tX, py - tY, pz];
-      // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-      const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
-      latestViewerStateRef.current = {
-        ...latestViewerStateRef.current,
-        projectionScale: syncedZoom,
-      };
-
-      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
-        setZoom(INIT_VIT_ZOOM);
+      translationOffsetRef.current = [px - tX, py + tY, pz];
+      hasSetTranslationOffsetRef.current = true;
+      // Also derive Vitessce's initial zoom FROM NG's real projectionScale --
+      // without this, spatialBeta keeps whatever default zoom the config set
+      // (unrelated to NG's actual scale) until some later interaction
+      // happens to reach the ZOOM block below for the first time.
+      if (canvasPx && projectionScalePx > 0) {
+        // console.log("canvasPx && projectionScalePx", canvasPx , projectionScalePx)
+        const initZoom = Math.log2(canvasPx / projectionScalePx);
+        if (Number.isFinite(initZoom)) {
+          setZoom(initZoom);
+          lastNgScaleRef.current = projectionScalePx;
+        }
       }
+      // Also derive initial rotation from NG's real orientation -- without
+      // this, spatialBeta starts at whatever the config's default rotation
+      // is (0,0) regardless of NG's actual initial quaternion, and only
+      // becomes correct once a live rotation event runs the real conversion
+      // logic below. Confirmed via screenshot: cube corners visibly
+      // mismatched on cold load, correct again after any rotation.
+      if (Array.isArray(projectionOrientation)) {
+        const initNgQuatForVitessce = multiplyQuat(projectionOrientation, Q_Y_UP); // right-multiply, matches the ongoing rotation block below
+        const [initPitchRad, initYawRad] = quaternionToEuler(projectionOrientation);
+        setRotationX(rad2deg(-initPitchRad));
+        setRotationOrbit(rad2deg(initYawRad));
+        lastNgPushOrientationRef.current = projectionOrientation;
+      }
+
       return;
     }
 
-    // ZOOM (NG → Vitessce) — do this only after calibrator exists
-    if (Number.isFinite(projectionScale) && projectionScale > 0) {
-      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
+   // ZOOM (NG → Vitessce)
+   if (canvasPx && Number.isFinite(projectionScalePx) && projectionScalePx > 0) {
+     const vitZoomFromNg = Math.log2(canvasPx / projectionScalePx);
+
       const scaleChanged = lastNgScaleRef.current == null
-          || (Math.abs(projectionScale - lastNgScaleRef.current)
-          > 1e-6 * Math.max(1, projectionScale));
+          || (Math.abs(projectionScalePx - lastNgScaleRef.current)
+          > 1e-6 * Math.max(1, projectionScalePx));
       if (scaleChanged && Number.isFinite(vitZoomFromNg)
             && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
         if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
@@ -984,16 +1108,16 @@ export function NeuroglancerSubscriber(props) {
         // Trigger immediate mesh update on zoom change, don't wait for throttle
         updateVisibleSegments();
       }
-      // remember last NG scale
-      lastNgScaleRef.current = projectionScale;
+      // remember last NG scale (pixel-space, comparable across calls)
+      lastNgScaleRef.current = projectionScalePx;
     }
 
     // TRANSLATION
-    if (Array.isArray(position) && position.length >= 2) {
-      const [px, py] = position;
+    if (Array.isArray(positionPx) && positionPx.length >= 2) {
+      const [px, py] = positionPx;
       const [ox, oy] = translationOffsetRef.current;
       const tx = px - ox; // map NG → Vitessce
-      const ty = py - oy;
+      const ty = oy - py;
       if (Number.isFinite(tx) && Math.abs(tx - (spatialTargetX ?? tx)) > TARGET_EPS) setTargetX(tx);
       if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
     }
@@ -1007,16 +1131,24 @@ export function NeuroglancerSubscriber(props) {
       lastNgPushOrientationRef.current = projectionOrientation;
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
-        // Remove the Y-up correction before converting to Euler for Vitessce
-        const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
-        const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
+        // const [pitchRad, yawRad] = quaternionToEuler(projectionOrientation); // radians
+        const ngQuatForVitessce = multiplyQuat(projectionOrientation, Q_Y_UP); // right-multiply
+        const [pitchRadRaw, yawRad] = quaternionToEuler(projectionOrientation);
+        const pitchRad = -pitchRadRaw;
         const currPitchRad = deg2rad(spatialRotationX ?? 0);
         const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
+        console.log('[NG->Vit]', {
+          ngQuat: projectionOrientation,
+          rawPitchDeg: rad2deg(pitchRad),
+          rawYawDeg: rad2deg(yawRad),
+        });
+    
 
         if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
               || Math.abs(yawRad - currYawRad) > ROTATION_EPS) {
           const pitchDeg = rad2deg(pitchRad);
           const yawDeg = rad2deg(yawRad);
+          console.log('[NG->Vit] PUSHING', { pitchDeg, yawDeg });
 
           // Mark Vitessce as the source for the next derived pass
           lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
@@ -1052,7 +1184,8 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [updateVisibleSegmentsThrottledRef]);
+  }, [spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
+       setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -1136,42 +1269,73 @@ export function NeuroglancerSubscriber(props) {
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
+    // current.position/projectionScale are in NG's nm space; convert to
+    // pixel space for comparison against spatialTarget*/spatialZoom and
+    // against translationOffsetRef, which is maintained in pixel space
+    // (see handleStateUpdate). See voxelSizeNmRef above.
+    const [vx, vy] = voxelSizeNmRef.current;
 
     // ** --- Zoom handling --- ** //
-    if (typeof spatialZoom === 'number'
-        && initialRenderCalibratorRef.current
+    // Closed-form conversion (see the matching comment in handleStateUpdate):
+    // world-pixels-visible = canvasPx / 2**zoom, where canvasPx is
+    // spatialBeta's own real rendered pixel size, read via the viewInfo
+    // registry (see spatialBetaViewInfoRef above).
+    const viewInfo = spatialBetaViewInfoRef.current;
+    const canvasPx = (viewInfo && Number.isFinite(viewInfo.width) && Number.isFinite(viewInfo.height))
+      ? Math.min(viewInfo.width, viewInfo.height)
+      : null;
+    if (canvasPx
+        && typeof spatialZoom === 'number'
         && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && zoomChangedNow) {
-      const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
-      if (Number.isFinite(s) && s > 0) {
-        nextProjectionScale = s;
+      const sPx = canvasPx * (2 ** -spatialZoom);
+      if (Number.isFinite(sPx) && sPx > 0) {
+        nextProjectionScale = (sPx / NG_ZOOM_CORRECTION) * vx;
       }
     }
 
     // ** --- Translation handling --- ** //
     const [ox, oy, oz] = translationOffsetRef.current;
-    const [px = 0, py = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
+    const [pxNm = 0, pyNm = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
+    const px = pxNm / vx;
+    const py = pyNm / vy;
+    // const tx = px - ox; // map NG → Vitessce
+    // const ty = py - oy;
+    // console.log('pivot check', {
+    //   ngPositionPx: [px, py],           // NG's real target/pivot, converted to pixel space
+    //   translationOffset: [ox, oy],      // the anchor established on first mount
+    //   computedTarget: [tx, ty],         // what this would push to spatialTargetX/Y
+    //   currentSpatialTarget: [spatialTargetX, spatialTargetY], // what's actually there right now
+    //   diff: [tx - spatialTargetX, ty - spatialTargetY],       // should be ~0 if in sync
+    // });
+
     const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
        && Number.isFinite(spatialTargetY);
     if (hasVitessceSpatialTarget
         && lastInteractionSource.current !== LAST_INTERACTION_SOURCE.neuroglancer
         && transChangedNow) {
-      const nx = spatialTargetX + ox; // Vitessce → NG
+      const nx = spatialTargetX + ox; // Vitessce → NG, pixel space
       const ny = spatialTargetY + oy;
       if (Math.abs(nx - px) > TARGET_EPS || Math.abs(ny - py) > TARGET_EPS) {
-        nextPosition = [nx, ny, pz];
+        nextPosition = [nx * vx, ny * vy, pz]; // back to NG's nm space
       }
     }
 
     // ** --- Orientation/Rotation handling --- ** //
     const vitessceRotationRaw = eulerToQuaternion(
-      deg2rad(spatialRotationX ?? 0),
-      deg2rad(spatialRotationOrbit ?? 0),
+      deg2rad(-(spatialRotationX ?? 0)),
       deg2rad(spatialRotationZ ?? 0),
+      deg2rad(spatialRotationOrbit ?? 0),
     );
 
     // Apply Y-up to have both views with same axis-direction (xy)
-    const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
+    // const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
+    const vitessceRotation = vitessceRotationRaw;// multiplyQuat(vitessceRotationRaw, Q_Y_UP); // right-multiply, self-inverse
+    console.log('[Vit->NG]', {
+      spatialRotationX, spatialRotationOrbit, spatialRotationZ,
+      vitessceRotationRaw,
+      currentNgQuat: projectionOrientation,
+    });
 
     // // Round-trip check: NG -> Vit (remove Y-UP)
     // const qVitBack = multiplyQuat(conjQuat(Q_Y_UP), vitessceRotation);
@@ -1187,15 +1351,12 @@ export function NeuroglancerSubscriber(props) {
     // const dotVsNg = quatdotAbs(vitessceRotation, projectionOrientation);
     // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 
-    // If NG quat != Vitessce quat on first render, push Vitessce once.
-    const shouldForceInitialVitPush = !initialRotationPushedRef.current
-      && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
     // Use explicit source if set; otherwise infer Vitessce when coords changed.
     const ngFresh = (performance.now() - (ngRotPushAtRef.current || 0)) < NG_ROT_COOLDOWN_MS;
 
     const changedNowOrIInitialVitPush = rotChangedNow
-      || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
+      // || zoomChangedNow || transChangedNow;
 
     const src = ngFresh ? LAST_INTERACTION_SOURCE.neuroglancer
       : (lastInteractionSource.current
@@ -1234,16 +1395,18 @@ export function NeuroglancerSubscriber(props) {
           z: spatialRotationZ,
           orbit: spatialRotationOrbit,
         };
-        initialRotationPushedRef.current = true;
         // Re-anchor NG -> Vitessce translation once we commit the initial orientation,
         // the center shows a right translated image
-        const [cx = 0, cy = 0,
+        const [cxNm = 0, cyNm = 0,
           cz = (nextPosition?.[2] ?? current.position?.[2] ?? 0),
         ] = nextPosition
           || current.position || [];
+        // nextPosition/current.position are nm; translationOffsetRef is pixel space.
+        const cx = cxNm / vx;
+        const cy = cyNm / vy;
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-        translationOffsetRef.current = [cx - tX, cy - tY, cz];
+        translationOffsetRef.current = [cx - tX, cy + tY, cz];
       }
       // else {
       //   // No real Vitessce rotation change → do not overwrite NG's quat.
@@ -1317,7 +1480,7 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
-    latestViewerStateIteration, hasMatchingAnnotationSource]);
+    latestViewerStateIteration, hasMatchingAnnotationSource, spatialBetaViewInfo]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     setCellHighlight(String(obsId));
