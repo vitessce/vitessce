@@ -50,11 +50,11 @@ import {
     const spatialView = config.addView(dataset, 'spatialBeta');
     const lcView = config.addView(dataset, 'layerControllerBeta');
     const neuroglancerView = config.addView(dataset, 'neuroglancer')
-    // neuroglancerView.setProps({
-    //     initialNgCameraState: {
-    //       position: [58, 83, 108],
-    //     },
-    //   });
+    neuroglancerView.setProps({
+        initialNgCameraState: {
+          position: [58, 83, 108],
+        },
+      });
     const obsSetsView = config.addView(dataset, 'obsSets');
   
     // The coordination scopes under test. Deliberately NO initialNgCameraState:
@@ -64,9 +64,9 @@ import {
       spatialRenderingMode: '3D',
       spatialZoom: 0,
       spatialTargetT: 0,
-    //   spatialTargetX: 58,
-    //   spatialTargetY: 83,
-    //   spatialTargetZ: 108,
+      // spatialTargetX: 58,
+      // spatialTargetY: 83,
+      // spatialTargetZ: 108,
     spatialTargetX: 0,
     spatialTargetY: 0,
     spatialTargetZ: 0,

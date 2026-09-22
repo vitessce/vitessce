@@ -269,6 +269,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
       rawCameraSnapshot,
     } = this.props;
+    // console.log('[RawView] prop received', rawCameraSnapshot);
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
@@ -278,17 +279,22 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     let activeView;
     if (use3d && rawCameraSnapshot) {
       const { position: pivot, quaternion, projectionScale, fovDegrees } = rawCameraSnapshot;
+      const pivotMirrored = [pivot[0], -pivot[1], pivot[2]];
       const fovyRad = (fovDegrees * Math.PI) / 180;
       const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
       // Reconstruct a free eye position the same way three.js's
       // OrbitControls does: eye = target + quaternion-rotated (0,0,distance).
       const offset = new Matrix4().fromQuaternion(quaternion)
         .transformAsVector([0, 0, distance]);
-      const eye = pivot.map((p, i) => p + offset[i]);
+      const eye = pivotMirrored.map((p, i) => p + offset[i]);
       const modelMatrix = new Matrix4()
         .translate(eye)
         .multiplyRight(new Matrix4().fromQuaternion(quaternion));
       const rawViewMatrix = modelMatrix.invert();
+      // console.log('[RawView debug]', {
+      //   pivot, quaternion, eye, pivotMirrored,
+      //   modelMatrixElements: modelMatrix.toArray?.() ?? modelMatrix,
+      // });
       activeView = new RawView({
         id: 'raw',
         controller: false,

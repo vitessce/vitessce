@@ -1223,10 +1223,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     // rendering and Viv's image-loader model matrix disagree on this axis;
     // this compensates for that, independent of whichever camera system
     // (OrbitView or RawView) is driving the view.
-    const yExtent = data?.shape?.[data.labels?.indexOf('y')] ?? 0;
-    const yMirror = new Matrix4()
-     .translate([0, yExtent, 0])
-     .scale([1, -1, 1]);
+    const yMirror = new Matrix4().scale([1, -1, 1]);
     const layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
 
     // We need to keep the same selections array reference,
