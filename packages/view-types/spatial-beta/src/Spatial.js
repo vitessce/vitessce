@@ -2,6 +2,7 @@
 /* eslint-disable prefer-destructuring */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
+import { Matrix4 } from 'math.gl';
 import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
@@ -1215,8 +1216,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
       rgbInterleavedProps.visible = visible;
     }
 
-    // TODO: support model matrix from coordination space also.
-    const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
+    const rawModelMatrix = image?.image?.instance?.getModelMatrix() || new Matrix4().identity();
+    // Mirror along Z: negate Z, then translate back by the volume's full Z
+    // extent so the mirrored volume lands back in the same bounding region
+    // instead of reflecting to the opposite side of the origin. NG's own
+    // rendering and Viv's image-loader model matrix disagree on this axis;
+    // this compensates for that, independent of whichever camera system
+    // (OrbitView or RawView) is driving the view.
+    const yExtent = data?.shape?.[data.labels?.indexOf('y')] ?? 0;
+    const yMirror = new Matrix4()
+     .translate([0, yExtent, 0])
+     .scale([1, -1, 1]);
+    const layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,

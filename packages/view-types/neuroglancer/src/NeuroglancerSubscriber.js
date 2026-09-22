@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
-import { throttle } from 'lodash-es';
+import { isEqual, throttle } from 'lodash-es';
 import {
   TitleInfo,
   useReady,
@@ -1324,13 +1324,14 @@ export function NeuroglancerSubscriber(props) {
         objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];
-
+    const layersChanged = !isEqual(current.layers, updatedLayers);
+    console.log("layersChanged", layersChanged)
     const updated = {
       ...current,
       projectionScale: nextProjectionScale,
       projectionOrientation: nextOrientation,
       position: nextPosition,
-      layers: updatedLayers,
+      ...(layersChanged ? { layers: updatedLayers } : {}),
     };
 
     latestViewerStateRef.current = updated;
