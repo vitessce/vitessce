@@ -84,6 +84,8 @@ function getStore(parsedUrl) {
   if (!ZARR_FILETYPES.includes(fileType)) {
     return null;
   }
+  // TODO: delegate this logic to zarr-utils/src/normalize.ts
+  // so that we also apply all expected zarr store extensions.
   return fileType.endsWith('.zip')
     ? ZipFileStore.fromUrl(url, {
       transformEntries: transformEntriesForZipFileStore,
