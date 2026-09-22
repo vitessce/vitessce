@@ -32,8 +32,8 @@ async function getSingleSelectionStats2D({ loader, selection }) {
   const filteredSelection = filterSelection(loader, selection);
   const raster = await data.getRaster({ selection: filteredSelection });
   const selectionStats = viv.getChannelStats(raster.data);
-  const { domain, contrastLimits: slider } = selectionStats;
-  return { domain, slider };
+  const { domain, contrastLimits: slider, q1, q3 } = selectionStats;
+  return { domain, slider, q1, q3 };
 }
 
 async function getSingleSelectionStats3D({ loader, selection }) {
@@ -70,6 +70,8 @@ async function getSingleSelectionStats3D({ loader, selection }) {
         statsTop.contrastLimits[1],
       ),
     ],
+    q1: Math.min(stats0.q1[0], statsMid.q1[0], statsTop.q1[0]),
+    q3: Math.max(stats0.q3[1], statsMid.q3[1], statsTop.q3[1]),
   };
 }
 
@@ -93,7 +95,9 @@ export const getMultiSelectionStats = async ({ loader, selections, use3d }) => {
   );
   const domains = stats.map(stat => stat.domain);
   const sliders = stats.map(stat => stat.slider);
-  return { domains, sliders };
+  const q1s = stats.map(stat => stat.q1);
+  const q3s = stats.map(stat => stat.q3);
+  return { domains, sliders, q1s, q3s };
 };
 
 /**
