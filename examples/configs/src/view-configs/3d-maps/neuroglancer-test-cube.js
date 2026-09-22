@@ -49,7 +49,12 @@ function generateCubeCameraSyncConfiguration() {
 
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
-  const neuroglancerView = config.addView(dataset, 'neuroglancer');
+  const neuroglancerView = config.addView(dataset, 'neuroglancer')
+  neuroglancerView.setProps({
+      initialNgCameraState: {
+        position: [58, 83, 108],
+      },
+    });
   const obsSetsView = config.addView(dataset, 'obsSets');
 
   // The coordination scopes under test. Deliberately NO initialNgCameraState:
@@ -59,9 +64,9 @@ function generateCubeCameraSyncConfiguration() {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
     spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
+    spatialTargetX: 58,
+    spatialTargetY: 83,
+    spatialTargetZ: 108,
     spatialRotationX: 0,
     spatialRotationY: 0,
     spatialRotationOrbit: 0,
