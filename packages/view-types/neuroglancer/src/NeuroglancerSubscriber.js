@@ -53,6 +53,8 @@ import {
   remapCellColors,
   autoColorForId,
   quatdotAbs,
+  multiplyQuat,
+  Q_Y_UP,
 } from './utils.js';
 
 
@@ -63,7 +65,8 @@ const TARGET_EPS = 0.5;
 const NG_ROT_COOLDOWN_MS = 120;
 const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
-
+const NG_FOVY_RAD = Math.PI / 4; // NG's fixed 45°, from perspective_view/panel.js
+const NG_ZOOM_CORRECTION = 0.5 / Math.tan(NG_FOVY_RAD / 2); // ≈ 1.207
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 const MESH_OPACITY = 0.6;
@@ -179,6 +182,8 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  console.log("spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY, spatialRotationZ, spatialRotationOrbit", spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationY, spatialRotationZ, spatialRotationOrbit)
 
   const csvUrlRef = useRef(null);
   const csvUrl = useMemo(() => {
@@ -1021,7 +1026,12 @@ useEffect(() => {
    // pixel-space here so the existing calibration/offset logic below (which
    // assumes a 1:1 correspondence) works correctly regardless of voxel size.
    const [vx, vy, vz] = voxelSizeNmRef.current;
-   const projectionScalePx = Number.isFinite(projectionScale) ? projectionScale / vx : projectionScale;
+
+
+   const projectionScalePx = Number.isFinite(projectionScale)
+  ? (projectionScale / vx) * NG_ZOOM_CORRECTION
+  : projectionScale;
+
    const positionPx = Array.isArray(position)
      ? [position[0] / vx, position[1] / vy, position[2] / vz]
      : position;
@@ -1050,19 +1060,32 @@ useEffect(() => {
       const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
       const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
-      translationOffsetRef.current = [px - tX, py - tY, pz];
+      translationOffsetRef.current = [px - tX, py + tY, pz];
       hasSetTranslationOffsetRef.current = true;
       // Also derive Vitessce's initial zoom FROM NG's real projectionScale --
       // without this, spatialBeta keeps whatever default zoom the config set
       // (unrelated to NG's actual scale) until some later interaction
       // happens to reach the ZOOM block below for the first time.
       if (canvasPx && projectionScalePx > 0) {
-        console.log("canvasPx && projectionScalePx", canvasPx , projectionScalePx)
+        // console.log("canvasPx && projectionScalePx", canvasPx , projectionScalePx)
         const initZoom = Math.log2(canvasPx / projectionScalePx);
         if (Number.isFinite(initZoom)) {
           setZoom(initZoom);
           lastNgScaleRef.current = projectionScalePx;
         }
+      }
+      // Also derive initial rotation from NG's real orientation -- without
+      // this, spatialBeta starts at whatever the config's default rotation
+      // is (0,0) regardless of NG's actual initial quaternion, and only
+      // becomes correct once a live rotation event runs the real conversion
+      // logic below. Confirmed via screenshot: cube corners visibly
+      // mismatched on cold load, correct again after any rotation.
+      if (Array.isArray(projectionOrientation)) {
+        const initNgQuatForVitessce = multiplyQuat(projectionOrientation, Q_Y_UP); // right-multiply, matches the ongoing rotation block below
+        const [initPitchRad, initYawRad] = quaternionToEuler(projectionOrientation);
+        setRotationX(rad2deg(-initPitchRad));
+        setRotationOrbit(rad2deg(initYawRad));
+        lastNgPushOrientationRef.current = projectionOrientation;
       }
 
       return;
@@ -1094,7 +1117,7 @@ useEffect(() => {
       const [px, py] = positionPx;
       const [ox, oy] = translationOffsetRef.current;
       const tx = px - ox; // map NG → Vitessce
-      const ty = py - oy;
+      const ty = oy - py;
       if (Number.isFinite(tx) && Math.abs(tx - (spatialTargetX ?? tx)) > TARGET_EPS) setTargetX(tx);
       if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
     }
@@ -1108,16 +1131,24 @@ useEffect(() => {
       lastNgPushOrientationRef.current = projectionOrientation;
 
       applyNgUpdateTimeoutRef.current = setTimeout(() => {
-        const [pitchRad, yawRad] = quaternionToEuler(projectionOrientation); // radians
-        const qReconstructed = eulerToQuaternion(pitchRad, yawRad, 0);
-        console.log('roll-loss check, dot (near 1 = no roll lost):', quatdotAbs(qReconstructed, projectionOrientation));
+        // const [pitchRad, yawRad] = quaternionToEuler(projectionOrientation); // radians
+        const ngQuatForVitessce = multiplyQuat(projectionOrientation, Q_Y_UP); // right-multiply
+        const [pitchRadRaw, yawRad] = quaternionToEuler(projectionOrientation);
+        const pitchRad = -pitchRadRaw;
         const currPitchRad = deg2rad(spatialRotationX ?? 0);
         const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
+        console.log('[NG->Vit]', {
+          ngQuat: projectionOrientation,
+          rawPitchDeg: rad2deg(pitchRad),
+          rawYawDeg: rad2deg(yawRad),
+        });
+    
 
         if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
               || Math.abs(yawRad - currYawRad) > ROTATION_EPS) {
           const pitchDeg = rad2deg(pitchRad);
           const yawDeg = rad2deg(yawRad);
+          console.log('[NG->Vit] PUSHING', { pitchDeg, yawDeg });
 
           // Mark Vitessce as the source for the next derived pass
           lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
@@ -1259,7 +1290,7 @@ useEffect(() => {
         && zoomChangedNow) {
       const sPx = canvasPx * (2 ** -spatialZoom);
       if (Number.isFinite(sPx) && sPx > 0) {
-        nextProjectionScale = sPx * vx; // back to NG's nm space
+        nextProjectionScale = (sPx / NG_ZOOM_CORRECTION) * vx;
       }
     }
 
@@ -1268,6 +1299,16 @@ useEffect(() => {
     const [pxNm = 0, pyNm = 0, pz = (current.position?.[2] ?? oz)] = current.position || [];
     const px = pxNm / vx;
     const py = pyNm / vy;
+    // const tx = px - ox; // map NG → Vitessce
+    // const ty = py - oy;
+    // console.log('pivot check', {
+    //   ngPositionPx: [px, py],           // NG's real target/pivot, converted to pixel space
+    //   translationOffset: [ox, oy],      // the anchor established on first mount
+    //   computedTarget: [tx, ty],         // what this would push to spatialTargetX/Y
+    //   currentSpatialTarget: [spatialTargetX, spatialTargetY], // what's actually there right now
+    //   diff: [tx - spatialTargetX, ty - spatialTargetY],       // should be ~0 if in sync
+    // });
+
     const hasVitessceSpatialTarget = Number.isFinite(spatialTargetX)
        && Number.isFinite(spatialTargetY);
     if (hasVitessceSpatialTarget
@@ -1282,14 +1323,19 @@ useEffect(() => {
 
     // ** --- Orientation/Rotation handling --- ** //
     const vitessceRotationRaw = eulerToQuaternion(
-      deg2rad(spatialRotationX ?? 0),
-      deg2rad(spatialRotationOrbit ?? 0),
+      deg2rad(-(spatialRotationX ?? 0)),
       deg2rad(spatialRotationZ ?? 0),
+      deg2rad(spatialRotationOrbit ?? 0),
     );
 
     // Apply Y-up to have both views with same axis-direction (xy)
     // const vitessceRotation = multiplyQuat(Q_Y_UP, vitessceRotationRaw);
-    const vitessceRotation = vitessceRotationRaw;
+    const vitessceRotation = vitessceRotationRaw;// multiplyQuat(vitessceRotationRaw, Q_Y_UP); // right-multiply, self-inverse
+    console.log('[Vit->NG]', {
+      spatialRotationX, spatialRotationOrbit, spatialRotationZ,
+      vitessceRotationRaw,
+      currentNgQuat: projectionOrientation,
+    });
 
     // // Round-trip check: NG -> Vit (remove Y-UP)
     // const qVitBack = multiplyQuat(conjQuat(Q_Y_UP), vitessceRotation);
@@ -1360,7 +1406,7 @@ useEffect(() => {
         const cy = cyNm / vy;
         const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-        translationOffsetRef.current = [cx - tX, cy - tY, cz];
+        translationOffsetRef.current = [cx - tX, cy + tY, cz];
       }
       // else {
       //   // No real Vitessce rotation change → do not overwrite NG's quat.

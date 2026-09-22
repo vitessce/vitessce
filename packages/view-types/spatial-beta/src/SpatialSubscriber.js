@@ -1131,7 +1131,7 @@ export function SpatialSubscriber(props) {
              // zoom calibrated correctly. NOTE: this applies to every 3D
              // spatialBeta render, not just ones paired with neuroglancer --
              // narrowing that down is a follow-up if it matters for other uses.
-            // orbitFovy={45}
+            orbitFovy={45}
             spatialAxisFixed={spatialAxisFixed}
             setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
             originalViewState={originalViewState}
