@@ -84,7 +84,13 @@ export default function ImageChannelController(props) {
       });
       // eslint-disable-next-line prefer-destructuring
       const [newDomain] = stats.domains;
-      return newDomain;
+      return {
+        minMax: newDomain,
+        // iqr: [stats.q1s[0], stats.q3s[0]],
+        // This seems to work better than the IQR for the slider
+        // upper bound.
+        upperThreeQuarters: [stats.q1s[0], newDomain[1]],
+      };
     },
     meta: { image },
   });
@@ -94,7 +100,7 @@ export default function ImageChannelController(props) {
 
   function handleResetWindowUsingIQR() {
     if (!disabled) {
-      setWindow(minMaxDomain);
+      setWindow(minMaxDomain?.upperThreeQuarters);
     }
   }
 
