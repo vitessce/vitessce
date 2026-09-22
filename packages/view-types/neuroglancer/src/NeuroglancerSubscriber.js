@@ -24,6 +24,7 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
+  useSetComponentViewInfo,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -106,6 +107,7 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
+  const setRawCameraSnapshot = useSetComponentViewInfo(uuid);
 
   const { classes } = useStyles();
 
@@ -130,6 +132,9 @@ export function NeuroglancerSubscriber(props) {
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
   const resizeObserverRef = useRef(null);
+  const rawCameraSnapshotRef = useRef(null);
+  const [rawCameraIteration, incrementRawCameraIteration] = useReducer(x => x + 1, 0);
+
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
   // For overlay when meshes are loaded on demand
@@ -940,6 +945,23 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
+    // Publish NG's raw camera state through the existing generic viewInfo
+    // registry (the same mechanism spatialBeta uses to publish its own
+    // canvas size) -- no Euler decomposition, position/quaternion pass
+    // through unchanged. spatialBeta's RawView reads this directly.
+    if (Array.isArray(position) && Array.isArray(projectionOrientation)) {
+      const flippedQuaternion = multiplyQuat(projectionOrientation, Q_Y_UP);
+      const snapshot = {
+        position,
+        quaternion: flippedQuaternion,
+        projectionScale,
+        target: [spatialTargetX ?? 0, spatialTargetY ?? 0, 0],
+        fovDegrees: 45,
+      };
+      console.log('[RawView] publishing snapshot', snapshot);
+      setRawCameraSnapshot(snapshot);
+    }
+
 
     // Set the views on first mount
     if (!initialRenderCalibratorRef.current) {
@@ -956,14 +978,14 @@ export function NeuroglancerSubscriber(props) {
       // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
       translationOffsetRef.current = [px - tX, py - tY, pz];
       // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-      const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
-      latestViewerStateRef.current = {
-        ...latestViewerStateRef.current,
-        projectionScale: syncedZoom,
-      };
-
-      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
-        setZoom(INIT_VIT_ZOOM);
+      // Trust NG's own real, data-driven auto-framing instead of a
+      // hardcoded constant -- convert its reported projectionScale
+      // directly into the corresponding spatialZoom, rather than
+      // overwriting it with a value tuned for a different dataset.
+      const initialVitZoom = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
+      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - initialVitZoom) > ZOOM_EPS) {
+        lastInteractionSource.current = null;
+        setZoom(initialVitZoom);
       }
       return;
     }
@@ -1117,6 +1139,7 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[derivedViewerState] iteration:', latestViewerStateIteration);
     // console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
     const { current } = latestViewerStateRef;
+    console.log("lastInteractionSource", lastInteractionSource.current)
     if (current.layers.length <= 0) {
       return current;
     }
@@ -1136,6 +1159,14 @@ export function NeuroglancerSubscriber(props) {
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
+
+    console.log('[zoom guard]', {
+      spatialZoom,
+      spatialZoomType: typeof spatialZoom,
+      hasCalibrator: !!initialRenderCalibratorRef.current,
+      lastInteractionSource: lastInteractionSource.current,
+      zoomChangedNow,
+    });
 
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
