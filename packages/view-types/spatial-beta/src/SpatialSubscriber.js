@@ -35,6 +35,8 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  useViewConfig,
+  useComponentViewInfo,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -160,6 +162,18 @@ export function SpatialSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+  const viewConfig = useViewConfig();
+  const neuroglancerUuid = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return null;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    const match = layout.find(v => v.component === 'neuroglancer'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+    return match?.uid ?? null;
+  }, [viewConfig, coordinationScopes]);
+
+  const hasPairedNeuroglancerView = neuroglancerUuid !== null;
+  const rawCameraSnapshot = useComponentViewInfo(neuroglancerUuid);
 
   // Get "props" from the coordination space.
   const [{
@@ -1119,6 +1133,7 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            rawCameraSnapshot={hasPairedNeuroglancerView ? rawCameraSnapshot : null}
           />
         )
       }

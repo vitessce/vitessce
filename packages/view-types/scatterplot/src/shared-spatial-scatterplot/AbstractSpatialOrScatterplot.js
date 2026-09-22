@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import { Matrix4 } from 'math.gl';
+import { RawView } from './rawView.js';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
 
@@ -265,10 +267,43 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   render() {
     const {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
+      rawCameraSnapshot,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
+    // RawView path: when there's a real NG camera snapshot to render from,
+    // build a genuine view matrix (position + quaternion + fovy) instead of
+    // OrbitView's 2-angle + log2-zoom approximation
+    let activeView;
+    if (use3d && rawCameraSnapshot) {
+      const { position: pivot, quaternion, projectionScale, fovDegrees } = rawCameraSnapshot;
+      const fovyRad = (fovDegrees * Math.PI) / 180;
+      const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
+      // Reconstruct a free eye position the same way three.js's
+      // OrbitControls does: eye = target + quaternion-rotated (0,0,distance).
+      const offset = new Matrix4().fromQuaternion(quaternion)
+        .transformAsVector([0, 0, distance]);
+      const eye = pivot.map((p, i) => p + offset[i]);
+      const modelMatrix = new Matrix4()
+        .translate(eye)
+        .multiplyRight(new Matrix4().fromQuaternion(quaternion));
+      const rawViewMatrix = modelMatrix.invert();
+      activeView = new RawView({
+        id: 'raw',
+        controller: false,
+        viewState: {
+          viewMatrix: rawViewMatrix,
+          fovy: fovDegrees,
+          near: 0.1,
+          far: 100000,
+        },
+      });
+    } else if (use3d) {
+      activeView = new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis });
+    } else {
+      activeView = new deck.OrthographicView({ id: 'ortho' });
+    }
 
     const showCellSelectionTools = this.obsSegmentationsData !== null;
     const showPanTool = layers.length > 0;
@@ -297,13 +332,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
-          views={[
-            use3d
-              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis })
-              : new deck.OrthographicView({
-                id: 'ortho',
-              }),
-          ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          views={[activeView]}
           layers={
             gl && viewState.target.slice(0, 2).every(i => typeof i === 'number')
               ? layers
