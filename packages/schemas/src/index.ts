@@ -66,4 +66,10 @@ export {
   neighborhoodsLayerObj,
   moleculesLayerObj,
 } from './spatial-layers.js';
+export {
+  annotationFrameObj,
+  annotationShapesArray,
+  annotationShapeObj,
+  annotationStoryObj,
+} from './annotation-frames.js';
 export { z } from 'zod';

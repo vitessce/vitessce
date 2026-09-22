@@ -63,7 +63,7 @@ const polylineShapeObj = shapeBaseObj.extend({
   markerEnd: z.enum(['Arrow']).nullable().optional(),
 });
 
-const annotationShapeObj = z.discriminatedUnion('type', [
+export const annotationShapeObj = z.discriminatedUnion('type', [
   rectangleShapeObj,
   lineShapeObj,
   ellipseShapeObj,
@@ -71,12 +71,12 @@ const annotationShapeObj = z.discriminatedUnion('type', [
   polylineShapeObj,
 ]);
 
-const annotationShapesArray = z.array(annotationShapeObj);
+export const annotationShapesArray = z.array(annotationShapeObj);
 
 // TODO: define the annotationShapesArray as a coordination type.
 
 
-const annotationFrameObj = z.object({
+export const annotationFrameObj = z.object({
     uid: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),
@@ -99,7 +99,7 @@ const annotationFrameObj = z.object({
     )
 });
 
-const annotationStoryObj = z.object({
+export const annotationStoryObj = z.object({
     uid: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),

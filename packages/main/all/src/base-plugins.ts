@@ -76,6 +76,8 @@ import {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  annotationStoryObj,
+  annotationShapesArray,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -656,6 +658,14 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
+  // Annotation frames
+  new PluginCoordinationType(CoordinationType.ANNOTATION_STORY, null, annotationStoryObj.nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPES, null, annotationShapesArray.nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_FRAME_INDEX, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_OVERLAY_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()), // TODO: make this non-zero by default?
+  new PluginCoordinationType(CoordinationType.ANNOTATION_ACTIVE_TOOL, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPE_SELECTION, null, z.string().nullable()),
 ];
 
 export const baseAsyncFunctions = [

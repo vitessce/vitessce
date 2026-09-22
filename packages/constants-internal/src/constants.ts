@@ -35,6 +35,7 @@ export const ViewType = {
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
   SINGLE_OBS_SET_SELECTOR: 'singleObsSetSelector',
+  ANNOTATION_CONTROLLER: 'annotationController',
 };
 
 export const DataType = {
@@ -385,6 +386,15 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  // Annotation frames
+  ANNOTATION_STORY: 'annotationStory',
+  ANNOTATION_FRAME_INDEX: 'annotationFrameIndex',
+  ANNOTATION_SHAPES: 'annotationShapes',
+  ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
+  ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
+  ANNOTATION_ACTIVE_TOOL: 'annotationActiveTool',
+  ANNOTATION_SHAPE_SELECTION: 'annotationShapeSelection',
+  ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
 };
 
 export const STATUS = {
@@ -427,4 +437,5 @@ export const ViewHelpMapping = {
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
   LAYER_CONTROLLER_BETA: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
   SPATIAL_BETA: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  ANNOTATION_CONTROLLER: 'The annotation controller displays a guided sequence of annotation frames, each capturing a spatial view state with descriptive text and optional geometric shapes (rectangles, lines, ellipses, polygons, polylines). Use it to present a structured narrative over spatial data, or to author and export annotation stories in edit mode.',
 };
