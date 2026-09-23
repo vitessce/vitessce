@@ -1,3 +1,7 @@
+/**
+ * Attribution: Originally written by @RPSeaman
+ * Reference: https://github.com/vitessce/vitessce/pull/2528
+ */
 import { describe, it, expect } from 'vitest';
 import { computeArrowhead, createAnnotationLayers, createPreviewLayer } from './annotation-layer-utils.js';
 

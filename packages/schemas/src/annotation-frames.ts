@@ -1,3 +1,7 @@
+/**
+ * Attribution: Originally written by @RPSeaman
+ * Reference: https://github.com/vitessce/vitessce/pull/2528
+ */
 import { z } from 'zod';
 
 const shapeBaseObj = z.object({

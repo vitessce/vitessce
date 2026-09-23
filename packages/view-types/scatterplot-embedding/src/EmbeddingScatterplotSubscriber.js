@@ -85,6 +85,29 @@ export function EmbeddingScatterplotSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
+  const [{
+    annotationStory,
+    annotationFrameIndex,
+  }, {
+    setAnnotationStory,
+    setAnnotationFrameIndex,
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues, uuid,
+  );
+
+  // TODO: obtain coordinationSpace, coordinationScopes, and coordinationValues
+  // from the current frame.
+  // TODO: move this logic into the useCoordination and other hook functions?
+  // TODO: handle merging of the per-frame coordination space?
+  // TODO: handle the rendering of alternative views/layouts (in vit-s?)
+
+  console.log(annotationStory, annotationFrameIndex);
+  const frameCoordinationValues = annotationStory?.frames?.[annotationFrameIndex]?.layout?.find(v => v.uid === uuid)?.coordinationValues;
+  console.log(frameCoordinationValues);
+
+
+
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -164,7 +187,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAnnotationShapeSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
-    coordinationValues, uuid,
+    frameCoordinationValues ?? coordinationValues, uuid,
   );
 
   const {
@@ -726,6 +749,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         contourThresholds={contourThresholds}
         featureAggregationStrategy={featureAggregationStrategyToUse}
       />
+
     </TitleInfo>
   );
 }

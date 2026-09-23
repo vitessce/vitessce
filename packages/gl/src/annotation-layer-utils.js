@@ -1,3 +1,7 @@
+/**
+ * Attribution: Originally written by @RPSeaman
+ * Reference: https://github.com/vitessce/vitessce/pull/2528
+ */
 import { ViewType } from '@vitessce/constants-internal';
 import { PolygonLayer, PathLayer, TextLayer, ScatterplotLayer, COORDINATE_SYSTEM, PathStyleExtension } from './deck.js';
 
