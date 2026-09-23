@@ -855,7 +855,7 @@ export function NeuroglancerSubscriber(props) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
+  }, [segmentationLayerScopes, pointLayerScopes, meshLoadProjectionScaleThreshold]);
 
   useEffect(() => {
     updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
@@ -1074,7 +1074,8 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [updateVisibleSegmentsThrottledRef]);
+  }, [spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
+    setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
