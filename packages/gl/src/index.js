@@ -18,6 +18,7 @@ export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
 export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
 export { default as ContourLayerWithText } from './ContourLayerWithText.js';
+export { default as AnnotationLayer } from './AnnotationLayer.js';
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,

@@ -972,6 +972,9 @@ importers:
       '@turf/union':
         specifier: catalog:turf
         version: 7.2.0
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../constants-internal
       '@vitessce/globals':
         specifier: workspace:*
         version: link:../globals

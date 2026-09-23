@@ -4,9 +4,10 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
-  ContourLayerWithText,
+  ContourLayerWithText, AnnotationLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
+import { ViewType } from '@vitessce/constants-internal';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
@@ -137,8 +138,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
-
     this.contourLayers = [];
+    this.annotationLayer = null;
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -146,6 +147,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellSetsLayers();
     this.onUpdateStratifiedData();
     this.onUpdateContourLayers();
+    this.onUpdateAnnotationLayer();
   }
 
   // Want to support multiple types of contour layers
@@ -243,6 +245,28 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
           });
         }));
     return layers;
+  }
+
+  createAnnotationLayer() {
+    const {
+      annotationShapes,
+      annotationOverlayVisible,
+      annotationSemanticZoom,
+      annotationTransitionDuration,
+      annotationActiveTool,
+      annotationShapeSelection,
+    } = this.props;
+    return new AnnotationLayer({
+      data: annotationShapes,
+      visible: annotationOverlayVisible,
+      semanticZoom: annotationSemanticZoom,
+      selectedShapeUid: annotationShapeSelection,
+      viewType: ViewType.SCATTERPLOT, // TODO: is this needed?
+
+      // TODO: these are view-level properties, rather than layer-level.
+      // annotationTransitionDuration,
+      // annotationActiveTool,
+    });
   }
 
   createCellsLayer() {
@@ -417,12 +441,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellsLayer,
       cellSetsLayers,
       contourLayers,
+      annotationLayer,
     } = this;
     return [
       cellsLayer,
       ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
+      annotationLayer,
     ];
   }
 
@@ -461,6 +487,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.cellsLayer = this.createCellsLayer();
     } else {
       this.cellsLayer = null;
+    }
+  }
+
+  onUpdateAnnotationLayer() {
+    const {
+      annotationShapes,
+    } = this.props;
+    if (annotationShapes) {
+      this.annotationLayer = this.createAnnotationLayer();
+    } else {
+      this.annotationLayer = null;
     }
   }
 
@@ -610,6 +647,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellSetsLayers(true);
       forceUpdate = true;
     }
+
+    if ([
+      'annotationShapes', 'annotationOverlayVisible',
+      'annotationSemanticZoom', 'annotationTransitionDuration',
+      'annotationActiveTool', 'annotationShapeSelection',
+    ].some(shallowDiff)) {
+      // Annotation info changed.
+      this.onUpdateAnnotationLayer();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }

@@ -25,7 +25,7 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
-  useCoordinationScopes,
+  useViewMapping,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
@@ -46,10 +46,9 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 /**
  * A subscriber component for the scatterplot.
  * @param {object} props
- * @param {number} props.uuid The unique identifier for this component.
+ * @param {number} props.uuid The unique identifier for this component, also used as its
+ * view uid for looking up its coordination mapping via `useViewMapping`.
  * @param {string} props.theme The current theme name.
- * @param {object} props.coordinationScopes The mapping from coordination types to coordination
- * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -59,7 +58,6 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -76,7 +74,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  // useViewMapping looks up this view's coordination mapping directly from the
+  // view config (by uuid), after accounting for meta-coordination, so there is
+  // no need for a `coordinationScopes` prop to be threaded down from a parent.
+  // coordinationValues are values which this view defines directly, which take
+  // precedence over values obtained via coordinationScopes.
+  const [
+    coordinationScopes, _coordinationScopesBy, coordinationValues,
+  ] = useViewMapping(uuid);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
@@ -118,6 +123,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationActiveTool,
+    annotationShapeSelection,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -145,7 +156,16 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
     setFeatureAggregationStrategy,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
+    setAnnotationShapes,
+    setAnnotationOverlayVisible,
+    setAnnotationSemanticZoom,
+    setAnnotationTransitionDuration,
+    setAnnotationActiveTool,
+    setAnnotationShapeSelection,
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues, uuid,
+  );
 
   const {
     embeddingZoom: initialZoom,
@@ -153,6 +173,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingTargetY: initialTargetY,
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues,
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -663,6 +684,14 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+
+        // Annotation stuff
+        annotationShapes={annotationShapes}
+        annotationOverlayVisible={annotationOverlayVisible}
+        annotationSemanticZoom={annotationSemanticZoom}
+        annotationTransitionDuration={annotationTransitionDuration}
+        annotationActiveTool={annotationActiveTool}
+        annotationShapeSelection={annotationShapeSelection}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber
