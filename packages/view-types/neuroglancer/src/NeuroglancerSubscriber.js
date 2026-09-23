@@ -958,7 +958,7 @@ export function NeuroglancerSubscriber(props) {
         target: [spatialTargetX ?? 0, spatialTargetY ?? 0, 0],
         fovDegrees: 45,
       };
-      console.log('[RawView] publishing snapshot', snapshot);
+      console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
       setRawCameraSnapshot(snapshot);
     }
 

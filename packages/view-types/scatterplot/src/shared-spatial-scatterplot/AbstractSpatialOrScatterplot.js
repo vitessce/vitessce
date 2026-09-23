@@ -216,6 +216,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   viewInfoDidUpdate(obsIndex, obsLocations, makeGetObsCoords) {
     const { updateViewInfo, uuid } = this.props;
     const { viewport } = this;
+    console.log(viewport, JSON.stringify(viewport));
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
@@ -269,7 +270,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
       rawCameraSnapshot,
     } = this.props;
-    // console.log('[RawView] prop received', rawCameraSnapshot);
+    console.log('[RawView] prop received', JSON.stringify(rawCameraSnapshot));
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
@@ -278,15 +279,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // OrbitView's 2-angle + log2-zoom approximation
     let activeView;
     if (use3d && rawCameraSnapshot) {
+      console.log('[full snapshot]', JSON.stringify(rawCameraSnapshot));
       const { position: pivot, quaternion, projectionScale, fovDegrees } = rawCameraSnapshot;
-      const pivotMirrored = [pivot[0], -pivot[1], pivot[2]];
       const fovyRad = (fovDegrees * Math.PI) / 180;
       const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
       // Reconstruct a free eye position the same way three.js's
       // OrbitControls does: eye = target + quaternion-rotated (0,0,distance).
       const offset = new Matrix4().fromQuaternion(quaternion)
         .transformAsVector([0, 0, distance]);
-      const eye = pivotMirrored.map((p, i) => p + offset[i]);
+      const eye = pivot.map((p, i) => p + offset[i]);
       const modelMatrix = new Matrix4()
         .translate(eye)
         .multiplyRight(new Matrix4().fromQuaternion(quaternion));
