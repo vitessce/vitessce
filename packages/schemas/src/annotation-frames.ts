@@ -73,9 +73,6 @@ export const annotationShapeObj = z.discriminatedUnion('type', [
 
 export const annotationShapesArray = z.array(annotationShapeObj);
 
-// TODO: define the annotationShapesArray as a coordination type.
-
-
 export const annotationFrameObj = z.object({
     uid: z.string(),
     title: z.string().optional(),
@@ -86,26 +83,30 @@ export const annotationFrameObj = z.object({
     // or per-view coordinationScopes/coordinationScopesBy (if at this frame, the view should be coordinated with other views).
 
     // We can also define a frame-level coordination space, which will be merged with the global coordination space.
-    state: z.array(
+    // TODO: datasets
+    // TODO: coordinationSpace
+    layout: z.array(
+        // Note: for now, we will infer view objects which have a uid that is present in the global layout, and do NOT have x/y/w/h defined, to mean that in this frame, the layout and set of views is unchanged from the global layout. This will allow each frame to omit the full list of views from the layout, and only specify the views whose coordination state is changing in this frame.
+        // If a frame includes a view with a uid that is not present in the global layout, then that view will be added to the layout at this frame. This frame should also define x/y/w/h for all views, since it will otherwise be ambiguous how to layout the updated set of views for this frame.
         z.object({
             // When targetViews is an array, these views will be coordinated with each other.
-            targetViews: z.array(z.string()), // The view UIDs
-            targetCoordinationValues: z.record(
+            uid: z.string(), // The view UID. If this view uid is not present in the global layout, it will be added to the layout at this frame, and will need to have its coordination values initialized to their defaults for any that were not fully specified.
+            coordinationValues: z.record(
                 z.string(), // The coordination type name, e.g. "embeddingType"
                 z.any() // The coordination value, e.g. "UMAP"
-                // This should also support hierarchical coordination via the schema defined in https://github.com/keller-mark/use-coordination/pull/115
+                // This should also support multi-level coordination via the schema defined in https://github.com/keller-mark/use-coordination/pull/115
             ).optional(),
+            // TODO: support coordinationScopes/coordinationScopesBy for per-view coordination at this frame.
+            // TODO: view x/y/w/h once we support view layout changes per-frame.
         })
-    )
+    ).optional(),
 });
 
 export const annotationStoryObj = z.object({
+    // TODO: schema version for the story schema? Same as current Vitessce schema version?
     uid: z.string(),
     title: z.string().optional(),
     description: z.string().optional(),
     descriptionType: z.enum(['text', 'markdown']).optional(),
     frames: z.array(annotationFrameObj),
-
-    // Optionally, a story can define its own coordination space, which will be merged with the global coordination space.
-    storyCoordinationSpace: z.record(z.string(), z.record(z.string(), z.any())).optional(),
 });
