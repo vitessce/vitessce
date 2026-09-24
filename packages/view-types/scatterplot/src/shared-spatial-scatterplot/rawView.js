@@ -14,7 +14,10 @@
 // same root cause: OrbitView's 2-angle + log2-zoom parameterization cannot
 // exactly reproduce a real camera (position + quaternion + fovy), which is
 // what NG actually uses.
-import { View, Viewport, OrbitController } from '@deck.gl/core';
+
+import { deck } from '@vitessce/gl';
+
+const { View, Viewport, OrbitController } = deck;
 
 export class RawView extends View {
   static displayName = 'RawView';
