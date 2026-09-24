@@ -170,6 +170,7 @@ export function NeuroglancerSubscriber(props) {
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
+    obsHighlight: cellHighlight,
   }, {
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
@@ -1419,8 +1420,10 @@ export function NeuroglancerSubscriber(props) {
     latestViewerStateIteration, hasMatchingAnnotationSource]);
 
   const onSegmentHighlight = useCallback((obsId) => {
-    setCellHighlight(String(obsId));
-  }, [setCellHighlight]);
+    const next = obsId != null ? String(obsId) : null;
+    if (next === cellHighlight) return;
+    setCellHighlight(next);
+  }, [setCellHighlight, cellHighlight]);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
     if (!isLayersLoaded && isLoaded) {
