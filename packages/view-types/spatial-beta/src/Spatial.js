@@ -1187,7 +1187,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
 
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
+    const [Layer, nextLayerLoader] = getLayerLoaderTuple(data, is3dMode);
+    // getLayerLoaderTuple wraps `loader` in a fresh array on every call for
+    // the 3D/VolumeLayer case (`Array.isArray(loader) ? loader : [loader]`),
+    // even when the underlying loader is unchanged -- viv treats `loader`
+    // as an identity-checked trigger (same as `selections`, below), so a
+    // new wrapper array every render was causing a full volume reprocess
+    // on every camera-driven re-render, not just real data changes.
+    const prevLayerLoader = this.imageLayerLoaders?.[layerScope];
+    const layerLoader = isEqual(prevLayerLoader, nextLayerLoader)
+      ? prevLayerLoader
+      : nextLayerLoader;
+    if (!this.imageLayerLoaders) this.imageLayerLoaders = {};
+    this.imageLayerLoaders[layerScope] = layerLoader;
 
     const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
     const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
