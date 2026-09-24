@@ -38,7 +38,13 @@ export function ScmdUi(props) {
       {/* Header */}
       <Grid container size={12} className={classes.header}>
         <Grid size={8} />
-        <Grid container size={4} justifyContent="flex-end">
+        <Grid
+          container
+          size={4}
+          sx={{
+            justifyContent: 'flex-end',
+          }}
+        >
           <ButtonGroup variant="outlined" size="small" color="secondary" aria-label="Toggle between confirmatory and exploratory modes">
             <Tooltip arrow title="Start from biomarker(s) of interest">
               <Button variant={isConfirmatoryMode ? 'contained' : 'outlined'} onClick={() => setMode('confirmatory')}>Confirmatory (Hypothesis-driven)</Button>

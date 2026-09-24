@@ -186,8 +186,20 @@ function RasterChannelController({
    */
   const createSelection = index => ({ [dimName]: index });
   return (
-    <Grid container direction="column" justifyContent="center">
-      <Grid container direction="row" justifyContent="space-between">
+    <Grid
+      container
+      sx={{
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      <Grid
+        container
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+        }}
+      >
         <Grid size={10}>
           <ChannelSelectionDropdown
             handleChange={v => handlePropertyChange('selection', createSelection(v))
@@ -206,7 +218,13 @@ function RasterChannelController({
           />
         </Grid>
       </Grid>
-      <Grid container direction="row" justifyContent="space-between">
+      <Grid
+        container
+        direction="row"
+        sx={{
+          justifyContent: 'space-between',
+        }}
+      >
         <Grid size={2}>
           <ChannelVisibilityCheckbox
             color={rgbColor}

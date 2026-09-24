@@ -422,7 +422,13 @@ export default function PointLayerController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
           <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
@@ -497,9 +503,11 @@ export default function PointLayerController(props) {
           <Grid
             size={12}
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
@@ -510,9 +518,11 @@ export default function PointLayerController(props) {
         {enableFeaturesAndSetsDropdown && open ? (
           <Grid
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <Tabs
               value={coloringTabIndex}
@@ -522,7 +532,7 @@ export default function PointLayerController(props) {
               <Tab label="Feature List" />
             </Tabs>
             {coloringTabIndex === 0 && (
-              <Grid size={12} container direction="column">
+              <Grid size={12} container sx={{ flexDirection: 'column' }}>
                 <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
                   {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
                     <MenuItem
@@ -567,7 +577,13 @@ export default function PointLayerController(props) {
           ))}
           <Grid className={lcClasses.layerControllerGrid}>
             <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-              <Grid container direction="row" justifyContent="space-between">
+              <Grid
+                container
+                direction="row"
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Grid size={1}>
                   <Button
                     onClick={() => setFeatureFilterMode(

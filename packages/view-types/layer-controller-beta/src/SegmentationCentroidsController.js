@@ -363,7 +363,14 @@ export default function SegmentationCentroidsController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" alignItems="center">
+        <Grid
+          container
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <Grid size="grow" style={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
             <Button
               onClick={handleSegVisibleChange}
