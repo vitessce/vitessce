@@ -14,22 +14,22 @@ function generateCubeCameraSyncConfiguration() {
 
   const dataset = config.addDataset('Test cube').addFile({
     fileType: 'image.ome-tiff',
-    url: 'http://localhost:7004/test_cube.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/test-dataset-cube/test_cube.ome.tiff',
     coordinationValues: { fileUid: 'cube' },
     options: {
-      offsetsUrl: 'http://localhost:7004/test_cube.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/test-dataset-cube/test_cube.offsets.json',
     },
   });
 
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
-    url: 'http://localhost:7004/precomputed',
+    url: 'https://data-2.vitessce.io/data/sorger/test-dataset-cube/precomputed',
     coordinationValues: { fileUid: 'cube-meshes' },
   });
 
   dataset.addFile({
     fileType: 'obsSets.json',
-    url: 'http://localhost:7004/ids.json',
+    url: 'https://data-2.vitessce.io/data/sorger/test-dataset-cube/ids.json',
     coordinationValues: { obsType: 'cell' },
   });
 
