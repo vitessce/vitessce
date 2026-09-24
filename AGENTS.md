@@ -32,7 +32,7 @@ This project uses **pnpm workspaces**. Packages live under `packages/`. Key pack
 - `packages/gl` — WebGL/deck.gl layer code
 - `packages/constants-internal` — Internal constants shared across packages
 - `packages/schemas` — JSON schema for view configs
-- `packages/styles` - Re-exports MUI components, icons, and `makeStyles` function (JSS-based CSS-in-JS).
+- `packages/styles` - Re-exports MUI components, icons, and the `makeStyles` function (tss-react, backed by Emotion).
 - `packages/types` - Package for shared TypeScript type definitions.
 - `packages/globals` - Defines getters and setters for global state such as debugMode and logLevel (`getDebugMode`, `getLogLevel`, `atLeastLogLevel`).
 - `packages/main/all` — Meta-package that defines the base set of plugins and the top-level `<Vitessce/>` React component.
@@ -81,7 +81,7 @@ For more details, see `README.md` and `dev-docs/monorepo-and-bundling.md`.
 - **Exports**: Use named exports. Avoid default exports in new code.
 - **Imports**: Avoid non-standard imports (CSS, JSON) — use JS files instead.
 - **Formatting**: Follow the existing ESLint rules. No separate Prettier config.
-- **Styling**: Use JSS-based `makeStyles` from `@vitessce/styles`. Raw CSS is not allowed. See the `vitessce-styling` skill.
+- **Styling**: Use `makeStyles` from `@vitessce/styles`. Raw CSS is not allowed. See the `vitessce-styling` skill.
 - **Dependency version consistency**: External dependencies via PNPM catalogs for version consistency.
 - If you need to add a new dependency, add it to the specific sub-package's `package.json`, not the root.
 

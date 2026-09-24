@@ -24,8 +24,8 @@ We make a distinction between three different types of transformations of code: 
 
 CSS and JSON imports like `import 'styles.css';` and `import dataStructure from 'file.json';` are not valid ESM, so try to avoid them.
 
-For CSS, we use Material UI's [makeStyles](https://v4.mui.com/styles/api/#makestyles-styles-options-hook) to define styles.
-[Global selectors](https://cssinjs.org/jss-plugin-global/) can be used to target CSS selectors defined by third parties.
+For CSS, we use [makeStyles](https://docs.tss-react.dev/api/makestyles) from tss-react, re-exported by `@vitessce/styles`, to define styles.
+To target CSS selectors defined by third parties, use `ScopedGlobalStyles` from `@vitessce/styles`, which prefixes every selector of a style object with a parent class name and then renders tss-react's [`<GlobalStyles />`](https://docs.tss-react.dev/api/globalstyles).
 
 For JSON, import from plain JS files rather than from `.json` files.
 
