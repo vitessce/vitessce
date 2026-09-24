@@ -2382,6 +2382,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.17.21
+      math.gl:
+        specifier: 'catalog:'
+        version: 3.6.3
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
