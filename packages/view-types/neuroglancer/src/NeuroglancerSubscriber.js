@@ -419,7 +419,7 @@ export function NeuroglancerSubscriber(props) {
 
     const { position, projectionOrientation, projectionScale } = spatialBetaCameraSnapshot;
     if (!Array.isArray(position) || !Array.isArray(projectionOrientation)) return;
-    console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation ));
+    // console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation));
     // spatialBeta's local camera lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
     // to spatialBeta in handleStateUpdate above). Q_Y_UP is self-inverse, so

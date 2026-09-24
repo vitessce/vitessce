@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RawView } from './rawView.js';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const ROTATION_THRESHOLD = 1;
 const ZOOM_THRESHOLD = 0.01;
@@ -263,7 +263,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const fovyRad = (camera.fov * Math.PI) / 180;
     const projectionScale = distance * 2 * Math.tan(fovyRad / 2);
     // console.log('[sb publish]', { distance, projectionScale });
-    console.log('[sb publish rot]', camera.quaternion.toArray());
+    // console.log('[sb publish rot]', camera.quaternion.toArray());
     setSpatialBetaCameraSnapshot({
       position: target.toArray(), // NG has no free eye -- only a pivot
       projectionOrientation: camera.quaternion.toArray(),
@@ -305,20 +305,20 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   }
 
   componentDidMount() {
-      // Canvas may not exist yet on first mount; retry briefly until it does.
-      this.canvasCheckIntervalId = setInterval(() => {
-        this.setUpOrbitControlsIfReady();
-        if (this.orbitControls) clearInterval(this.canvasCheckIntervalId);
-      }, 100);
-    }
+    // Canvas may not exist yet on first mount; retry briefly until it does.
+    this.canvasCheckIntervalId = setInterval(() => {
+      this.setUpOrbitControlsIfReady();
+      if (this.orbitControls) clearInterval(this.canvasCheckIntervalId);
+    }, 100);
+  }
 
-   componentWillUnmount() {
-       if (this.canvasCheckIntervalId) clearInterval(this.canvasCheckIntervalId);
-       if (this.orbitControls) {
-         this.orbitControls.removeEventListener('change', this.onOrbitControlsChange);
-         this.orbitControls.dispose();
-       }
-     }
+  componentWillUnmount() {
+    if (this.canvasCheckIntervalId) clearInterval(this.canvasCheckIntervalId);
+    if (this.orbitControls) {
+      this.orbitControls.removeEventListener('change', this.onOrbitControlsChange);
+      this.orbitControls.dispose();
+    }
+  }
 
   /**
    * Intended to be overridden by descendants.
@@ -363,8 +363,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     let isRawView = false;
     if (use3d && rawCameraSnapshot) {
       isRawView = true;
-      // console.log('[render branch]', { isRawView, hasOrbitControls: !!this.orbitControls, hasThreeCamera: !!this.threeCamera });
-      const { position: pivot, quaternion, projectionScale, fovDegrees, target } = rawCameraSnapshot;
+      const { position: pivot,
+        quaternion,
+        projectionScale,
+        fovDegrees,
+        target,
+      } = rawCameraSnapshot;
       let eye;
       let quaternionForMatrix;
 
@@ -422,6 +426,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       )
     );
 
+    let controller;
+    if (isRawView) {
+      controller = false;
+    } else if (tool) {
+      controller = { dragPan: false };
+    } else {
+      controller = true;
+    }
+
     return (
       <>
         <ToolMenu
@@ -448,7 +461,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={isRawView ? false : (tool ? { dragPan: false } : true)}
+          controller={controller}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
           width="100%"

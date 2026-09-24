@@ -18,10 +18,12 @@ import { View, Viewport, OrbitController } from '@deck.gl/core';
 
 export class RawView extends View {
   static displayName = 'RawView';
+
   // eslint-disable-next-line class-methods-use-this
   get ViewportType() {
     return Viewport;
   }
+
   // eslint-disable-next-line class-methods-use-this
   get ControllerType() {
     return OrbitController;
