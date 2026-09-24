@@ -2385,6 +2385,9 @@ importers:
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      three:
+        specifier: 'catalog:'
+        version: 0.162.0
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'

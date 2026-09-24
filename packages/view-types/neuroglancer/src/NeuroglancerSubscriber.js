@@ -25,6 +25,8 @@ import {
   useGridItemSize,
   useMemoCustomComparison,
   useSetComponentViewInfo,
+  useComponentViewInfo,
+  useViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -144,6 +146,10 @@ export function NeuroglancerSubscriber(props) {
   const [csvLoaded, setCsvLoaded] = useState(false);
   const updateVisibleSegmentsThrottledRef = useRef(null);
   const viewportSizeRef = useRef({ width: 0, height: 0 });
+  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
+  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
+  // is the mechanism to propagate culling updates to the NG viewer state.
+  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -323,6 +329,28 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Obtain the Neuroglancer viewerState object.
+  const initialViewerState = useNeuroglancerViewerState(
+    theme,
+    showAxisLines,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerScopes,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+    pointMultiIndicesData,
+  );
+
+  const latestViewerStateRef = useRef({
+    ...initialViewerState,
+    ...(initialNgCameraState ?? {}),
+  });
+
   const errors = [
     ...obsPointsErrors,
     ...obsSegmentationsDataErrors,
@@ -366,6 +394,48 @@ export function NeuroglancerSubscriber(props) {
     ty: spatialTargetY,
   });
 
+  const lastAppliedSpatialBetaSnapshotRef = useRef(null);
+  const spatialBetaJustPushedRef = useRef(false);
+
+  // Find the spatialBeta view showing the same dataset, so we can read its
+  // camera snapshot back (to sync in reverse direction: spatialBeta -> NG, for direct
+  // dragging inside spatialBeta's own panel).
+  const viewConfig = useViewConfig();
+
+  const spatialBetaUuid = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return null;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    const match = layout.find(v => v.component === 'spatialBeta'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+    return match?.uid ?? null;
+  }, [viewConfig, coordinationScopes]);
+  const spatialBetaCameraSnapshot = useComponentViewInfo(spatialBetaUuid ? `${spatialBetaUuid}-camera` : null);
+
+  useEffect(() => {
+    if (!spatialBetaCameraSnapshot) return;
+    if (spatialBetaCameraSnapshot === lastAppliedSpatialBetaSnapshotRef.current) return;
+    lastAppliedSpatialBetaSnapshotRef.current = spatialBetaCameraSnapshot;
+
+    const { position, projectionOrientation, projectionScale } = spatialBetaCameraSnapshot;
+    if (!Array.isArray(position) || !Array.isArray(projectionOrientation)) return;
+    console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation ));
+    // spatialBeta's local camera lives in the Q_Y_UP-flipped frame (see the
+    // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
+    // to spatialBeta in handleStateUpdate above). Q_Y_UP is self-inverse, so
+    // applying it again un-does that flip before pushing back into NG.
+    const unflipped = multiplyQuat(projectionOrientation, Q_Y_UP);
+
+    lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
+    spatialBetaJustPushedRef.current = true;
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      position,
+      projectionOrientation: unflipped,
+      projectionScale,
+    };
+    incrementLatestViewerStateIteration();
+  }, [spatialBetaCameraSnapshot]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -562,32 +632,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiIndicesData,
     csvLoaded,
   }, customIsEqualForCellColors);
-
-  // Obtain the Neuroglancer viewerState object.
-  const initialViewerState = useNeuroglancerViewerState(
-    theme,
-    showAxisLines,
-    segmentationLayerScopes,
-    segmentationChannelScopesByLayer,
-    segmentationLayerCoordination,
-    segmentationChannelCoordination,
-    obsSegmentationsUrls,
-    obsSegmentationsData,
-    pointLayerScopes,
-    pointLayerCoordination,
-    obsPointsUrls,
-    obsPointsData,
-    pointMultiIndicesData,
-  );
-
-  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
-  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
-  // is the mechanism to propagate culling updates to the NG viewer state.
-  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
-  const latestViewerStateRef = useRef({
-    ...initialViewerState,
-    ...(initialNgCameraState ?? {}),
-  });
 
   // TODO: For debugging in console uncomment
   // useEffect(() => {
@@ -955,10 +999,10 @@ export function NeuroglancerSubscriber(props) {
         position,
         quaternion: flippedQuaternion,
         projectionScale,
-        target: [spatialTargetX ?? 0, spatialTargetY ?? 0, 0],
+        target: [spatialTargetX ?? 0, spatialTargetY ?? 0, position?.[2] ?? 0],
         fovDegrees: 45,
       };
-      console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
+      // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
       setRawCameraSnapshot(snapshot);
     }
 
@@ -1140,7 +1184,29 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[derivedViewerState] iteration:', latestViewerStateIteration);
     // console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
     const { current } = latestViewerStateRef;
-    console.log("lastInteractionSource", lastInteractionSource.current)
+    // console.log("lastInteractionSource", lastInteractionSource.current)
+    if (spatialBetaJustPushedRef.current) {
+      // A direct spatialBeta drag already placed the correct raw
+      // position/projectionOrientation/projectionScale into `current`
+      // above -- skip the Euler-based rotation-source resolution below
+      // entirely for this one pass, so it can't clobber the raw push with
+      // stale spatialRotationX/spatialRotationOrbit-derived values.
+      spatialBetaJustPushedRef.current = false;
+      if (lastInteractionSource.current === LAST_INTERACTION_SOURCE.vitessce) {
+        lastInteractionSource.current = null;
+      }
+      prevCoordsRef.current = {
+        zoom: spatialZoom,
+        rx: spatialRotationX,
+        ry: spatialRotationY,
+        rz: spatialRotationZ,
+        orbit: spatialRotationOrbit,
+        tx: spatialTargetX,
+        ty: spatialTargetY,
+      };
+      return current;
+    }
+
     if (current.layers.length <= 0) {
       return current;
     }
@@ -1161,13 +1227,13 @@ export function NeuroglancerSubscriber(props) {
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
 
-    console.log('[zoom guard]', {
-      spatialZoom,
-      spatialZoomType: typeof spatialZoom,
-      hasCalibrator: !!initialRenderCalibratorRef.current,
-      lastInteractionSource: lastInteractionSource.current,
-      zoomChangedNow,
-    });
+    // console.log('[zoom guard]', {
+    //   spatialZoom,
+    //   spatialZoomType: typeof spatialZoom,
+    //   hasCalibrator: !!initialRenderCalibratorRef.current,
+    //   lastInteractionSource: lastInteractionSource.current,
+    //   zoomChangedNow,
+    // });
 
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
@@ -1326,7 +1392,7 @@ export function NeuroglancerSubscriber(props) {
       };
     }) ?? [];
     const layersChanged = !isEqual(current.layers, updatedLayers);
-    console.log("layersChanged", layersChanged)
+    // console.log("layersChanged", layersChanged)
     const updated = {
       ...current,
       projectionScale: nextProjectionScale,

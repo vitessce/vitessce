@@ -157,6 +157,7 @@ export function SpatialSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+  const setSpatialBetaCameraSnapshot = useSetComponentViewInfo(`${uuid}-camera`);
   const mergeCoordination = useMergeCoordination();
 
   // Acccount for possible meta-coordination.
@@ -1134,6 +1135,7 @@ export function SpatialSubscriber(props) {
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
             rawCameraSnapshot={hasPairedNeuroglancerView ? rawCameraSnapshot : null}
+            setSpatialBetaCameraSnapshot={hasPairedNeuroglancerView ? setSpatialBetaCameraSnapshot : null}
           />
         )
       }

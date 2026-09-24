@@ -431,6 +431,10 @@ export default class Neuroglancer extends React.Component {
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
     this.allKnownIdsByLayer = {};
+    // Tracks the camera state NG actually received via restoreState, kept separate from prevProps.viewerState;
+    // NG only updates state when the changes passes the epsilon value. when these changes are small
+    // to pass the epsilon threshold (e.g. 4.7 < 5), after a few such updates, NG seems drifted from spatialBeta view.
+    this.lastAppliedCameraState = null;
   }
 
   minimalPoseSnapshot = () => {
@@ -893,7 +897,12 @@ export default class Neuroglancer extends React.Component {
     const nextLayers = viewerState?.layers;
 
     // Restore camera ONLY if it actually changed
-    const camState = diffCameraState(prevVS, viewerState);
+    const camState = diffCameraState(this.lastAppliedCameraState ?? prevVS, viewerState);
+    // console.log('[componentDidUpdate camera]', {
+    //     prevVS: JSON.stringify(prevVS.projectionOrientation),
+    //     viewerState: JSON.stringify(viewerState.projectionOrientation),
+    //     camState: JSON.stringify(camState),
+    // });
     if (camState.changed) {
       const patch = {};
       if (camState.scale) {
@@ -906,6 +915,11 @@ export default class Neuroglancer extends React.Component {
       if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
+      this.lastAppliedCameraState = {
+        position: viewerState.position,
+        projectionOrientation: viewerState.projectionOrientation,
+        projectionScale: viewerState.projectionScale,
+      };
     }
 
     // Structural layer changes (source URL, layer type, name, subsources etc.)

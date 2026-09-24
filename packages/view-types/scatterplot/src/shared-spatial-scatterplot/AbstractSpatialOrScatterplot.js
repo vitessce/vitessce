@@ -4,6 +4,8 @@ import { Matrix4 } from 'math.gl';
 import { RawView } from './rawView.js';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const ROTATION_THRESHOLD = 1;
 const ZOOM_THRESHOLD = 0.01;
@@ -24,12 +26,19 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
     this.lastApplied = null;
     this.viewport = null;
+    this.threeCamera = null;
+    this.orbitControls = null;
+    this.canvasCheckIntervalId = null;
+    this.lastSyncedSnapshot = null;
+    this.isApplyingExternalSync = false;
+    this.isApplyingLocalChange = false;
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
     this.recenter = this.recenter.bind(this);
+    this.onOrbitControlsChange = this.onOrbitControlsChange.bind(this);
   }
 
   /**
@@ -207,6 +216,63 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     }
   }
 
+  setUpOrbitControlsIfReady() {
+    if (this.orbitControls) return; // already set up
+    const { deckRef, rawCameraSnapshot } = this.props;
+    if (!this.use3d()) return; // only for the RawView/3D path
+    const canvas = deckRef?.current?.deck?.canvas;
+    if (!canvas || !rawCameraSnapshot) return;
+    // console.log('[OrbitControls setup]', {
+    //     hasDeckRef: !!deckRef?.current,
+    //     deckRefKeys: deckRef?.current ? Object.keys(deckRef.current) : null,
+    //     hasDeck: !!deckRef?.current?.deck,
+    //     hasCanvas: !!canvas,
+    //     hasSnapshot: !!rawCameraSnapshot,
+    //   });
+
+    const { position, quaternion, target, fovDegrees } = rawCameraSnapshot;
+    const camera = new THREE.PerspectiveCamera(fovDegrees, 1, 0.1, 100000);
+    camera.position.set(...position);
+    camera.quaternion.set(...quaternion);
+    camera.updateProjectionMatrix();
+
+    // Attaching to the parent instead of te canvas due to the overlay which intercepts
+    // all the pointer events. It puts OrbitControls
+    // at the same DOM level, not underneath that overlay.
+    const eventTarget = canvas.parentElement ?? canvas;
+    const controls = new OrbitControls(camera, eventTarget);
+    controls.target.set(...target);
+    controls.update();
+    controls.addEventListener('change', this.onOrbitControlsChange);
+
+    this.threeCamera = camera;
+    this.orbitControls = controls;
+  }
+
+  onOrbitControlsChange() {
+    if (this.isApplyingExternalSync) return; // our own echo from the sync above, not a user drag
+    const { setSpatialBetaCameraSnapshot } = this.props;
+    if (!setSpatialBetaCameraSnapshot || !this.threeCamera || !this.orbitControls) {
+      this.forceUpdate();
+      return;
+    }
+
+    const camera = this.threeCamera;
+    const { target } = this.orbitControls;
+    const distance = camera.position.distanceTo(target);
+    const fovyRad = (camera.fov * Math.PI) / 180;
+    const projectionScale = distance * 2 * Math.tan(fovyRad / 2);
+    // console.log('[sb publish]', { distance, projectionScale });
+    console.log('[sb publish rot]', camera.quaternion.toArray());
+    setSpatialBetaCameraSnapshot({
+      position: target.toArray(), // NG has no free eye -- only a pivot
+      projectionOrientation: camera.quaternion.toArray(),
+      projectionScale,
+    });
+
+    this.forceUpdate();
+  }
+
   /**
    * Emits a function to project from the
    * cell ID space to the scatterplot or
@@ -216,7 +282,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   viewInfoDidUpdate(obsIndex, obsLocations, makeGetObsCoords) {
     const { updateViewInfo, uuid } = this.props;
     const { viewport } = this;
-    console.log(viewport, JSON.stringify(viewport));
+    // console.log(viewport, JSON.stringify(viewport));
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
@@ -237,6 +303,22 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       });
     }
   }
+
+  componentDidMount() {
+      // Canvas may not exist yet on first mount; retry briefly until it does.
+      this.canvasCheckIntervalId = setInterval(() => {
+        this.setUpOrbitControlsIfReady();
+        if (this.orbitControls) clearInterval(this.canvasCheckIntervalId);
+      }, 100);
+    }
+
+   componentWillUnmount() {
+       if (this.canvasCheckIntervalId) clearInterval(this.canvasCheckIntervalId);
+       if (this.orbitControls) {
+         this.orbitControls.removeEventListener('change', this.onOrbitControlsChange);
+         this.orbitControls.dispose();
+       }
+     }
 
   /**
    * Intended to be overridden by descendants.
@@ -270,7 +352,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
       rawCameraSnapshot,
     } = this.props;
-    console.log('[RawView] prop received', JSON.stringify(rawCameraSnapshot));
+    // console.log('[RawView] prop received', JSON.stringify(rawCameraSnapshot));
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
@@ -278,24 +360,40 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // build a genuine view matrix (position + quaternion + fovy) instead of
     // OrbitView's 2-angle + log2-zoom approximation
     let activeView;
+    let isRawView = false;
     if (use3d && rawCameraSnapshot) {
-      console.log('[full snapshot]', JSON.stringify(rawCameraSnapshot));
-      const { position: pivot, quaternion, projectionScale, fovDegrees } = rawCameraSnapshot;
-      const fovyRad = (fovDegrees * Math.PI) / 180;
-      const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
-      // Reconstruct a free eye position the same way three.js's
-      // OrbitControls does: eye = target + quaternion-rotated (0,0,distance).
-      const offset = new Matrix4().fromQuaternion(quaternion)
-        .transformAsVector([0, 0, distance]);
-      const eye = pivot.map((p, i) => p + offset[i]);
+      isRawView = true;
+      // console.log('[render branch]', { isRawView, hasOrbitControls: !!this.orbitControls, hasThreeCamera: !!this.threeCamera });
+      const { position: pivot, quaternion, projectionScale, fovDegrees, target } = rawCameraSnapshot;
+      let eye;
+      let quaternionForMatrix;
+
+      if (this.orbitControls && this.threeCamera) {
+        if (rawCameraSnapshot !== this.lastSyncedSnapshot && !this.isApplyingLocalChange) {
+          const fovyRad = (fovDegrees * Math.PI) / 180;
+          const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
+          const offset = new Matrix4().fromQuaternion(quaternion)
+            .transformAsVector([0, 0, distance]);
+          const externalEye = pivot.map((p, i) => p + offset[i]);
+          this.threeCamera.position.set(...externalEye);
+          this.threeCamera.quaternion.set(...quaternion);
+          this.orbitControls.target.set(...target);
+          this.lastSyncedSnapshot = rawCameraSnapshot;
+        }
+        eye = this.threeCamera.position.toArray();
+        quaternionForMatrix = this.threeCamera.quaternion.toArray();
+      } else {
+        const fovyRad = (fovDegrees * Math.PI) / 180;
+        const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
+        const offset = new Matrix4().fromQuaternion(quaternion).transformAsVector([0, 0, distance]);
+        eye = pivot.map((p, i) => p + offset[i]);
+        quaternionForMatrix = quaternion;
+      }
+
       const modelMatrix = new Matrix4()
         .translate(eye)
-        .multiplyRight(new Matrix4().fromQuaternion(quaternion));
+        .multiplyRight(new Matrix4().fromQuaternion(quaternionForMatrix));
       const rawViewMatrix = modelMatrix.invert();
-      // console.log('[RawView debug]', {
-      //   pivot, quaternion, eye, pivotMirrored,
-      //   modelMatrixElements: modelMatrix.toArray?.() ?? modelMatrix,
-      // });
       activeView = new RawView({
         id: 'raw',
         controller: false,
@@ -350,7 +448,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? { dragPan: false } : true}
+          controller={isRawView ? false : (tool ? { dragPan: false } : true)}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
           width="100%"
