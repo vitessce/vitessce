@@ -42,13 +42,10 @@ import { useNeuroglancerViewerState, pointsHaveMatchingSegmentation } from './da
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import { useStyles } from './styles.js';
 import {
-  quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   nearEq,
-  makeVitNgZoomCalibrator,
   multiplyQuat,
-  rad2deg,
   deg2rad,
   Q_Y_UP,
   applyColormap,
@@ -59,7 +56,6 @@ import {
 } from './utils.js';
 
 
-const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const MESH_LOAD_THRESHOLD = 100;
@@ -119,15 +115,11 @@ export function NeuroglancerSubscriber(props) {
   const lastInteractionSource = useRef(null);
   const initialRenderCalibratorRef = useRef(null);
   const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgScaleRef = useRef(null);
   const annotationInfoRef = useRef(null);
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
   const resizeObserverRef = useRef(null);
-  const rawCameraSnapshotRef = useRef(null);
-  const [rawCameraIteration, incrementRawCameraIteration] = useReducer(x => x + 1, 0);
 
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
@@ -169,13 +161,6 @@ export function NeuroglancerSubscriber(props) {
     setObsColorEncoding: setCellColorEncoding,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
-    setSpatialTargetX: setTargetX,
-    setSpatialTargetY: setTargetY,
-    setSpatialRotationX: setRotationX,
-    // setSpatialRotationY: setRotationY,
-    // setSpatialRotationZ: setRotationZ,
-    setSpatialRotationOrbit: setRotationOrbit,
-    setSpatialZoom: setZoom,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
@@ -1018,127 +1003,14 @@ export function NeuroglancerSubscriber(props) {
         position,
         quaternion: flippedQuaternion,
         projectionScale,
-        target: [spatialTargetX ?? 0, spatialTargetY ?? 0, position?.[2] ?? 0],
+        target: position,
         fovDegrees: 45,
       };
       // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
       setRawCameraSnapshot(snapshot);
     }
-
-
-    // Set the views on first mount
-    if (!initialRenderCalibratorRef.current) {
-      // wait for a real scale
-      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return;
-
-      // anchor to current Vitessce zoom
-      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
-      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
-
-      const [px = 0, py = 0, pz = 0] = position;
-      const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
-      const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-      // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
-      translationOffsetRef.current = [px - tX, py - tY, pz];
-      // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-      // Trust NG's own real, data-driven auto-framing instead of a
-      // hardcoded constant -- convert its reported projectionScale
-      // directly into the corresponding spatialZoom, rather than
-      // overwriting it with a value tuned for a different dataset.
-      const initialVitZoom = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
-      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - initialVitZoom) > ZOOM_EPS) {
-        lastInteractionSource.current = null;
-        setZoom(initialVitZoom);
-      }
-      return;
-    }
-
-    // ZOOM (NG → Vitessce) — do this only after calibrator exists
-    if (Number.isFinite(projectionScale) && projectionScale > 0) {
-      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
-      const scaleChanged = lastNgScaleRef.current == null
-          || (Math.abs(projectionScale - lastNgScaleRef.current)
-          > 1e-6 * Math.max(1, projectionScale));
-      if (scaleChanged && Number.isFinite(vitZoomFromNg)
-            && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
-        if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
-        zoomRafRef.current = requestAnimationFrame(() => {
-          setZoom(vitZoomFromNg);
-          zoomRafRef.current = null;
-        });
-        // Trigger immediate mesh update on zoom change, don't wait for throttle
-        updateVisibleSegments();
-      }
-      // remember last NG scale
-      lastNgScaleRef.current = projectionScale;
-    }
-
-    // TRANSLATION
-    if (Array.isArray(position) && position.length >= 2) {
-      const [px, py] = position;
-      const [ox, oy] = translationOffsetRef.current;
-      const tx = px - ox; // map NG → Vitessce
-      const ty = py - oy;
-      if (Number.isFinite(tx) && Math.abs(tx - (spatialTargetX ?? tx)) > TARGET_EPS) setTargetX(tx);
-      if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
-    }
-    // ROTATION — only when NG quat actually changes
-    // const quatChanged = valueGreaterThanEpsilon(
-    //   projectionOrientation, lastNgQuatRef.current, ROTATION_EPS,
-    // );
-
-    // if (quatChanged) {
-    //   if (applyNgUpdateTimeoutRef.current) clearTimeout(applyNgUpdateTimeoutRef.current);
-    //   lastNgPushOrientationRef.current = projectionOrientation;
-
-    //   applyNgUpdateTimeoutRef.current = setTimeout(() => {
-    //     // Remove the Y-up correction before converting to Euler for Vitessce
-    //     const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
-    //     const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
-    //     const currPitchRad = deg2rad(spatialRotationX ?? 0);
-    //     const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
-
-    //     if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
-    //           || Math.abs(yawRad - currYawRad) > ROTATION_EPS) {
-    //       const pitchDeg = rad2deg(pitchRad);
-    //       const yawDeg = rad2deg(yawRad);
-
-    //       // Mark Vitessce as the source for the next derived pass
-    //       lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
-    //       setRotationX(pitchDeg);
-    //       setRotationOrbit(yawDeg);
-    //       ngRotPushAtRef.current = performance.now();
-
-    //       // // Test to verify rotation from NG to Vitessce and back to NG
-    //       // requestAnimationFrame(() => {
-    //       //   requestAnimationFrame(() => {
-    //       //     // Recreate the Vitessce quaternion from the angles we *just set*
-    //       //     const qVitJustSet = eulerToQuaternion(deg2rad(pitchDeg), deg2rad(yawDeg), 0);
-    //       //     // Convert to NG frame (apply Y-up)
-    //       //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
-    //       //     // What NG is currently holding (latest from ref, fallback to local)
-    //       //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation
-    //       //  || projectionOrientation;
-
-    //       //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
-    //       //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
-    //       //   });
-    //       // });
-    //     }
-    //   }, VITESSCE_INTERACTION_DELAY);
-
-    //   lastNgQuatRef.current = projectionOrientation;
-    // }
-
-    latestViewerStateRef.current = {
-      ...latestViewerStateRef.current,
-      projectionOrientation,
-      projectionScale,
-      position,
-    };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [spatialZoom, spatialTargetX, spatialTargetY, spatialRotationX, spatialRotationOrbit,
-    setZoom, setTargetX, setTargetY, setRotationX, setRotationOrbit, updateVisibleSegments]);
+  }, [setRawCameraSnapshot]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
