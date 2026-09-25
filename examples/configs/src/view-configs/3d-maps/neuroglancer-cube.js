@@ -36,11 +36,11 @@ function generateCubeCameraSyncConfiguration() {
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
-  neuroglancerView.setProps({
-    initialNgCameraState: {
-      position: [58, 83, 108],
-    },
-  });
+  // neuroglancerView.setProps({
+  //   initialNgCameraState: {
+  //     position: [58, 83, 108],
+  //   },
+  // });
   const obsSetsView = config.addView(dataset, 'obsSets');
 
 

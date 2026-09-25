@@ -347,10 +347,36 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
+  const derivedCenterRef = useRef(null);
+  const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(!!initialNgCameraState);
+
   const latestViewerStateRef = useRef({
     ...initialViewerState,
-    ...(initialNgCameraState ?? {}),
+    ...(initialNgCameraState ?? (derivedCenterRef.current
+      ? { position: derivedCenterRef.current } : {})),
   });
+
+  const segmentationUrl = useMemo(() => {
+    const firstScope = segmentationLayerScopes?.[0];
+    return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [segmentationLayerScopes, obsSegmentationsUrls]);
+
+  useEffect(() => {
+    if (initialNgCameraState || !segmentationUrl) {
+      setHasResolvedInitialCamera(true);
+      return;
+    }
+    fetch(`${segmentationUrl}/info`)
+      .then(r => r.json())
+      .then((info) => {
+        const size = info?.scales?.[0]?.size;
+        if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
+          derivedCenterRef.current = size.map(s => s / 2);
+        }
+      })
+      .catch(err => console.warn('[NeuroglancerSubscriber] failed to derive default center:', err))
+      .finally(() => setHasResolvedInitialCamera(true));
+  }, [segmentationUrl, initialNgCameraState]);
 
   const errors = [
     ...obsPointsErrors,
@@ -1456,7 +1482,7 @@ export function NeuroglancerSubscriber(props) {
       withPadding={false}
       guideUrl={GUIDE_URL}
     >
-      {hasLayers ? (
+      {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
