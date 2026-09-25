@@ -41,6 +41,7 @@
     "d3-force": "catalog:",
     "d3-quadtree": "catalog:",
     "lodash-es": "catalog:",
+    "math.gl": "catalog:",
     "react-aria": "catalog:"
   },
   "devDependencies": {
@@ -49,9 +50,11 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "three": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+    "three": ">=0.162.0"
   }
 }

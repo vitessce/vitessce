@@ -2,6 +2,7 @@
 /* eslint-disable prefer-destructuring */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
+import { Matrix4 } from 'math.gl';
 import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension,
 } from '@vitessce/gl';
@@ -1186,7 +1187,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
 
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
+    const [Layer, nextLayerLoader] = getLayerLoaderTuple(data, is3dMode);
+    // getLayerLoaderTuple wraps `loader` in a fresh array on every call for
+    // the 3D/VolumeLayer case (`Array.isArray(loader) ? loader : [loader]`),
+    // even when the underlying loader is unchanged -- viv treats `loader`
+    // as an identity-checked trigger (same as `selections`, below), so a
+    // new wrapper array every render was causing a full volume reprocess
+    // on every camera-driven re-render, not just real data changes.
+    const prevLayerLoader = this.imageLayerLoaders?.[layerScope];
+    const layerLoader = isEqual(prevLayerLoader, nextLayerLoader)
+      ? prevLayerLoader
+      : nextLayerLoader;
+    if (!this.imageLayerLoaders) this.imageLayerLoaders = {};
+    this.imageLayerLoaders[layerScope] = layerLoader;
 
     const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
     const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
@@ -1215,8 +1228,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       rgbInterleavedProps.visible = visible;
     }
 
-    // TODO: support model matrix from coordination space also.
-    const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
+    const rawModelMatrix = image?.image?.instance?.getModelMatrix() || new Matrix4().identity();
+    // Mirror along Z: negate Z, then translate back by the volume's full Z
+    // extent so the mirrored volume lands back in the same bounding region
+    // instead of reflecting to the opposite side of the origin. NG's own
+    // rendering and Viv's image-loader model matrix disagree on this axis;
+    // this compensates for that, independent of whichever camera system
+    // (OrbitView or RawView) is driving the view.
+    // const yMirror = new Matrix4().scale([1, -1, 1]);
+    const yLabelIndex = data?.['0']?.labels?.indexOf('y') ?? -1;
+    const yExtent = yLabelIndex >= 0 ? (data['0'].shape[yLabelIndex] ?? 0) : 0;
+    const yMirror = new Matrix4()
+      .translate([0, yExtent, 0])
+      .scale([1, -1, 1]);
+    // console.log('[y-mirror]', { yExtent, yLabelIndex });
+    const layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
