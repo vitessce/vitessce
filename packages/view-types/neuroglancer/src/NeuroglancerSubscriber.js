@@ -349,9 +349,8 @@ export function NeuroglancerSubscriber(props) {
       setHasResolvedInitialCamera(true);
       return;
     }
-
     Promise.all([
-      fetch(`${segmentationUrl}/info`).then(r => r.json()).catch(() => null),
+      fetch(`${segmentationUrl.replace(/\/+$/, '')}/info`).then(r => r.json()).catch(() => null),
       cellsUrl ? fetch(`${cellsUrl}/info`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
     ]).then(([segInfo, annotationInfo]) => {
       // Prefer the annotation layer's real content bounds when available --
@@ -793,7 +792,7 @@ export function NeuroglancerSubscriber(props) {
     if (!width || !height) return;
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
-    const cellsUrl = info.url;
+    const cellsInfoUrl = info.url;
 
     // // Fetch all annotation chunks across all spatial levels
     const allLevelCoords = info.spatial.flatMap((level) => {
@@ -817,7 +816,7 @@ export function NeuroglancerSubscriber(props) {
       // the actual chunk data was generated with 32-byte properties regardless of level.
       const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer) return [];
-      const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
+      const cacheKey = `${cellsInfoUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }

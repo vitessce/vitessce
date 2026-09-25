@@ -72,15 +72,13 @@ function generateNeuroglancerMinimalConfiguration() {
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta');
+  const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // Note: this is a temporary mechanism to pass an initial NG camera state.
-    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
-    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
+    // The mehses here are neuroglancer_multilod_draco format and does not have raster volume to comptue the camera state
     initialNgCameraState: {
       position: [
         -342.5,
@@ -99,21 +97,9 @@ function generateNeuroglancerMinimalConfiguration() {
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
-  config.linkViewsByObject([neuroglancerView, spatialThreeView, lcView], {
-    spatialRenderingMode: '3D',
-    spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationZ: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
-
   // Initialize the image properties
-  config.linkViewsByObject([spatialThreeView, lcView], {
+  config.linkViewsByObject([spatialView, lcView], {
+    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'melanoma',
@@ -151,7 +137,7 @@ function generateNeuroglancerMinimalConfiguration() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
-  config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets, scatterView)));
+  config.layout(hconcat(neuroglancerView, spatialView, vconcat(lcView, obsSets, scatterView)));
   const configJSON = config.toJSON();
   return configJSON;
 }
