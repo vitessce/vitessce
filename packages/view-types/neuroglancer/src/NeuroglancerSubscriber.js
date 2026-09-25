@@ -338,22 +338,56 @@ export function NeuroglancerSubscriber(props) {
     return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [segmentationLayerScopes, obsSegmentationsUrls]);
 
+  // Get cells URL from obsPointsUrls
+  const cellsUrl = useMemo(() => {
+    const firstScope = pointLayerScopes?.[0];
+    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [pointLayerScopes, obsPointsUrls]);
+
   useEffect(() => {
     if (initialNgCameraState || !segmentationUrl) {
       setHasResolvedInitialCamera(true);
       return;
     }
-    fetch(`${segmentationUrl}/info`)
-      .then(r => r.json())
-      .then((info) => {
-        const size = info?.scales?.[0]?.size;
+
+    Promise.all([
+      fetch(`${segmentationUrl}/info`).then(r => r.json()).catch(() => null),
+      cellsUrl ? fetch(`${cellsUrl}/info`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
+    ]).then(([segInfo, annotationInfo]) => {
+      // Prefer the annotation layer's real content bounds when available --
+      // the raw raster volume's declared size can span far more empty space
+      // than where the actual data sits (e.g. a thin tissue section inside
+      // a much taller declared Z range). Mirrors the priority order in
+      // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
+      // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
+      // which would need fetching actual mesh geometry rather than a single
+      // info JSON.
+      const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
+      let center;
+      if (Array.isArray(lower) && Array.isArray(upper)
+          && lower.length === 3 && upper.length === 3
+          && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
+        center = lower.map((lo, i) => (lo + upper[i]) / 2);
+      } else {
+        const scale = segInfo?.scales?.[0];
+        const size = scale?.size;
+        const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
+        const resolution = scale?.resolution ?? [1, 1, 1];
         if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
-          derivedCenterRef.current = size.map(s => s / 2);
+          center = size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
         }
-      })
+      }
+      if (center) {
+        derivedCenterRef.current = center;
+        latestViewerStateRef.current = {
+          ...latestViewerStateRef.current,
+          position: center,
+        };
+      }
+    })
       .catch(err => console.warn('[NeuroglancerSubscriber] failed to derive default center:', err))
       .finally(() => setHasResolvedInitialCamera(true));
-  }, [segmentationUrl, initialNgCameraState]);
+  }, [segmentationUrl, cellsUrl, initialNgCameraState]);
 
   const errors = [
     ...obsPointsErrors,
@@ -926,13 +960,6 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [initialViewerState]);
 
-  // Get cells URL from obsPointsUrls
-  const cellsUrl = useMemo(() => {
-    const firstScope = pointLayerScopes?.[0];
-    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
-  }, [pointLayerScopes, obsPointsUrls]);
-
-
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
   const hasMatchingAnnotationSource = useMemo(() => {
@@ -1009,6 +1036,13 @@ export function NeuroglancerSubscriber(props) {
       // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
       setRawCameraSnapshot(snapshot);
     }
+    // NG updates it's current state
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      projectionOrientation,
+      projectionScale,
+      position,
+    };
     updateVisibleSegmentsThrottledRef.current?.();
   }, [setRawCameraSnapshot]);
 
