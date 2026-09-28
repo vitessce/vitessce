@@ -364,8 +364,10 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_ACTIVE_TOOL,
     CoordinationType.ANNOTATION_SHAPE_SELECTION,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
-    // Note: the annotation controller also needs to read the coordination state of all other views/coordination types via the full config.
-    // Note: we get/set the CoordinationType.ANNOTATION_SHAPES from the full config, as this info is view-specific rather than global to the story.
+    // Note: the annotation controller also needs to read the coordination state
+    // of all other views/coordination types via the full config.
+    // Note: we get/set the CoordinationType.ANNOTATION_SHAPES from the full config,
+    // as this info is view-specific rather than global to the story.
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,

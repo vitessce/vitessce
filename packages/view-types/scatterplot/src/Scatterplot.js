@@ -252,8 +252,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       annotationShapes,
       annotationOverlayVisible,
       annotationSemanticZoom,
-      annotationTransitionDuration,
-      annotationActiveTool,
       annotationShapeSelection,
     } = this.props;
     return new AnnotationLayer({

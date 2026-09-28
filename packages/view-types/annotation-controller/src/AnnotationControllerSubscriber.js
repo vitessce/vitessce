@@ -1,3 +1,7 @@
+/**
+ * Attribution: Originally written by @RPSeaman
+ * Reference: https://github.com/vitessce/vitessce/pull/2528
+ */
 import React from 'react';
 import {
   TitleInfo,
@@ -35,13 +39,16 @@ export function AnnotationControllerSubscriber(props) {
     downloadButtonVisible,
     helpText = ViewHelpMapping.ANNOTATION_CONTROLLER,
     // TODO: when true, allow the user to edit the story.
+    // eslint-disable-next-line no-unused-vars
     isEditable = false,
     // TODO: when true, allow the user to download the story JSON.
+    // eslint-disable-next-line no-unused-vars
     isExportable = true,
   } = props;
 
   const loaders = useLoaders();
   const [
+    // eslint-disable-next-line no-unused-vars
     coordinationScopes, _coordinationScopesBy, coordinationValues,
   ] = useViewMapping(uuid);
 

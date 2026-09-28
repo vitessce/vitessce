@@ -82,6 +82,7 @@ export function EmbeddingScatterplotSubscriber(props) {
   // coordinationValues are values which this view defines directly, which take
   // precedence over values obtained via coordinationScopes.
   const [
+    // eslint-disable-next-line no-unused-vars
     coordinationScopes, _coordinationScopesBy, coordinationValues,
   ] = useViewMapping(uuid);
   const setComponentHover = useSetComponentHover();
@@ -172,12 +173,6 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
     setFeatureAggregationStrategy,
-    setAnnotationShapes,
-    setAnnotationOverlayVisible,
-    setAnnotationSemanticZoom,
-    setAnnotationTransitionDuration,
-    setAnnotationActiveTool,
-    setAnnotationShapeSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
     coordinationValues, uuid,
