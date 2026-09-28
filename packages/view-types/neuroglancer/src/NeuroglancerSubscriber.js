@@ -884,7 +884,7 @@ export function NeuroglancerSubscriber(props) {
             return screenX >= -margin && screenX <= width + margin
                   && screenY >= -margin && screenY <= height + margin;
           }).map(({ id }) => id),
-        )];
+        ));
       }
       // TODO: Debugging purposes - can be removed once we settle with datasets
       // visibleSegmentIdsRef.current = visibleIds;

@@ -138,13 +138,13 @@ export class NeuroglancerComp extends PureComponent {
       onViewerReady,
       meshOpacity,
     } = this.props;
-
+    const { bundleRootReady } = this.state;
     return (
       <>
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            {this.state.bundleRootReady && (
+            {bundleRootReady && (
               <LazyReactNeuroglancer
                 brainMapsClientId="NOT_A_VALID_ID"
                 viewerState={viewerState}
