@@ -7,13 +7,6 @@
 // behavior. controller={false} is required by the caller; ControllerType
 // is only present to satisfy View's abstract contract and is never
 // actually instantiated.
-//
-// Ported from the camera-comparison reference app's RawView.ts, where this
-// approach (Route B) was verified to solve both the OrbitView roll/gimbal-
-// lock limitation and a persistent zoom mismatch -- both symptoms of the
-// same root cause: OrbitView's 2-angle + log2-zoom parameterization cannot
-// exactly reproduce a real camera (position + quaternion + fovy), which is
-// what NG actually uses.
 
 import { deck } from '@vitessce/gl';
 
