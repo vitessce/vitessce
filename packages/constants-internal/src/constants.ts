@@ -394,9 +394,8 @@ export const CoordinationType = {
   ANNOTATION_SHAPES: 'annotationShapes',
   ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
   ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
-  ANNOTATION_ACTIVE_TOOL: 'annotationActiveTool',
-  ANNOTATION_SHAPE_SELECTION: 'annotationShapeSelection',
   ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
+  ANNOTATION_EDITABLE: 'annotationEditable',
 };
 
 export const STATUS = {

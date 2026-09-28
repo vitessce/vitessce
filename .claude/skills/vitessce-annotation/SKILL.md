@@ -35,7 +35,7 @@ and, per view, a set of coordination values to apply (zoom, layers, selections, 
 
 Relevant coordination types (`packages/constants-internal/src/constants.ts`): `annotationStory`,
 `annotationFrameIndex` (`null` = no active frame), `annotationShapes`, `annotationOverlayVisible`,
-`annotationSemanticZoom`, `annotationShapeSelection`, `annotationActiveTool`,
+`annotationSemanticZoom`, `annotationEditable`,
 `annotationTransitionDuration`. Which views support them is defined in
 `COMPONENT_COORDINATION_TYPES` in `packages/constants-internal/src/coordination.ts`.
 
@@ -46,14 +46,6 @@ Either embed it as a coordination value (`coordinationSpace.annotationStory.A = 
 as a file (`{ fileType: 'annotationStory.json', url }`, with `annotationStory: { A: null }`). In
 example configs, inline the story and use `makeJsonDataUrl(story)` from `examples/configs/src/utils.js`
 rather than depending on a hosted URL. Give every targeted view a `uid` (config version `1.0.10`+).
-
-### Editing shapes
-
-Edits (e.g., drawing with `annotationActiveTool`, selecting via `annotationShapeSelection`) change
-the coordination space through the normal setters (e.g., `setAnnotationShapes`), never the story.
-`AnnotationLayer` supports previewing an in-progress shape via its `inProgressShape`/`hoverCoord`
-props.
-
 
 
 ## Story and frame schema

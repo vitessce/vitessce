@@ -144,8 +144,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     annotationOverlayVisible,
     annotationSemanticZoom,
     annotationTransitionDuration,
-    annotationActiveTool,
-    annotationShapeSelection,
+    annotationEditable,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -718,8 +717,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         annotationOverlayVisible={annotationOverlayVisible}
         annotationSemanticZoom={annotationSemanticZoom}
         annotationTransitionDuration={annotationTransitionDuration}
-        annotationActiveTool={annotationActiveTool}
-        annotationShapeSelection={annotationShapeSelection}
+        annotationEditable={annotationEditable}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber

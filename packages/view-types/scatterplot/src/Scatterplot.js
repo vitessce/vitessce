@@ -263,7 +263,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
       // TODO: these are view-level properties, rather than layer-level.
       // annotationTransitionDuration,
-      // annotationActiveTool,
+      // annotationEditable,
+      // Other coordination types related to editing...
     });
   }
 
@@ -649,7 +650,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'annotationShapes', 'annotationOverlayVisible',
       'annotationSemanticZoom', 'annotationTransitionDuration',
-      'annotationActiveTool', 'annotationShapeSelection',
+      'annotationEditable',
     ].some(shallowDiff)) {
       // Annotation info changed.
       this.onUpdateAnnotationLayer();

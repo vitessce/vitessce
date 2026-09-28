@@ -141,8 +141,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_FRAME_INDEX,
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
-    CoordinationType.ANNOTATION_ACTIVE_TOOL,
-    CoordinationType.ANNOTATION_SHAPE_SELECTION,
+    CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
@@ -265,8 +264,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_FRAME_INDEX,
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
-    CoordinationType.ANNOTATION_ACTIVE_TOOL,
-    CoordinationType.ANNOTATION_SHAPE_SELECTION,
+    CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.SPATIAL_BETA]: [
@@ -351,8 +349,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_FRAME_INDEX,
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
-    CoordinationType.ANNOTATION_ACTIVE_TOOL,
-    CoordinationType.ANNOTATION_SHAPE_SELECTION,
+    CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.ANNOTATION_CONTROLLER]: [
@@ -361,8 +358,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_FRAME_INDEX,
     CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
-    CoordinationType.ANNOTATION_ACTIVE_TOOL,
-    CoordinationType.ANNOTATION_SHAPE_SELECTION,
+    CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
     // Note: the annotation controller also needs to read the coordination state
     // of all other views/coordination types via the full config.
