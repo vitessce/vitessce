@@ -712,7 +712,7 @@ export default class Neuroglancer extends React.Component {
 
 
     const checkAndMarkLoaded = () => {
-      if (firstChunkLoaded) return false;
+      if (firstChunkLoaded || !this.viewer) return false;
 
       for (const layer of this.viewer.layerManager.managedLayers) {
         // Check segmentation layers
@@ -765,16 +765,14 @@ export default class Neuroglancer extends React.Component {
 
     // To fix infinite loading loop on subsequent page refresh due to cache
     // Also check immediately in case chunks already loaded (cached)
-    setTimeout(() => {
+    const timeoutId1 = setTimeout(() => {
       if (!firstChunkLoaded) checkAndMarkLoaded();
     }, 100);
-
-    // And check after a short delay as fallback
-    setTimeout(() => {
+    const timeoutId2 = setTimeout(() => {
       if (!firstChunkLoaded) checkAndMarkLoaded();
     }, 1000);
-
-    this.disposers.push(() => { firstChunkLoaded = false; });
+    this.disposers.push(() => clearTimeout(timeoutId1));
+    this.disposers.push(() => clearTimeout(timeoutId2));
 
     // Prevent browser pinch-zoom when using touchpad inside NG viewer
     document.addEventListener('wheel', (e) => {
@@ -977,6 +975,10 @@ export default class Neuroglancer extends React.Component {
     /* eslint-disable no-empty */
     this.disposers.forEach((off) => { try { off(); } catch {} });
     this.disposers = [];
+    if (this.viewer) {
+      this.viewer.dispose();
+      this.viewer = null;
+    }
     const { key } = this.props;
     if (key) {
       delete viewersKeyed[key];
