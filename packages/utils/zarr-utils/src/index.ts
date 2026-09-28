@@ -5,6 +5,7 @@ export {
   applyStoreExtensions,
   zarrOpenRoot,
   transformEntriesForZipFileStore,
+  relaxedFetch,
   UNCACHED_READ,
 } from './normalize.js';
 export type { QueryClientLike } from './normalize.js';
