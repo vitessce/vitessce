@@ -95,6 +95,7 @@ import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { LinkControllerSubscriber } from '@vitessce/link-controller';
+import { AnnotationControllerSubscriber } from '@vitessce/annotation-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import { NeuroglancerSubscriber } from '@vitessce/neuroglancer';
@@ -294,6 +295,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
   makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
   makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
+  makeViewType(ViewType.ANNOTATION_CONTROLLER, AnnotationControllerSubscriber),
 ];
 
 export const baseFileTypes = [

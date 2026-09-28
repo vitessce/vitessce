@@ -5,4 +5,4 @@
 "@vitessce/all": patch
 ---
 
-Add the `annotation-story.json` file type and `annotation-story` data type, along with the `AnnotationStoryJsonLoader` and `useAnnotationStoryData` hook. The loaded story initializes the `annotationStory` coordination value when it is `null`.
+Add the `annotationStory.json` file type and `annotationStory` data type, along with the `AnnotationStoryJsonLoader` and `useAnnotationStoryData` hook. The loaded story initializes the `annotationStory` coordination value when it is `null`.
