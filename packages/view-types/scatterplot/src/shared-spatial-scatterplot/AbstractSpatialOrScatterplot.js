@@ -222,14 +222,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!this.use3d()) return; // only for the RawView/3D path
     const canvas = deckRef?.current?.deck?.canvas;
     if (!canvas || !rawCameraSnapshot) return;
-    // console.log('[OrbitControls setup]', {
-    //     hasDeckRef: !!deckRef?.current,
-    //     deckRefKeys: deckRef?.current ? Object.keys(deckRef.current) : null,
-    //     hasDeck: !!deckRef?.current?.deck,
-    //     hasCanvas: !!canvas,
-    //     hasSnapshot: !!rawCameraSnapshot,
-    //   });
-
     const { position, quaternion, target, fovDegrees } = rawCameraSnapshot;
     const camera = new THREE.PerspectiveCamera(fovDegrees, 1, 0.1, 100000);
     camera.position.set(...position);
@@ -262,10 +254,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const distance = camera.position.distanceTo(target);
     const fovyRad = (camera.fov * Math.PI) / 180;
     const projectionScale = distance * 2 * Math.tan(fovyRad / 2);
-    // console.log('[sb publish]', { distance, projectionScale });
-    // console.log('[sb publish rot]', camera.quaternion.toArray());
     setSpatialBetaCameraSnapshot({
-      position: target.toArray(), // NG has no free eye -- only a pivot
+      position: target.toArray(),
       projectionOrientation: camera.quaternion.toArray(),
       projectionScale,
     });
@@ -282,7 +272,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   viewInfoDidUpdate(obsIndex, obsLocations, makeGetObsCoords) {
     const { updateViewInfo, uuid } = this.props;
     const { viewport } = this;
-    // console.log(viewport, JSON.stringify(viewport));
     if (updateViewInfo && viewport) {
       updateViewInfo({
         uuid,
@@ -352,7 +341,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
       rawCameraSnapshot,
     } = this.props;
-    // console.log('[RawView] prop received', JSON.stringify(rawCameraSnapshot));
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
