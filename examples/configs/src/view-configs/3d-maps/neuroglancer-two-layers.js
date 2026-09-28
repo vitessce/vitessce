@@ -76,7 +76,7 @@ function generateNeuroglancerTwoLayerConfig() {
   const glomSets = config.addView(dataset, 'obsSets');
   const layerController = config.addView(dataset, 'layerControllerBeta');
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer')
+  const neuroglancerView = config.addView(dataset, 'neuroglancer');
 
   const [
     nerveSetSelectionScope,
