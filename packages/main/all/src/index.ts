@@ -10,6 +10,9 @@ export { z } from '@vitessce/schemas';
 export {
   hasAnnotationControllerView,
   addAnnotationControllerView,
+  isAnyAnnotationEditing,
+  enableAnnotationEditing,
+  disableAnnotationEditing,
 } from '@vitessce/annotation-controller';
 export {
   useCoordination,

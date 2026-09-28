@@ -1,6 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { cloneDeep } from 'lodash-es';
-import { hasAnnotationControllerView, addAnnotationControllerView } from './cvh-utils.js';
+import {
+  hasAnnotationControllerView,
+  addAnnotationControllerView,
+  isAnyAnnotationEditing,
+  enableAnnotationEditing,
+  disableAnnotationEditing,
+} from './cvh-utils.js';
 
 function makeConfig() {
   return {
@@ -81,5 +87,66 @@ describe('addAnnotationControllerView', () => {
     expect(() => addAnnotationControllerView(makeConfig(), { width: 0 })).toThrow();
     expect(() => addAnnotationControllerView(makeConfig(), { width: 12 })).toThrow();
     expect(() => addAnnotationControllerView(makeConfig(), { width: 2.5 })).toThrow();
+  });
+});
+
+describe('isAnyAnnotationEditing', () => {
+  it('is false by default', () => {
+    expect(isAnyAnnotationEditing(makeConfig())).toBe(false);
+    expect(isAnyAnnotationEditing({})).toBe(false);
+  });
+
+  it('detects true values in coordination scopes and view-level values', () => {
+    const config = makeConfig();
+    config.coordinationSpace.annotationEditable = { A: false, B: true };
+    expect(isAnyAnnotationEditing(config)).toBe(true);
+    const config2 = makeConfig();
+    config2.layout[0].coordinationValues = { annotationEditable: true };
+    expect(isAnyAnnotationEditing(config2)).toBe(true);
+  });
+});
+
+describe('enableAnnotationEditing and disableAnnotationEditing', () => {
+  it('throws when there is no annotationController', () => {
+    expect(() => enableAnnotationEditing(makeConfig())).toThrow(/addAnnotationControllerView/);
+    expect(() => disableAnnotationEditing(makeConfig())).toThrow(/addAnnotationControllerView/);
+  });
+
+  it('defines a shared scope for the annotationController and other unmapped views', () => {
+    const config = addAnnotationControllerView(makeConfig());
+    const before = cloneDeep(config);
+    const result = enableAnnotationEditing(config);
+    expect(config).toEqual(before);
+    expect(result.coordinationSpace.annotationEditable).toEqual({ A: true });
+    const controller = result.layout.find(v => v.component === 'annotationController');
+    const spatial = result.layout.find(v => v.uid === 'spatial');
+    expect(controller.coordinationScopes.annotationEditable).toEqual('A');
+    expect(spatial.coordinationScopes.annotationEditable).toEqual('A');
+    // Views which do not support annotationEditable are not modified.
+    expect(result.layout.find(v => v.uid === 'sets').coordinationScopes).toBeUndefined();
+    expect(isAnyAnnotationEditing(result)).toBe(true);
+
+    const disabled = disableAnnotationEditing(result);
+    expect(disabled.coordinationSpace.annotationEditable).toEqual({ A: false });
+    expect(isAnyAnnotationEditing(disabled)).toBe(false);
+  });
+
+  it('sets all existing scopes and view-level values', () => {
+    const config = addAnnotationControllerView(makeConfig());
+    config.coordinationSpace.annotationEditable = { A: false, B: false };
+    config.layout.find(v => v.component === 'annotationController').coordinationScopes.annotationEditable = 'B';
+    config.layout[0].coordinationValues = { annotationEditable: false };
+    const result = enableAnnotationEditing(config);
+    expect(result.coordinationSpace.annotationEditable).toEqual({ A: true, B: true });
+    expect(result.layout[0].coordinationValues.annotationEditable).toBe(true);
+  });
+
+  it('reuses the scope of the annotationController for other unmapped views', () => {
+    const config = addAnnotationControllerView(makeConfig());
+    config.coordinationSpace.annotationEditable = { E: false };
+    config.layout.find(v => v.component === 'annotationController').coordinationScopes.annotationEditable = 'E';
+    const result = enableAnnotationEditing(config);
+    expect(result.layout.find(v => v.uid === 'spatial').coordinationScopes.annotationEditable).toEqual('E');
+    expect(result.coordinationSpace.annotationEditable).toEqual({ E: true });
   });
 });
