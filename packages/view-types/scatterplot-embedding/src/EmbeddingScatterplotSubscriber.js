@@ -88,15 +88,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
-  const [{
-    annotationStory,
-  }, {
-    setAnnotationStory,
-  }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
-    coordinationValues, uuid,
-  );
-
   // Merge the coordination values that the current annotation frame defines for this view
   // into the coordination space, whenever the frame changes. The story itself is read-only.
   // TODO: handle the rendering of alternative views/layouts (in vit-s?)
@@ -140,6 +131,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationStory,
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
@@ -172,6 +164,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
     setFeatureAggregationStrategy,
+    setAnnotationStory,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
     coordinationValues, uuid,
