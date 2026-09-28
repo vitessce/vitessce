@@ -35,9 +35,10 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  useAnnotationStoryData,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -161,6 +162,20 @@ export function SpatialSubscriber(props) {
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
+  const [{
+    annotationStory,
+    annotationFrameIndex,
+  }, {
+    setAnnotationStory,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
+  // Coordination values which the current annotation frame defines for this view
+  // take precedence over values obtained via coordinationScopes.
+  // Note: these do not (yet) apply to the multi-level layer/channel coordination.
+  const frameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -185,6 +200,11 @@ export function SpatialSubscriber(props) {
     obsSetColor,
     obsColorEncoding,
     obsSetSelection,
+
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationShapeSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -202,7 +222,10 @@ export function SpatialSubscriber(props) {
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
+    frameCoordinationValues,
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -531,6 +554,17 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
+
   const errors = [
     ...obsPointsErrors,
     ...obsSpotsErrors,
@@ -546,6 +580,7 @@ export function SpatialSubscriber(props) {
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
+    annotationStoryError,
   ];
 
   /*
@@ -589,12 +624,15 @@ export function SpatialSubscriber(props) {
     obsSegmentationsLocationsDataStatus,
     // Images
     imageDataStatus,
+    // Annotations
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     Object.values(obsSpotsUrls || {}).flat(),
     Object.values(obsPointsUrls || {}).flat(),
     Object.values(obsSegmentationsUrls || {}).flat(),
     Object.values(imageUrls || {}).flat(),
+    annotationStoryUrls,
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
@@ -1119,6 +1157,10 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            annotationShapes={annotationShapes}
+            annotationOverlayVisible={annotationOverlayVisible}
+            annotationSemanticZoom={annotationSemanticZoom}
+            annotationShapeSelection={annotationShapeSelection}
           />
         )
       }

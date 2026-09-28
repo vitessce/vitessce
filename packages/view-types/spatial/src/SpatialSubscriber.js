@@ -24,8 +24,9 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   useExpandedFeatureLabelsMap,
+  useAnnotationStoryData,
 } from '@vitessce/vit-s';
-import { aggregateFeatureArrays } from '@vitessce/utils';
+import { aggregateFeatureArrays, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
 import {
   setObsSelection,
   mergeObsSets,
@@ -76,6 +77,19 @@ export function SpatialSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
+  const [{
+    annotationStory,
+    annotationFrameIndex,
+  }, {
+    setAnnotationStory,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+
+  // Coordination values which the current annotation frame defines for this view
+  // take precedence over values obtained via coordinationScopes.
+  const frameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -109,6 +123,10 @@ export function SpatialSubscriber(props) {
     tooltipsVisible,
     photometricInterpretation: photometricInterpretationFromCoordination,
     featureAggregationStrategy,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationShapeSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -133,7 +151,10 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
     setFeatureAggregationStrategy,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes,
+    frameCoordinationValues,
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -279,6 +300,16 @@ export function SpatialSubscriber(props) {
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
 
   const errors = [
     ...obsLabelsErrorsMulti,
@@ -292,6 +323,7 @@ export function SpatialSubscriber(props) {
     imageError,
     neighborhoodsError,
     featureLabelsError,
+    annotationStoryError,
   ];
 
   const photometricInterpretation = (
@@ -312,6 +344,7 @@ export function SpatialSubscriber(props) {
     neighborhoodsStatus,
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     obsLocationsUrls,
@@ -323,6 +356,7 @@ export function SpatialSubscriber(props) {
     imageUrls,
     neighborhoodsUrls,
     featureLabelsUrls,
+    annotationStoryUrls,
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
@@ -717,6 +751,10 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
+        annotationShapes={annotationShapes}
+        annotationOverlayVisible={annotationOverlayVisible}
+        annotationSemanticZoom={annotationSemanticZoom}
+        annotationShapeSelection={annotationShapeSelection}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

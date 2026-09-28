@@ -13,6 +13,7 @@ import {
   useGetObsInfo,
   useObsEmbeddingData,
   useObsSetsData,
+  useAnnotationStoryData,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -105,7 +106,6 @@ export function EmbeddingScatterplotSubscriber(props) {
   console.log(annotationStory, annotationFrameIndex);
   const frameCoordinationValues = annotationStory?.frames?.[annotationFrameIndex]?.layout?.find(v => v.uid === uuid)?.coordinationValues;
   console.log(frameCoordinationValues);
-
 
 
   // Get "props" from the coordination space.
@@ -212,6 +212,20 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const title = titleOverride || `Scatterplot (${mapping})`;
 
+
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  // Note that this hook appears after the useCoordination for annotationStory above,
+  // but hopefully that does not cause any issues.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
+
   const [
     // eslint-disable-next-line no-unused-vars
     obsLabelsTypes, obsLabelsData, obsLabelsStatus, obsLabelsUrls, obsLabelsErrors,
@@ -284,11 +298,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsError,
     sampleSetsError,
     sampleEdgesError,
+    annotationStoryError,
   ];
 
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
+    annotationStoryStatus,
     featureSelectionStatus,
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -303,6 +319,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsUrls,
     sampleSetsUrl,
     sampleEdgesUrl,
+    annotationStoryUrls,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
