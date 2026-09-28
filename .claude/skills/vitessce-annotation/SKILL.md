@@ -53,3 +53,28 @@ Edits (e.g., drawing with `annotationActiveTool`, selecting via `annotationShape
 the coordination space through the normal setters (e.g., `setAnnotationShapes`), never the story.
 `AnnotationLayer` supports previewing an in-progress shape via its `inProgressShape`/`hoverCoord`
 props.
+
+
+
+## Story and frame schema
+
+Defined in `packages/schemas/src/annotation-frames.ts`.
+
+- `frame.layout[]` lists only the views whose state changes in the frame. A view listed with a `uid`
+  from the global layout and no `x`/`y`/`w`/`h` means the layout and set of views stay the same as
+  the global layout.
+- `frame.layout[].coordinationValues` holds per-view values (single-level, or multi-level via
+  `$CL`). Use these when the view's state at this frame does not need to be coordinated with other
+  views through new scopes. The merge still writes into the view's existing scopes (principle 4).
+
+**Planned for future implementation:**
+- Support per-view `coordinationScopes`/`coordinationScopesBy` specified in each frame, for when views should be
+  coordinated with each other at that frame.
+- Support for frame-level `coordinationSpace`, merged with the global coordination space.
+- Support for frame-level `datasets`.
+- Support for per-frame layout changes via specifying view `x`/`y`/`w`/`h`. A frame that lists a view `uid` missing from the global layout would add that view at that frame, and would then need to define `x`/`y`/`w`/`h`
+  for all views, since the layout would otherwise be ambiguous. Coordination values that such a
+  view doesn't specify would be initialized to their defaults.
+
+When implementing a planned feature, keep the principles above: the story stays read-only, and
+frame state is merged into the coordination space instead of being read live.
