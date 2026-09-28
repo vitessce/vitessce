@@ -73,7 +73,13 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
       </Grid>
       {selectedItem ? (
         <>
-          <Grid container size={12} flexDirection="row">
+          <Grid
+            container
+            size={12}
+            sx={{
+              flexDirection: 'row',
+            }}
+          >
             <Button onClick={() => setBiomarkerInfoOpen(true)}>
               View {selectedItem.nodeType} info
             </Button>
