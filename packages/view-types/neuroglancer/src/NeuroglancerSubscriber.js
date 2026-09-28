@@ -859,14 +859,14 @@ export function NeuroglancerSubscriber(props) {
       if (!mat) {
         // Fallback: load all if projection matrix not available
         console.warn('No viewProjectionMatrix, loading all');
-        visibleIds = [...new Set(allEntries.map(({ id }) => id))];
+        visibleIds = Array.from(new Set(allEntries.map(({ id }) => id)));
       } else {
         // Extend the viewport by 50% on each side (to allow mesh-loading when panning around)
         const margin = Math.max(width, height) * 0.5;
         // Screen-space projection filter
         // Screen-space culling: project each centroid from annotation space
         // to screen pixels and keep only those within the viewport bounds.
-        visibleIds = [...new Set(
+        visibleIds = Array.from(new Set(
           allEntries.filter(({ x, y, z }) => {
             // Annotation to viewer coordinates
             const vx = x / transform.x;
