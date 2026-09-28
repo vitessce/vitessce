@@ -30,6 +30,15 @@ export function makeColorsCsvDataUrl(obsIdToColor) {
   return `data:text/csv,${encodeURIComponent(csv)}`;
 }
 
+/**
+ * Make a data URL for a JSON file, such as an annotationStory.json file.
+ * @param {object} obj The object to serialize as JSON.
+ * @returns {string} The data URL.
+ */
+export function makeJsonDataUrl(obj) {
+  return `data:application/json,${encodeURIComponent(JSON.stringify(obj))}`;
+}
+
 // Exported because used by the cypress tests: They route API requests to the fixtures instead.
 export const urlPrefix = 'https://data-1.vitessce.io/0.0.31/master_release';
 
