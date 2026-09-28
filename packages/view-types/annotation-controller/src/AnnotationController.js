@@ -13,11 +13,6 @@ import Markdown from 'react-markdown';
 import { DescriptionType } from '@vitessce/constants-internal';
 
 const useStyles = makeStyles()(theme => ({
-  annotationController: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-  },
   textSection: {
     padding: '6px 10px',
   },
@@ -42,10 +37,6 @@ const useStyles = makeStyles()(theme => ({
     padding: '0 4px',
     borderTop: `1px solid ${theme.palette.primaryBackground}`,
     borderBottom: `1px solid ${theme.palette.primaryBackground}`,
-  },
-  frameList: {
-    overflowY: 'auto',
-    flexGrow: 1,
   },
 }));
 
@@ -113,7 +104,7 @@ export function AnnotationController(props) {
     : `Overview (${numFrames} frames)`;
 
   return (
-    <div className={classes.annotationController}>
+    <div>
       <div className={classes.textSection}>
         {story.title ? <Typography variant="h6">{story.title}</Typography> : null}
         <AnnotationText text={story.description} textType={story.descriptionType} />
@@ -148,7 +139,7 @@ export function AnnotationController(props) {
           />
         </div>
       ) : null}
-      <MenuList dense className={classes.frameList} aria-label="Annotation frames">
+      <MenuList dense aria-label="Annotation frames">
         {frames.map((frame, i) => (
           <MenuItem
             key={frame.uid}

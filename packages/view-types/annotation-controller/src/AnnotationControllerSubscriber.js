@@ -34,6 +34,10 @@ export function AnnotationControllerSubscriber(props) {
     closeButtonVisible,
     downloadButtonVisible,
     helpText = ViewHelpMapping.ANNOTATION_CONTROLLER,
+    // TODO: when true, allow the user to edit the story.
+    isEditable = false,
+    // TODO: when true, allow the user to download the story JSON.
+    isExportable = true,
   } = props;
 
   const loaders = useLoaders();
