@@ -38,12 +38,12 @@ export function AnnotationControllerSubscriber(props) {
     closeButtonVisible,
     downloadButtonVisible,
     helpText = ViewHelpMapping.ANNOTATION_CONTROLLER,
-    // TODO: when true, allow the user to edit the story.
+    // TODO: importable/exportable
+    // Note: areAnnotationsEditable is a prop passed down from
+    // the ancestor <Vitessce/> or <VitS/> component.
+    // TODO: use areAnnotationsEditable.
     // eslint-disable-next-line no-unused-vars
-    isEditable = false,
-    // TODO: when true, allow the user to download the story JSON.
-    // eslint-disable-next-line no-unused-vars
-    isExportable = true,
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
