@@ -25,8 +25,9 @@ import {
   useHasLoader,
   useExpandedFeatureLabelsMap,
   useAnnotationStoryData,
+  useAnnotationFrameCoordination,
 } from '@vitessce/vit-s';
-import { aggregateFeatureArrays, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { aggregateFeatureArrays } from '@vitessce/utils';
 import {
   setObsSelection,
   mergeObsSets,
@@ -77,18 +78,9 @@ export function SpatialSubscriber(props) {
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
-  const [{
-    annotationStory,
-    annotationFrameIndex,
-  }, {
-    setAnnotationStory,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
-
-  // Coordination values which the current annotation frame defines for this view
-  // take precedence over values obtained via coordinationScopes.
-  const frameCoordinationValues = getAnnotationFrameCoordinationValues(
-    annotationStory, annotationFrameIndex, uuid,
-  );
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
 
   // Get "props" from the coordination space.
   const [{
@@ -123,6 +115,7 @@ export function SpatialSubscriber(props) {
     tooltipsVisible,
     photometricInterpretation: photometricInterpretationFromCoordination,
     featureAggregationStrategy,
+    annotationStory,
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
@@ -151,10 +144,8 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
     setFeatureAggregationStrategy,
-  }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes,
-    frameCoordinationValues,
-  );
+    setAnnotationStory,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
 
   const {
     spatialZoom: initialZoom,

@@ -14,6 +14,7 @@ import {
   useObsEmbeddingData,
   useObsSetsData,
   useAnnotationStoryData,
+  useAnnotationFrameCoordination,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -88,25 +89,17 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const [{
     annotationStory,
-    annotationFrameIndex,
   }, {
     setAnnotationStory,
-    setAnnotationFrameIndex,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
     coordinationValues, uuid,
   );
 
-  // TODO: obtain coordinationSpace, coordinationScopes, and coordinationValues
-  // from the current frame.
-  // TODO: move this logic into the useCoordination and other hook functions?
-  // TODO: handle merging of the per-frame coordination space?
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
   // TODO: handle the rendering of alternative views/layouts (in vit-s?)
-
-  console.log(annotationStory, annotationFrameIndex);
-  const frameCoordinationValues = annotationStory?.frames?.[annotationFrameIndex]?.layout?.find(v => v.uid === uuid)?.coordinationValues;
-  console.log(frameCoordinationValues);
-
+  useAnnotationFrameCoordination(uuid, coordinationScopes, coordinationValues);
 
   // Get "props" from the coordination space.
   const [{
@@ -187,7 +180,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAnnotationShapeSelection,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
-    frameCoordinationValues ?? coordinationValues, uuid,
+    coordinationValues, uuid,
   );
 
   const {

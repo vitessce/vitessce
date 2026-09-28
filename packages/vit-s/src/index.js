@@ -37,6 +37,7 @@ export {
   useDatasetUids,
   useLoaders,
   useMergeCoordination,
+  useAnnotationFrameCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,

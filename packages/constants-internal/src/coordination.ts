@@ -33,6 +33,8 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.SPATIAL_AXIS_FIXED,
   CoordinationType.SPATIAL_ORBIT_AXIS,
   CoordinationType.FEATURE_AGGREGATION_STRATEGY,
+  // Annotation shapes are specific to a view's coordinate system.
+  CoordinationType.ANNOTATION_SHAPES,
 ];
 
 /**

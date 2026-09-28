@@ -36,9 +36,10 @@ import {
   useGridItemSize,
   useAuxiliaryCoordination,
   useAnnotationStoryData,
+  useAnnotationFrameCoordination,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { commaNumber, pluralize } from '@vitessce/utils';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -162,19 +163,10 @@ export function SpatialSubscriber(props) {
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
 
-  const [{
-    annotationStory,
-    annotationFrameIndex,
-  }, {
-    setAnnotationStory,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
-
-  // Coordination values which the current annotation frame defines for this view
-  // take precedence over values obtained via coordinationScopes.
-  // Note: these do not (yet) apply to the multi-level layer/channel coordination.
-  const frameCoordinationValues = getAnnotationFrameCoordinationValues(
-    annotationStory, annotationFrameIndex, uuid,
-  );
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // This includes multi-level (e.g., per-layer/per-channel) coordination values.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
 
   // Get "props" from the coordination space.
   const [{
@@ -201,6 +193,7 @@ export function SpatialSubscriber(props) {
     obsColorEncoding,
     obsSetSelection,
 
+    annotationStory,
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
@@ -222,10 +215,9 @@ export function SpatialSubscriber(props) {
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
-  }] = useCoordination(
-    COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
-    frameCoordinationValues,
-  );
+
+    setAnnotationStory,
+  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
   const {
     spatialZoom: initialZoom,
