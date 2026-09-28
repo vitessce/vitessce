@@ -494,10 +494,19 @@ export function NeuroglancerSubscriber(props) {
         // Prefer the observation index from obsFeatureMatrix,
         // then from the per-observation colors,
         // and finally, if neither of those are provided, from obsSets.
-        const layerIndex = layerIndexFromMatrix
-          ?? (layerIndexFromColors
-            ?? (layerIndexFromSets ?? null)
-          );
+        const rawLayerIndex = layerIndexFromMatrix
+        ?? (layerIndexFromColors
+          ?? (layerIndexFromSets ?? null)
+        );
+        // obsFeatureMatrix's own index can carry a dataset-specific prefix
+        // (e.g. "F8iia-quantification3_1") for the same segment IDs NG's
+        // own mesh/segments use in plain numeric form ("1") -- normalize so
+        // every downstream consumer (idsToColor, knownIdSet, cellColors
+        // lookups) works with one consistent id per segment, matching the
+        // same stripping already applied in the geneSelection branch below.
+        const layerIndex = rawLayerIndex
+          ? Array.from(new Set(rawLayerIndex.map(id => String(id).replace(/^.*_/, ''))))
+          : rawLayerIndex;
         const idsToColor = layerIndex;
         const knownIdSet = new Set((layerIndex ?? []).map(String));
 
