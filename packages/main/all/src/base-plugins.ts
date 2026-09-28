@@ -133,6 +133,7 @@ import {
   JsonLoader,
   ObsSegmentationsJsonLoader,
   ObsSetsJsonLoader,
+  AnnotationStoryJsonLoader,
   // Legacy
   RasterJsonAsImageLoader,
   RasterJsonAsObsSegmentationsLoader,
@@ -310,6 +311,7 @@ export const baseFileTypes = [
   // All JSON file types
   makeFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource, z.null()),
   makeFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource, z.null()),
+  makeFileType(FileType.ANNOTATION_STORY_JSON, DataType.ANNOTATION_STORY, AnnotationStoryJsonLoader, JsonSource, z.null()),
   // All AnnData file types
   ...makeZarrFileTypes(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource, obsEmbeddingAnndataSchema),

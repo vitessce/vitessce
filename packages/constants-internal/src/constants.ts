@@ -58,6 +58,7 @@ export const DataType = {
   FEATURE_STATS: 'featureStats',
   FEATURE_SET_STATS: 'featureSetStats',
   OBS_SET_STATS: 'obsSetStats',
+  ANNOTATION_STORY: 'annotationStory',
 };
 
 export const AsyncFunctionType = {
@@ -96,6 +97,7 @@ export const FileType = {
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   SAMPLE_SETS_CSV: 'sampleSets.csv',
+  ANNOTATION_STORY_JSON: 'annotationStory.json',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',

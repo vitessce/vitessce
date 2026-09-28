@@ -19,6 +19,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SETS_CSV]: DataType.OBS_SETS,
   [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
+  [FileType.ANNOTATION_STORY_JSON]: DataType.ANNOTATION_STORY,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_OME_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
@@ -150,6 +151,7 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.OBS_TYPE,
     // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
   ],
+  [DataType.ANNOTATION_STORY]: [],
 };
 
 // For Zarr-based file types, we keep a mapping to file types

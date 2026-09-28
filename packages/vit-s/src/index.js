@@ -85,6 +85,7 @@ export {
   useFeatureStatsData,
   useFeatureSetStatsData,
   useObsSetStatsData,
+  useAnnotationStoryData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
