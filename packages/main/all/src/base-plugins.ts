@@ -670,6 +670,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()), // TODO: make this non-zero by default?
   new PluginCoordinationType(CoordinationType.ANNOTATION_ACTIVE_TOOL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPE_SELECTION, null, z.string().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SEMANTIC_ZOOM, true, z.boolean()),
 ];
 
 export const baseAsyncFunctions = [
