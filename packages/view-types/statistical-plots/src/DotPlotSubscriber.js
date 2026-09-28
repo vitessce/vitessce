@@ -96,7 +96,7 @@ export function DotPlotSubscriber(props) {
     { obsType, featureType, featureValueType },
   );
   const [
-    { obsSets: cellSets }, obsSetsStatus, obsSetsUrl, obsSetsError,
+    { obsSets: cellSets, obsSetsColumns }, obsSetsStatus, obsSetsUrl, obsSetsError,
   ] = useObsSetsData(
     loaders, dataset, true, {}, {},
     { obsType },
@@ -148,7 +148,7 @@ export function DotPlotSubscriber(props) {
     geneSelection, cellSetSelection, cellSetColor,
     featureValueTransform, featureValueTransformCoefficient,
     posThreshold, featureLabelsMap,
-
+    obsSetsColumns,
   );
   const selectedTransformName = transformOptions.find(
     o => o.value === featureValueTransform,

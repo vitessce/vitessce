@@ -1,12 +1,13 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-console */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   QueryParamProvider, useQueryParam, StringParam,
 } from 'use-query-params';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { configs, configPages } from '@vitessce/example-configs';
+import { fetchConfigFromGist } from '@vitessce/config';
 import { useHashParam, useSetHashParams } from './_use-hash-param.js';
 import Home from './_Home.js';
 import DemoHeader from './_DemoHeader.js';
@@ -85,6 +86,7 @@ function IndexWithHashParams() {
   const [demo] = useHashParam('dataset', undefined, 'string');
   const [debug] = useHashParam('debug', false, 'boolean');
   const [url] = useHashParam('url', undefined, 'string');
+  const [gist] = useHashParam('gist', undefined, 'string');
   const [edit] = useHashParam('edit', false, 'boolean');
   const [isExpandedFromUrl] = useHashParam('expand', false, 'boolean');
   const [pageMode] = useHashParam('pageMode', false, 'boolean');
@@ -95,6 +97,25 @@ function IndexWithHashParams() {
 
   const [pendingJson, setPendingJson] = useState(baseJson);
   const [pendingJs, setPendingJs] = useState(baseJs);
+
+  // Holds the most recent view config emitted by Vitessce's onConfigChange,
+  const liveConfigRef = useRef(null);
+
+  // Capture every live view config update without causing a re-render.
+  const handleConfigChange = useCallback((nextConfig) => {
+    liveConfigRef.current = nextConfig;
+    if (debug) {
+      // eslint-disable-next-line no-console
+      console.log(nextConfig);
+    }
+  }, [debug]);
+
+  // When a genuinely new base config is loaded (new url/demo/validConfig),
+  // discard any live state captured from the previous visualization so it
+  // cannot leak into the next one.
+  useEffect(() => {
+    liveConfigRef.current = null;
+  }, [validConfig]);
 
   function clearConfigs() {
     setValidConfig(null);
@@ -195,6 +216,46 @@ function IndexWithHashParams() {
           setLoading(false);
           clearConfigs();
         }
+      } else if (gist) {
+        setLoading(true);
+        try {
+          const gistResult = await fetchConfigFromGist(gist);
+          if (unmounted) {
+            return;
+          }
+          const { configContents: responseText } = gistResult;
+          if (edit) {
+            // User wants to edit the URL-based config.
+            try {
+              const responseJson = JSON.parse(responseText);
+              setPendingJson(JSON.stringify(responseJson, null, 2));
+            } catch (e) {
+              // However, this may be an invalid JSON object
+              // so we can just let the user edit the unformatted string.
+              setPendingJson(responseText);
+            }
+            setError(null);
+          } else {
+            try {
+              const responseJson = JSON.parse(responseText);
+              setValidConfig(responseJson);
+            } catch (e) {
+              setError({
+                title: 'Error parsing JSON',
+                message: 'Error executing JSON.parse',
+              });
+            }
+          }
+          setLoading(false);
+        } catch (e) {
+          console.log(e);
+          setError({
+            title: 'Fetch error',
+            message: e.message,
+          });
+          setLoading(false);
+          clearConfigs();
+        }
       } else if (demo && configs[demo]) {
         setValidConfig(configs[demo]);
         setPendingJson(JSON.stringify(configs[demo], null, 2));
@@ -210,12 +271,17 @@ function IndexWithHashParams() {
     return () => {
       unmounted = true;
     };
-  }, [edit, url, demo]);
+  }, [edit, url, demo, gist]);
 
-  function handleEdit() {
+  // Open the editor. When `useLiveConfig` is true (the default), prefer the
+  // live config reflecting the user's current interactions (gene selections,
+  // spatial pan/zoom, etc.). When false, edit the original config as it was
+  // loaded, discarding any live interaction state.
+  function handleEdit(useLiveConfig = true) {
+    const configToEdit = (useLiveConfig && liveConfigRef.current) || validConfig;
     setHashParams({
       dataset: undefined,
-      url: `data:,${encodeURIComponent(JSON.stringify(validConfig))}`,
+      url: `data:,${encodeURIComponent(JSON.stringify(configToEdit))}`,
       edit: true,
     });
   }
@@ -273,9 +339,17 @@ function IndexWithHashParams() {
               ) : null}
               <button
                 type="button"
-                onClick={handleEdit}
+                onClick={() => handleEdit(true)}
+                title="Edit the configuration reflecting the current interactions (gene selections, pan/zoom, etc.)"
               >
                 Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => handleEdit(false)}
+                title="Edit the original configuration as it was initially loaded"
+              >
+                Edit original
               </button>
             </div>
           </div>
@@ -296,7 +370,7 @@ function IndexWithHashParams() {
           ) : null}
           <ThemedVitessce
             validateOnConfigChange={debug}
-            onConfigChange={debug ? console.log : undefined}
+            onConfigChange={handleConfigChange}
             onConfigUpgrade={debug ? logConfigUpgrade : undefined}
             config={validConfig}
             handleEdit={handleEdit}
@@ -323,14 +397,15 @@ function IndexWithQueryParamRedirect() {
   const [demo] = useQueryParam('dataset', StringParam);
   const [wsCode] = useQueryParam('code', StringParam);
   const [url] = useQueryParam('url', StringParam);
+  const [gist] = useQueryParam('gist', StringParam);
 
   useEffect(() => {
-    const hasQueryParams = demo || url;
+    const hasQueryParams = demo || url || gist;
     if (hasQueryParams) {
-      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : `url=${url}`);
+      const params = (demo ? `dataset=${demo}${(wsCode ? `&code=${wsCode}` : '')}` : (gist ? `gist=${gist}` : `url=${url}`));
       window.location.href = baseUrl + params;
     }
-  }, [baseUrl, demo, url]);
+  }, [baseUrl, demo, url, gist]);
 
   return (<IndexWithHashParams />);
 }

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
 
+die() { echo "$*" 1>&2 ; exit 1; }
+
 # linting
 pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
 # end linting

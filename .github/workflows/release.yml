@@ -20,14 +20,14 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.17.0
+          node-version: 24.15.0
           registry-url: https://registry.npmjs.org/
       # npm 11.5.1 or later is required for OIDC publishingso update to latest to be sure
       - run: npm install -g npm@latest
@@ -69,7 +69,7 @@ jobs:
           echo "- [Demo]($VERSIONED_DEMO_URL)" >> RELEASE_NOTES.md
       - name: Create GitHub release if publish was successful
         if: steps.changesets.outputs.should-release == 'true'
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.get-tag.outputs.tag }}

@@ -64,7 +64,7 @@ export default function VolcanoPlotOptions(props) {
             valueLabelDisplay="auto"
             step={1}
             min={0}
-            max={100}
+            max={50}
           />
         </TableCell>
       </TableRow>
@@ -89,7 +89,7 @@ export default function VolcanoPlotOptions(props) {
             valueLabelDisplay="auto"
             step={0.5}
             min={0}
-            max={50}
+            max={10}
           />
         </TableCell>
       </TableRow>

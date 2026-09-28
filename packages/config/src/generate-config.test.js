@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { createStoreFromMapContents } from '@vitessce/zarr-utils';
-import { withConsolidated } from 'zarrita';
+import { withConsolidatedMetadata, extendStore } from 'zarrita';
 import { parseUrlsFromString, parsedUrlToZmetadata, generateConfig } from './generate-config.js';
 import spatialdataMouseLiverFixture from './json-fixtures/mouse_liver.spatialdata.json';
 import anndataMouseLiverFixture from './json-fixtures/mouse_liver.anndata.json';
@@ -53,7 +53,7 @@ describe('generateConfig', () => {
 
   it('store for SpatialData object supports withConsolidated', async () => {
     const initialStore = createStoreFromMapContents(spatialdataMouseLiverFixture);
-    const store = await withConsolidated(initialStore, { metadataKey: 'zmetadata' });
+    const store = await extendStore(initialStore, s => withConsolidatedMetadata(s, { metadataKey: 'zmetadata' }));
 
     expect(store.contents().length).toEqual(41);
   });

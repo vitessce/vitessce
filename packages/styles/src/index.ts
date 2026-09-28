@@ -121,6 +121,7 @@ export { default as LeakAdd } from '@mui/icons-material/LeakAdd';
 export { default as Warning } from '@mui/icons-material/Warning';
 export { default as Palette } from '@mui/icons-material/Palette';
 export { default as ClearIcon } from '@mui/icons-material/Clear';
+export { default as SortIcon } from '@mui/icons-material/Sort';
 
 // Data Grid
 export { DataGrid } from '@mui/x-data-grid/DataGrid';

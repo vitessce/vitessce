@@ -12,6 +12,7 @@ import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
 import { EditableGeoJsonLayer } from '@nebula.gl/layers';
 import { DrawPolygonByDraggingMode, ViewMode } from '@nebula.gl/edit-modes';
+import { runSelectionWithBusySignal } from './selection-busy.js';
 
 const EDIT_TYPE_ADD = 'addFeature';
 const EDIT_TYPE_CLEAR = 'clearFeatures';
@@ -30,6 +31,7 @@ const MODE_MAP = {
 const defaultProps = {
   layerIds: [],
   onSelect: () => {},
+  onSelectionBusy: null,
 };
 
 const EMPTY_DATA = {
@@ -167,12 +169,15 @@ export default class SelectionLayer extends CompositeLayer {
           selectedFeatureIndexes: [],
           data: EMPTY_DATA,
           onEdit: ({ updatedData, editType }) => {
+            const { onSelectionBusy } = this.props;
             if (editType === EDIT_TYPE_ADD) {
               const { coordinates } = updatedData.features[0].geometry;
-              this._selectPolygonObjects(coordinates);
+              runSelectionWithBusySignal(
+                onSelectionBusy, () => this._selectPolygonObjects(coordinates),
+              );
             } else if (editType === EDIT_TYPE_CLEAR) {
               // We want to select an empty array to clear any previous selection.
-              this._selectEmpty();
+              runSelectionWithBusySignal(onSelectionBusy, () => this._selectEmpty());
             }
           },
           _subLayerProps: {

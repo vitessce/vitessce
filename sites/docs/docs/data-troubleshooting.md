@@ -65,12 +65,23 @@ adata.write_zarr(out_path, chunks=(adata.shape[0], VAR_CHUNK_SIZE))
 
 ### AnnData-Zarr obsFeatureMatrix with sparse matrices
 
-Vitessce can load `obsFeatureMatrix` data (e.g., `adata.X` or `adata.layers["counts"]`) stored as either dense or sparse matrix.
+Vitessce can load `obsFeatureMatrix` data (e.g., `adata.X` or `adata.layers["counts"]`) stored as either a dense or a sparse matrix.
 
 For sparse matrices, Vitessce supports the following SciPy sparse matrix types [supported by AnnData](https://anndata.readthedocs.io/en/latest/fileformat-prose.html#sparse-arrays): CSC and CSR.
 
-__Dense and CSC sparse matrices are preferred__, as data for individual genes (a single matrix column) can be loaded efficiently (i.e., without needing to load the entire matrix) ([code](https://github.com/vitessce/vitessce/blob/a06eecfce33fc99ef0111b84db8186a9efb5d7ba/packages/file-types/zarr/src/anndata-loaders/ObsFeatureMatrixAnndataLoader.js#L108C14-L108C17)).
-Meanwhile, loading a single gene from a CSR sparse matrix currently requires Vitessce to load the entire matrix, which can  result in out-of-memory errors in the web browser (if the matrix is large).
+__Dense and CSC sparse matrices are preferred__ when features are accessed individually (the feature list, and coloring a scatterplot or spatial view by a gene): in a CSC matrix the values for one feature are one contiguous slice of `indices` and `data`, so selecting a feature reads only the chunks that slice touches.
+
+A CSR matrix has no such per-feature slice. Selecting features from a CSR matrix scans the whole `indices` array (and the `data` chunks that contain a match) in chunk-sized pieces, without ever densifying the matrix. Memory stays bounded, but every selection downloads on the order of `nnz × 8` bytes, so it is only practical for small matrices; above the browser's allocation budget (roughly 2 GB) Vitessce refuses the selection with a `MatrixTooLargeError` that names the matrix and this remedy. Convert before writing to Zarr:
+
+```python
+from scipy import sparse
+adata.X = sparse.csc_matrix(adata.X)
+adata.write_zarr("my_store.zarr")
+```
+
+For CSC matrices, smaller chunks on the sparse component arrays reduce how much is read per feature: AnnData's default chunking stores hundreds of thousands of values per chunk, so a feature with a few thousand nonzeros still downloads several megabytes. Rechunking `X/indices` and `X/data` to roughly 100,000 elements cuts that read amplification several-fold.
+
+Rendering the __full__ matrix (the heatmap and the expression histogram) requires `n_obs × n_vars × 4` bytes regardless of encoding. Vitessce logs a warning when that estimate exceeds the browser's budget and, if the allocation then fails, reports a `MatrixTooLargeError` instead of stalling. See the [next section](#my-obsfeaturematrix-is-too-large-to-render-everything) for how to load a subset.
 
 ### My obsFeatureMatrix is too large to render everything
 
@@ -91,7 +102,7 @@ Below, we provide guidance for how to pursue the former strategy (i.e., load and
 When the full expression matrix `adata.X` is large, there may be performance costs if Vitessce tries to load the full matrix for visualization, whether it be a heatmap
 or just loading genes to overlay on a spatial or scatterplot view.
 To resolve this issue:
-1. Ensure the X array is stored using the CSC sparse format or __chunk the Zarr store efficiently__ (the latter is recommended, see above ["chunking strategy" section](#anndata-zarr-obsfeaturematrix-chunking-strategy)) so that the UI remains responsive when selecting a gene to load into the client.
+1. Ensure the X array is stored using the CSC sparse format (see the ["sparse matrices" section](#anndata-zarr-obsfeaturematrix-with-sparse-matrices) above) or, if dense, __chunk the Zarr store efficiently__ (see the ["chunking strategy" section](#anndata-zarr-obsfeaturematrix-chunking-strategy)) so that the UI remains responsive when selecting a gene to load into the client.
 Every time a gene is selected (or the heatmap is loaded), the client will use Zarr to fetch all the "cell x gene" information needed for rendering - however, a poor chunking strategy
 can result in too much data be loaded (and then not used).  To remedy this, we recommend passing in the `chunk_size` argument to `write_zarr` so that the data is chunked in a manner that allows
 remote sources (like browsers) to fetch only the genes (and all cells) necessary for efficient display - to this end the chunk size is usually something like `[num_cells, small_number]`
@@ -110,14 +121,11 @@ adata = read_h5ad('path/to/my_dataset.h5ad')
 
 # Adds the `highly_variable` key to `var`
 sc.pp.highly_variable_genes(adata, n_top_genes=200)
-# If the matrix is sparse, it's best for performance to
-# use non-sparse formats + chunking to keep the UI responsive.
-# In the future, we should be able to use CSC sparse data natively
-# and get equal performance with chunking:
-# https://github.com/theislab/anndata/issues/524 
-# but for now, it is still not as good (although not unusable).
+# If the matrix is sparse, store it as CSC so that individual genes
+# can be read without scanning the whole matrix. A dense, column-chunked
+# array (see the chunking strategy section above) is the other efficient option.
 if isinstance(adata.X, sparse.spmatrix):
-    adata.X = adata.X.todense() # Or adata.X.tocsc() if you need to.
+    adata.X = adata.X.tocsc()
 adata.write_zarr(zarr_path, [adata.shape[0], VAR_CHUNK_SIZE])  # VAR_CHUNK_SIZE should be something small like 10
 ```
 

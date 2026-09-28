@@ -1,4 +1,5 @@
 import { InternMap } from 'internmap';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import {
   treeInitialize,
   nodeAppendChild,
@@ -6,6 +7,88 @@ import {
 import {
   SETS_DATATYPE_OBS,
 } from './constants.js';
+
+/**
+ * Whether a decoded set value is missing. A negative categorical code decodes to
+ * categories[-1] === undefined on the string route; other sources may yield null.
+ * @param {*} value A decoded set value.
+ * @returns {boolean} True when the value is missing.
+ */
+function isMissing(value) {
+  return value === undefined || value === null;
+}
+
+/**
+ * Name a decoded set value. Missing values share one set named by the shared
+ * placeholder, so the name is a real string that survives JSON serialization
+ * (an undefined name would be dropped) and that every view renders identically.
+ * @param {*} value A decoded set value.
+ * @returns {string} The set name.
+ */
+function toSetName(value) {
+  return isMissing(value) ? MISSING_VALUE_PLACEHOLDER : value;
+}
+
+/**
+ * Build a cell sets tree from raw categorical codes, without materializing one
+ * string per observation. Output is identical to what dataToCellSetsTree produces
+ * for the equivalent single-level string columns: observed categories only, the
+ * same child ordering (via the same plain-object construction), and a set named
+ * MISSING_VALUE_PLACEHOLDER, ordered last, for observations with a negative
+ * (missing) code.
+ * @param {object} params
+ * @param {string[]} params.obsIndex The observation index shared by all columns.
+ * @param {{ codes: ArrayLike<number>, categories: string[] }[]} params.columns
+ * Raw codes and category names, one entry per obsSets option.
+ * @param {{ name: string }[]} options The obsSets options, providing hierarchy names.
+ * @returns {object} A tree object.
+ */
+export function codesToCellSetsTree({ obsIndex, columns }, options) {
+  const cellSetsTree = treeInitialize(SETS_DATATYPE_OBS);
+  columns.forEach(({ codes, categories }, j) => {
+    const { name } = options[j];
+    let levelZeroNode = {
+      name,
+      children: [],
+    };
+    // Determine which categories are observed, since dataToCellSetsTree only
+    // creates sets for values that occur in the data.
+    const seen = new Uint8Array(categories.length);
+    let hasMissing = false;
+    for (let i = 0; i < codes.length; i += 1) {
+      const code = codes[i];
+      if (code >= 0) {
+        seen[code] = 1;
+      } else {
+        hasMissing = true;
+      }
+    }
+    const uniqueCellSetIds = categories.filter((_, k) => seen[k]).sort();
+    if (hasMissing) {
+      // Observations with a negative (missing) code share one set, named by the
+      // placeholder and ordered after every real category, as in dataToCellSetsTree.
+      uniqueCellSetIds.push(MISSING_VALUE_PLACEHOLDER);
+    }
+    const clusters = {};
+    // eslint-disable-next-line no-return-assign
+    uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
+    // Resolve each observed code to its cluster once, so the per-observation
+    // loop is a typed-array read plus a push.
+    const clusterByCode = categories.map((cat, k) => (seen[k] ? clusters[cat] : null));
+    const missingCluster = hasMissing ? clusters[MISSING_VALUE_PLACEHOLDER] : null;
+    for (let i = 0; i < codes.length; i += 1) {
+      const code = codes[i];
+      const cluster = code >= 0 ? clusterByCode[code] : missingCluster;
+      cluster.set.push([obsIndex[i], null]);
+    }
+    Object.values(clusters).forEach(
+      // eslint-disable-next-line no-return-assign
+      cluster => (levelZeroNode = nodeAppendChild(levelZeroNode, cluster)),
+    );
+    cellSetsTree.tree.push(levelZeroNode);
+  });
+  return cellSetsTree;
+}
 
 export function dataToCellSetsTree(data, options) {
   // obsIndex is an array of all cell IDs, for the purposes of set complement operations only.
@@ -24,7 +107,7 @@ export function dataToCellSetsTree(data, options) {
       const levelSets = new InternMap([], JSON.stringify);
 
       cellNames[j].forEach((id, i) => {
-        const classes = cellSetIds.map(col => col[i]);
+        const classes = cellSetIds.map(col => toSetName(col[i]));
         if (levelSets.has(classes)) {
           levelSets.get(classes).push([id, null]);
         } else {
@@ -89,16 +172,26 @@ export function dataToCellSetsTree(data, options) {
     } else {
       // Single-level case.
       // Check for the optional corresponding confidence score column name.
-      const uniqueCellSetIds = Array.from(new Set(cellSetIds)).sort();
+      // Missing values share one set, named by the placeholder and ordered last.
+      const setNames = cellSetIds.map(toSetName);
+      const hasMissing = cellSetIds.some(isMissing);
+      const uniqueCellSetIds = Array.from(
+        new Set(hasMissing ? cellSetIds.filter(id => !isMissing(id)) : cellSetIds),
+      ).sort();
+      if (hasMissing) {
+        uniqueCellSetIds.push(MISSING_VALUE_PLACEHOLDER);
+      }
       const clusters = {};
       // eslint-disable-next-line no-return-assign
       uniqueCellSetIds.forEach(id => (clusters[id] = { name: id, set: [] }));
       if (cellSetScores[j]) {
-        cellSetIds
-          .forEach((id, i) => clusters[id].set.push([cellNames[j][i], cellSetScores[j][i]]));
+        setNames.forEach((setName, i) => (
+          clusters[setName].set.push([cellNames[j][i], cellSetScores[j][i]])
+        ));
       } else {
-        cellSetIds
-          .forEach((id, i) => clusters[id].set.push([cellNames[j][i], null]));
+        setNames.forEach((setName, i) => (
+          clusters[setName].set.push([cellNames[j][i], null])
+        ));
       }
       Object.values(clusters).forEach(
         // eslint-disable-next-line no-return-assign

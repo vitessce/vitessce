@@ -46,3 +46,10 @@ export class ZarrNodeNotFoundError extends DataLoaderError {
     this.name = 'ZarrNodeNotFoundError';
   }
 }
+
+export class MatrixTooLargeError extends DataLoaderError {
+  constructor(message) {
+    super(message);
+    this.name = 'MatrixTooLargeError';
+  }
+}

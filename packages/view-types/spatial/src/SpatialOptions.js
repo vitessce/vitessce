@@ -8,6 +8,7 @@ import {
   Slider,
   makeStyles,
 } from '@vitessce/styles';
+import { capitalize } from '@vitessce/utils';
 import {
   usePlotOptionsStyles, OptionsContainer, CellColorEncodingOption, OptionSelect,
 } from '@vitessce/vit-s';
@@ -21,6 +22,7 @@ const useToggleStyles = makeStyles()(() => ({
     padding: '0px',
   },
 }));
+const FEATURE_AGGREGATION_STRATEGIES = ['first', 'last', 'sum', 'mean'];
 
 const ToggleFixedAxisButton = ({
   setSpatialAxisFixed,
@@ -70,6 +72,8 @@ export default function SpatialOptions(props) {
     canShowExpressionOptions,
     canShowColorEncodingOption,
     canShow3DOptions,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
   } = props;
 
   const spatialOptionsId = useId();
@@ -189,6 +193,29 @@ export default function SpatialOptions(props) {
               />
             </TableCell>
           </TableRow>
+          {setFeatureAggregationStrategy ? (
+            <TableRow>
+              <TableCell className={classes.labelCell} variant="head" scope="row">
+                <label htmlFor={`feature-aggregation-strategy-${spatialOptionsId}`}>
+                  Feature Aggregation Strategy
+                </label>
+              </TableCell>
+              <TableCell className={classes.inputCell} variant="body">
+                <OptionSelect
+                  className={classes.select}
+                  value={featureAggregationStrategy ?? 'first'}
+                  onChange={e => setFeatureAggregationStrategy(e.target.value)}
+                  inputProps={{ id: `feature-aggregation-strategy-${spatialOptionsId}` }}
+                >
+                  {FEATURE_AGGREGATION_STRATEGIES.map(opt => (
+                    <option key={opt} value={opt}>
+                      {capitalize(opt)}
+                    </option>
+                  ))}
+                </OptionSelect>
+              </TableCell>
+            </TableRow>
+          ) : null}
         </>
       ) : null}
     </OptionsContainer>

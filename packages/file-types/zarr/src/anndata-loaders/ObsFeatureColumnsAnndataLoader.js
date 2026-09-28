@@ -1,4 +1,4 @@
-import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+import { LoaderResult, AbstractTwoStepLoader, allocateDenseMatrix } from '@vitessce/abstract';
 import { basename } from '../utils.js';
 
 /**
@@ -20,7 +20,11 @@ export default class ObsFeatureColumnsAnndataLoader extends AbstractTwoStepLoade
       const obsIndex = await this.dataSource.loadObsIndex(firstPath);
       const featureIndex = colPaths.map(colPath => basename(colPath));
       const shape = [obsIndex.length, featureIndex.length];
-      const out = new Float32Array(shape[0] * shape[1]);
+      const out = allocateDenseMatrix({
+        source: `the "obsFeatureColumns" of "${this.url?.split('?')[0]}"`,
+        shape,
+        allocate: () => new Float32Array(shape[0] * shape[1]),
+      });
 
       const data = await Promise.all(
         colPaths.map(colPath => this.dataSource.loadNumeric(colPath)),

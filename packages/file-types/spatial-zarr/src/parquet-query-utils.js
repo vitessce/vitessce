@@ -7,7 +7,6 @@
 /* eslint-disable import/no-unresolved */
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
-import { createGetRange } from '@vitessce/zarr-utils';
 import { log } from '@vitessce/globals';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
@@ -104,21 +103,21 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
-      const getRange = createGetRange(store);
-
+      // Assume the store has already been extended (withGetRange)
+      // via applyStoreExtensions.
       // Step 1: Fetch last 8 bytes to get footer length and magic number
       const TAIL_LENGTH = 8;
       // Case 1: single file.
       let partZeroPath = parquetPath;
 
       // TODO: use _loadParquetBytes here and below instead?
-      let tailBytes = await getRange(`/${partZeroPath}`, {
+      let tailBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: TAIL_LENGTH,
       });
       if (!tailBytes) {
         // Case 2: Rather than a single file, this may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
-        tailBytes = await getRange(`/${partZeroPath}`, {
+        tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
         });
       }
@@ -142,7 +141,7 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       }
 
       // Step 3. Fetch the full footer bytes
-      const footerBytes = await getRange(`/${partZeroPath}`, {
+      const footerBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: footerLength + TAIL_LENGTH,
       });
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {

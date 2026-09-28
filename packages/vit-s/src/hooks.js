@@ -5,6 +5,7 @@ import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
+import { getObsIndexMap } from '@vitessce/sets-utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
@@ -51,44 +52,76 @@ export function useWindowDimensions() {
   return windowDimensions;
 }
 
+const EMPTY_SIZE = { width: undefined, height: undefined };
+
 /**
- * Custom hook, subscribes to GRID_RESIZE and window resize events.
+ * Custom hook, observes the size of a grid item's container element.
+ *
+ * The size is obtained from a ResizeObserver on the container element itself,
+ * so it stays in sync with window resizes, react-grid-layout resizes, and any
+ * other layout change, without the view needing to listen for those events or
+ * to broadcast anything to sibling views.
  * @returns {array} `[width, height, containerRef]` where width and height
  * are numbers and containerRef is a React ref.
  */
 export function useGridItemSize() {
   const containerRef = useRef();
+  const observerRef = useRef(null);
+  const observedRef = useRef(null);
 
-  const [height, setHeight] = useState();
-  const [width, setWidth] = useState();
+  const [size, setSize] = useState(EMPTY_SIZE);
 
-  const resizeCount = useGridResize();
-  const incrementResizeCount = useEmitGridResize();
-
-  // On window resize events, increment the grid resize count.
+  // Create one ResizeObserver for the lifetime of the component.
   useEffect(() => {
-    function onWindowResize() {
-      incrementResizeCount();
+    if (typeof ResizeObserver === 'undefined') {
+      // Environments without a ResizeObserver implementation (such as jsdom)
+      // do not receive size updates.
+      return () => {};
     }
-    const onResizeDebounced = debounce(onWindowResize, 100, { trailing: true });
-    window.addEventListener('resize', onResizeDebounced);
-    onWindowResize();
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      // Prefer getBoundingClientRect over the ResizeObserver entry's box sizes,
+      // so that the result accounts for CSS transforms on ancestor elements.
+      const { width, height } = entry.target.getBoundingClientRect();
+      // Bail out when the size is unchanged, both to avoid a wasted re-render
+      // and to guarantee that a callback cannot feed back into itself.
+      setSize(prevSize => (
+        prevSize.width === width && prevSize.height === height
+          ? prevSize
+          : { width, height }
+      ));
+    });
+    observerRef.current = observer;
     return () => {
-      window.removeEventListener('resize', onResizeDebounced);
+      observer.disconnect();
+      observerRef.current = null;
+      observedRef.current = null;
     };
-  }, [incrementResizeCount]);
+  }, []);
 
-  // On new grid resize counts, re-compute the component
-  // width/height.
+  // The container element is not necessarily mounted on the first render, and
+  // some views swap it out or assign containerRef.current imperatively, so
+  // re-check which element to observe after every render rather than only once.
   useEffect(() => {
-    if (!containerRef.current) return;
-    const container = containerRef.current;
-    const containerRect = container.getBoundingClientRect();
-    setHeight(containerRect.height);
-    setWidth(containerRect.width);
-  }, [resizeCount]);
+    const observer = observerRef.current;
+    const element = containerRef.current ?? null;
+    if (!observer || element === observedRef.current) {
+      return;
+    }
+    if (observedRef.current) {
+      observer.unobserve(observedRef.current);
+    }
+    observedRef.current = element;
+    if (element) {
+      // ResizeObserver invokes its callback once upon observe(),
+      // which provides the initial measurement.
+      observer.observe(element);
+    }
+    // Deliberately no dependency array: the effect body is a cheap
+    // identity comparison in the common case where nothing changed.
+  });
 
-  return [width, height, containerRef];
+  return [size.width, size.height, containerRef];
 }
 
 /**
@@ -258,6 +291,10 @@ export function useUint8FeatureSelection(expressionData) {
   }, [expressionData]);
 }
 
+// Marks an instance index that equals the matrix row index, so that no
+// per-observation mapping needs to be built.
+const IDENTITY_MAPPING = 'identity';
+
 export function useExpressionValueGetter(
   { instanceObsIndex, matrixObsIndex, expressionData },
 ) {
@@ -267,18 +304,32 @@ export function useExpressionValueGetter(
   // we need a way to look up an obsFeatureMatrix obsIndex index
   // given an obsEmbedding obsIndex index.
   const toMatrixIndexMap = useMemo(() => {
-    if (instanceObsIndex && matrixObsIndex) {
-      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
-      return instanceObsIndex.map(key => matrixIndexMap.get(key));
+    if (!instanceObsIndex || !matrixObsIndex) {
+      return null;
     }
-    return null;
+    if (instanceObsIndex === matrixObsIndex) {
+      // The same array (the usual case when both come from one data source)
+      // is already aligned by position.
+      return IDENTITY_MAPPING;
+    }
+    // The map is shared with other consumers of this index via getObsIndexMap.
+    const matrixIndexMap = getObsIndexMap(matrixObsIndex);
+    const mapping = new Int32Array(instanceObsIndex.length);
+    for (let i = 0; i < instanceObsIndex.length; i += 1) {
+      const rowIndex = matrixIndexMap.get(instanceObsIndex[i]);
+      mapping[i] = rowIndex === undefined ? -1 : rowIndex;
+    }
+    return mapping;
   }, [instanceObsIndex, matrixObsIndex]);
 
   // Set up a getter function for gene expression values, to be used
   // by the DeckGL layer to obtain values for instanced attributes.
   const getExpressionValue = useCallback((entry, { index: instanceIndex }) => {
     if (toMatrixIndexMap && expressionData && expressionData[0]) {
-      const rowIndex = toMatrixIndexMap[instanceIndex];
+      const rowIndex = toMatrixIndexMap === IDENTITY_MAPPING
+        ? instanceIndex
+        : toMatrixIndexMap[instanceIndex];
+      // An observation absent from the matrix (-1) reads as undefined, as before.
       const val = expressionData[0][rowIndex];
       return val;
     }

@@ -589,3 +589,22 @@ export function useObsLabelsMultiLevel(
     depth, DataType.OBS_LABELS,
   );
 }
+
+/**
+ * Wrapper around useDataTypeMultiLevel.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} matchOnObj
+ * @param {number} depth
+ * @returns {array} [data, status, errors]
+ */
+export function useObsColorsMultiLevel(
+  loaders, dataset, isRequired, matchOnObj,
+  depth,
+) {
+  return useDataTypeMultiLevel(
+    loaders, dataset, isRequired, matchOnObj,
+    depth, DataType.OBS_COLORS,
+  );
+}

@@ -16,6 +16,12 @@ import ChannelSlider from './ChannelSlider.js';
 import ChannelVisibilityCheckbox from './ChannelVisibilityCheckbox.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 import ChannelSelectionDropdown from './ChannelSelectionDropdown.js';
+import {
+  channelRowContainerSx,
+  channelSliderCellSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+} from './styles.js';
 
 
 export default function ImageChannelController(props) {
@@ -43,6 +49,7 @@ export default function ImageChannelController(props) {
     numResolutions,
     spatialMaxResolution,
     setSpatialMaxResolution,
+    channelsSortOrder,
   } = props;
 
   const removeChannel = useRemoveImageChannelInMetaCoordinationScopes();
@@ -77,7 +84,13 @@ export default function ImageChannelController(props) {
       });
       // eslint-disable-next-line prefer-destructuring
       const [newDomain] = stats.domains;
-      return newDomain;
+      return {
+        minMax: newDomain,
+        // iqr: [stats.q1s[0], stats.q3s[0]],
+        // This seems to work better than the IQR for the slider
+        // upper bound.
+        upperThreeQuarters: [stats.q1s[0], newDomain[1]],
+      };
     },
     meta: { image },
   });
@@ -87,13 +100,13 @@ export default function ImageChannelController(props) {
 
   function handleResetWindowUsingIQR() {
     if (!disabled) {
-      setWindow(minMaxDomain);
+      setWindow(minMaxDomain?.upperThreeQuarters);
     }
   }
 
   return (
-    <Grid container direction="row" justifyContent="space-between">
-      <Grid size={1}>
+    <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+      <Grid size={1} sx={channelControlCellSx}>
         <ChannelVisibilityCheckbox
           color={color}
           setColor={setColor}
@@ -104,7 +117,7 @@ export default function ImageChannelController(props) {
           colormapOn={colormapOn}
         />
       </Grid>
-      <Grid size={1}>
+      <Grid size={1} sx={channelControlCellSx}>
         <ChannelColorPickerMenu
           color={color}
           setColor={setColor}
@@ -116,17 +129,18 @@ export default function ImageChannelController(props) {
           palette={VIEWER_PALETTE}
         />
       </Grid>
-      <Grid size={6}>
+      <Grid size={6} sx={channelSelectorCellSx}>
         <ChannelSelectionDropdown
           featureIndex={featureIndex}
           targetC={targetC}
           setTargetC={setTargetC}
           setWindow={setWindow}
           disabled={isLoading}
+          channelsSortOrder={channelsSortOrder}
         />
       </Grid>
 
-      <Grid size={3}>
+      <Grid size={3} sx={channelSliderCellSx}>
         <ChannelSlider
           image={image}
           targetT={targetT}
@@ -142,7 +156,7 @@ export default function ImageChannelController(props) {
           minMaxDomain={minMaxDomain}
         />
       </Grid>
-      <Grid size={1}>
+      <Grid size={1} sx={channelControlCellSx}>
         <ChannelOptions
           onRemove={onRemove}
           showValueExtent={showValueExtent}

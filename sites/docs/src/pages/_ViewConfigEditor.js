@@ -208,7 +208,7 @@ export default function ViewConfigEditor(props) {
     ) : (
       <main className={styles.viewConfigEditorMain}>
         {error && (
-          <pre className={styles.vitessceAppLoadError}>{error}</pre>
+          <pre className={styles.vitessceAppLoadError}>{JSON.stringify(error, null, 2)}</pre>
         )}
         <p className={styles.viewConfigEditorInfo}>
           To use Vitessce, enter a&nbsp;

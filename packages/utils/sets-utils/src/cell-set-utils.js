@@ -4,7 +4,7 @@ import { isNil, isEqual, range } from 'lodash-es';
 import { featureCollection as turfFeatureCollection, point as turfPoint } from '@turf/helpers';
 import { centroid } from '@turf/centroid';
 import concaveman from 'concaveman';
-import { getDefaultColor, PALETTE } from '@vitessce/utils';
+import { getDefaultColor, PALETTE, MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import {
   HIERARCHICAL_SCHEMAS,
 } from './constants.js';
@@ -360,7 +360,7 @@ export function treeInitialize(datatype) {
 export function nodeToRenderProps(node, path, cellSetColor) {
   const level = path.length - 1;
   return {
-    title: node.name,
+    title: node.name ?? MISSING_VALUE_PLACEHOLDER,
     nodeKey: pathToKey(path),
     path,
     size: getNodeLength(node),
@@ -403,7 +403,10 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetColor, theme) {
-  let cellColorsArray = [];
+  // Insert into the Map directly rather than accumulating an intermediate array of
+  // [cellId, color] tuples. Spreading the accumulator once per selected set is
+  // O(numObservations * numSelectedSets); this is O(numObservations).
+  const cellColors = new Map();
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
@@ -412,16 +415,15 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
         cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
         || getDefaultColor(theme)
       );
-      cellColorsArray = [
-        ...cellColorsArray,
-        ...nodeSet.map(([cellId, prob]) => [
+      nodeSet.forEach(([cellId, prob]) => {
+        cellColors.set(
           cellId,
           (isNil(prob) ? nodeColor : colorMixWithUncertainty(nodeColor, prob)),
-        ]),
-      ];
+        );
+      });
     }
   });
-  return new Map(cellColorsArray);
+  return cellColors;
 }
 
 /**
@@ -438,25 +440,24 @@ export function treeToCellColorsBySetNames(currTree, selectedNamePaths, cellSetC
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToSelectedSetMap(currTree, selectedNamePaths) {
-  let result = [];
+  const result = new Map();
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
-      result = [
-        ...result,
-        ...nodeSet.map(([cellId]) => [
+      nodeSet.forEach(([cellId]) => {
+        result.set(
           cellId,
           // TODO: should this be the full path
           // (rather than only the node name)?
           // Or the index of the selected set
           // with respect to the selectedNamePaths array?
           setNamePath,
-        ]),
-      ];
+        );
+      });
     }
   });
-  return new Map(result);
+  return result;
 }
 
 /**
@@ -472,22 +473,267 @@ export function treeToSelectedSetMap(currTree, selectedNamePaths) {
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToCellSetColorIndicesBySetNames(currTree, selectedNamePaths, cellSetColor) {
-  let cellColorsArray = [];
+  const cellColorIndices = new Map();
   selectedNamePaths?.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
     if (node) {
       const nodeSet = nodeToSet(node);
       const nodeColorIndex = cellSetColor?.findIndex(d => isEqual(d.path, setNamePath));
-      cellColorsArray = [
-        ...cellColorsArray,
-        ...nodeSet.map(([cellId]) => [
-          cellId,
-          nodeColorIndex,
-        ]),
-      ];
+      nodeSet.forEach(([cellId]) => {
+        cellColorIndices.set(cellId, nodeColorIndex);
+      });
     }
   });
-  return new Map(cellColorsArray);
+  return cellColorIndices;
+}
+
+// Cache of observation-ID-to-position lookups, keyed weakly by the obsIndex array
+// itself. Loaders memoize obsIndex per store path, so views that share an
+// observation axis share the one Map rather than each building their own.
+const obsIndexMapCache = new WeakMap();
+
+/**
+ * Get a mapping from observation ID to its position in obsIndex, memoized on the
+ * obsIndex array reference.
+ * @param {string[]} obsIndex The observation index.
+ * @returns {Map<string, number>} Mapping from observation ID to integer position.
+ */
+export function getObsIndexMap(obsIndex) {
+  let obsIndexMap = obsIndexMapCache.get(obsIndex);
+  if (!obsIndexMap) {
+    obsIndexMap = new Map();
+    for (let i = 0; i < obsIndex.length; i += 1) {
+      obsIndexMap.set(obsIndex[i], i);
+    }
+    obsIndexMapCache.set(obsIndex, obsIndexMap);
+  }
+  return obsIndexMap;
+}
+
+/**
+ * Build a positionally-indexed color encoding for a set selection.
+ *
+ * Unlike treeToCellColorsBySetNames, the result is aligned to obsIndex by position
+ * rather than keyed by observation ID, so consumers index into it with the same
+ * integer they already use to read coordinates. That avoids both a per-observation
+ * string hash lookup on every render and the per-observation color array that
+ * uncertainty mixing would otherwise allocate.
+ *
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of arrays of strings, representing set "paths".
+ * @param {object[]} cellSetColor Array of objects with the properties `path` and `color`.
+ * @param {string[]} obsIndex The observation index to align the result to.
+ * @param {string} theme "light" or "dark" for the vitessce theme.
+ * @returns {object} An object `{ colorIndices, colorProbs, colors }` where
+ * `colorIndices` is a typed array parallel to obsIndex, holding 0 for observations
+ * in no selected set and `i + 1` for those in `selectedNamePaths[i]`;
+ * `colors` holds the [r, g, b] color per selected set;
+ * and `colorProbs` is a Float32Array of per-observation confidence scores, or null
+ * when no selected set carries them.
+ */
+/**
+ * Build the positional color encoding directly from raw categorical codes,
+ * skipping the tree walk that treeToColorIndicesArray performs. Applicable when
+ * every selected path resolves to a (hierarchy, category) pair in the provided
+ * columns, where the category MISSING_VALUE_PLACEHOLDER resolves to the
+ * observations with a negative (missing) code. Selections that do not resolve —
+ * user-defined selections from additionalObsSets, or paths deeper than two
+ * levels — return null so the caller can fall back to the tree route.
+ *
+ * The output is identical to treeToColorIndicesArray for the tree built from the
+ * same columns: index 0 means "in no selected set", and where an observation is
+ * in multiple selected sets (across hierarchies), the later path wins.
+ *
+ * @param {object} params
+ * @param {{ path: string[], codes: ArrayLike<number>,
+ *   categories: string[] }[]} params.columns Raw codes per hierarchy; path is the
+ * hierarchy's path in the tree, e.g. ['Cell Type Annotations'].
+ * @param {string[]} params.obsIndex The observation index the columns align to.
+ * @param {array} params.selectedNamePaths Array of selected set "paths".
+ * @param {object[]} params.cellSetColor Array of objects with `path` and `color`.
+ * @param {string} params.theme "light" or "dark" for the vitessce theme.
+ * @returns {object|null} `{ colorIndices, colorProbs, colors }` as in
+ * treeToColorIndicesArray (colorProbs always null: the codes route carries no
+ * per-observation scores), or null when a selected path does not resolve.
+ */
+/**
+ * The smallest unsigned typed array able to index `count` selected sets, with 0
+ * reserved for "in no selected set".
+ * @param {number} count Number of selected sets.
+ * @returns {Uint8ArrayConstructor|Uint16ArrayConstructor|Uint32ArrayConstructor}
+ */
+function getIndicesArrayType(count) {
+  if (count + 1 <= 256) {
+    return Uint8Array;
+  }
+  return count + 1 <= 65536 ? Uint16Array : Uint32Array;
+}
+
+/**
+ * Positional membership for a set selection: element i is 1 + the position in
+ * selectedNamePaths of the selected set containing observation i, or 0 when it
+ * is in none. Where an observation is in several selected sets, the later path
+ * wins, matching treeToSelectedSetMap and treeToColorIndicesArray. The
+ * observation index map is only built once a selected path resolves to a node.
+ * @param {object} currTree A tree object.
+ * @param {array} selectedNamePaths Array of selected set "paths".
+ * @param {string[]} obsIndex The observation index to align to.
+ * @returns {Uint8Array|Uint16Array|Uint32Array} One entry per observation.
+ */
+export function treeToSetIndicesArray(currTree, selectedNamePaths, obsIndex) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  const IndicesArrayType = getIndicesArrayType(paths.length);
+  const indices = new IndicesArrayType(numObs);
+  let obsIndexMap = null;
+  paths.forEach((setNamePath, i) => {
+    const node = numObs > 0 && currTree
+      ? treeFindNodeByNamePath(currTree, setNamePath)
+      : null;
+    if (node) {
+      if (obsIndexMap === null) {
+        obsIndexMap = getObsIndexMap(obsIndex);
+      }
+      nodeToSet(node).forEach(([cellId]) => {
+        const obsI = obsIndexMap.get(cellId);
+        if (obsI !== undefined) {
+          indices[obsI] = i + 1;
+        }
+      });
+    }
+  });
+  return indices;
+}
+
+/**
+ * The same positional membership as treeToSetIndicesArray, computed from raw
+ * categorical codes without touching the tree: one typed-array read per
+ * observation per hierarchy. The category MISSING_VALUE_PLACEHOLDER resolves to
+ * observations with a negative (missing) code.
+ * @param {object} params
+ * @param {{ path: string[], codes: ArrayLike<number>,
+ *   categories: string[] }[]} params.columns Raw codes per hierarchy.
+ * @param {string[]} params.obsIndex The observation index the columns align to.
+ * @param {array} params.selectedNamePaths Array of selected set "paths".
+ * @returns {Uint8Array|Uint16Array|Uint32Array|null} One entry per observation,
+ * or null when a selected path does not resolve (a user-defined selection, a path
+ * deeper than two levels, or an unknown category) so the caller can use the tree.
+ */
+export function setIndicesFromCodes({ columns, obsIndex, selectedNamePaths }) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  // Per column, a map from category code to (selected path index + 1). Later
+  // selected paths overwrite earlier ones within a column; across columns, the
+  // max index per observation reproduces the same later-path-wins rule.
+  const selIdxByCode = columns.map(
+    ({ categories }) => new Int32Array(categories.length),
+  );
+  // Per column, the (selected path index + 1) for observations with a negative
+  // (missing) code, when the placeholder-named set is selected.
+  const selIdxMissing = new Int32Array(columns.length);
+  for (let i = 0; i < paths.length; i += 1) {
+    const setNamePath = paths[i];
+    const colIndex = columns.findIndex(({ path }) => (
+      path.length === setNamePath.length - 1
+      && path.every((part, k) => part === setNamePath[k])
+    ));
+    if (colIndex === -1) {
+      return null;
+    }
+    const category = setNamePath[setNamePath.length - 1];
+    const catIndex = columns[colIndex].categories.indexOf(category);
+    if (category === MISSING_VALUE_PLACEHOLDER) {
+      // The set of observations whose code is negative. Should a real category
+      // share the placeholder name, the tree merges both into one set, so both
+      // are included here as well.
+      selIdxMissing[colIndex] = i + 1;
+    } else if (catIndex === -1) {
+      return null;
+    }
+    if (catIndex !== -1) {
+      selIdxByCode[colIndex][catIndex] = i + 1;
+    }
+  }
+  const IndicesArrayType = getIndicesArrayType(paths.length);
+  const indices = new IndicesArrayType(numObs);
+  for (let j = 0; j < columns.length; j += 1) {
+    const { codes } = columns[j];
+    const table = selIdxByCode[j];
+    const missingSel = selIdxMissing[j];
+    for (let i = 0; i < numObs; i += 1) {
+      const code = codes[i];
+      const v = code >= 0 ? table[code] : missingSel;
+      if (v > indices[i]) {
+        indices[i] = v;
+      }
+    }
+  }
+  return indices;
+}
+
+export function colorIndicesFromCodes({
+  columns, obsIndex, selectedNamePaths, cellSetColor, theme,
+}) {
+  const colorIndices = setIndicesFromCodes({ columns, obsIndex, selectedNamePaths });
+  if (colorIndices === null) {
+    return null;
+  }
+  const colors = (selectedNamePaths || []).map(setNamePath => (
+    cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+    || getDefaultColor(theme)
+  ));
+  return { colorIndices, colorProbs: null, colors };
+}
+
+export function treeToColorIndicesArray(
+  currTree, selectedNamePaths, cellSetColor, obsIndex, theme,
+) {
+  const numObs = obsIndex?.length || 0;
+  const paths = selectedNamePaths || [];
+  // Reserve 0 for "in no selected set", so the palette needs paths.length + 1 values.
+  const IndicesArrayType = getIndicesArrayType(paths.length);
+  const colorIndices = new IndicesArrayType(numObs);
+  const colors = [];
+  // Allocated lazily: most set hierarchies carry no confidence scores, and skipping
+  // the array entirely lets consumers take a cheaper code path.
+  let colorProbs = null;
+
+  // Built for every selected path, including paths absent from the tree, so that
+  // colors[colorIndices[i] - 1] stays aligned with selectedNamePaths. The
+  // observation index map is only built once a selected path resolves to a node,
+  // so an empty selection costs nothing beyond the (zeroed) indices array.
+  let obsIndexMap = null;
+  paths.forEach((setNamePath, i) => {
+    colors.push(
+      cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+      || getDefaultColor(theme),
+    );
+    const node = numObs > 0 && currTree
+      ? treeFindNodeByNamePath(currTree, setNamePath)
+      : null;
+    if (node) {
+      if (obsIndexMap === null) {
+        obsIndexMap = getObsIndexMap(obsIndex);
+      }
+      const nodeSet = nodeToSet(node);
+      nodeSet.forEach(([cellId, prob]) => {
+        const obsI = obsIndexMap.get(cellId);
+        if (obsI !== undefined) {
+          // Later paths overwrite earlier ones, matching treeToCellColorsBySetNames.
+          colorIndices[obsI] = i + 1;
+          if (!isNil(prob)) {
+            if (colorProbs === null) {
+              colorProbs = new Float32Array(numObs).fill(1);
+            }
+            colorProbs[obsI] = prob;
+          } else if (colorProbs !== null) {
+            colorProbs[obsI] = 1;
+          }
+        }
+      });
+    }
+  });
+  return { colorIndices, colorProbs, colors };
 }
 
 /**
@@ -504,7 +750,7 @@ export function treeToCellSetColorIndicesBySetNames(currTree, selectedNamePaths,
  * `obsId`, `name`, and `color`.
  */
 export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, theme) {
-  let cellsArray = [];
+  const cellsArray = [];
   for (let i = 0; i < selectedNamePaths.length; i += 1) {
     const setNamePath = selectedNamePaths[i];
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -514,11 +760,13 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
         setColor?.find(d => isEqual(d.path, setNamePath))?.color
         || getDefaultColor(theme)
       );
-      cellsArray = cellsArray.concat(nodeSet.map(([cellId]) => ({
-        obsId: cellId,
-        name: node.name,
-        color: nodeColor,
-      })));
+      nodeSet.forEach(([cellId]) => {
+        cellsArray.push({
+          obsId: cellId,
+          name: node.name ?? MISSING_VALUE_PLACEHOLDER,
+          color: nodeColor,
+        });
+      });
     }
   }
   return cellsArray;
@@ -527,7 +775,7 @@ export function treeToObjectsBySetNames(currTree, selectedNamePaths, setColor, t
 export function treeToCellPolygonsBySetNames(
   currTree, obsIndex, obsEmbedding, selectedNamePaths, cellSetColor, theme,
 ) {
-  const obsIndexMap = new Map(obsIndex.map((key, i) => ([key, i])));
+  const obsIndexMap = getObsIndexMap(obsIndex);
   const cellSetPolygons = [];
   selectedNamePaths.forEach((setNamePath) => {
     const node = treeFindNodeByNamePath(currTree, setNamePath);
@@ -603,7 +851,7 @@ export function treeToSetSizesBySetNames(
           || getDefaultColor(theme);
       const nodeProps = {
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         size: nodeSet.length,
         color: nodeColor,
         setNamePath: clusterPath,
@@ -638,7 +886,7 @@ export function treeToObsIdsBySetNames(currTree, selectedNamePaths) {
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing
@@ -669,7 +917,7 @@ export function treeToObsIndicesBySetNames(currTree, selectedNamePaths, obsIndex
       const nodeSet = nodeToSet(node);
       indices.push({
         key: generateKey(),
-        name: node.name,
+        name: node.name ?? MISSING_VALUE_PLACEHOLDER,
         path: setNamePath,
         size: nodeSet.length,
         // TODO: handle the case where the ID is in the set but missing
@@ -798,30 +1046,47 @@ export function getCellSetPolygons(params) {
   return [];
 }
 
+/**
+ * Get every leaf set in a tree, with the path that identifies it.
+ *
+ * A single depth-first walk visits each leaf exactly once. Iterating one level at a
+ * time instead re-emitted any leaf shallower than the tree height once per remaining
+ * level, and re-resolved each path against the tree to find its node.
+ *
+ * @param {object} currTree A tree object.
+ * @returns {{ path: string[], set: array[] }[]} The leaf sets, in tree order.
+ */
+export function treeToLeafSets(currTree) {
+  const leafSets = [];
+  function visitNode(node, prevPath) {
+    const nodePath = [...prevPath, node.name];
+    if (node.children) {
+      node.children.forEach(child => visitNode(child, nodePath));
+    } else {
+      leafSets.push({ path: nodePath, set: nodeToSet(node) });
+    }
+  }
+  if (currTree) {
+    currTree.tree.forEach(lzn => visitNode(lzn, []));
+  }
+  return leafSets;
+}
+
+/**
+ * Get a mapping from observation ID to the paths of the leaf sets containing it.
+ * @param {object} currTree A tree object.
+ * @returns {Map<string, string[][]>} Mapping from observation ID to set paths.
+ */
 export function treeToMembershipMap(currTree) {
   const result = new Map();
-  if (currTree) {
-    currTree.tree.forEach((lzn) => {
-      const height = nodeToHeight(lzn);
-      range(height).forEach((i) => {
-        const levelIndex = i + 1;
-        const levelNodePaths = nodeToLevelDescendantNamePaths(lzn, levelIndex, [], true);
-        levelNodePaths.forEach((setNamePath) => {
-          const node = treeFindNodeByNamePath(currTree, setNamePath);
-          // If this is a child node, then we are interested.
-          if (node && !node.children) {
-            const nodeSet = nodeToSet(node);
-            nodeSet.forEach(([obsId]) => {
-              if (result.has(obsId)) {
-                result.get(obsId).push(setNamePath);
-              } else {
-                result.set(obsId, [setNamePath]);
-              }
-            });
-          }
-        });
-      });
+  treeToLeafSets(currTree).forEach(({ path, set }) => {
+    set.forEach(([obsId]) => {
+      if (result.has(obsId)) {
+        result.get(obsId).push(path);
+      } else {
+        result.set(obsId, [path]);
+      }
     });
-  }
+  });
   return result;
 }

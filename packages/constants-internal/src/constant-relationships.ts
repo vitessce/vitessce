@@ -12,6 +12,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_POINTS_CSV]: DataType.OBS_POINTS,
   [FileType.OBS_LOCATIONS_CSV]: DataType.OBS_LOCATIONS,
   [FileType.OBS_LABELS_CSV]: DataType.OBS_LABELS,
+  [FileType.OBS_COLORS_CSV]: DataType.OBS_COLORS,
   [FileType.FEATURE_LABELS_CSV]: DataType.FEATURE_LABELS,
   [FileType.SAMPLE_SETS_CSV]: DataType.SAMPLE_SETS,
   [FileType.OBS_FEATURE_MATRIX_CSV]: DataType.OBS_FEATURE_MATRIX,
@@ -106,6 +107,9 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
   [DataType.OBS_LABELS]: [
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
+  ],
+  [DataType.OBS_COLORS]: [
+    CoordinationType.OBS_TYPE,
   ],
   [DataType.FEATURE_LABELS]: [
     CoordinationType.FEATURE_TYPE,

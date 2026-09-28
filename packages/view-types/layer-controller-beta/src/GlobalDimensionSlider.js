@@ -12,7 +12,13 @@ import {
 import {
   DimensionsSVG,
 } from '@vitessce/icons';
-import { useControllerSectionStyles } from './styles.js';
+import {
+  useControllerSectionStyles,
+  channelRowContainerSx,
+  channelSliderCellSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+} from './styles.js';
 
 
 const useStyles = makeStyles()(theme => ({
@@ -37,6 +43,15 @@ const useStyles = makeStyles()(theme => ({
   },
 }));
 
+/**
+ * The Z variant of this slider also carries the view's 3D rendering-mode switch.
+ * `enable3d` allows a view config to withhold that switch, for data which cannot usefully be
+ * volume-rendered. It is a single boolean rather than the legacy `layerController`'s per-layer
+ * `disable3d` name list because the beta stack has one switch per view driving the shared
+ * `spatialRenderingMode`, and because beta layer names come from the image's own OME metadata
+ * (`ImageWrapper.getName()`) rather than from the view config, so a config author has no names to
+ * match against.
+ */
 export default function GlobalDimensionSlider(props) {
   const {
     label,
@@ -46,6 +61,7 @@ export default function GlobalDimensionSlider(props) {
     max = 0,
     spatialRenderingMode = null,
     setSpatialRenderingMode = null,
+    enable3d = true,
   } = props;
 
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -65,16 +81,16 @@ export default function GlobalDimensionSlider(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+          <Grid size={1} sx={channelControlCellSx}>
             <DimensionsSVG className={classes.dimensionsIcon} />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelSelectorCellSx}>
             <Typography className={classes.dimensionLabel}>
               {label}
             </Typography>
           </Grid>
-          <Grid size={8}>
+          <Grid size={8} sx={channelSliderCellSx}>
             {!is3dMode ? (
               <Slider
                 value={targetValue}
@@ -90,8 +106,8 @@ export default function GlobalDimensionSlider(props) {
               />
             ) : null}
           </Grid>
-          <Grid size={2}>
-            {isForZ ? (
+          <Grid size={2} sx={channelControlCellSx}>
+            {isForZ && enable3d ? (
               <FormGroup row className={classes.switchFormGroup}>
                 <FormControlLabel
                   control={<Switch color="primary" checked={spatialRenderingMode === '3D'} onChange={handleRenderingModeChange} name="is3dMode" />}

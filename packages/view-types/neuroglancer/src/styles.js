@@ -7,6 +7,12 @@ export const useStyles = makeStyles()(() => ({
     position: 'relative',
     height: '100%',
   },
+  meshLoadingIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    zIndex: 50,
+  },
 }));
 
 // We define a subset of styles as a string,
@@ -1268,12 +1274,15 @@ const globalNeuroglancerStyles = {
   },
   'input.perspective-panel-show-slice-views': { pointerEvents: 'all' },
   '.neuroglancer-rendered-data-panel': {
-    cursor: 'crosshair',
+    cursor: 'grab',
     position: 'relative',
     outline: '0',
     touchAction: 'none',
     color: '#fff',
     textAlign: 'left',
+  },
+  '.neuroglancer-rendered-data-panel:active': {
+    cursor: 'grabbing',
   },
   '.neuroglancer-display-dimensions-widget': {
     position: 'absolute',

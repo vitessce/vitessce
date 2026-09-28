@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-nested-ternary */
 import React, { useMemo, useCallback } from 'react';
 import {
   TitleInfo,
@@ -122,6 +123,10 @@ export function VolcanoPlotSubscriber(props) {
     setFeatureSelection([featureId]);
   }, [setFeatureSelection]);
 
+  const anyNonEmpty = useMemo(() => featureStats?.some(
+    d => !d.metadata?.analysis_params?.is_empty,
+  ), [featureStats]);
+
   return (
     <TitleInfo
       title={title}
@@ -149,28 +154,35 @@ export function VolcanoPlotSubscriber(props) {
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {featureStats ? (
-          <VolcanoPlot
-            theme={theme}
-            width={width}
-            height={height}
-            obsType={obsType}
-            featureType={featureType}
-            obsSetsColumnNameMapping={obsSetsColumnNameMapping}
-            obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
-            sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
-            sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
-            sampleSetSelection={sampleSetSelection}
-            obsSetSelection={obsSetSelection}
-            obsSetColor={obsSetColor}
-            sampleSetColor={sampleSetColor}
-            data={featureStats}
-            onFeatureClick={onFeatureClick}
+          anyNonEmpty ? (
+            <VolcanoPlot
+              theme={theme}
+              width={width}
+              height={height}
+              obsType={obsType}
+              featureType={featureType}
+              obsSetsColumnNameMapping={obsSetsColumnNameMapping}
+              obsSetsColumnNameMappingReversed={obsSetsColumnNameMappingReversed}
+              sampleSetsColumnNameMapping={sampleSetsColumnNameMapping}
+              sampleSetsColumnNameMappingReversed={sampleSetsColumnNameMappingReversed}
+              sampleSetSelection={sampleSetSelection}
+              obsSetSelection={obsSetSelection}
+              obsSetColor={obsSetColor}
+              sampleSetColor={sampleSetColor}
+              data={featureStats}
+              onFeatureClick={onFeatureClick}
 
-            featurePointSignificanceThreshold={featurePointSignificanceThreshold}
-            featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
-            featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
-            featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
-          />
+              featurePointSignificanceThreshold={featurePointSignificanceThreshold}
+              featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
+              featureLabelSignificanceThreshold={featureLabelSignificanceThreshold}
+              featureLabelFoldChangeThreshold={featureLabelFoldChangeThreshold}
+            />
+          ) : (
+            <span>
+              Differential expression tests were not performed
+              for the currently selected groups due to insufficient data.
+            </span>
+          )
         ) : (
           <span>Select at least one {obsType} set.</span>
         )}

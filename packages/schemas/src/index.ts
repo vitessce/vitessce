@@ -10,6 +10,7 @@ export {
   obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
+  obsColorsCsvSchema,
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
