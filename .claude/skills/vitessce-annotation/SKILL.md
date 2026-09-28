@@ -16,15 +16,13 @@ and, per view, a set of coordination values to apply (zoom, layers, selections, 
    file on disk. Only the AnnotationController and AnnotationControllerSubscriber components can modify an annotation story and this is the only view which may contain annotation authoring/editing functionality.
 2. **Frames are merged into the coordination space, not read live.** When the current frame changes,
    the values the frame defines for a view are merged into the coordination space once. After that,
-   views read the coordination space and setters write to it as usual, so the user can pan/zoom/etc.
-   while a frame is active.
+   views read the coordination space and setters write to it as usual, so the user can pan/zoom/etc. while a frame is active.
 3. **Merging is cumulative.** A frame only overwrites what it specifies. Values it does not mention
    (including user changes) keep their current values. Setting `annotationFrameIndex` to `null`
    leaves the state untouched, with one exception: `annotationShapes`. Shapes never carry over
    between frames: when a frame is applied, a view's `annotationShapes` are set to the frame's
    shapes for that view, or cleared (set to `null`) if the frame does not define any. They are also
-   cleared when the frame index becomes `null` (after a frame was active). See
-   `getAnnotationFrameUpdate` in `packages/vit-s/src/state/hooks.js`.
+   cleared when the frame index becomes `null` (at the conclusion of a story). For this reason, when authoring annotations, ensure that shapes and other settings such as zoom or channel properties are specified explicitly per-frame if they are relevant to that frame, as the prior frame being viewed may have been out-of-order (in other words, frames may be viewed in an arbitrary order when the user selects frames from the frame list in the annotation controller). In addition, the user may have manually adjusted the controls by zooming/panning or changing image channel properties between frames in an unexpected way.
 4. **Frame values go where the view's setter would write them.** Single-level values are written
    in-place if the view defines the value directly (`view.coordinationValues`), otherwise into the
    scope(s) the view is mapped to (after meta-coordination), so linked views follow along.
