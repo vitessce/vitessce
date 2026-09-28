@@ -495,10 +495,13 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[2] = staticColor[2];
 
           const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
-          const featureColorMatch = Array.isArray(featureColor)
+          const featureColorAndOpacityMatch = Array.isArray(featureColor)
             ? featureColor.find(fc => fc.name === featureName)
             : null;
-          const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
+          const featureOpacity = (featureColorAndOpacityMatch?.opacity
+            ?? spatialLayerOpacity
+            ?? 1.0
+          );
           // eslint-disable-next-line no-param-reassign
           target[3] = Math.round(featureOpacity * 255);
           return target;
@@ -543,10 +546,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (isSelected) {
           // Find the color for this feature.
           const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
-          const featureColorMatch = Array.isArray(featureColor)
-            ? featureColor.find(fc => fc.name === featureName)?.color
+          const featureColorAndOpacityMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)
             : null;
-          const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
+          const featureColorMatch = featureColorAndOpacityMatch?.color;
+          const featureOpacity = (featureColorAndOpacityMatch?.opacity
+            ?? spatialLayerOpacity
+            ?? 1.0
+          );
           if (featureColorMatch) {
             // eslint-disable-next-line no-param-reassign
             target[0] = featureColorMatch[0];
