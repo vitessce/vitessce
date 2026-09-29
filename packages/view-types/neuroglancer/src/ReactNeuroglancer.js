@@ -950,13 +950,25 @@ export default class Neuroglancer extends React.Component {
       });
     }
 
-    const prevSegIds = prevLayers?.[0]?.segments ?? [];
-    const nextSegIds = nextLayers?.[0]?.segments ?? [];
+    const prevSegLayers = (prevLayers ?? []).filter(l => l.type === 'segmentation');
+    const nextSegLayers = (nextLayers ?? []).filter(l => l.type === 'segmentation');
+    // Compare each segmentation layer by name, in case ordering ever differs
+    // between prev/next (e.g. a layer added/removed) rather than assuming
+    // positional alignment.
+    const segIdsChangedForLayer = (name) => {
+      const prevIds = prevSegLayers.find(l => l.name === name)?.segments ?? [];
+      const nextIds = nextSegLayers.find(l => l.name === name)?.segments ?? [];
+      return prevIds.length !== nextIds.length
+        || prevIds[0] !== nextIds[0]
+        || prevIds[prevIds.length - 1] !== nextIds[nextIds.length - 1];
+    };
+    const allSegLayerNames = new Set([
+      ...prevSegLayers.map(l => l.name),
+      ...nextSegLayers.map(l => l.name),
+    ]);
 
-    // Segments changed (0 segments → N segments or pan/zoom culling update) — push new segments to NG
-    const segmentsChanged = prevSegIds.length !== nextSegIds.length
-      || prevSegIds[0] !== nextSegIds[0]
-      || prevSegIds[prevSegIds.length - 1] !== nextSegIds[nextSegIds.length - 1];
+    const segmentsChanged = [...allSegLayerNames].some(segIdsChangedForLayer);
+    const nextSegIds = nextSegLayers.flatMap(l => l.segments ?? []);
 
     if (segmentsChanged && nextSegIds.length > 0) {
       this.preserveDimensions(() => {

@@ -599,24 +599,25 @@ export function NeuroglancerSubscriber(props) {
           // For NG mesh segmentations, obsIndex comes from obsSegmentationsSetsData
           const instanceObsIndex = obsSegmentationsSetsData
             ?.[layerScope]?.[channelScope]?.obsIndex;
+          const restrictedObsIndex = instanceObsIndex?.filter(id => knownIdSet.has(String(id)));
           const matrixObsIndex = segmentationMultiIndicesData
             ?.[layerScope]?.[channelScope]?.obsIndex;
           const expressionData = segmentationMultiExpressionNormData
             ?.[layerScope]?.[channelScope];
-          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
+          if (restrictedObsIndex && matrixObsIndex && expressionData?.[0]) {
             // matrixObsIndex uses 'MIS_X' format, instanceObsIndex uses 'X'
             // Strip prefix to align the two index spaces
             const matrixIndexMap = new Map(
-              matrixObsIndex.map((key, i) => {
+              restrictedObsIndex.map((key, i) => {
                 // Strip any non-numeric prefix (e.g. 'MIS_0' -> '0')
                 const normalizedKey = key.replace(/^.*_/, '');
                 return [normalizedKey, i];
               }),
             );
-            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(String(key)));
+            const toMatrixIndex = restrictedObsIndex.map(key => matrixIndexMap.get(String(key)));
             const [low, high] = featureValueColormapRange ?? [0, 1];
             const ngCellColors = {};
-            instanceObsIndex.forEach((id, i) => {
+            restrictedObsIndex.forEach((id, i) => {
               const rowIndex = toMatrixIndex[i];
               const rawVal = expressionData[0][rowIndex] ?? 0;
               // Uint8Array values are 0-255, already normalized — convert to 0-1
@@ -628,11 +629,11 @@ export function NeuroglancerSubscriber(props) {
               ngCellColors[id] = rgbToHex(color);
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
-          } else if (instanceObsIndex) {
+          } else if (restrictedObsIndex) {
             // No expression data available — use default color for all segments
             const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
             const ngCellColors = {};
-            instanceObsIndex.forEach((id) => {
+            restrictedObsIndex.forEach((id) => {
               ngCellColors[id] = fallbackColor;
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
