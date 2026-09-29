@@ -33,6 +33,8 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.SPATIAL_AXIS_FIXED,
   CoordinationType.SPATIAL_ORBIT_AXIS,
   CoordinationType.FEATURE_AGGREGATION_STRATEGY,
+  // Annotation shapes are specific to a view's coordinate system.
+  CoordinationType.ANNOTATION_SHAPES,
 ];
 
 /**
@@ -134,6 +136,13 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.EMBEDDING_CONTOUR_PERCENTILES,
     CoordinationType.CONTOUR_COLOR_ENCODING,
     CoordinationType.CONTOUR_COLOR,
+    CoordinationType.ANNOTATION_STORY,
+    CoordinationType.ANNOTATION_SHAPES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_EDITABLE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.DUAL_SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -250,6 +259,13 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.ANNOTATION_STORY,
+    CoordinationType.ANNOTATION_SHAPES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_EDITABLE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -328,6 +344,26 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
     CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.ANNOTATION_STORY,
+    CoordinationType.ANNOTATION_SHAPES,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_EDITABLE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+  ],
+  [ViewType.ANNOTATION_CONTROLLER]: [
+    CoordinationType.DATASET,
+    CoordinationType.ANNOTATION_STORY,
+    CoordinationType.ANNOTATION_FRAME_INDEX,
+    CoordinationType.ANNOTATION_OVERLAY_VISIBLE,
+    CoordinationType.ANNOTATION_TRANSITION_DURATION,
+    CoordinationType.ANNOTATION_EDITABLE,
+    CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    // Note: the annotation controller also needs to read the coordination state
+    // of all other views/coordination types via the full config.
+    // Note: we get/set the CoordinationType.ANNOTATION_SHAPES from the full config,
+    // as this info is view-specific rather than global to the story.
   ],
   [ViewType.HEATMAP]: [
     CoordinationType.DATASET,

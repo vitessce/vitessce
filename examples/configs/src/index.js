@@ -55,6 +55,16 @@ import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 import { emptyConfig } from './view-configs/empty.js';
+
+// Annotations
+import { annotationsDemoSpraggins } from './view-configs/annotations-demo-spraggins.js';
+import { annotationsDemoSpragginsData } from './view-configs/annotations-demo-spraggins-data.js';
+import { annotationsDemoNeumannData } from './view-configs/annotations-demo-neumann-data.js';
+import { annotationsDemoNeumann2 } from './view-configs/annotations-demo-neumann-2.js';
+import { annotationsDemoLung3Data } from './view-configs/annotations-demo-lung3-data.js';
+import { annotationsDemoCodeluppi } from './view-configs/annotations-demo-codeluppi.js';
+import { annotationsMinervaOrionCrc04 } from './view-configs/annotations-minerva-orion.js';
+
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -181,6 +191,16 @@ export const configs = {
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
   empty: emptyConfig,
+
+  // Annotation configs
+  'annotations-demo-spraggins': annotationsDemoSpraggins,
+  'annotations-demo-spraggins-data': annotationsDemoSpragginsData,
+  'annotations-demo-neumann-data': annotationsDemoNeumannData,
+  'annotations-demo-neumann-2': annotationsDemoNeumann2,
+  'annotations-demo-lung3-data': annotationsDemoLung3Data,
+  'annotations-demo-codeluppi': annotationsDemoCodeluppi,
+  'annotations-demo-minerva-orion': annotationsMinervaOrionCrc04,
+
   'sdata-merfish': sdataMerfishConfig,
   'sdata-xenium_rep1_io': sdataXeniumConfig,
 

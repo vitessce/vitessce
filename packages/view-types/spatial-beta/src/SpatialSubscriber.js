@@ -37,6 +37,8 @@ import {
   useAuxiliaryCoordination,
   useViewConfig,
   useComponentViewInfo,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -176,6 +178,11 @@ export function SpatialSubscriber(props) {
   const hasPairedNeuroglancerView = neuroglancerUuid !== null;
   const rawCameraSnapshot = useComponentViewInfo(neuroglancerUuid);
 
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // This includes multi-level (e.g., per-layer/per-channel) coordination values.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
+
   // Get "props" from the coordination space.
   const [{
     dataset,
@@ -200,6 +207,12 @@ export function SpatialSubscriber(props) {
     obsSetColor,
     obsColorEncoding,
     obsSetSelection,
+
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationShapeSelection,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -217,6 +230,8 @@ export function SpatialSubscriber(props) {
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
+
+    setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
   const {
@@ -546,6 +561,17 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
+
   const errors = [
     ...obsPointsErrors,
     ...obsSpotsErrors,
@@ -561,6 +587,7 @@ export function SpatialSubscriber(props) {
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
+    annotationStoryError,
   ];
 
   /*
@@ -604,12 +631,15 @@ export function SpatialSubscriber(props) {
     obsSegmentationsLocationsDataStatus,
     // Images
     imageDataStatus,
+    // Annotations
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     Object.values(obsSpotsUrls || {}).flat(),
     Object.values(obsPointsUrls || {}).flat(),
     Object.values(obsSegmentationsUrls || {}).flat(),
     Object.values(imageUrls || {}).flat(),
+    annotationStoryUrls,
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
@@ -1136,6 +1166,10 @@ export function SpatialSubscriber(props) {
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
             rawCameraSnapshot={hasPairedNeuroglancerView ? rawCameraSnapshot : null}
             setSpatialBetaCameraSnapshot={hasPairedNeuroglancerView ? setSpatialBetaCameraSnapshot : null}
+            annotationShapes={annotationShapes}
+            annotationOverlayVisible={annotationOverlayVisible}
+            annotationSemanticZoom={annotationSemanticZoom}
+            annotationShapeSelection={annotationShapeSelection}
           />
         )
       }

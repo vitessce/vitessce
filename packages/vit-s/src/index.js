@@ -22,6 +22,8 @@ export {
 export {
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useRawViewMapping,
+  useViewMapping,
   useInitialCoordination,
   useCoordination,
   useComplexCoordination,
@@ -35,6 +37,7 @@ export {
   useDatasetUids,
   useLoaders,
   useMergeCoordination,
+  useAnnotationFrameCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
@@ -83,6 +86,7 @@ export {
   useFeatureStatsData,
   useFeatureSetStatsData,
   useObsSetStatsData,
+  useAnnotationStoryData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
