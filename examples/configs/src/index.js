@@ -60,6 +60,7 @@ import { emptyConfig } from './view-configs/empty.js';
 import { annotationsDemoSpraggins } from './view-configs/annotations-demo-spraggins.js';
 import { annotationsDemoSpragginsData } from './view-configs/annotations-demo-spraggins-data.js';
 import { annotationsDemoNeumannData } from './view-configs/annotations-demo-neumann-data.js';
+import { annotationsDemoNeumann2 } from './view-configs/annotations-demo-neumann-2.js';
 import { annotationsDemoLung3Data } from './view-configs/annotations-demo-lung3-data.js';
 import { annotationsDemoCodeluppi } from './view-configs/annotations-demo-codeluppi.js';
 import { annotationsMinervaOrionCrc04 } from './view-configs/annotations-minerva-orion.js';
@@ -194,6 +195,7 @@ export const configs = {
   'annotations-demo-spraggins': annotationsDemoSpraggins,
   'annotations-demo-spraggins-data': annotationsDemoSpragginsData,
   'annotations-demo-neumann-data': annotationsDemoNeumannData,
+  'annotations-demo-neumann-2': annotationsDemoNeumann2,
   'annotations-demo-lung3-data': annotationsDemoLung3Data,
   'annotations-demo-codeluppi': annotationsDemoCodeluppi,
   'annotations-demo-minerva-orion': annotationsMinervaOrionCrc04,
