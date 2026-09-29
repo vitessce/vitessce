@@ -206,7 +206,7 @@ export const latestFileDefSchema = z.object({
   options: fileOptionsSchema.optional(),
   requestInit: requestInit.optional(),
   // New: file def can have coordinationValues.
-  coordinationValues: z.record(z.string()).optional(),
+  coordinationValues: z.record(z.any()).optional(),
 });
 
 // Allow file definitions to have coordinationValues.
@@ -253,6 +253,8 @@ export const configSchema1_0_16 = configSchema1_0_13.extend({
       coordinationScopes: componentCoordinationScopes
         .optional(),
       coordinationScopesBy: componentCoordinationScopesBy
+        .optional(),
+      coordinationValues: z.record(z.any())
         .optional(),
     }),
   ),

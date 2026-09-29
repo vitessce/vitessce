@@ -567,6 +567,29 @@ export function useFeatureSetStatsData(
 }
 
 /**
+ * Wrapper around useDataType.
+ * The loaded story is used to initialize the annotationStory
+ * coordination value, only if the coordination space value is null.
+ * @param {object} loaders
+ * @param {string} dataset
+ * @param {boolean} isRequired
+ * @param {object} coordinationSetters
+ * @param {object} initialCoordinationValues
+ * @param {object} matchOn
+ * @returns {array} [data, status, urls, error]
+ */
+export function useAnnotationStoryData(
+  loaders, dataset, isRequired,
+  coordinationSetters, initialCoordinationValues, matchOn,
+) {
+  return useDataType(
+    DataType.ANNOTATION_STORY,
+    loaders, dataset, isRequired,
+    coordinationSetters, initialCoordinationValues, matchOn,
+  );
+}
+
+/**
  * Wrapper around useComparativeDataType.
  * @param {object} loaders
  * @param {string} dataset
