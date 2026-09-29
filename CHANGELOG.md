@@ -1,4 +1,15 @@
 
+## 4.0.9
+
+### Patch Changes
+
+- Add the `annotationStory.json` file type and `annotationStory` data type, along with the `AnnotationStoryJsonLoader` and `useAnnotationStoryData` hook. The loaded story initializes the `annotationStory` coordination value when it is `null`. (`@vitessce/constants-internal`, `@vitessce/json`, `@vitessce/vit-s`, `@vitessce/all`) ([#2622](https://github.com/vitessce/vitessce/pull/2622))
+
+- Use q1 as lower bound of channel window range default. (`@vitessce/layer-controller-beta`, `@vitessce/spatial-utils`) ([#2614](https://github.com/vitessce/vitessce/pull/2614))
+
+- Treat a 403 response for `.zmetadata` as missing consolidated metadata during automatic config generation, since buckets that deny `s3:ListBucket` return AccessDenied rather than Not Found for keys that do not exist. (`@vitessce/config`, `@vitessce/zarr-utils`) ([#2591](https://github.com/vitessce/vitessce/pull/2591))
+
+
 ## 4.0.8
 
 ### Patch Changes
