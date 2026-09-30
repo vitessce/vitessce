@@ -162,8 +162,19 @@ export function AnnotationControllerSubscriber(props) {
     setAnnotationEditable(true);
   }, [setAnnotationStory, setAnnotationFrameIndex, setAnnotationEditable]);
 
-  // TODO: define a custom removeGridComponent callback which also clears the currently-visible
-  // shapes and sets ANNOTATION_OVERLAY to false.
+  // When the controller is removed, the story can no longer be navigated or edited,
+  // so end the story before removing the view. Setting the frame index to null
+  // clears the annotationShapes of each view (via useAnnotationFrameCoordination).
+  const handleRemoveGridComponent = useCallback(() => {
+    setAnnotationFrameIndex(null);
+    setAnnotationOverlayVisible(false);
+    setAnnotationEditable(false);
+    annotationEditingStoreApi.getState().resetAnnotationEditing();
+    removeGridComponent();
+  }, [
+    setAnnotationFrameIndex, setAnnotationOverlayVisible, setAnnotationEditable,
+    annotationEditingStoreApi, removeGridComponent,
+  ]);
 
   return (
     <TitleInfo
@@ -171,7 +182,8 @@ export function AnnotationControllerSubscriber(props) {
       theme={theme}
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
-      removeGridComponent={removeGridComponent}
+      // In page mode, removeGridComponent is null (views cannot be removed).
+      removeGridComponent={removeGridComponent ? handleRemoveGridComponent : null}
       isReady={isReady}
       urls={urls}
       errors={errors}
