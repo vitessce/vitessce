@@ -25,4 +25,4 @@ blob-report/
 playwright/.cache/
 venv/
 cdn/
-
+reference/

@@ -34,8 +34,10 @@
     "@vitessce/constants-internal": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
     "@vitessce/gl": "workspace:*",
+    "@vitessce/schemas": "workspace:*",
     "lodash-es": "catalog:",
-    "react-markdown": "^9.0.1"
+    "react-markdown": "^9.0.1",
+    "uuid": "catalog:"
   },
   "devDependencies": {
     "react": "catalog:",

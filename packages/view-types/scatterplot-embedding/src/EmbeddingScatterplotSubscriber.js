@@ -15,6 +15,7 @@ import {
   useObsSetsData,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -73,6 +74,8 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelection: sampleSetSelectionFromProps,
     // Circle scale factor:
     circleScaleFactor = 0.8,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -137,6 +140,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     annotationSemanticZoom,
     annotationTransitionDuration,
     annotationEditable,
+    annotationFrameIndex,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -168,6 +172,13 @@ export function EmbeddingScatterplotSubscriber(props) {
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
     coordinationValues, uuid,
+  );
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
   );
 
   const {
@@ -711,6 +722,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         annotationSemanticZoom={annotationSemanticZoom}
         annotationTransitionDuration={annotationTransitionDuration}
         annotationEditable={annotationEditable}
+        {...annotationEditingProps}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber

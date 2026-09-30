@@ -37,6 +37,7 @@ import {
   useAuxiliaryCoordination,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { commaNumber, pluralize } from '@vitessce/utils';
@@ -152,6 +153,8 @@ export function SpatialSubscriber(props) {
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -197,7 +200,8 @@ export function SpatialSubscriber(props) {
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
-    annotationShapeSelection,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -218,6 +222,13 @@ export function SpatialSubscriber(props) {
 
     setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -1152,7 +1163,7 @@ export function SpatialSubscriber(props) {
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            annotationShapeSelection={annotationShapeSelection}
+            {...annotationEditingProps}
           />
         )
       }

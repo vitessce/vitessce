@@ -169,6 +169,32 @@ describe('getAnnotationFrameUpdate', () => {
     });
   });
 
+  it('only merges annotationShapes when the same frame has been edited in-place', () => {
+    const shapes = [{ uid: 's1', type: 'line', x1: 0, y1: 0, x2: 1, y2: 1 }];
+    const editedStory = {
+      uid: 'story',
+      frames: [{
+        uid: 'frame-0',
+        layout: [{ uid: 'spatial', coordinationValues: { spatialZoom: -2, annotationShapes: shapes } }],
+      }],
+    };
+    const prevAppliedFrame = { storyUid: 'story', frameUid: 'frame-0' };
+    expect(getAnnotationFrameUpdate(editedStory, 0, 0, 'spatial', prevAppliedFrame)).toEqual({
+      frameCoordinationValues: { annotationShapes: shapes },
+      scopePrefix: '',
+    });
+    expect(getAnnotationFrameUpdate(story, 0, 0, 'spatial', prevAppliedFrame).frameCoordinationValues)
+      .toEqual({ annotationShapes: null });
+  });
+
+  it('fully merges the frame when a different frame (or story) was previously applied', () => {
+    // E.g., the frames were re-ordered, so the frame at the same index has a different uid.
+    expect(getAnnotationFrameUpdate(story, 0, 0, 'spatial', { storyUid: 'story', frameUid: 'frame-1' }).frameCoordinationValues)
+      .toEqual({ annotationShapes: null, spatialZoom: -2 });
+    expect(getAnnotationFrameUpdate(story, 0, 0, 'spatial', { storyUid: 'other', frameUid: 'frame-0' }).frameCoordinationValues)
+      .toEqual({ annotationShapes: null, spatialZoom: -2 });
+  });
+
   it('does nothing when the frame index is (and was) null', () => {
     expect(getAnnotationFrameUpdate(story, undefined, null, 'spatial')).toBeNull();
     expect(getAnnotationFrameUpdate(story, null, null, 'spatial')).toBeNull();

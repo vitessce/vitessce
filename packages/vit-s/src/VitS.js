@@ -27,6 +27,10 @@ import {
   AuxiliaryProvider,
   createAuxiliaryStore,
 } from './state/hooks.js';
+import {
+  AnnotationEditingProvider,
+  createAnnotationEditingStore,
+} from './state/annotation-editing.js';
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
 import { DebugWindow } from './DebugWindow.js';
@@ -341,33 +345,35 @@ export function VitS(props) {
             key={(remountOnUidChange ? configKey : undefined)}
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={mergedStores}
-                  queryClient={queryClient}
-                  areAnnotationsEditable={areAnnotationsEditable}
-                >
-                  {children}
-                </VitessceGrid>
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
-              </AsyncFunctionsContext.Provider>
+              <AnnotationEditingProvider createStore={createAnnotationEditingStore}>
+                <AsyncFunctionsContext.Provider value={asyncFunctions}>
+                  <VitessceGrid
+                    pageMode={pageMode}
+                    success={success}
+                    configKey={configKey}
+                    viewTypes={viewTypes}
+                    fileTypes={fileTypes}
+                    coordinationTypes={coordinationTypes}
+                    config={configOrWarning}
+                    rowHeight={rowHeight}
+                    height={height}
+                    theme={theme}
+                    isBounded={isBounded}
+                    stores={mergedStores}
+                    queryClient={queryClient}
+                    areAnnotationsEditable={areAnnotationsEditable}
+                  >
+                    {children}
+                  </VitessceGrid>
+                  <CallbackPublisher
+                    onWarn={onWarn}
+                    onConfigChange={onConfigChange}
+                    onLoaderChange={onLoaderChange}
+                    validateOnConfigChange={validateOnConfigChange}
+                    pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                  />
+                </AsyncFunctionsContext.Provider>
+              </AnnotationEditingProvider>
             </AuxiliaryProvider>
           </ViewConfigProvider>
         </QueryClientProvider>

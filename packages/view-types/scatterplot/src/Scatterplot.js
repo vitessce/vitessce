@@ -252,13 +252,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       annotationShapes,
       annotationOverlayVisible,
       annotationSemanticZoom,
-      annotationShapeSelection,
+      annotationInProgressShape,
     } = this.props;
     return new AnnotationLayer({
       data: annotationShapes,
-      visible: annotationOverlayVisible,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
       semanticZoom: annotationSemanticZoom,
-      selectedShapeUid: annotationShapeSelection,
+      ...this.getAnnotationEditingLayerProps(),
       viewType: ViewType.SCATTERPLOT, // TODO: is this needed?
 
       // TODO: these are view-level properties, rather than layer-level.
@@ -447,7 +448,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
-      annotationLayer,
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
   }
 
@@ -491,9 +494,9 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
 
   onUpdateAnnotationLayer() {
     const {
-      annotationShapes,
+      annotationShapes, annotationInProgressShape,
     } = this.props;
-    if (annotationShapes) {
+    if (annotationShapes || annotationInProgressShape) {
       this.annotationLayer = this.createAnnotationLayer();
     } else {
       this.annotationLayer = null;
@@ -650,7 +653,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     if ([
       'annotationShapes', 'annotationOverlayVisible',
       'annotationSemanticZoom', 'annotationTransitionDuration',
-      'annotationEditable',
+      'annotationEditable', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
     ].some(shallowDiff)) {
       // Annotation info changed.
       this.onUpdateAnnotationLayer();
