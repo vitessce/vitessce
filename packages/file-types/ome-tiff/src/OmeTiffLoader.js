@@ -97,12 +97,13 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
     ];
 
     const channelObjects = imageWrapper.getChannelObjects();
-    const channelCoordination = channelObjects.slice(0, 5).map((channelObj, i) => ({
+    // TODO: Cube has 6 channels and slicing does not show it --  do we need this slice here?
+    const channelCoordination = channelObjects.slice(0, 6).map((channelObj, i) => ({
       spatialTargetC: i,
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
-      spatialChannelWindow: channelObj.defaultWindow || null,
+      spatialChannelWindow: channelObj.defaultWindow || [0, 255],
     }));
 
     // Add a loaderCreator function for each image layer.
