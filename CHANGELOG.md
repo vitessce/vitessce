@@ -1,4 +1,11 @@
 
+## 4.0.10
+
+### Patch Changes
+
+- Update PR template. (`vitessce`) ([#2625](https://github.com/vitessce/vitessce/pull/2625))
+
+
 ## 4.0.9
 
 ### Patch Changes
