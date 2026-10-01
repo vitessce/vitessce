@@ -329,6 +329,10 @@ export function EmbeddingScatterplotSubscriber(props) {
   // cached results and cost nothing in that first commit.
   const deferredCellSetSelection = useDeferredValue(cellSetSelection);
   const deferredCellSetColor = useDeferredValue(cellSetColor);
+  // A lasso selection made while coloring by feature values also switches the
+  // encoding to set selection. Defer it with the selection and colors, so the
+  // points do not first show the previous selection's colors for every cell.
+  const deferredCellColorEncoding = useDeferredValue(cellColorEncoding);
   const deferredSampleSetSelection = useDeferredValue(sampleSetSelection);
 
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
@@ -678,7 +682,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         setCellHighlight={setCellHighlight}
         cellRadius={cellRadius}
         cellOpacity={cellOpacity}
-        cellColorEncoding={cellColorEncoding}
+        cellColorEncoding={deferredCellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
@@ -728,7 +732,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         theme={theme}
         featureType={featureType}
         featureValueType={featureValueType}
-        obsColorEncoding={cellColorEncoding}
+        obsColorEncoding={deferredCellColorEncoding}
         featureSelection={geneSelection}
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}

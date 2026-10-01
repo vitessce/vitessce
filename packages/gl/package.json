@@ -76,6 +76,7 @@
     "nebula.gl": "catalog:nebula.gl"
   },
   "devDependencies": {
+    "d3-quadtree": "catalog:",
     "glsl-colormap": "^1.0.1",
     "react": "catalog:",
     "react-dom": "catalog:"
