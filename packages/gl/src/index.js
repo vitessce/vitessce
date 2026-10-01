@@ -18,6 +18,7 @@ export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
 export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
 export { default as ContourLayerWithText } from './ContourLayerWithText.js';
+export { default as AnnotationLayer } from './AnnotationLayer.js';
 
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
@@ -37,5 +38,6 @@ export * as viv from './viv.js';
 export * as luma from './luma.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as deck from './deck.js';
+export { createAnnotationLayers, createPreviewLayer, computeArrowhead, getMeasurementLabel } from './annotation-layer-utils.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as math from './math.js';

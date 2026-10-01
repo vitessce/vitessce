@@ -13,6 +13,8 @@ import {
   useGetObsInfo,
   useObsEmbeddingData,
   useObsSetsData,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -25,7 +27,7 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
-  useCoordinationScopes,
+  useViewMapping,
 } from '@vitessce/vit-s';
 import {
   setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
@@ -46,10 +48,9 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 /**
  * A subscriber component for the scatterplot.
  * @param {object} props
- * @param {number} props.uuid The unique identifier for this component.
+ * @param {number} props.uuid The unique identifier for this component, also used as its
+ * view uid for looking up its coordination mapping via `useViewMapping`.
  * @param {string} props.theme The current theme name.
- * @param {object} props.coordinationScopes The mapping from coordination types to coordination
- * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -59,7 +60,6 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes: coordinationScopesRaw,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -76,9 +76,22 @@ export function EmbeddingScatterplotSubscriber(props) {
   } = props;
 
   const loaders = useLoaders();
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  // useViewMapping looks up this view's coordination mapping directly from the
+  // view config (by uuid), after accounting for meta-coordination, so there is
+  // no need for a `coordinationScopes` prop to be threaded down from a parent.
+  // coordinationValues are values which this view defines directly, which take
+  // precedence over values obtained via coordinationScopes.
+  const [
+    // eslint-disable-next-line no-unused-vars
+    coordinationScopes, _coordinationScopesBy, coordinationValues,
+  ] = useViewMapping(uuid);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // TODO: handle the rendering of alternative views/layouts (in vit-s?)
+  useAnnotationFrameCoordination(uuid, coordinationScopes, coordinationValues);
 
   // Get "props" from the coordination space.
   const [{
@@ -118,6 +131,12 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationEditable,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -145,7 +164,11 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
     setFeatureAggregationStrategy,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
+    setAnnotationStory,
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues, uuid,
+  );
 
   const {
     embeddingZoom: initialZoom,
@@ -153,6 +176,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingTargetY: initialTargetY,
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues,
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -167,6 +191,20 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
+
+
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  // Note that this hook appears after the useCoordination for annotationStory above,
+  // but hopefully that does not cause any issues.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
 
   const [
     // eslint-disable-next-line no-unused-vars
@@ -240,11 +278,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsError,
     sampleSetsError,
     sampleEdgesError,
+    annotationStoryError,
   ];
 
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
+    annotationStoryStatus,
     featureSelectionStatus,
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -259,6 +299,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsUrls,
     sampleSetsUrl,
     sampleEdgesUrl,
+    annotationStoryUrls,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
@@ -663,6 +704,13 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+
+        // Annotation stuff
+        annotationShapes={annotationShapes}
+        annotationOverlayVisible={annotationOverlayVisible}
+        annotationSemanticZoom={annotationSemanticZoom}
+        annotationTransitionDuration={annotationTransitionDuration}
+        annotationEditable={annotationEditable}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber
@@ -697,6 +745,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         contourThresholds={contourThresholds}
         featureAggregationStrategy={featureAggregationStrategyToUse}
       />
+
     </TitleInfo>
   );
 }

@@ -77,6 +77,8 @@ import { AsyncFunctionsContext } from './contexts.js';
  * @param {boolean} props.debugMode Whether to display the debugWindow. By default, false.
  * @param {null|string} props.logLevel To set the log level in the console.
  * provided by the parent.
+ * @param {boolean} props.areAnnotationsEditable Whether annotations can be edited.
+ * By default, true.
  */
 export function VitS(props) {
   const {
@@ -104,6 +106,7 @@ export function VitS(props) {
     children,
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
+    areAnnotationsEditable = true,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -353,6 +356,7 @@ export function VitS(props) {
                   isBounded={isBounded}
                   stores={mergedStores}
                   queryClient={queryClient}
+                  areAnnotationsEditable={areAnnotationsEditable}
                 >
                   {children}
                 </VitessceGrid>

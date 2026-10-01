@@ -23,7 +23,7 @@ export function VitessceGridLayout(props) {
     padding = 10, margin: marginProp = 10, draggableHandle: draggableHandleClass,
     onResize, onResizeStop, rowHeight, theme, height,
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
-    isBounded,
+    isBounded, areAnnotationsEditable,
     pageMode, children,
   } = props;
 
@@ -146,6 +146,7 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              areAnnotationsEditable={areAnnotationsEditable}
             />
           </ErrorBoundary>
         </div>
@@ -174,12 +175,13 @@ export function VitessceGridLayout(props) {
               fileTypes={fileTypes}
               coordinationTypes={coordinationTypes}
               stores={stores}
+              areAnnotationsEditable={areAnnotationsEditable}
             />
           </ErrorBoundary>
         </div>
       );
     }), contextValue];
-  }, [gridComponents, getComponent, onRemoveComponent, theme]);
+  }, [gridComponents, getComponent, onRemoveComponent, theme, areAnnotationsEditable]);
 
   return (pageMode
     ? (

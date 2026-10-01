@@ -35,6 +35,7 @@ export const ViewType = {
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
   SINGLE_OBS_SET_SELECTOR: 'singleObsSetSelector',
+  ANNOTATION_CONTROLLER: 'annotationController',
 };
 
 export const DataType = {
@@ -57,6 +58,7 @@ export const DataType = {
   FEATURE_STATS: 'featureStats',
   FEATURE_SET_STATS: 'featureSetStats',
   OBS_SET_STATS: 'obsSetStats',
+  ANNOTATION_STORY: 'annotationStory',
 };
 
 export const AsyncFunctionType = {
@@ -95,6 +97,7 @@ export const FileType = {
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   SAMPLE_SETS_CSV: 'sampleSets.csv',
+  ANNOTATION_STORY_JSON: 'annotationStory.json',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
@@ -385,6 +388,14 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  // Annotation frames
+  ANNOTATION_STORY: 'annotationStory',
+  ANNOTATION_FRAME_INDEX: 'annotationFrameIndex',
+  ANNOTATION_SHAPES: 'annotationShapes',
+  ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
+  ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
+  ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
+  ANNOTATION_EDITABLE: 'annotationEditable',
 };
 
 export const STATUS = {
@@ -427,4 +438,5 @@ export const ViewHelpMapping = {
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
   LAYER_CONTROLLER_BETA: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
   SPATIAL_BETA: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  ANNOTATION_CONTROLLER: 'The annotation controller displays a guided sequence of narrative frames, each with descriptive text and optional shapes (rectangles, lines, arrows, ellipses, or polygons).',
 };

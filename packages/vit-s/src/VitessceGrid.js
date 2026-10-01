@@ -58,6 +58,7 @@ export default function VitessceGrid(props) {
     pageMode,
     children,
     queryClient,
+    areAnnotationsEditable,
   } = props;
 
   const [rowHeight, containerRef] = useRowHeight(config, initialRowHeight, height, margin, padding);
@@ -139,6 +140,7 @@ export default function VitessceGrid(props) {
           isBounded={isBounded}
           onResize={onResize}
           onResizeStop={onResize}
+          areAnnotationsEditable={areAnnotationsEditable}
         >
           {children}
         </VitessceGridLayout>
