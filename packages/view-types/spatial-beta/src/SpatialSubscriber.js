@@ -1170,6 +1170,7 @@ export function SpatialSubscriber(props) {
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
             annotationShapeSelection={annotationShapeSelection}
+            hideRecenter={hasPairedNeuroglancerView}
           />
         )
       }
