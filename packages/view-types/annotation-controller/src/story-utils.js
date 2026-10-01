@@ -169,6 +169,18 @@ export function getFrameViewShapes(frame, viewUid) {
 }
 
 /**
+ * Count the annotation shapes that a frame defines across all views.
+ * @param {object} frame The frame.
+ * @returns {number} The number of shapes.
+ */
+export function countFrameShapes(frame) {
+  return (frame.layout || []).reduce((sum, view) => {
+    const shapes = view.coordinationValues?.[SHAPES];
+    return sum + (Array.isArray(shapes) ? shapes.length : 0);
+  }, 0);
+}
+
+/**
  * Update the coordination values that a frame defines for a view.
  * The frame.layout entry for the view is created if needed,
  * and removed if it no longer defines any coordination values.
