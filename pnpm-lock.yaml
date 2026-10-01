@@ -1868,6 +1868,9 @@ importers:
       '@vitessce/gl':
         specifier: workspace:*
         version: link:../../gl
+      '@vitessce/schemas':
+        specifier: workspace:*
+        version: link:../../schemas
       '@vitessce/styles':
         specifier: workspace:*
         version: link:../../styles
@@ -1880,6 +1883,9 @@ importers:
       react-markdown:
         specifier: ^9.0.1
         version: 9.0.1(@types/react@19.1.6)(react@19.2.6)
+      uuid:
+        specifier: 'catalog:'
+        version: 9.0.1
     devDependencies:
       react:
         specifier: 'catalog:'

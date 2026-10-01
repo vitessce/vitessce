@@ -83,6 +83,12 @@ describe('addAnnotationControllerView', () => {
     expect(config).toEqual(before);
   });
 
+  it('sets props.closeButtonVisible only when provided', () => {
+    expect(addAnnotationControllerView(makeConfig()).layout.at(-1)).not.toHaveProperty('props');
+    const result = addAnnotationControllerView(makeConfig(), { closeButtonVisible: false });
+    expect(result.layout.at(-1).props).toEqual({ closeButtonVisible: false });
+  });
+
   it('rejects invalid widths', () => {
     expect(() => addAnnotationControllerView(makeConfig(), { width: 0 })).toThrow();
     expect(() => addAnnotationControllerView(makeConfig(), { width: 12 })).toThrow();

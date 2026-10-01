@@ -1490,16 +1490,22 @@ const ANNOTATION_FRAME_COORDINATION_TYPES = [
  *   so that shapes from a previous frame do not persist.
  * - When the frame index becomes null (after a frame was active),
  *   annotationShapes are cleared.
+ * - When the same frame (of the same story) was already applied, i.e., the story
+ *   has been edited in-place via the annotation controller, only annotationShapes
+ *   are merged, so that the author's current view state (e.g., zoom/pan)
+ *   is not reset by every edit.
  * Clearing annotationShapes is the only exception to leaving the
  * state untouched for values that a frame does not define.
  * @param {object|null} annotationStory The annotation story.
  * @param {number|null|undefined} prevFrameIndex The previously-applied frame index.
  * @param {number|null} annotationFrameIndex The current frame index.
  * @param {string} viewUid The view of interest.
+ * @param {object|null|undefined} prevAppliedFrame The { storyUid, frameUid }
+ * of the previously-applied frame, if any.
  * @returns {object|null} The { frameCoordinationValues, scopePrefix } to apply, or null.
  */
 export function getAnnotationFrameUpdate(
-  annotationStory, prevFrameIndex, annotationFrameIndex, viewUid,
+  annotationStory, prevFrameIndex, annotationFrameIndex, viewUid, prevAppliedFrame,
 ) {
   if (typeof annotationFrameIndex !== 'number') {
     if (typeof prevFrameIndex === 'number') {
@@ -1518,6 +1524,17 @@ export function getAnnotationFrameUpdate(
   const frameCoordinationValues = getAnnotationFrameCoordinationValues(
     annotationStory, annotationFrameIndex, viewUid,
   );
+  const isSameFrame = prevAppliedFrame?.storyUid === annotationStory.uid
+    && prevAppliedFrame?.frameUid === frame.uid;
+  if (isSameFrame) {
+    return {
+      frameCoordinationValues: {
+        [CoordinationType.ANNOTATION_SHAPES]:
+          frameCoordinationValues?.[CoordinationType.ANNOTATION_SHAPES] ?? null,
+      },
+      scopePrefix: '',
+    };
+  }
   return {
     frameCoordinationValues: {
       [CoordinationType.ANNOTATION_SHAPES]: null,
@@ -1553,12 +1570,21 @@ export function useAnnotationFrameCoordination(viewUid, coordinationScopes, coor
   );
   // Track the previously-applied frame index, to detect when the frame index becomes null.
   const prevFrameIndexRef = useRef(undefined);
+  // Track the previously-applied frame, to detect in-place edits of the story.
+  const prevAppliedFrameRef = useRef(null);
 
   useEffect(() => {
     const update = getAnnotationFrameUpdate(
       annotationStory, prevFrameIndexRef.current, annotationFrameIndex, viewUid,
+      prevAppliedFrameRef.current,
     );
     prevFrameIndexRef.current = annotationFrameIndex;
+    const frame = typeof annotationFrameIndex === 'number'
+      ? annotationStory?.frames?.[annotationFrameIndex]
+      : null;
+    prevAppliedFrameRef.current = frame
+      ? { storyUid: annotationStory.uid, frameUid: frame.uid }
+      : null;
     if (update) {
       applyAnnotationFrameCoordination({ viewUid, ...update });
     }

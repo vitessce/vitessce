@@ -26,6 +26,7 @@ import {
   useExpandedFeatureLabelsMap,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { aggregateFeatureArrays } from '@vitessce/utils';
 import {
@@ -72,6 +73,8 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -119,7 +122,8 @@ export function SpatialSubscriber(props) {
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
-    annotationShapeSelection,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -146,6 +150,13 @@ export function SpatialSubscriber(props) {
     setFeatureAggregationStrategy,
     setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -745,7 +756,7 @@ export function SpatialSubscriber(props) {
         annotationShapes={annotationShapes}
         annotationOverlayVisible={annotationOverlayVisible}
         annotationSemanticZoom={annotationSemanticZoom}
-        annotationShapeSelection={annotationShapeSelection}
+        {...annotationEditingProps}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

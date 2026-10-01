@@ -19,6 +19,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.state = {
       gl: null,
       tool: null,
+      // The current mouse position (in view coordinates)
+      // while an annotation shape is being drawn.
+      annotationHoverCoord: null,
     };
     this.lastApplied = null;
     this.viewport = null;
@@ -27,6 +30,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
+    this.onClick = this.onClick.bind(this);
     this.recenter = this.recenter.bind(this);
   }
 
@@ -120,6 +124,34 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  /**
+   * Called by DeckGL upon a click.
+   * When an annotation drawing tool is active,
+   * emit the clicked position to the `onAnnotationVertexAdd` prop.
+   * @param {object} info The deck.gl picking info.
+   */
+  onClick(info) {
+    const { annotationActiveTool, onAnnotationVertexAdd } = this.props;
+    if (annotationActiveTool && onAnnotationVertexAdd && info.coordinate) {
+      onAnnotationVertexAdd(info.coordinate);
+    }
+  }
+
+  /**
+   * Get the AnnotationLayer props that are related to editing,
+   * which are shared by the Spatial and Scatterplot components.
+   * @returns {object} The props.
+   */
+  getAnnotationEditingLayerProps() {
+    const { annotationInProgressShape, annotationSelectedShapeUid } = this.props;
+    const { annotationHoverCoord } = this.state;
+    return {
+      inProgressShape: annotationInProgressShape ?? null,
+      hoverCoord: annotationInProgressShape ? annotationHoverCoord : null,
+      selectedShapeUid: annotationSelectedShapeUid ?? null,
+    };
+  }
+
   // TODO: remove this method and use the layer-level onHover instead.
   // (e.g., see delegateHover in spatial-beta/SpatialSubscriber.js).
   // eslint-disable-next-line consistent-return
@@ -129,8 +161,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
-      setHoverInfo,
+      setHoverInfo, annotationInProgressShape,
     } = this.props;
+    if (annotationInProgressShape && coordinate) {
+      // Track the mouse position to preview the in-progress annotation shape.
+      this.setState({ annotationHoverCoord: [coordinate[0], coordinate[1]] });
+    }
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
       return null;
@@ -265,8 +301,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   render() {
     const {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
+      annotationActiveTool,
     } = this.props;
     const { gl, tool } = this.state;
+    const hasActiveTool = Boolean(tool || annotationActiveTool);
     const layers = this.getLayers();
     const use3d = this.use3d();
 
@@ -315,8 +353,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           viewState={viewState}
           useDevicePixels={useDevicePixels}
           controller={tool ? { dragPan: false } : true}
-          getCursor={tool ? getCursorWithTool : getCursor}
+          getCursor={hasActiveTool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
+          onClick={this.onClick}
           width="100%"
           height="100%"
         >
