@@ -42,7 +42,8 @@
     "d3-quadtree": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
-    "react-aria": "catalog:"
+    "react-aria": "catalog:",
+    "three-stdlib": "^2.36.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",

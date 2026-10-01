@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three-stdlib';
+import { PerspectiveCamera } from 'three';
 import { RawView } from './rawView.js';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
@@ -223,7 +223,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const canvas = deckRef?.current?.deck?.canvas;
     if (!canvas || !rawCameraSnapshot) return;
     const { position, quaternion, target, fovDegrees } = rawCameraSnapshot;
-    const camera = new THREE.PerspectiveCamera(fovDegrees, 1, 0.1, 100000);
+    const camera = new PerspectiveCamera(fovDegrees, 1, 0.1, 100000);
     camera.position.set(...position);
     camera.quaternion.set(...quaternion);
     camera.updateProjectionMatrix();
