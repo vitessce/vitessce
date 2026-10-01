@@ -11,6 +11,7 @@ import { getDebugMode, log } from '@vitessce/globals';
 
 const OFFSETS_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#ome-tiff-offsets';
 const PYRAMID_DOCS_URL = 'https://vitessce.io/docs/data-troubleshooting/#multi-resolution-pyramidal-representation';
+const dtypeMaxMap = { uint8: 255, uint16: 65535, uint32: 4294967295, float32: 1 };
 
 export default class OmeTiffLoader extends AbstractTwoStepLoader {
   async loadOffsets() {
@@ -61,6 +62,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
         PhysicalSizeXUnit,
         PhysicalSizeY,
         PhysicalSizeYUnit,
+        Type: dtype,
       },
     } = loader.metadata;
     const channels = Array.isArray(Channels)
@@ -103,7 +105,7 @@ export default class OmeTiffLoader extends AbstractTwoStepLoader {
       spatialChannelColor: (channelObj.defaultColor || channelObj.autoDefaultColor).slice(0, 3),
       spatialChannelVisible: true,
       spatialChannelOpacity: 1.0,
-      spatialChannelWindow: channelObj.defaultWindow || [0, 255],
+      spatialChannelWindow: channelObj.defaultWindow || [0, dtypeMaxMap[dtype] ?? 255],
     }));
 
     // Add a loaderCreator function for each image layer.
