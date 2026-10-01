@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { Matrix4 } from 'math.gl';
+import { viv } from '@vitessce/gl';
 import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
-import { getVolumeModelMatrix, isLayerVisible } from './utils.js';
+import { getVolumeModelMatrix, isLayerVisible, getLayerLoaderTuple } from './utils.js';
 
 /**
  * Stand-in for a viv PixelSource. Only `meta.physicalSizes` is read.
@@ -105,6 +106,43 @@ describe('view-types/spatial-beta/utils', () => {
       // whose config omits it must not be skipped in 3D.
       expect(isLayerVisible(undefined)).toBe(true);
       expect(isLayerVisible(null)).toBe(true);
+    });
+  });
+
+  describe('getLayerLoaderTuple', () => {
+    it('wraps a single non-array loader in a new array whose contents are stable across calls', () => {
+      // Regression test: getLayerLoaderTuple used to build a brand-new
+      // wrapper array on every call even when the underlying loader was
+      // unchanged (Array.isArray(loader) ? loader : [loader]).
+      // A fresh wrapper array every render made viv re-run its full
+      // volume-processing pipeline on every camera-driven re-render, not
+      // just on real data changes. Callers now cache and compare via
+      // isEqual(), so the contents (not the reference) must be stable.
+      const data = { foo: 'bar' };
+      const [, loaderA] = getLayerLoaderTuple(data, true);
+      const [, loaderB] = getLayerLoaderTuple(data, true);
+      expect(loaderA).toEqual(loaderB);
+      expect(loaderA).toEqual([data]);
+    });
+
+    it('returns VolumeLayer with the raw array unwrapped for 3D multi-source data', () => {
+      const data = [{ a: 1 }, { b: 2 }];
+      const [Layer, loader] = getLayerLoaderTuple(data, true);
+      expect(Layer).toBe(viv.VolumeLayer);
+      expect(loader).toBe(data);
+    });
+
+    it('returns MultiscaleImageLayer for non-3D multi-source data', () => {
+      const data = [{ a: 1 }, { b: 2 }];
+      const [Layer] = getLayerLoaderTuple(data, false);
+      expect(Layer).toBe(viv.MultiscaleImageLayer);
+    });
+
+    it('returns ImageLayer for non-3D single-source data', () => {
+      const data = [{ a: 1 }];
+      const [Layer, loader] = getLayerLoaderTuple(data, false);
+      expect(Layer).toBe(viv.ImageLayer);
+      expect(loader).toBe(data[0]);
     });
   });
 });

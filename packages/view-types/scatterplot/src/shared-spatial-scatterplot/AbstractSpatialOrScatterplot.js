@@ -1,5 +1,9 @@
 import React, { PureComponent } from 'react';
 import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import { Matrix4 } from 'math.gl';
+import { OrbitControls } from 'three-stdlib';
+import { PerspectiveCamera } from 'three';
+import { RawView } from './rawView.js';
 import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
 
@@ -22,12 +26,19 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     };
     this.lastApplied = null;
     this.viewport = null;
+    this.threeCamera = null;
+    this.orbitControls = null;
+    this.canvasCheckIntervalId = null;
+    this.lastSyncedSnapshot = null;
+    this.isApplyingExternalSync = false;
+    this.isApplyingLocalChange = false;
     this.onViewStateChange = this.onViewStateChange.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
     this.recenter = this.recenter.bind(this);
+    this.onOrbitControlsChange = this.onOrbitControlsChange.bind(this);
   }
 
   /**
@@ -205,6 +216,53 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     }
   }
 
+  setUpOrbitControlsIfReady() {
+    if (this.orbitControls) return; // already set up
+    const { deckRef, rawCameraSnapshot } = this.props;
+    if (!this.use3d()) return; // only for the RawView/3D path
+    const canvas = deckRef?.current?.deck?.canvas;
+    if (!canvas || !rawCameraSnapshot) return;
+    const { position, quaternion, target, fovDegrees } = rawCameraSnapshot;
+    const camera = new PerspectiveCamera(fovDegrees, 1, 0.1, 100000);
+    camera.position.set(...position);
+    camera.quaternion.set(...quaternion);
+    camera.updateProjectionMatrix();
+
+    // Attaching to the parent instead of te canvas due to the overlay which intercepts
+    // all the pointer events. It puts OrbitControls
+    // at the same DOM level, not underneath that overlay.
+    const eventTarget = canvas.parentElement ?? canvas;
+    const controls = new OrbitControls(camera, eventTarget);
+    controls.target.set(...target);
+    controls.update();
+    controls.addEventListener('change', this.onOrbitControlsChange);
+
+    this.threeCamera = camera;
+    this.orbitControls = controls;
+  }
+
+  onOrbitControlsChange() {
+    if (this.isApplyingExternalSync) return; // our own echo from the sync above, not a user drag
+    const { setSpatialBetaCameraSnapshot } = this.props;
+    if (!setSpatialBetaCameraSnapshot || !this.threeCamera || !this.orbitControls) {
+      this.forceUpdate();
+      return;
+    }
+
+    const camera = this.threeCamera;
+    const { target } = this.orbitControls;
+    const distance = camera.position.distanceTo(target);
+    const fovyRad = (camera.fov * Math.PI) / 180;
+    const projectionScale = distance * 2 * Math.tan(fovyRad / 2);
+    setSpatialBetaCameraSnapshot({
+      position: target.toArray(),
+      projectionOrientation: camera.quaternion.toArray(),
+      projectionScale,
+    });
+
+    this.forceUpdate();
+  }
+
   /**
    * Emits a function to project from the
    * cell ID space to the scatterplot or
@@ -232,6 +290,22 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           }
         },
       });
+    }
+  }
+
+  componentDidMount() {
+    // Canvas may not exist yet on first mount; retry briefly until it does.
+    this.canvasCheckIntervalId = setInterval(() => {
+      this.setUpOrbitControlsIfReady();
+      if (this.orbitControls) clearInterval(this.canvasCheckIntervalId);
+    }, 100);
+  }
+
+  componentWillUnmount() {
+    if (this.canvasCheckIntervalId) clearInterval(this.canvasCheckIntervalId);
+    if (this.orbitControls) {
+      this.orbitControls.removeEventListener('change', this.onOrbitControlsChange);
+      this.orbitControls.dispose();
     }
   }
 
@@ -265,10 +339,68 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   render() {
     const {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
+      rawCameraSnapshot,
     } = this.props;
     const { gl, tool } = this.state;
     const layers = this.getLayers();
     const use3d = this.use3d();
+    // RawView path: when there's a real NG camera snapshot to render from,
+    // build a genuine view matrix (position + quaternion + fovy) instead of
+    // OrbitView's 2-angle + log2-zoom approximation
+    let activeView;
+    let isRawView = false;
+    if (use3d && rawCameraSnapshot) {
+      isRawView = true;
+      const { position: pivot,
+        quaternion,
+        projectionScale,
+        fovDegrees,
+        target,
+      } = rawCameraSnapshot;
+      let eye;
+      let quaternionForMatrix;
+
+      if (this.orbitControls && this.threeCamera) {
+        if (rawCameraSnapshot !== this.lastSyncedSnapshot && !this.isApplyingLocalChange) {
+          const fovyRad = (fovDegrees * Math.PI) / 180;
+          const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
+          const offset = new Matrix4().fromQuaternion(quaternion)
+            .transformAsVector([0, 0, distance]);
+          const externalEye = pivot.map((p, i) => p + offset[i]);
+          this.threeCamera.position.set(...externalEye);
+          this.threeCamera.quaternion.set(...quaternion);
+          this.orbitControls.target.set(...target);
+          this.lastSyncedSnapshot = rawCameraSnapshot;
+        }
+        eye = this.threeCamera.position.toArray();
+        quaternionForMatrix = this.threeCamera.quaternion.toArray();
+      } else {
+        const fovyRad = (fovDegrees * Math.PI) / 180;
+        const distance = projectionScale / (2 * Math.tan(fovyRad / 2)) || 1;
+        const offset = new Matrix4().fromQuaternion(quaternion).transformAsVector([0, 0, distance]);
+        eye = pivot.map((p, i) => p + offset[i]);
+        quaternionForMatrix = quaternion;
+      }
+
+      const modelMatrix = new Matrix4()
+        .translate(eye)
+        .multiplyRight(new Matrix4().fromQuaternion(quaternionForMatrix));
+      const rawViewMatrix = modelMatrix.invert();
+      activeView = new RawView({
+        id: 'raw',
+        controller: false,
+        viewState: {
+          viewMatrix: rawViewMatrix,
+          fovy: fovDegrees,
+          near: 0.1,
+          far: 100000,
+        },
+      });
+    } else if (use3d) {
+      activeView = new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis });
+    } else {
+      activeView = new deck.OrthographicView({ id: 'ortho' });
+    }
 
     const showCellSelectionTools = this.obsSegmentationsData !== null;
     const showPanTool = layers.length > 0;
@@ -281,6 +413,15 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         || this.obsLocationsData?.shape?.[1] < 100000
       )
     );
+
+    let controller;
+    if (isRawView) {
+      controller = false;
+    } else if (tool) {
+      controller = { dragPan: false };
+    } else {
+      controller = true;
+    }
 
     return (
       <>
@@ -297,13 +438,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         <deck.DeckGL
           id={`deckgl-overlay-${uuid}`}
           ref={deckRef}
-          views={[
-            use3d
-              ? new deck.OrbitView({ id: 'orbit', controller: true, orbitAxis })
-              : new deck.OrthographicView({
-                id: 'ortho',
-              }),
-          ]} // id is a fix for https://github.com/uber/deck.gl/issues/3259
+          views={[activeView]}
           layers={
             gl && viewState.target.slice(0, 2).every(i => typeof i === 'number')
               ? layers
@@ -314,7 +449,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           onViewStateChange={this.onViewStateChange}
           viewState={viewState}
           useDevicePixels={useDevicePixels}
-          controller={tool ? { dragPan: false } : true}
+          controller={controller}
           getCursor={tool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
           width="100%"

@@ -13,8 +13,6 @@ function generateNeuroglancerMacosko() {
     name: 'Macosko dataset',
   });
 
-  //  const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
-
   const pointsUrl = 'https://data-2.vitessce.io/data/macosko/pucks';
   const segmentationsUrl = 'https://data-2.vitessce.io/data/macosko/';
 
@@ -54,13 +52,13 @@ function generateNeuroglancerMacosko() {
       url: pointsUrl,
       options: {
         projectionAnnotationSpacing: 2.4544585683772735,
-        featureIndexProp: 'gene', // This corresponds to the prop_gene() in the Neuroglancer shader code.
-        pointIndexProp: 'gene', // This corresponds to the prop_point_id() in the Neuroglancer shader code.
+        featureIndexProp: 'gene',
+        pointIndexProp: 'gene',
       },
       coordinationValues: {
         fileUid: 'merfish-points',
         obsType: 'point',
-        featureType: 'gene', // Important for correspondence with obsFeatureMatrix for the gene list.
+        featureType: 'gene',
       },
     });
   }
@@ -84,9 +82,7 @@ function generateNeuroglancerMacosko() {
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // Note: this is a temporary mechanism to pass an initial NG camera state.
-    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
-    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
+    // Note: if initialNgCameraState is ot provided, NG will compute one based on the mesh/info files
     initialNgCameraState: {
       position: [
         6853126.5,
@@ -102,21 +98,9 @@ function generateNeuroglancerMacosko() {
       ],
     },
   });
-  const lcView = config.addView(dataset, 'layerControllerBeta');// .setProps({ layerPerFeatureForPoints: true });
+  const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
 
-  config.linkViewsByObject([neuroglancerView, lcView], {
-    spatialRenderingMode: '3D',
-    spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationZ: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([

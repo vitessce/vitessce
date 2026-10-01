@@ -431,6 +431,10 @@ export default class Neuroglancer extends React.Component {
     this.prevColorOverrides = new Set();
     this.overrideColorsById = Object.create(null);
     this.allKnownIdsByLayer = {};
+    // Tracks the camera state NG actually received via restoreState, kept separate from prevProps.viewerState;
+    // NG only updates state when the changes passes the epsilon value. when these changes are small
+    // to pass the epsilon threshold (e.g. 4.7 < 5), after a few such updates, NG seems drifted from spatialBeta view.
+    this.lastAppliedCameraState = null;
   }
 
   minimalPoseSnapshot = () => {
@@ -708,7 +712,7 @@ export default class Neuroglancer extends React.Component {
 
 
     const checkAndMarkLoaded = () => {
-      if (firstChunkLoaded) return false;
+      if (firstChunkLoaded || !this.viewer) return false;
 
       for (const layer of this.viewer.layerManager.managedLayers) {
         // Check segmentation layers
@@ -761,16 +765,14 @@ export default class Neuroglancer extends React.Component {
 
     // To fix infinite loading loop on subsequent page refresh due to cache
     // Also check immediately in case chunks already loaded (cached)
-    setTimeout(() => {
+    const timeoutId1 = setTimeout(() => {
       if (!firstChunkLoaded) checkAndMarkLoaded();
     }, 100);
-
-    // And check after a short delay as fallback
-    setTimeout(() => {
+    const timeoutId2 = setTimeout(() => {
       if (!firstChunkLoaded) checkAndMarkLoaded();
     }, 1000);
-
-    this.disposers.push(() => { firstChunkLoaded = false; });
+    this.disposers.push(() => clearTimeout(timeoutId1));
+    this.disposers.push(() => clearTimeout(timeoutId2));
 
     // Prevent browser pinch-zoom when using touchpad inside NG viewer
     document.addEventListener('wheel', (e) => {
@@ -893,7 +895,12 @@ export default class Neuroglancer extends React.Component {
     const nextLayers = viewerState?.layers;
 
     // Restore camera ONLY if it actually changed
-    const camState = diffCameraState(prevVS, viewerState);
+    const camState = diffCameraState(this.lastAppliedCameraState ?? prevVS, viewerState);
+    // console.log('[componentDidUpdate camera]', {
+    //     prevVS: JSON.stringify(prevVS.projectionOrientation),
+    //     viewerState: JSON.stringify(viewerState.projectionOrientation),
+    //     camState: JSON.stringify(camState),
+    // });
     if (camState.changed) {
       const patch = {};
       if (camState.scale) {
@@ -906,6 +913,11 @@ export default class Neuroglancer extends React.Component {
       if (camState.rot) patch.projectionOrientation = viewerState.projectionOrientation;
       // Restore the state with updated camera setting/position changes
       this.withoutEmitting(() => this.viewer.state.restoreState(patch));
+      this.lastAppliedCameraState = {
+        position: viewerState.position,
+        projectionOrientation: viewerState.projectionOrientation,
+        projectionScale: viewerState.projectionScale,
+      };
     }
 
     // Structural layer changes (source URL, layer type, name, subsources etc.)
@@ -938,13 +950,25 @@ export default class Neuroglancer extends React.Component {
       });
     }
 
-    const prevSegIds = prevLayers?.[0]?.segments ?? [];
-    const nextSegIds = nextLayers?.[0]?.segments ?? [];
+    const prevSegLayers = (prevLayers ?? []).filter(l => l.type === 'segmentation');
+    const nextSegLayers = (nextLayers ?? []).filter(l => l.type === 'segmentation');
+    // Compare each segmentation layer by name, in case ordering ever differs
+    // between prev/next (e.g. a layer added/removed) rather than assuming
+    // positional alignment.
+    const segIdsChangedForLayer = (name) => {
+      const prevIds = prevSegLayers.find(l => l.name === name)?.segments ?? [];
+      const nextIds = nextSegLayers.find(l => l.name === name)?.segments ?? [];
+      return prevIds.length !== nextIds.length
+        || prevIds[0] !== nextIds[0]
+        || prevIds[prevIds.length - 1] !== nextIds[nextIds.length - 1];
+    };
+    const allSegLayerNames = new Set([
+      ...prevSegLayers.map(l => l.name),
+      ...nextSegLayers.map(l => l.name),
+    ]);
 
-    // Segments changed (0 segments → N segments or pan/zoom culling update) — push new segments to NG
-    const segmentsChanged = prevSegIds.length !== nextSegIds.length
-      || prevSegIds[0] !== nextSegIds[0]
-      || prevSegIds[prevSegIds.length - 1] !== nextSegIds[nextSegIds.length - 1];
+    const segmentsChanged = [...allSegLayerNames].some(segIdsChangedForLayer);
+    const nextSegIds = nextSegLayers.flatMap(l => l.segments ?? []);
 
     if (segmentsChanged && nextSegIds.length > 0) {
       this.preserveDimensions(() => {
@@ -963,6 +987,10 @@ export default class Neuroglancer extends React.Component {
     /* eslint-disable no-empty */
     this.disposers.forEach((off) => { try { off(); } catch {} });
     this.disposers = [];
+    if (this.viewer) {
+      this.viewer.dispose();
+      this.viewer = null;
+    }
     const { key } = this.props;
     if (key) {
       delete viewersKeyed[key];

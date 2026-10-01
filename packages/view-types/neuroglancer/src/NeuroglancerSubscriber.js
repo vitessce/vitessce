@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 import React, { useCallback, useMemo, useRef, useEffect, useState, useReducer } from 'react';
-import { throttle } from 'lodash-es';
+import { isEqual, throttle } from 'lodash-es';
 import {
   TitleInfo,
   useReady,
@@ -24,6 +24,9 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
+  useSetComponentViewInfo,
+  useComponentViewInfo,
+  useViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -39,14 +42,10 @@ import { useNeuroglancerViewerState, pointsHaveMatchingSegmentation } from './da
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import { useStyles } from './styles.js';
 import {
-  quaternionToEuler,
   eulerToQuaternion,
   valueGreaterThanEpsilon,
   nearEq,
-  makeVitNgZoomCalibrator,
-  conjQuat,
   multiplyQuat,
-  rad2deg,
   deg2rad,
   Q_Y_UP,
   applyColormap,
@@ -57,12 +56,8 @@ import {
 } from './utils.js';
 
 
-const VITESSCE_INTERACTION_DELAY = 50;
-const INIT_VIT_ZOOM = -3.6;
-const ZOOM_EPS = 1e-2;
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
-const NG_ROT_COOLDOWN_MS = 120;
 const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
@@ -106,6 +101,7 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
+  const setRawCameraSnapshot = useSetComponentViewInfo(uuid);
 
   const { classes } = useStyles();
 
@@ -116,20 +112,15 @@ export function NeuroglancerSubscriber(props) {
   // TODO: maynot be needed for other dataset
   const cellIdToMeshIdRef = useRef({});
 
-  const ngRotPushAtRef = useRef(0);
   const lastInteractionSource = useRef(null);
-  const applyNgUpdateTimeoutRef = useRef(null);
-  const lastNgPushOrientationRef = useRef(null);
   const initialRenderCalibratorRef = useRef(null);
   const translationOffsetRef = useRef([0, 0, 0]);
-  const zoomRafRef = useRef(null);
-  const lastNgQuatRef = useRef([0, 0, 0, 1]);
-  const lastNgScaleRef = useRef(null);
   const annotationInfoRef = useRef(null);
   const annotationTransformRef = useRef(null);
   const visibleSegmentIdsRef = useRef(null);
   const chunkCacheRef = useRef(new Map());
   const resizeObserverRef = useRef(null);
+
   // Track layer loading state for showing loading indicator
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
   // For overlay when meshes are loaded on demand
@@ -139,6 +130,10 @@ export function NeuroglancerSubscriber(props) {
   const [csvLoaded, setCsvLoaded] = useState(false);
   const updateVisibleSegmentsThrottledRef = useRef(null);
   const viewportSizeRef = useRef({ width: 0, height: 0 });
+  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
+  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
+  // is the mechanism to propagate culling updates to the NG viewer state.
+  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
@@ -159,19 +154,13 @@ export function NeuroglancerSubscriber(props) {
     obsSetColor: cellSetColor,
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
+    obsHighlight: cellHighlight,
   }, {
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
     setObsSetSelection: setCellSetSelection,
     setObsHighlight: setCellHighlight,
-    setSpatialTargetX: setTargetX,
-    setSpatialTargetY: setTargetY,
-    setSpatialRotationX: setRotationX,
-    // setSpatialRotationY: setRotationY,
-    // setSpatialRotationZ: setRotationZ,
-    setSpatialRotationOrbit: setRotationOrbit,
-    setSpatialZoom: setZoom,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
@@ -318,6 +307,87 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Obtain the Neuroglancer viewerState object.
+  const initialViewerState = useNeuroglancerViewerState(
+    theme,
+    showAxisLines,
+    segmentationLayerScopes,
+    segmentationChannelScopesByLayer,
+    segmentationLayerCoordination,
+    segmentationChannelCoordination,
+    obsSegmentationsUrls,
+    obsSegmentationsData,
+    pointLayerScopes,
+    pointLayerCoordination,
+    obsPointsUrls,
+    obsPointsData,
+    pointMultiIndicesData,
+  );
+
+  const derivedCenterRef = useRef(null);
+  const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(!!initialNgCameraState);
+
+  const latestViewerStateRef = useRef({
+    ...initialViewerState,
+    ...(initialNgCameraState ?? (derivedCenterRef.current
+      ? { position: derivedCenterRef.current } : {})),
+  });
+
+  const segmentationUrl = useMemo(() => {
+    const firstScope = segmentationLayerScopes?.[0];
+    return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [segmentationLayerScopes, obsSegmentationsUrls]);
+
+  // Get cells URL from obsPointsUrls
+  const cellsUrl = useMemo(() => {
+    const firstScope = pointLayerScopes?.[0];
+    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
+  }, [pointLayerScopes, obsPointsUrls]);
+
+  useEffect(() => {
+    if (initialNgCameraState || !segmentationUrl) {
+      setHasResolvedInitialCamera(true);
+      return;
+    }
+    Promise.all([
+      fetch(`${segmentationUrl.replace(/\/+$/, '')}/info`).then(r => r.json()).catch(() => null),
+      cellsUrl ? fetch(`${cellsUrl}/info`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
+    ]).then(([segInfo, annotationInfo]) => {
+      // Prefer the annotation layer's real content bounds when available --
+      // the raw raster volume's declared size can span far more empty space
+      // than where the actual data sits (e.g. a thin tissue section inside
+      // a much taller declared Z range). Mirrors the priority order in
+      // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
+      // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
+      // which would need fetching actual mesh geometry rather than a single
+      // info JSON.
+      const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
+      let center;
+      if (Array.isArray(lower) && Array.isArray(upper)
+          && lower.length === 3 && upper.length === 3
+          && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
+        center = lower.map((lo, i) => (lo + upper[i]) / 2);
+      } else {
+        const scale = segInfo?.scales?.[0];
+        const size = scale?.size;
+        const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
+        const resolution = scale?.resolution ?? [1, 1, 1];
+        if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
+          center = size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
+        }
+      }
+      if (center) {
+        derivedCenterRef.current = center;
+        latestViewerStateRef.current = {
+          ...latestViewerStateRef.current,
+          position: center,
+        };
+      }
+    })
+      .catch(err => console.warn('[NeuroglancerSubscriber] failed to derive default center:', err))
+      .finally(() => setHasResolvedInitialCamera(true));
+  }, [segmentationUrl, cellsUrl, initialNgCameraState]);
+
   const errors = [
     ...obsPointsErrors,
     ...obsSegmentationsDataErrors,
@@ -361,6 +431,48 @@ export function NeuroglancerSubscriber(props) {
     ty: spatialTargetY,
   });
 
+  const lastAppliedSpatialBetaSnapshotRef = useRef(null);
+  const spatialBetaJustPushedRef = useRef(false);
+
+  // Find the spatialBeta view showing the same dataset, so we can read its
+  // camera snapshot back (to sync in reverse direction: spatialBeta -> NG, for direct
+  // dragging inside spatialBeta's own panel).
+  const viewConfig = useViewConfig();
+
+  const spatialBetaUuid = useMemo(() => {
+    const layout = viewConfig?.layout;
+    if (!Array.isArray(layout)) return null;
+    const ownDatasetScope = coordinationScopes?.dataset;
+    const match = layout.find(v => v.component === 'spatialBeta'
+      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
+    return match?.uid ?? null;
+  }, [viewConfig, coordinationScopes]);
+  const spatialBetaCameraSnapshot = useComponentViewInfo(spatialBetaUuid ? `${spatialBetaUuid}-camera` : null);
+
+  useEffect(() => {
+    if (!spatialBetaCameraSnapshot) return;
+    if (spatialBetaCameraSnapshot === lastAppliedSpatialBetaSnapshotRef.current) return;
+    lastAppliedSpatialBetaSnapshotRef.current = spatialBetaCameraSnapshot;
+
+    const { position, projectionOrientation, projectionScale } = spatialBetaCameraSnapshot;
+    if (!Array.isArray(position) || !Array.isArray(projectionOrientation)) return;
+    // console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation));
+    // spatialBeta's local camera lives in the Q_Y_UP-flipped frame (see the
+    // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
+    // to spatialBeta in handleStateUpdate above). Q_Y_UP is self-inverse, so
+    // applying it again un-does that flip before pushing back into NG.
+    const unflipped = multiplyQuat(projectionOrientation, Q_Y_UP);
+
+    lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
+    spatialBetaJustPushedRef.current = true;
+    latestViewerStateRef.current = {
+      ...latestViewerStateRef.current,
+      position,
+      projectionOrientation: unflipped,
+      projectionScale,
+    };
+    incrementLatestViewerStateIteration();
+  }, [spatialBetaCameraSnapshot]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -382,10 +494,19 @@ export function NeuroglancerSubscriber(props) {
         // Prefer the observation index from obsFeatureMatrix,
         // then from the per-observation colors,
         // and finally, if neither of those are provided, from obsSets.
-        const layerIndex = layerIndexFromMatrix
-          ?? (layerIndexFromColors
-            ?? (layerIndexFromSets ?? null)
-          );
+        const rawLayerIndex = layerIndexFromMatrix
+        ?? (layerIndexFromColors
+          ?? (layerIndexFromSets ?? null)
+        );
+        // obsFeatureMatrix's own index can carry a dataset-specific prefix
+        // (e.g. "F8iia-quantification3_1") for the same segment IDs NG's
+        // own mesh/segments use in plain numeric form ("1") -- normalize so
+        // every downstream consumer (idsToColor, knownIdSet, cellColors
+        // lookups) works with one consistent id per segment, matching the
+        // same stripping already applied in the geneSelection branch below.
+        const layerIndex = rawLayerIndex
+          ? Array.from(new Set(rawLayerIndex.map(id => String(id).replace(/^.*_/, ''))))
+          : rawLayerIndex;
         const idsToColor = layerIndex;
         const knownIdSet = new Set((layerIndex ?? []).map(String));
 
@@ -478,24 +599,25 @@ export function NeuroglancerSubscriber(props) {
           // For NG mesh segmentations, obsIndex comes from obsSegmentationsSetsData
           const instanceObsIndex = obsSegmentationsSetsData
             ?.[layerScope]?.[channelScope]?.obsIndex;
+          const restrictedObsIndex = instanceObsIndex?.filter(id => knownIdSet.has(String(id)));
           const matrixObsIndex = segmentationMultiIndicesData
             ?.[layerScope]?.[channelScope]?.obsIndex;
           const expressionData = segmentationMultiExpressionNormData
             ?.[layerScope]?.[channelScope];
-          if (instanceObsIndex && matrixObsIndex && expressionData?.[0]) {
+          if (restrictedObsIndex && matrixObsIndex && expressionData?.[0]) {
             // matrixObsIndex uses 'MIS_X' format, instanceObsIndex uses 'X'
             // Strip prefix to align the two index spaces
             const matrixIndexMap = new Map(
-              matrixObsIndex.map((key, i) => {
+              restrictedObsIndex.map((key, i) => {
                 // Strip any non-numeric prefix (e.g. 'MIS_0' -> '0')
                 const normalizedKey = key.replace(/^.*_/, '');
                 return [normalizedKey, i];
               }),
             );
-            const toMatrixIndex = instanceObsIndex.map(key => matrixIndexMap.get(String(key)));
+            const toMatrixIndex = restrictedObsIndex.map(key => matrixIndexMap.get(String(key)));
             const [low, high] = featureValueColormapRange ?? [0, 1];
             const ngCellColors = {};
-            instanceObsIndex.forEach((id, i) => {
+            restrictedObsIndex.forEach((id, i) => {
               const rowIndex = toMatrixIndex[i];
               const rawVal = expressionData[0][rowIndex] ?? 0;
               // Uint8Array values are 0-255, already normalized — convert to 0-1
@@ -507,11 +629,11 @@ export function NeuroglancerSubscriber(props) {
               ngCellColors[id] = rgbToHex(color);
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
-          } else if (instanceObsIndex) {
+          } else if (restrictedObsIndex) {
             // No expression data available — use default color for all segments
             const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
             const ngCellColors = {};
-            instanceObsIndex.forEach((id) => {
+            restrictedObsIndex.forEach((id) => {
               ngCellColors[id] = fallbackColor;
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
@@ -557,32 +679,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiIndicesData,
     csvLoaded,
   }, customIsEqualForCellColors);
-
-  // Obtain the Neuroglancer viewerState object.
-  const initialViewerState = useNeuroglancerViewerState(
-    theme,
-    showAxisLines,
-    segmentationLayerScopes,
-    segmentationChannelScopesByLayer,
-    segmentationLayerCoordination,
-    segmentationChannelCoordination,
-    obsSegmentationsUrls,
-    obsSegmentationsData,
-    pointLayerScopes,
-    pointLayerCoordination,
-    obsPointsUrls,
-    obsPointsData,
-    pointMultiIndicesData,
-  );
-
-  // Counter that forces derivedViewerState to re-run when visibleSegmentIdsRef changes.
-  // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
-  // is the mechanism to propagate culling updates to the NG viewer state.
-  const [latestViewerStateIteration, incrementLatestViewerStateIteration] = useReducer(x => x + 1, 0);
-  const latestViewerStateRef = useRef({
-    ...initialViewerState,
-    ...(initialNgCameraState ?? {}),
-  });
 
   // TODO: For debugging in console uncomment
   // useEffect(() => {
@@ -706,7 +802,7 @@ export function NeuroglancerSubscriber(props) {
     if (!width || !height) return;
     const transform = annotationTransformRef.current;
     const info = annotationInfoRef.current;
-    const cellsUrl = info.url;
+    const cellsInfoUrl = info.url;
 
     // // Fetch all annotation chunks across all spatial levels
     const allLevelCoords = info.spatial.flatMap((level) => {
@@ -730,7 +826,7 @@ export function NeuroglancerSubscriber(props) {
       // the actual chunk data was generated with 32-byte properties regardless of level.
       const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer) return [];
-      const cacheKey = `${cellsUrl}/${level}/${cx}_${cy}_${cz}`;
+      const cacheKey = `${cellsInfoUrl}/${level}/${cx}_${cy}_${cz}`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
@@ -773,14 +869,14 @@ export function NeuroglancerSubscriber(props) {
       if (!mat) {
         // Fallback: load all if projection matrix not available
         console.warn('No viewProjectionMatrix, loading all');
-        visibleIds = [...new Set(allEntries.map(({ id }) => id))];
+        visibleIds = Array.from(new Set(allEntries.map(({ id }) => id)));
       } else {
         // Extend the viewport by 50% on each side (to allow mesh-loading when panning around)
         const margin = Math.max(width, height) * 0.5;
         // Screen-space projection filter
         // Screen-space culling: project each centroid from annotation space
         // to screen pixels and keep only those within the viewport bounds.
-        visibleIds = [...new Set(
+        visibleIds = Array.from(new Set(
           allEntries.filter(({ x, y, z }) => {
             // Annotation to viewer coordinates
             const vx = x / transform.x;
@@ -798,7 +894,7 @@ export function NeuroglancerSubscriber(props) {
             return screenX >= -margin && screenX <= width + margin
                   && screenY >= -margin && screenY <= height + margin;
           }).map(({ id }) => id),
-        )];
+        ));
       }
       // TODO: Debugging purposes - can be removed once we settle with datasets
       // visibleSegmentIdsRef.current = visibleIds;
@@ -850,7 +946,7 @@ export function NeuroglancerSubscriber(props) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [segmentationLayerScopes, pointLayerScopes, obsPointsData, meshLoadProjectionScaleThreshold]);
+  }, [segmentationLayerScopes, pointLayerScopes, meshLoadProjectionScaleThreshold]);
 
   useEffect(() => {
     updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
@@ -872,13 +968,6 @@ export function NeuroglancerSubscriber(props) {
     // a dependency for derivedViewerState, triggering the useMemo downstream.
     incrementLatestViewerStateIteration();
   }, [initialViewerState]);
-
-  // Get cells URL from obsPointsUrls
-  const cellsUrl = useMemo(() => {
-    const firstScope = pointLayerScopes?.[0];
-    return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
-  }, [pointLayerScopes, obsPointsUrls]);
-
 
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
@@ -940,111 +1029,23 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
-
-    // Set the views on first mount
-    if (!initialRenderCalibratorRef.current) {
-      // wait for a real scale
-      if (!Number.isFinite(projectionScale) || projectionScale <= 0) return;
-
-      // anchor to current Vitessce zoom
-      const zRef = Number.isFinite(spatialZoom) ? spatialZoom : 0;
-      initialRenderCalibratorRef.current = makeVitNgZoomCalibrator(projectionScale, zRef);
-
-      const [px = 0, py = 0, pz = 0] = position;
-      const tX = Number.isFinite(spatialTargetX) ? spatialTargetX : 0;
-      const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
-      // TODO: translation off in the first render - turn pz to 0 if z-axis needs to be avoided
-      translationOffsetRef.current = [px - tX, py - tY, pz];
-      // console.log(" translationOffsetRef.current",  translationOffsetRef.current)
-      const syncedZoom = initialRenderCalibratorRef.current.vitToNgZoom(INIT_VIT_ZOOM);
-      latestViewerStateRef.current = {
-        ...latestViewerStateRef.current,
-        projectionScale: syncedZoom,
+    // Publish NG's raw camera state through the existing generic viewInfo
+    // registry (the same mechanism spatialBeta uses to publish its own
+    // canvas size) -- no Euler decomposition, position/quaternion pass
+    // through unchanged. spatialBeta's RawView reads this directly.
+    if (Array.isArray(position) && Array.isArray(projectionOrientation)) {
+      const flippedQuaternion = multiplyQuat(projectionOrientation, Q_Y_UP);
+      const snapshot = {
+        position,
+        quaternion: flippedQuaternion,
+        projectionScale,
+        target: position,
+        fovDegrees: 45,
       };
-
-      if (!Number.isFinite(spatialZoom) || Math.abs(spatialZoom - INIT_VIT_ZOOM) > ZOOM_EPS) {
-        setZoom(INIT_VIT_ZOOM);
-      }
-      return;
+      // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
+      setRawCameraSnapshot(snapshot);
     }
-
-    // ZOOM (NG → Vitessce) — do this only after calibrator exists
-    if (Number.isFinite(projectionScale) && projectionScale > 0) {
-      const vitZoomFromNg = initialRenderCalibratorRef.current.ngToVitZoom(projectionScale);
-      const scaleChanged = lastNgScaleRef.current == null
-          || (Math.abs(projectionScale - lastNgScaleRef.current)
-          > 1e-6 * Math.max(1, projectionScale));
-      if (scaleChanged && Number.isFinite(vitZoomFromNg)
-            && Math.abs(vitZoomFromNg - (spatialZoom ?? 0)) > ZOOM_EPS) {
-        if (zoomRafRef.current) cancelAnimationFrame(zoomRafRef.current);
-        zoomRafRef.current = requestAnimationFrame(() => {
-          setZoom(vitZoomFromNg);
-          zoomRafRef.current = null;
-        });
-        // Trigger immediate mesh update on zoom change, don't wait for throttle
-        updateVisibleSegments();
-      }
-      // remember last NG scale
-      lastNgScaleRef.current = projectionScale;
-    }
-
-    // TRANSLATION
-    if (Array.isArray(position) && position.length >= 2) {
-      const [px, py] = position;
-      const [ox, oy] = translationOffsetRef.current;
-      const tx = px - ox; // map NG → Vitessce
-      const ty = py - oy;
-      if (Number.isFinite(tx) && Math.abs(tx - (spatialTargetX ?? tx)) > TARGET_EPS) setTargetX(tx);
-      if (Number.isFinite(ty) && Math.abs(ty - (spatialTargetY ?? ty)) > TARGET_EPS) setTargetY(ty);
-    }
-    // ROTATION — only when NG quat actually changes
-    const quatChanged = valueGreaterThanEpsilon(
-      projectionOrientation, lastNgQuatRef.current, ROTATION_EPS,
-    );
-
-    if (quatChanged) {
-      if (applyNgUpdateTimeoutRef.current) clearTimeout(applyNgUpdateTimeoutRef.current);
-      lastNgPushOrientationRef.current = projectionOrientation;
-
-      applyNgUpdateTimeoutRef.current = setTimeout(() => {
-        // Remove the Y-up correction before converting to Euler for Vitessce
-        const qVit = multiplyQuat(conjQuat(Q_Y_UP), projectionOrientation);
-        const [pitchRad, yawRad] = quaternionToEuler(qVit); // radians
-        const currPitchRad = deg2rad(spatialRotationX ?? 0);
-        const currYawRad = deg2rad(spatialRotationOrbit ?? 0);
-
-        if (Math.abs(pitchRad - currPitchRad) > ROTATION_EPS
-              || Math.abs(yawRad - currYawRad) > ROTATION_EPS) {
-          const pitchDeg = rad2deg(pitchRad);
-          const yawDeg = rad2deg(yawRad);
-
-          // Mark Vitessce as the source for the next derived pass
-          lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
-          setRotationX(pitchDeg);
-          setRotationOrbit(yawDeg);
-          ngRotPushAtRef.current = performance.now();
-
-          // // Test to verify rotation from NG to Vitessce and back to NG
-          // requestAnimationFrame(() => {
-          //   requestAnimationFrame(() => {
-          //     // Recreate the Vitessce quaternion from the angles we *just set*
-          //     const qVitJustSet = eulerToQuaternion(deg2rad(pitchDeg), deg2rad(yawDeg), 0);
-          //     // Convert to NG frame (apply Y-up)
-          //     const qNgExpected = multiplyQuat(Q_Y_UP, qVitJustSet);
-          //     // What NG is currently holding (latest from ref, fallback to local)
-          //     const qNgCurrent  = latestViewerStateRef.current?.projectionOrientation
-          //  || projectionOrientation;
-
-          //     const dot = quatdotAbs(qNgExpected, qNgCurrent);
-          //     console.log('[POST-APPLY] |dot| =', dot.toFixed(6));
-          //   });
-          // });
-        }
-      }, VITESSCE_INTERACTION_DELAY);
-
-      lastNgQuatRef.current = projectionOrientation;
-    }
-
+    // NG updates it's current state
     latestViewerStateRef.current = {
       ...latestViewerStateRef.current,
       projectionOrientation,
@@ -1052,7 +1053,7 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [updateVisibleSegmentsThrottledRef]);
+  }, [setRawCameraSnapshot]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -1117,6 +1118,29 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[derivedViewerState] iteration:', latestViewerStateIteration);
     // console.log('[derivedViewerState] visibleSegmentIdsRef:', visibleSegmentIdsRef.current?.length);
     const { current } = latestViewerStateRef;
+    // console.log("lastInteractionSource", lastInteractionSource.current)
+    if (spatialBetaJustPushedRef.current) {
+      // A direct spatialBeta drag already placed the correct raw
+      // position/projectionOrientation/projectionScale into `current`
+      // above -- skip the Euler-based rotation-source resolution below
+      // entirely for this one pass, so it can't clobber the raw push with
+      // stale spatialRotationX/spatialRotationOrbit-derived values.
+      spatialBetaJustPushedRef.current = false;
+      if (lastInteractionSource.current === LAST_INTERACTION_SOURCE.vitessce) {
+        lastInteractionSource.current = null;
+      }
+      prevCoordsRef.current = {
+        zoom: spatialZoom,
+        rx: spatialRotationX,
+        ry: spatialRotationY,
+        rz: spatialRotationZ,
+        orbit: spatialRotationOrbit,
+        tx: spatialTargetX,
+        ty: spatialTargetY,
+      };
+      return current;
+    }
+
     if (current.layers.length <= 0) {
       return current;
     }
@@ -1136,6 +1160,14 @@ export function NeuroglancerSubscriber(props) {
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
+
+    // console.log('[zoom guard]', {
+    //   spatialZoom,
+    //   spatialZoomType: typeof spatialZoom,
+    //   hasCalibrator: !!initialRenderCalibratorRef.current,
+    //   lastInteractionSource: lastInteractionSource.current,
+    //   zoomChangedNow,
+    // });
 
     // ** --- Zoom handling --- ** //
     if (typeof spatialZoom === 'number'
@@ -1191,31 +1223,14 @@ export function NeuroglancerSubscriber(props) {
     const shouldForceInitialVitPush = !initialRotationPushedRef.current
       && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
-    // Use explicit source if set; otherwise infer Vitessce when coords changed.
-    const ngFresh = (performance.now() - (ngRotPushAtRef.current || 0)) < NG_ROT_COOLDOWN_MS;
-
     const changedNowOrIInitialVitPush = rotChangedNow
       || zoomChangedNow || transChangedNow || shouldForceInitialVitPush;
 
-    const src = ngFresh ? LAST_INTERACTION_SOURCE.neuroglancer
-      : (lastInteractionSource.current
-      ?? (changedNowOrIInitialVitPush ? LAST_INTERACTION_SOURCE.vitessce : null));
+    const src = lastInteractionSource.current
+      ?? (changedNowOrIInitialVitPush ? LAST_INTERACTION_SOURCE.vitessce : null);
 
 
     let nextOrientation = projectionOrientation; // start from NG's current quat
-
-    // console.log('[ORIENT]',
-    //   'srcResolved=', src,
-    //   'lastSource=', lastInteractionSource.current,
-    //   'dotLoop=', dotVitLoop.toFixed(6),
-    //   'dotCross=', dotVsNg.toFixed(6)
-    // );
-
-    // console.log('[ORIENT Q]',
-    //   'qVitRaw=', fmt(vitessceRotationRaw), // Vit frame (pre Y-up)
-    //   'qVitToNg=', fmt(vitessceRotation), // NG frame (post Y-up)
-    //   'qNgCurr=', fmt(projectionOrientation),
-    // );
 
 
     if (src === LAST_INTERACTION_SOURCE.vitessce) {
@@ -1245,15 +1260,11 @@ export function NeuroglancerSubscriber(props) {
         const tY = Number.isFinite(spatialTargetY) ? spatialTargetY : 0;
         translationOffsetRef.current = [cx - tX, cy - tY, cz];
       }
-      // else {
-      //   // No real Vitessce rotation change → do not overwrite NG's quat.
-      //   console.log('Vitessce → NG: no rotation change, keep NG quat');
-      // }
       if (lastInteractionSource.current === LAST_INTERACTION_SOURCE.vitessce) {
         lastInteractionSource.current = null;
       }
     } else if (src === LAST_INTERACTION_SOURCE.neuroglancer) {
-      nextOrientation = lastNgPushOrientationRef.current ?? projectionOrientation;
+      nextOrientation = projectionOrientation;
       lastInteractionSource.current = null;
     }
 
@@ -1293,13 +1304,13 @@ export function NeuroglancerSubscriber(props) {
         objectAlpha: cellColorMappingByLayer?.[layerScope]?.opacity ?? 1.0,
       };
     }) ?? [];
-
+    const layersChanged = !isEqual(current.layers, updatedLayers);
     const updated = {
       ...current,
       projectionScale: nextProjectionScale,
       projectionOrientation: nextOrientation,
       position: nextPosition,
-      layers: updatedLayers,
+      ...(layersChanged ? { layers: updatedLayers } : {}),
     };
 
     latestViewerStateRef.current = updated;
@@ -1320,8 +1331,10 @@ export function NeuroglancerSubscriber(props) {
     latestViewerStateIteration, hasMatchingAnnotationSource]);
 
   const onSegmentHighlight = useCallback((obsId) => {
-    setCellHighlight(String(obsId));
-  }, [setCellHighlight]);
+    const next = obsId != null ? String(obsId) : null;
+    if (next === cellHighlight) return;
+    setCellHighlight(next);
+  }, [setCellHighlight, cellHighlight]);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
     if (!isLayersLoaded && isLoaded) {
@@ -1354,7 +1367,7 @@ export function NeuroglancerSubscriber(props) {
       withPadding={false}
       guideUrl={GUIDE_URL}
     >
-      {hasLayers ? (
+      {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
