@@ -243,6 +243,7 @@ export default function PointLayerController(props) {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
+    spatialLayerOpacityUnselected,
     spatialLayerLabel,
     obsColorEncoding,
     featureColor,
@@ -258,6 +259,7 @@ export default function PointLayerController(props) {
   const {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
+    setSpatialLayerOpacityUnselected,
     setObsColorEncoding,
     setFeatureColor,
     setFeatureFilterMode,
@@ -364,6 +366,12 @@ export default function PointLayerController(props) {
   }, [visible, setVisible]);
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
+  const handleUnselectedOpacityChange = useCallback(
+    (e, v) => setSpatialLayerOpacityUnselected?.(v),
+      [setSpatialLayerOpacityUnselected],
+    );
+
+ 
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const enableFeaturesAndSetsDropdown = false;
@@ -597,11 +605,11 @@ export default function PointLayerController(props) {
                 </Grid>
                 <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
                   <Slider
-                    value={opacity}
+                    value={spatialLayerOpacityUnselected ?? 0.25}
                     min={0}
                     max={1}
                     step={0.001}
-                    onChange={handleOpacityChange}
+                    onChange={handleUnselectedOpacityChange}
                     className={menuClasses.imageLayerOpacitySlider}
                     orientation="horizontal"
                     aria-label="Adjust opacity for unselected layer"
