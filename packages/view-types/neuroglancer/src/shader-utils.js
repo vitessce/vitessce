@@ -84,7 +84,7 @@ export function getSpatialLayerColorShader(staticColor, opacity, borderWidth = 0
  * @returns {string} A GLSL shader string.
  */
 export function getSpatialLayerColorWithSelectionShader(
-  staticColor, opacity, featureIndices, defaultColor, featureIndexProp, borderWidth = 0.0, 
+  staticColor, opacity, featureIndices, defaultColor, featureIndexProp, borderWidth = 0.0,
   unselectedOpacity = opacity,
 ) {
   const normStatic = normalizeColor(staticColor);
@@ -365,7 +365,7 @@ export function getRandomByFeatureShader(opacity, featureIndexProp, borderWidth 
  */
 export function getRandomByFeatureWithSelectionShader(
   featureIndices, defaultColor, opacity, featureIndexProp, borderWidth = 0.0,
-  unselectedOpacity=opacity,
+  unselectedOpacity = opacity,
 ) {
   const paletteSize = PALETTE.length;
   const normPalette = PALETTE.map(c => normalizeColor(c));
@@ -545,7 +545,7 @@ export function getQuantitativeColormapShader(
  */
 export function getRandomPerPointWithSelectionShader(
   featureIndices, defaultColor, opacity, featureIndexProp, pointIndexProp, borderWidth = 0.0,
-  unselectedOpacity=opacity,
+  unselectedOpacity = opacity,
 ) {
   const normDefault = normalizeColor(defaultColor);
   const numFeatures = featureIndices.length;

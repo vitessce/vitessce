@@ -368,10 +368,10 @@ export default function PointLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
   const handleUnselectedOpacityChange = useCallback(
     (e, v) => setSpatialLayerOpacityUnselected?.(v),
-      [setSpatialLayerOpacityUnselected],
-    );
+    [setSpatialLayerOpacityUnselected],
+  );
 
- 
+
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const enableFeaturesAndSetsDropdown = false;
