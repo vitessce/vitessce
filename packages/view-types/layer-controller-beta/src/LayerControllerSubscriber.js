@@ -270,6 +270,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_COLOR,

@@ -256,6 +256,7 @@ export function useNeuroglancerViewerState(
         const {
           spatialLayerVisible,
           spatialLayerOpacity,
+          spatialLayerOpacityUnselected,
           obsColorEncoding,
           spatialLayerColor,
           featureSelection,
@@ -276,6 +277,7 @@ export function useNeuroglancerViewerState(
           theme,
           featureIndex,
           spatialLayerOpacity,
+          spatialLayerOpacityUnselected,
           obsColorEncoding,
           spatialLayerColor,
           featureSelection,
