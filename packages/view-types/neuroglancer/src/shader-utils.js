@@ -84,7 +84,8 @@ export function getSpatialLayerColorShader(staticColor, opacity, borderWidth = 0
  * @returns {string} A GLSL shader string.
  */
 export function getSpatialLayerColorWithSelectionShader(
-  staticColor, opacity, featureIndices, defaultColor, featureIndexProp, borderWidth = 0.0,
+  staticColor, opacity, featureIndices, defaultColor, featureIndexProp, borderWidth = 0.0, 
+  unselectedOpacity = opacity,
 ) {
   const normStatic = normalizeColor(staticColor);
   const normDefault = normalizeColor(defaultColor);
@@ -106,7 +107,7 @@ export function getSpatialLayerColorWithSelectionShader(
                 setColor(${toVec4(normStatic, opacity)});
                 ${borderWidthGlsl(borderWidth)}
             } else {
-                setColor(${toVec4(normDefault, opacity)});
+                setColor(${toVec4(normDefault, unselectedOpacity.toFixed(4))});
                 ${borderWidthGlsl(borderWidth)}
             }
         }
@@ -233,6 +234,7 @@ export function getGeneSelectionWithSelectionShader(
   opacity,
   featureIndexProp,
   borderWidth = 0.0,
+  unselectedOpacity = opacity,
 ) {
   const numFeatures = featureIndices.length;
   const normDefault = normalizeColor(defaultColor);
@@ -255,7 +257,7 @@ export function getGeneSelectionWithSelectionShader(
             ${indicesDecl}
             ${colorsDecl}
             ${opacitiesDecl}
-            vec4 color = ${toVec4(normDefault, opacity)};
+            vec4 color = ${toVec4(normDefault, unselectedOpacity.toFixed(4))};
             for (int i = 0; i < ${numFeatures}; ++i) {
                 if (geneIndex == selectedIndices[i]) {
                     color = vec4(featureColors[i], featureOpacities[i]);
@@ -363,6 +365,7 @@ export function getRandomByFeatureShader(opacity, featureIndexProp, borderWidth 
  */
 export function getRandomByFeatureWithSelectionShader(
   featureIndices, defaultColor, opacity, featureIndexProp, borderWidth = 0.0,
+  unselectedOpacity=opacity,
 ) {
   const paletteSize = PALETTE.length;
   const normPalette = PALETTE.map(c => normalizeColor(c));
@@ -390,7 +393,7 @@ export function getRandomByFeatureWithSelectionShader(
                 setColor(vec4(palette[colorIdx], ${opacity}));
                 ${borderWidthGlsl(borderWidth)}
             } else {
-                setColor(${toVec4(normDefault, opacity)});
+                setColor(${toVec4(normDefault, unselectedOpacity.toFixed(4))});
                 ${borderWidthGlsl(borderWidth)}
             }
         }
@@ -542,6 +545,7 @@ export function getQuantitativeColormapShader(
  */
 export function getRandomPerPointWithSelectionShader(
   featureIndices, defaultColor, opacity, featureIndexProp, pointIndexProp, borderWidth = 0.0,
+  unselectedOpacity=opacity,
 ) {
   const normDefault = normalizeColor(defaultColor);
   const numFeatures = featureIndices.length;
@@ -567,7 +571,7 @@ export function getRandomPerPointWithSelectionShader(
                 setColor(vec4(r, g, b, ${opacity}));
                 ${borderWidthGlsl(borderWidth)}
             } else {
-                setColor(${toVec4(normDefault, opacity)});
+                setColor(${toVec4(normDefault, unselectedOpacity.toFixed(4))});
                 ${borderWidthGlsl(borderWidth)}
             }
         }
@@ -664,10 +668,12 @@ export function getPointsShader(layerCoordination) {
     obsSetSelection,
     quantitativeColorMax,
     pointsAreSegmentationCentroids,
+    spatialLayerOpacityUnselected,
   } = layerCoordination;
 
   const defaultColor = getDefaultColor(theme);
   const opacity = spatialLayerOpacity ?? 1.0;
+  const unselectedOpacity = opacity * (spatialLayerOpacityUnselected ?? 0.25);
   const staticColor = (
     Array.isArray(spatialLayerColor) && spatialLayerColor.length === 3
       ? spatialLayerColor
@@ -769,6 +775,7 @@ export function getPointsShader(layerCoordination) {
     }
     return getSpatialLayerColorWithSelectionShader(
       staticColor, opacity, featureIndices, defaultColor, featureIndexProp, pointMarkerBorderWidth,
+      unselectedOpacity,
     );
   }
 
@@ -789,6 +796,7 @@ export function getPointsShader(layerCoordination) {
     return getGeneSelectionWithSelectionShader(
       featureIndices, resolvedFeatureOpacities, resolvedFeatureColors,
       staticColor, defaultColor, opacity, featureIndexProp, pointMarkerBorderWidth,
+      unselectedOpacity,
     );
   }
 
@@ -807,6 +815,7 @@ export function getPointsShader(layerCoordination) {
     }
     return getRandomByFeatureWithSelectionShader(
       featureIndices, defaultColor, opacity, featureIndexProp, pointMarkerBorderWidth,
+      unselectedOpacity,
     );
   }
 
@@ -835,6 +844,7 @@ export function getPointsShader(layerCoordination) {
       featureIndexProp,
       pointIndexProp,
       pointMarkerBorderWidth,
+      unselectedOpacity,
     );
   }
 

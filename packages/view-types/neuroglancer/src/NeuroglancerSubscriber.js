@@ -256,6 +256,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_COLOR,
       CoordinationType.FEATURE_FILTER_MODE,
