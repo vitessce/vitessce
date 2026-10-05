@@ -42,8 +42,7 @@
     "d3-quadtree": "catalog:",
     "lodash-es": "catalog:",
     "math.gl": "catalog:",
-    "react-aria": "catalog:",
-    "three-stdlib": "^2.36.1"
+    "react-aria": "catalog:"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "catalog:",
@@ -51,11 +50,9 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "three": "catalog:"
+    "vitest": "catalog:"
   },
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "three": ">=0.162.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   }
 }
