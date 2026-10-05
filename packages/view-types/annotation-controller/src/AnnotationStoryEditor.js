@@ -32,8 +32,7 @@ import {
   moveFrame,
   updateFrame,
   getFrameViewShapes,
-  mergeFrameViewCoordinationValues,
-  removeFrameViewCoordinationValue,
+  setFrameViewCoordinationValues,
   updateShape,
   removeShape,
   copyShapeToFrame,
@@ -262,7 +261,7 @@ export function AnnotationStoryEditor(props) {
 
   function handleCapture(viewUid, coordinationTypes) {
     const values = getViewCoordinationValues(viewUid, coordinationTypes);
-    onStoryChange(mergeFrameViewCoordinationValues(story, frameIndex, viewUid, values));
+    onStoryChange(setFrameViewCoordinationValues(story, frameIndex, viewUid, values));
   }
 
   function handleToolClick(type) {
@@ -401,9 +400,6 @@ export function AnnotationStoryEditor(props) {
                   frame={activeFrame}
                   views={views}
                   onCapture={handleCapture}
-                  onRemoveValue={(viewUid, coordinationType) => onStoryChange(
-                    removeFrameViewCoordinationValue(story, frameIndex, viewUid, coordinationType),
-                  )}
                 />
               </div>
             </Section>

@@ -314,15 +314,6 @@ export const useStyles = makeStyles()(theme => ({
   captureTypeCheckbox: {
     padding: 2,
   },
-  capturedValues: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 3,
-  },
-  capturedValueChip: {
-    fontSize: FONT_SIZE.xs,
-    height: 20,
-  },
   toggleTextButton: {
     background: 'none',
     border: 'none',

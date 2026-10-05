@@ -10,8 +10,7 @@ import {
   moveFrame,
   updateFrame,
   getFrameViewShapes,
-  mergeFrameViewCoordinationValues,
-  removeFrameViewCoordinationValue,
+  setFrameViewCoordinationValues,
   addShape,
   updateShape,
   removeShape,
@@ -59,7 +58,7 @@ describe('story-utils', () => {
     addShape(story, 0, 'spatial', { ...line, uid: 's2' });
     updateShape(story, 0, 'spatial', 's1', { text: 'Hello' });
     removeShape(story, 0, 'spatial', 's1');
-    mergeFrameViewCoordinationValues(story, 1, 'spatial', { spatialZoom: 1 });
+    setFrameViewCoordinationValues(story, 1, 'spatial', { spatialZoom: 1 });
     expect(story).toEqual(original);
   });
 
@@ -93,13 +92,15 @@ describe('story-utils', () => {
     expect(removed.frames[1].layout).toEqual([]);
   });
 
-  it('merges and removes captured coordination values, keeping the shapes', () => {
-    const merged = mergeFrameViewCoordinationValues(makeStory(), 0, 'spatial', { spatialZoom: 3, spatialTargetX: 10 });
-    expect(merged.frames[0].layout[0].coordinationValues)
+  it('sets captured coordination values, replacing previous values and keeping the shapes', () => {
+    const captured = setFrameViewCoordinationValues(makeStory(), 0, 'spatial', { spatialZoom: 3, spatialTargetX: 10 });
+    expect(captured.frames[0].layout[0].coordinationValues)
       .toEqual({ spatialZoom: 3, spatialTargetX: 10, annotationShapes: [line] });
-    const removed = removeFrameViewCoordinationValue(merged, 0, 'spatial', 'spatialZoom');
-    expect(removed.frames[0].layout[0].coordinationValues)
-      .toEqual({ spatialTargetX: 10, annotationShapes: [line] });
+    const recaptured = setFrameViewCoordinationValues(captured, 0, 'spatial', { spatialTargetX: 20 });
+    expect(recaptured.frames[0].layout[0].coordinationValues)
+      .toEqual({ spatialTargetX: 20, annotationShapes: [line] });
+    const cleared = setFrameViewCoordinationValues(makeStory(), 1, 'spatial', {});
+    expect(cleared.frames[1].layout).toEqual([]);
   });
 
   it('copies shapes to other frames with a new uid', () => {

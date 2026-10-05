@@ -214,31 +214,18 @@ function updateFrameViewCoordinationValues(story, frameIndex, viewUid, updater) 
 }
 
 /**
- * Merge coordination values (e.g., captured from the current state of a view)
- * into the coordination values that a frame defines for a view.
+ * Set the coordination values (e.g., captured from the current state of a view)
+ * that a frame defines for a view. Previously-captured coordination values
+ * are replaced, while the annotation shapes are kept.
  * @param {object} story The story.
  * @param {number} frameIndex The index of the frame.
  * @param {string} viewUid The view uid.
- * @param {object} values The coordination values to merge.
+ * @param {object} values The coordination values to set.
  * @returns {object} The new story.
  */
-export function mergeFrameViewCoordinationValues(story, frameIndex, viewUid, values) {
+export function setFrameViewCoordinationValues(story, frameIndex, viewUid, values) {
   return updateFrameViewCoordinationValues(
-    story, frameIndex, viewUid, prevValues => ({ ...prevValues, ...values }),
-  );
-}
-
-/**
- * Remove a coordination value that a frame defines for a view.
- * @param {object} story The story.
- * @param {number} frameIndex The index of the frame.
- * @param {string} viewUid The view uid.
- * @param {string} coordinationType The coordination type to remove.
- * @returns {object} The new story.
- */
-export function removeFrameViewCoordinationValue(story, frameIndex, viewUid, coordinationType) {
-  return updateFrameViewCoordinationValues(
-    story, frameIndex, viewUid, prevValues => ({ ...prevValues, [coordinationType]: undefined }),
+    story, frameIndex, viewUid, prevValues => ({ ...values, [SHAPES]: prevValues[SHAPES] }),
   );
 }
 
