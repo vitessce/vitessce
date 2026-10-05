@@ -233,6 +233,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // at the same DOM level, not underneath that overlay.
     const eventTarget = canvas.parentElement ?? canvas;
     const controls = new OrbitControls(camera, eventTarget);
+    controls.zoomSpeed = 0.5;
     controls.target.set(...target);
     controls.update();
     controls.addEventListener('change', this.onOrbitControlsChange);
