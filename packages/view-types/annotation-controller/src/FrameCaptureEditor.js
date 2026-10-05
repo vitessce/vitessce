@@ -3,21 +3,19 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
+  IconButton,
   Tooltip,
   CenterFocusStrong,
+  ExpandLess,
+  ExpandMore,
 } from '@vitessce/styles';
 import { CoordinationType } from '@vitessce/constants-internal';
 import {
-  DEFAULT_CAPTURE_COORDINATION_TYPES,
-  getCapturableCoordinationTypes,
+  getCaptureCategories,
+  getDefaultCaptureCoordinationTypes,
 } from './capture-utils.js';
 import { getFrameViewCoordinationValues } from './story-utils.js';
 import { useStyles } from './styles.js';
-
-function getDefaultSelection(component) {
-  return getCapturableCoordinationTypes(component)
-    .filter(t => DEFAULT_CAPTURE_COORDINATION_TYPES.includes(t));
-}
 
 function CaptureTypeCheckbox(props) {
   const { coordinationType, isChecked, onToggle } = props;
@@ -39,35 +37,111 @@ function CaptureTypeCheckbox(props) {
 }
 
 /**
+ * A checkbox for a category of coordination types,
+ * which can be expanded to show a checkbox for each of its coordination types.
+ * @param {object} props
+ * @param {object} props.category The category, as { key, label, coordinationTypes }.
+ * @param {string[]} props.selectedTypes The selected coordination types.
+ * @param {function} props.onToggleType Callback, called with a coordination type.
+ * @param {function} props.onCategoryChange Callback, called with (coordinationTypes, isChecked).
+ */
+function CaptureCategoryCheckbox(props) {
+  const {
+    category, selectedTypes, onToggleType, onCategoryChange,
+  } = props;
+  const { classes } = useStyles();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const { label, coordinationTypes } = category;
+  const numSelected = coordinationTypes.filter(t => selectedTypes.includes(t)).length;
+  const isChecked = numSelected === coordinationTypes.length;
+  const isIndeterminate = numSelected > 0 && !isChecked;
+
+  return (
+    <div className={classes.captureCategory}>
+      <div className={classes.captureCategoryHeader}>
+        <FormControlLabel
+          className={classes.captureCategoryLabel}
+          control={(
+            <Checkbox
+              size="small"
+              className={classes.captureTypeCheckbox}
+              checked={isChecked}
+              indeterminate={isIndeterminate}
+              onChange={() => onCategoryChange(coordinationTypes, !isChecked)}
+            />
+          )}
+          label={`${label} (${numSelected}/${coordinationTypes.length})`}
+        />
+        <IconButton
+          size="small"
+          className={classes.smallIconButton}
+          onClick={() => setIsExpanded(prev => !prev)}
+          aria-label={isExpanded ? `Hide ${label} types` : `Show ${label} types`}
+          aria-expanded={isExpanded}
+        >
+          {isExpanded ? <ExpandLess fontSize="inherit" /> : <ExpandMore fontSize="inherit" />}
+        </IconButton>
+      </div>
+      {isExpanded ? (
+        <div className={classes.captureTypeList}>
+          {coordinationTypes.map(coordinationType => (
+            <CaptureTypeCheckbox
+              key={coordinationType}
+              coordinationType={coordinationType}
+              isChecked={selectedTypes.includes(coordinationType)}
+              onToggle={onToggleType}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Get the initial selection of coordination types for a view:
+ * the coordination types that the frame already defines for the view
+ * (or the default types, if none).
+ * @param {object} frame The active frame.
+ * @param {object} view The view definition, as { uid, component }.
+ * @returns {string[]} The coordination types.
+ */
+function getInitialSelectedTypes(frame, view) {
+  const capturedTypes = Object.keys(getFrameViewCoordinationValues(frame, view.uid))
+    .filter(t => t !== CoordinationType.ANNOTATION_SHAPES);
+  return capturedTypes.length > 0
+    ? capturedTypes
+    : getDefaultCaptureCoordinationTypes(view.component);
+}
+
+/**
  * Capture the current coordination values of one view into the active frame.
- * The checkboxes are initialized with the coordination types that the frame
- * already defines for the view (or the default types, if none).
  * @param {object} props
  * @param {object} props.view The view definition, as { uid, component }.
- * @param {object} props.frame The active frame.
- * @param {function} props.onCapture Callback, called with (viewUid, coordinationTypes).
+ * @param {string[]} props.selectedTypes The coordination types to capture.
+ * @param {function} props.onSelectedTypesChange Callback, called with a function
+ * which receives the previous selected types and returns the new selected types.
+ * @param {function} props.onCapture Callback, called with no arguments.
  */
 function ViewCaptureEditor(props) {
-  const { view, frame, onCapture } = props;
+  const {
+    view, selectedTypes, onSelectedTypesChange, onCapture,
+  } = props;
   const { classes } = useStyles();
-  const [isAllTypesVisible, setIsAllTypesVisible] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState(() => {
-    const capturedTypes = Object.keys(getFrameViewCoordinationValues(frame, view.uid))
-      .filter(t => t !== CoordinationType.ANNOTATION_SHAPES);
-    return capturedTypes.length > 0 ? capturedTypes : getDefaultSelection(view.component);
-  });
 
-  const capturableTypes = getCapturableCoordinationTypes(view.component);
-  const defaultTypes = getDefaultSelection(view.component);
-  // Show the default types, plus any other types which have been selected.
-  const visibleTypes = isAllTypesVisible
-    ? capturableTypes
-    : capturableTypes.filter(t => defaultTypes.includes(t) || selectedTypes.includes(t));
+  const categories = getCaptureCategories(view.component);
 
   function toggleType(coordinationType) {
-    setSelectedTypes(prev => (prev.includes(coordinationType)
+    onSelectedTypesChange(prev => (prev.includes(coordinationType)
       ? prev.filter(t => t !== coordinationType)
       : [...prev, coordinationType]));
+  }
+
+  function setCategoryChecked(coordinationTypes, isChecked) {
+    onSelectedTypesChange(prev => (isChecked
+      ? [...new Set([...prev, ...coordinationTypes])]
+      : prev.filter(t => !coordinationTypes.includes(t))));
   }
 
   return (
@@ -80,28 +154,22 @@ function ViewCaptureEditor(props) {
             variant="outlined"
             className={classes.toolButton}
             startIcon={<CenterFocusStrong fontSize="inherit" />}
-            onClick={() => onCapture(view.uid, selectedTypes)}
+            onClick={onCapture}
           >
             Capture
           </Button>
         </Tooltip>
       </div>
-      <div className={classes.captureTypeList}>
-        {visibleTypes.map(coordinationType => (
-          <CaptureTypeCheckbox
-            key={coordinationType}
-            coordinationType={coordinationType}
-            isChecked={selectedTypes.includes(coordinationType)}
-            onToggle={toggleType}
+      <div className={classes.captureCategoryList}>
+        {categories.map(category => (
+          <CaptureCategoryCheckbox
+            key={category.key}
+            category={category}
+            selectedTypes={selectedTypes}
+            onToggleType={toggleType}
+            onCategoryChange={setCategoryChecked}
           />
         ))}
-        <button
-          type="button"
-          className={classes.toggleTextButton}
-          onClick={() => setIsAllTypesVisible(prev => !prev)}
-        >
-          {isAllTypesVisible ? 'Show fewer types' : `Show all ${capturableTypes.length} types`}
-        </button>
       </div>
     </div>
   );
@@ -112,11 +180,31 @@ function ViewCaptureEditor(props) {
  * @param {object} props
  * @param {object} props.frame The active frame.
  * @param {object[]} props.views The annotatable views, as { uid, component }.
- * @param {function} props.onCapture Callback, called with (viewUid, coordinationTypes).
+ * @param {function} props.onCapture Callback, called with an object
+ * mapping view uids to the coordination types to capture.
  */
 export function FrameCaptureEditor(props) {
   const { frame, views, onCapture } = props;
   const { classes } = useStyles();
+  // The user's selection of coordination types per view uid, for the frame with frameUid.
+  // Views which are not in byView use their initial selection.
+  // The selection is reset when switching to a different frame.
+  const [selection, setSelection] = useState({ frameUid: frame?.uid, byView: {} });
+  const selectedTypesByView = selection.frameUid === frame?.uid ? selection.byView : {};
+
+  function getSelectedTypes(view) {
+    return selectedTypesByView[view.uid] ?? getInitialSelectedTypes(frame, view);
+  }
+
+  function updateSelectedTypes(view, updater) {
+    setSelection({
+      frameUid: frame?.uid,
+      byView: {
+        ...selectedTypesByView,
+        [view.uid]: updater(getSelectedTypes(view)),
+      },
+    });
+  }
 
   if (views.length === 0) {
     return (
@@ -126,13 +214,32 @@ export function FrameCaptureEditor(props) {
     );
   }
 
-  return views.map(view => (
-    <ViewCaptureEditor
-      // Re-initialize the checkboxes when switching to a different frame.
-      key={`${frame?.uid}-${view.uid}`}
-      view={view}
-      frame={frame}
-      onCapture={onCapture}
-    />
-  ));
+  return (
+    <>
+      <div className={classes.captureAllRow}>
+        <Tooltip title="Save the current state of all views (for their checked coordination types) into this frame">
+          <Button
+            size="small"
+            variant="outlined"
+            className={classes.toolButton}
+            startIcon={<CenterFocusStrong fontSize="inherit" />}
+            onClick={() => onCapture(Object.fromEntries(
+              views.map(view => [view.uid, getSelectedTypes(view)]),
+            ))}
+          >
+            Capture all
+          </Button>
+        </Tooltip>
+      </div>
+      {views.map(view => (
+        <ViewCaptureEditor
+          key={view.uid}
+          view={view}
+          selectedTypes={getSelectedTypes(view)}
+          onSelectedTypesChange={updater => updateSelectedTypes(view, updater)}
+          onCapture={() => onCapture({ [view.uid]: getSelectedTypes(view) })}
+        />
+      ))}
+    </>
+  );
 }

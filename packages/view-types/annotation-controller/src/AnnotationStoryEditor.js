@@ -259,9 +259,13 @@ export function AnnotationStoryEditor(props) {
     onFrameIndexChange(getFrameIndexAfterMove(frameIndex, i, toIndex));
   }
 
-  function handleCapture(viewUid, coordinationTypes) {
-    const values = getViewCoordinationValues(viewUid, coordinationTypes);
-    onStoryChange(setFrameViewCoordinationValues(story, frameIndex, viewUid, values));
+  // Capture one or more views at once, as a single story update.
+  function handleCapture(coordinationTypesByView) {
+    const nextStory = Object.entries(coordinationTypesByView)
+      .reduce((prevStory, [viewUid, coordinationTypes]) => setFrameViewCoordinationValues(
+        prevStory, frameIndex, viewUid, getViewCoordinationValues(viewUid, coordinationTypes),
+      ), story);
+    onStoryChange(nextStory);
   }
 
   function handleToolClick(type) {

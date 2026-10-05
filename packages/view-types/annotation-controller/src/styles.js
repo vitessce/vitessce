@@ -282,6 +282,10 @@ export const useStyles = makeStyles()(theme => ({
     fontSize: FONT_SIZE.sm,
   },
   // Capture.
+  captureAllRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
   captureView: {
     display: 'flex',
     flexDirection: 'column',
@@ -300,10 +304,29 @@ export const useStyles = makeStyles()(theme => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
-  captureTypeList: {
+  captureCategoryList: {
     display: 'flex',
     flexDirection: 'column',
     paddingLeft: 4,
+  },
+  captureCategory: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  captureCategoryHeader: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  captureCategoryLabel: {
+    margin: 0,
+    '& .MuiFormControlLabel-label': {
+      fontSize: FONT_SIZE.sm,
+    },
+  },
+  captureTypeList: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingLeft: 20,
   },
   captureTypeLabel: {
     margin: 0,
