@@ -28,7 +28,8 @@ import {
   useAnnotationFrameCoordination,
   useAnnotationEditingForView,
 } from '@vitessce/vit-s';
-import { aggregateFeatureArrays } from '@vitessce/utils';
+import { aggregateFeatureArrays, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import {
   setObsSelection,
   mergeObsSets,
@@ -38,7 +39,9 @@ import {
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
+import {
+  COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, DataType, STATUS, ViewHelpMapping,
+} from '@vitessce/constants-internal';
 import { Typography } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -122,6 +125,7 @@ export function SpatialSubscriber(props) {
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
+    annotationTransitionDuration,
     annotationEditable,
     annotationFrameIndex,
   }, {
@@ -493,6 +497,21 @@ export function SpatialSubscriber(props) {
     return null;
   }, [useHoverInfoForTooltip]);
 
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    use3d ? 0 : annotationTransitionDuration,
+  );
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -710,6 +729,7 @@ export function SpatialSubscriber(props) {
           rotationZ,
           rotationOrbit,
           orbitAxis,
+          ...annotationTransitionProps,
         }}
         setViewState={setViewState}
         originalViewState={originalViewState}

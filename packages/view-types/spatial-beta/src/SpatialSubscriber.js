@@ -40,7 +40,8 @@ import {
   useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -200,6 +201,7 @@ export function SpatialSubscriber(props) {
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
+    annotationTransitionDuration,
     annotationEditable,
     annotationFrameIndex,
   }, {
@@ -732,6 +734,21 @@ export function SpatialSubscriber(props) {
   }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
 
 
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    is3dMode ? 0 : annotationTransitionDuration,
+  );
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -1125,6 +1142,7 @@ export function SpatialSubscriber(props) {
               target: [targetX, targetY, targetZ],
               rotationX,
               rotationOrbit,
+              ...annotationTransitionProps,
             }) : DEFAULT_VIEW_STATE}
             orbitAxis={orbitAxis}
             spatialAxisFixed={spatialAxisFixed}

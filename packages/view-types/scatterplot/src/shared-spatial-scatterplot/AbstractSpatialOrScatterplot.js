@@ -6,6 +6,13 @@ import { getCursor, getCursorWithTool } from './cursor.js';
 const ROTATION_THRESHOLD = 1;
 const ZOOM_THRESHOLD = 0.01;
 const TRANSLATION_THRESHOLD = 2;
+
+function isSameZoomAndTarget(viewStateA, viewStateB) {
+  return viewStateA?.zoom === viewStateB?.zoom
+    && viewStateA?.target?.[0] === viewStateB?.target?.[0]
+    && viewStateA?.target?.[1] === viewStateB?.target?.[1];
+}
+
 /**
  * Abstract class component intended to be inherited by
  * the Spatial and Scatterplot class components.
@@ -22,10 +29,18 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       // The current mouse position (in view coordinates)
       // while an annotation shape is being drawn.
       annotationHoverCoord: null,
+      // The intermediate { viewState, endViewState } during a
+      // viewState transition (e.g., between annotation frames).
+      transitionViewState: null,
     };
     this.lastApplied = null;
+    // The viewState prop at the start of the current transition, if any.
+    this.transitionEndViewState = null;
     this.viewport = null;
     this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.onTransitionStart = this.onTransitionStart.bind(this);
+    this.onTransitionEnd = this.onTransitionEnd.bind(this);
+    this.onTransitionInterrupt = this.onTransitionInterrupt.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
@@ -46,6 +61,18 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
+    if (this.transitionEndViewState) {
+      // The viewState prop (from the coordination space) already holds the
+      // end values of the transition, so the intermediate values are only
+      // rendered, rather than being emitted via setViewState.
+      this.setState({
+        transitionViewState: {
+          viewState: nextViewState,
+          endViewState: this.transitionEndViewState,
+        },
+      });
+      return;
+    }
     const use3d = this.use3d();
     // Begin changes for neuroglancer.
     // The following logic reduces the number of viewState updates emitted,
@@ -77,6 +104,62 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       // If the axis is fixed, just use the current target in state i.e don't change target.
       target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
     });
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition starts,
+   * when the viewState prop contains transition props
+   * (e.g., when the view state changes due to an annotation frame).
+   */
+  onTransitionStart() {
+    const { viewState } = this.props;
+    this.transitionEndViewState = viewState;
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition ends.
+   */
+  onTransitionEnd() {
+    this.transitionEndViewState = null;
+    this.setState({ transitionViewState: null });
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition is interrupted,
+   * for example by a change to the viewState prop.
+   * This may be called while DeckGL is rendering, so the state is not updated here.
+   * Instead, the stale transitionViewState is ignored by getDeckViewState.
+   */
+  onTransitionInterrupt() {
+    this.transitionEndViewState = null;
+  }
+
+  /**
+   * Get the viewState to pass to DeckGL.
+   * @returns {object} The viewState.
+   */
+  getDeckViewState() {
+    const { viewState } = this.props;
+    const { transitionViewState } = this.state;
+    if (
+      transitionViewState
+      && transitionViewState.endViewState === this.transitionEndViewState
+      && isSameZoomAndTarget(viewState, this.transitionEndViewState)
+    ) {
+      // Render the intermediate values of the in-progress transition.
+      return transitionViewState.viewState;
+    }
+    // Otherwise, the viewState prop has changed since the transition started,
+    // which interrupts the transition (or starts a new one).
+    if (viewState.transitionDuration) {
+      return {
+        ...viewState,
+        onTransitionStart: this.onTransitionStart,
+        onTransitionEnd: this.onTransitionEnd,
+        onTransitionInterrupt: this.onTransitionInterrupt,
+      };
+    }
+    return viewState;
   }
 
   /**
@@ -350,7 +433,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
-          viewState={viewState}
+          viewState={this.getDeckViewState()}
           useDevicePixels={useDevicePixels}
           controller={tool ? { dragPan: false } : true}
           getCursor={hasActiveTool ? getCursorWithTool : getCursor}

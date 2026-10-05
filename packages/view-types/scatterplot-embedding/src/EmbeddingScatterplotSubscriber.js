@@ -34,14 +34,19 @@ import {
   setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
   colorIndicesFromCodes, getObsIndexMap, stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
+import {
+  pluralize as plur, commaNumber, aggregateFeatureArrays, getAnnotationFrameCoordinationValues,
+} from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
+  useAnnotationFrameTransition,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import {
+  ViewType, CoordinationType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping,
+} from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
@@ -602,6 +607,20 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsSetsColumns,
   ]);
 
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_Y],
+    },
+    annotationTransitionDuration,
+  );
+
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -672,7 +691,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         uuid={uuid}
         onSelectionBusy={setIsSelectionPending}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom, target: [targetX, targetY, targetZ], ...annotationTransitionProps }}
         setViewState={setViewState}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}

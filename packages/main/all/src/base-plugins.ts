@@ -667,7 +667,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPES, null, annotationShapesArray.nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_FRAME_INDEX, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_OVERLAY_VISIBLE, true, z.boolean()),
-  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()), // TODO: make this non-zero by default?
+  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 500, z.number()), // TODO: make this non-zero by default?
   new PluginCoordinationType(CoordinationType.ANNOTATION_SEMANTIC_ZOOM, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_EDITABLE, false, z.boolean()),
 ];
