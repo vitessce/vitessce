@@ -319,7 +319,7 @@ export function AnnotationStoryEditor(props) {
               : <CloudDownload className={classes.headerIcon} />}
           </IconButton>
         </Tooltip>
-        <Button size="small" variant="outlined" className={classes.toolButton} onClick={onDone}>
+        <Button size="small" variant="outlined" className={classes.annotationToolButton} onClick={onDone}>
           Done
         </Button>
       </div>
@@ -415,7 +415,7 @@ export function AnnotationStoryEditor(props) {
                     key={type}
                     size="small"
                     variant={activeTool === type ? 'contained' : 'outlined'}
-                    className={classes.toolButton}
+                    className={classes.annotationToolButton}
                     onClick={() => handleToolClick(type)}
                     startIcon={<ShapeIcon type={type} size={12} />}
                     disabled={views.length === 0}

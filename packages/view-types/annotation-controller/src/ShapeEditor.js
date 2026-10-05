@@ -176,7 +176,7 @@ export function ShapeEditor(props) {
           value={shape.strokeWidth ?? DEFAULT_SHAPE_STROKE_WIDTH}
           onChange={(_, strokeWidth) => onUpdate({ strokeWidth })}
           valueLabelDisplay="auto"
-          className={classes.slider}
+          className={classes.annotationSlider}
           aria-label="Stroke width"
         />
       </div>
@@ -199,7 +199,7 @@ export function ShapeEditor(props) {
             onChange={(_, fillOpacity) => onUpdate({ fillOpacity })}
             valueLabelDisplay="auto"
             valueLabelFormat={v => v.toFixed(2)}
-            className={classes.slider}
+            className={classes.annotationSlider}
             aria-label="Fill opacity"
           />
         </div>

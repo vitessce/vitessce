@@ -355,7 +355,7 @@ export const useStyles = makeStyles()(theme => ({
     padding: '2px 12px 6px',
     flexWrap: 'wrap',
   },
-  toolButton: {
+  annotationToolButton: {
     fontSize: FONT_SIZE.xs,
     padding: '2px 7px',
     minWidth: 0,
@@ -441,7 +441,7 @@ export const useStyles = makeStyles()(theme => ({
     '&::-webkit-color-swatch-wrapper': { padding: 0 },
     '&::-webkit-color-swatch': { border: 'none', borderRadius: 2 },
   },
-  slider: {
+  annotationSlider: {
     flex: 1,
     marginLeft: 4,
   },

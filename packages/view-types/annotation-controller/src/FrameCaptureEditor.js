@@ -152,7 +152,7 @@ function ViewCaptureEditor(props) {
           <Button
             size="small"
             variant="outlined"
-            className={classes.toolButton}
+            className={classes.annotationToolButton}
             startIcon={<CenterFocusStrong fontSize="inherit" />}
             onClick={onCapture}
           >
@@ -221,7 +221,7 @@ export function FrameCaptureEditor(props) {
           <Button
             size="small"
             variant="outlined"
-            className={classes.toolButton}
+            className={classes.annotationToolButton}
             startIcon={<CenterFocusStrong fontSize="inherit" />}
             onClick={() => onCapture(Object.fromEntries(
               views.map(view => [view.uid, getSelectedTypes(view)]),
