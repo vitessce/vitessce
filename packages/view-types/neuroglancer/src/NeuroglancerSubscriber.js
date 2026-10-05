@@ -24,9 +24,6 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
-  useSetComponentViewInfo,
-  useComponentViewInfo,
-  useViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -101,7 +98,6 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
-  const setRawCameraSnapshot = useSetComponentViewInfo(uuid);
 
   const { classes } = useStyles();
 
@@ -155,7 +151,9 @@ export function NeuroglancerSubscriber(props) {
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
     obsHighlight: cellHighlight,
+    spatialCameraSnapshot,
   }, {
+    setSpatialCameraSnapshot,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -431,37 +429,27 @@ export function NeuroglancerSubscriber(props) {
     ty: spatialTargetY,
   });
 
-  const lastAppliedSpatialBetaSnapshotRef = useRef(null);
+  // The most recent camera snapshot that was either published by this view
+  // or already applied to it. Used to ignore our own writes when they
+  // come back to us via the coordination space.
+  const lastSeenCameraSnapshotRef = useRef(null);
   const spatialBetaJustPushedRef = useRef(false);
 
-  // Find the spatialBeta view showing the same dataset, so we can read its
-  // camera snapshot back (to sync in reverse direction: spatialBeta -> NG, for direct
-  // dragging inside spatialBeta's own panel).
-  const viewConfig = useViewConfig();
-
-  const spatialBetaUuid = useMemo(() => {
-    const layout = viewConfig?.layout;
-    if (!Array.isArray(layout)) return null;
-    const ownDatasetScope = coordinationScopes?.dataset;
-    const match = layout.find(v => v.component === 'spatialBeta'
-      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
-    return match?.uid ?? null;
-  }, [viewConfig, coordinationScopes]);
-  const spatialBetaCameraSnapshot = useComponentViewInfo(spatialBetaUuid ? `${spatialBetaUuid}-camera` : null);
-
+  // Sync in the reverse direction (spatialBeta -> NG), for direct dragging
+  // inside spatialBeta's own panel. The snapshot is shared via the
+  // spatialCameraSnapshot coordination type.
   useEffect(() => {
-    if (!spatialBetaCameraSnapshot) return;
-    if (spatialBetaCameraSnapshot === lastAppliedSpatialBetaSnapshotRef.current) return;
-    lastAppliedSpatialBetaSnapshotRef.current = spatialBetaCameraSnapshot;
+    if (!spatialCameraSnapshot) return;
+    if (spatialCameraSnapshot === lastSeenCameraSnapshotRef.current) return;
+    lastSeenCameraSnapshotRef.current = spatialCameraSnapshot;
 
-    const { position, projectionOrientation, projectionScale } = spatialBetaCameraSnapshot;
-    if (!Array.isArray(position) || !Array.isArray(projectionOrientation)) return;
-    // console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation));
-    // spatialBeta's local camera lives in the Q_Y_UP-flipped frame (see the
+    const { position, quaternion, projectionScale } = spatialCameraSnapshot;
+    if (!Array.isArray(position) || !Array.isArray(quaternion)) return;
+    // The snapshot quaternion lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
-    // to spatialBeta in handleStateUpdate above). Q_Y_UP is self-inverse, so
+    // in handleStateUpdate below). Q_Y_UP is self-inverse, so
     // applying it again un-does that flip before pushing back into NG.
-    const unflipped = multiplyQuat(projectionOrientation, Q_Y_UP);
+    const unflipped = multiplyQuat(quaternion, Q_Y_UP);
 
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
     spatialBetaJustPushedRef.current = true;
@@ -472,7 +460,7 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
     };
     incrementLatestViewerStateIteration();
-  }, [spatialBetaCameraSnapshot]);
+  }, [spatialCameraSnapshot]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -1029,21 +1017,19 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
-    // Publish NG's raw camera state through the existing generic viewInfo
-    // registry (the same mechanism spatialBeta uses to publish its own
-    // canvas size) -- no Euler decomposition, position/quaternion pass
+    // Publish NG's raw camera state via the spatialCameraSnapshot
+    // coordination type -- no Euler decomposition, position/quaternion pass
     // through unchanged. spatialBeta's RawView reads this directly.
     if (Array.isArray(position) && Array.isArray(projectionOrientation)) {
       const flippedQuaternion = multiplyQuat(projectionOrientation, Q_Y_UP);
       const snapshot = {
-        position,
-        quaternion: flippedQuaternion,
+        position: Array.from(position),
+        quaternion: Array.from(flippedQuaternion),
         projectionScale,
-        target: position,
         fovDegrees: 45,
       };
-      // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
-      setRawCameraSnapshot(snapshot);
+      lastSeenCameraSnapshotRef.current = snapshot;
+      setSpatialCameraSnapshot(snapshot);
     }
     // NG updates it's current state
     latestViewerStateRef.current = {
@@ -1053,7 +1039,7 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [setRawCameraSnapshot]);
+  }, [setSpatialCameraSnapshot]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
