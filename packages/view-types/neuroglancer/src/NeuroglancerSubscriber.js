@@ -322,13 +322,11 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
-  const derivedCenterRef = useRef(null);
   const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(!!initialNgCameraState);
 
   const latestViewerStateRef = useRef({
     ...initialViewerState,
-    ...(initialNgCameraState ?? (derivedCenterRef.current
-      ? { position: derivedCenterRef.current } : {})),
+    ...(initialNgCameraState ?? {}),
   });
 
   const segmentationUrl = useMemo(() => {
@@ -342,49 +340,51 @@ export function NeuroglancerSubscriber(props) {
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
 
+  // Contents of the precomputed `info` JSON files, fetched by the data loaders.
+  const segmentationInfo = obsSegmentationsData?.[segmentationLayerScopes?.[0]]
+    ?.neuroglancerInfo ?? null;
+  const annotationInfo = obsPointsData?.[pointLayerScopes?.[0]]
+    ?.neuroglancerInfo ?? null;
+
+  const derivedCenter = useMemo(() => {
+    // Prefer the annotation layer's real content bounds when available --
+    // the raw raster volume's declared size can span far more empty space
+    // than where the actual data sits (e.g. a thin tissue section inside
+    // a much taller declared Z range). Mirrors the priority order in
+    // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
+    // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
+    // which would need fetching actual mesh geometry rather than a single
+    // info JSON.
+    const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
+    if (Array.isArray(lower) && Array.isArray(upper)
+        && lower.length === 3 && upper.length === 3
+        && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
+      return lower.map((lo, i) => (lo + upper[i]) / 2);
+    }
+    const scale = segmentationInfo?.scales?.[0];
+    const size = scale?.size;
+    const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
+    const resolution = scale?.resolution ?? [1, 1, 1];
+    if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
+      return size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
+    }
+    return null;
+  }, [segmentationInfo, annotationInfo]);
+
   useEffect(() => {
     if (initialNgCameraState || !segmentationUrl) {
       setHasResolvedInitialCamera(true);
       return;
     }
-    Promise.all([
-      fetch(`${segmentationUrl.replace(/\/+$/, '')}/info`).then(r => r.json()).catch(() => null),
-      cellsUrl ? fetch(`${cellsUrl}/info`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
-    ]).then(([segInfo, annotationInfo]) => {
-      // Prefer the annotation layer's real content bounds when available --
-      // the raw raster volume's declared size can span far more empty space
-      // than where the actual data sits (e.g. a thin tissue section inside
-      // a much taller declared Z range). Mirrors the priority order in
-      // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
-      // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
-      // which would need fetching actual mesh geometry rather than a single
-      // info JSON.
-      const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
-      let center;
-      if (Array.isArray(lower) && Array.isArray(upper)
-          && lower.length === 3 && upper.length === 3
-          && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
-        center = lower.map((lo, i) => (lo + upper[i]) / 2);
-      } else {
-        const scale = segInfo?.scales?.[0];
-        const size = scale?.size;
-        const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
-        const resolution = scale?.resolution ?? [1, 1, 1];
-        if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
-          center = size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
-        }
-      }
-      if (center) {
-        derivedCenterRef.current = center;
-        latestViewerStateRef.current = {
-          ...latestViewerStateRef.current,
-          position: center,
-        };
-      }
-    })
-      .catch(err => console.warn('[NeuroglancerSubscriber] failed to derive default center:', err))
-      .finally(() => setHasResolvedInitialCamera(true));
-  }, [segmentationUrl, cellsUrl, initialNgCameraState]);
+    if (derivedCenter) {
+      latestViewerStateRef.current = {
+        ...latestViewerStateRef.current,
+        position: derivedCenter,
+      };
+      incrementLatestViewerStateIteration();
+    }
+    setHasResolvedInitialCamera(true);
+  }, [segmentationUrl, derivedCenter, initialNgCameraState]);
 
   const errors = [
     ...obsPointsErrors,
@@ -971,23 +971,16 @@ export function NeuroglancerSubscriber(props) {
   }, [cellsUrl, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
 
-  // URL of the annotation source for the points layer.
-  // To fetch cells/info and spatial chunk files for viewport culling.
+  // Annotation info (cells/info) for the points layer, along with its URL,
+  // used to fetch spatial chunk files for viewport culling.
   useEffect(() => {
-    if (!cellsUrl) return;
-    // Fetch annotation info
-    fetch(`${cellsUrl}/info`)
-      .then(r => r.json())
-      .then((info) => {
-        const infoWithUrl = {
-          ...info,
-          url: cellsUrl,
-        };
-        annotationInfoRef.current = infoWithUrl;
-        if (annotationTransformRef.current) setAnnotationReady(true);
-      })
-      .catch(err => console.error('failed to fetch annotation info:', err));
-  }, [cellsUrl]);
+    if (!cellsUrl || !annotationInfo) return;
+    annotationInfoRef.current = {
+      ...annotationInfo,
+      url: cellsUrl,
+    };
+    if (annotationTransformRef.current) setAnnotationReady(true);
+  }, [cellsUrl, annotationInfo]);
 
 
   // Once both annotation info and transform are available, trigger the initial

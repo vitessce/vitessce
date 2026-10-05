@@ -223,7 +223,6 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const { deckRef, spatialCameraSnapshot } = this.props;
     if (!this.use3d()) return; // only for the RawView/3D path
     const canvas = deckRef?.current?.deck?.canvas;
-    console.log(spatialCameraSnapshot);
     if (!canvas || !spatialCameraSnapshot) return;
     const camera = new PerspectiveCamera(spatialCameraSnapshot.fovDegrees, 1, 0.1, 100000);
     camera.updateProjectionMatrix();
