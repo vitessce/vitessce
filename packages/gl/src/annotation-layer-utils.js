@@ -466,8 +466,10 @@ export function createAnnotationLayers(
       : {};
     const labelProps = { ...labelBgProps };
     const dashArray = parseDashArray(strokeDashArray);
-    // Always include PathStyleExtension on outline PathLayers — adding/removing extensions
-    // on a stable layer ID confuses deck.gl's reconciler. Use [0,0] for solid instead.
+    // Always include PathStyleExtension on outline layers (PathLayers and stroked PolygonLayers):
+    // deck.gl only initializes extension attributes (e.g., the dash arrays) when a layer
+    // is first created, so adding the extension to an existing layer ID (e.g., upon
+    // switching from solid to dashed) has no effect. Use [0,0] for solid instead.
     const dashExt = [new PathStyleExtension({ dash: true })];
     const getDash = dashArray ?? [0, 0];
 
@@ -486,10 +488,8 @@ export function createAnnotationLayers(
         getLineColor: strokeColor,
         getLineWidth: strokeWidth,
         lineWidthUnits: 'pixels',
-        ...(dashArray ? {
-          extensions: [new PathStyleExtension({ dash: true })],
-          getDashArray: dashArray,
-        } : {}),
+        extensions: dashExt,
+        getDashArray: getDash,
       }));
 
       if (shape.text && labelOpacity > 0) {
@@ -532,8 +532,8 @@ export function createAnnotationLayers(
       layers.push(new PathLayer({
         ...base,
         id: `annotation-line-${uid}-${i}`,
-        extensions: [new PathStyleExtension({ dash: true })],
-        getDashArray: dashArray ?? [0, 0],
+        extensions: dashExt,
+        getDashArray: getDash,
         data: [{ path: [[srcX, srcY], [tgtX, tgtY]] }],
         getPath: d => d.path,
         getColor: strokeColor,
@@ -695,10 +695,8 @@ export function createAnnotationLayers(
         getLineColor: strokeColor,
         getLineWidth: strokeWidth,
         lineWidthUnits: 'pixels',
-        ...(dashArray ? {
-          extensions: [new PathStyleExtension({ dash: true })],
-          getDashArray: dashArray,
-        } : {}),
+        extensions: dashExt,
+        getDashArray: getDash,
       }));
       if (shape.text && labelOpacity > 0) {
         layers.push(new TextLayer({

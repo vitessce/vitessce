@@ -105,10 +105,30 @@ describe('createAnnotationLayers', () => {
     expect(layers[0].props.getDashArray).toEqual([10, 5]);
   });
 
-  it('does not set getDashArray when strokeDashArray is "none"', () => {
+  it('uses a solid dash array (rather than removing PathStyleExtension) when strokeDashArray is "none"', () => {
     const shapes = [{ uid: 'r4', type: 'rectangle', x: 0, y: 0, width: 10, height: 10, strokeDashArray: 'none' }];
     const layers = createAnnotationLayers(shapes, 0);
-    expect(layers[0].props.getDashArray).toBeUndefined();
+    expect(layers[0].props.extensions).toHaveLength(1);
+    expect(layers[0].props.getDashArray).toEqual([0, 0]);
+  });
+
+  it('always adds PathStyleExtension to the outline layer, so that switching dash styles takes effect', () => {
+    const shapes = [
+      { uid: 'r', type: 'rectangle', x: 0, y: 0, width: 10, height: 10 },
+      { uid: 'l', type: 'line', x1: 0, y1: 0, x2: 10, y2: 10 },
+      { uid: 'e', type: 'ellipse', x1: 0, y1: 0, radiusX: 5, radiusY: 3 },
+      { uid: 'p', type: 'polygon', points: [[0, 0], [10, 0], [0, 10]] },
+      { uid: 'pl', type: 'polyline', points: [[0, 0], [10, 0]] },
+    ];
+    [undefined, '8 4', '2 4'].forEach((strokeDashArray) => {
+      const layers = createAnnotationLayers(shapes.map(s => ({ ...s, strokeDashArray })), 0);
+      const expectedDash = strokeDashArray ? strokeDashArray.split(' ').map(Number) : [0, 0];
+      expect(layers).toHaveLength(shapes.length);
+      layers.forEach((layer) => {
+        expect(layer.props.extensions).toHaveLength(1);
+        expect(layer.props.getDashArray).toEqual(expectedDash);
+      });
+    });
   });
 
   it('uses only the first two values of a longer dash pattern', () => {

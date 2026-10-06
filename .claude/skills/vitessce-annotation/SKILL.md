@@ -14,6 +14,11 @@ and, per view, a set of coordination values to apply (zoom, layers, selections, 
 1. **The story is read-only.** Never write to `annotationStory` (or to a frame within it) in
    response to user interaction or frame navigation. Treat the loaded/configured story like a
    file on disk. Only the AnnotationController and AnnotationControllerSubscriber components can modify an annotation story and this is the only view which may contain annotation authoring/editing functionality.
+   Each edit produces a new story object which is set via `setAnnotationStory`.
+   Exception for drawing: views which render annotation shapes (spatial, spatialBeta, scatterplot)
+   may write the *in-progress* shape that the user is drawing (along with the view uid) to the
+   `annotationEditingStore` (see below). They never write to the story; the AnnotationController
+   listens for completed drawings in this store and commits them to the story.
 2. **Frames are merged into the coordination space, not read live.** When the current frame changes,
    the values the frame defines for a view are merged into the coordination space once. After that,
    views read the coordination space and setters write to it as usual, so the user can pan/zoom/etc. while a frame is active.
@@ -46,6 +51,38 @@ Either embed it as a coordination value (`coordinationSpace.annotationStory.A = 
 as a file (`{ fileType: 'annotationStory.json', url }`, with `annotationStory: { A: null }`). In
 example configs, inline the story and use `makeJsonDataUrl(story)` from `examples/configs/src/utils.js`
 rather than depending on a hosted URL. Give every targeted view a `uid` (config version `1.0.10`+).
+
+
+## Editing
+
+The `areAnnotationsEditable` prop (passed down from `<Vitessce/>`/`<VitS/>`) determines whether
+editing is allowed. The `annotationEditable` coordination value determines whether the story is
+currently being edited: the AnnotationController's edit/done buttons call `setAnnotationEditable`
+(no component-local "isEditing" state). Views which support drawing read `annotationEditable` too,
+so they must share its coordination scope with the AnnotationController (see
+`enableAnnotationEditing` in `cvh-utils.js`).
+
+- **Story edits** are pure functions in `packages/view-types/annotation-controller/src/story-utils.js`
+  (each returns a new story). The controller sets the result via `setAnnotationStory`.
+- **In-place edits do not re-apply the whole frame.** When the story changes but the same frame
+  (same story uid and frame uid) is still active, `useAnnotationFrameCoordination` merges only
+  `annotationShapes`, so that edits do not reset the author's zoom/pan/channels. A full merge happens
+  when the frame index, frame uid, or story uid changes. The controller's "reset" button re-applies
+  the full frame via `getAnnotationFrameUpdate(story, undefined, frameIndex, viewUid)`.
+- **Capturing view state** reads sibling views from the full view config
+  (`viewConfigStoreApi.getState().viewConfig`, as in LinkController) via
+  `getViewCoordinationValuesForFrame` (`packages/vit-s/src/state/annotation-editing.js`), and merges
+  the values into `frame.layout[].coordinationValues`. Multi-level values are serialized as
+  `{ "$CL": [...] }` with the full level tree, since applying a multi-level value replaces the view's
+  mapping for that coordination type.
+- **The `annotationEditingStore`** (`packages/vit-s/src/state/annotation-editing.js`, provided by
+  `<VitS/>`) holds ephemeral editing state which is not part of the config: `activeTool`, the
+  in-progress `drawing` (`{ viewUid, type, vertices }`), `completedDrawing`, and `selectedShape`
+  (`{ viewUid, shapeUid }`). Views use `useAnnotationEditingForView(uuid, isEditable)` to obtain the
+  props for their DeckGL component (`annotationActiveTool`, `annotationInProgressShape`,
+  `annotationSelectedShapeUid`, `onAnnotationVertexAdd`). Rectangles, lines, and ellipses complete
+  after two clicks; polygons and polylines complete via `finishDrawing` (Enter or the Finish button
+  in the controller).
 
 
 ## Story and frame schema

@@ -9,6 +9,13 @@ import { getCursor, getCursorWithTool } from './cursor.js';
 const ROTATION_THRESHOLD = 1;
 const ZOOM_THRESHOLD = 0.01;
 const TRANSLATION_THRESHOLD = 2;
+
+function isSameZoomAndTarget(viewStateA, viewStateB) {
+  return viewStateA?.zoom === viewStateB?.zoom
+    && viewStateA?.target?.[0] === viewStateB?.target?.[0]
+    && viewStateA?.target?.[1] === viewStateB?.target?.[1];
+}
+
 /**
  * Abstract class component intended to be inherited by
  * the Spatial and Scatterplot class components.
@@ -22,8 +29,16 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.state = {
       gl: null,
       tool: null,
+      // The current mouse position (in view coordinates)
+      // while an annotation shape is being drawn.
+      annotationHoverCoord: null,
+      // The intermediate { viewState, endViewState } during a
+      // viewState transition (e.g., between annotation frames).
+      transitionViewState: null,
     };
     this.lastApplied = null;
+    // The viewState prop at the start of the current transition, if any.
+    this.transitionEndViewState = null;
     this.viewport = null;
     this.threeCamera = null;
     this.orbitControls = null;
@@ -35,10 +50,14 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.isApplyingExternalSync = false;
     this.isApplyingLocalChange = false;
     this.onViewStateChange = this.onViewStateChange.bind(this);
+    this.onTransitionStart = this.onTransitionStart.bind(this);
+    this.onTransitionEnd = this.onTransitionEnd.bind(this);
+    this.onTransitionInterrupt = this.onTransitionInterrupt.bind(this);
     this.onInitializeViewInfo = this.onInitializeViewInfo.bind(this);
     this.onWebGLInitialized = this.onWebGLInitialized.bind(this);
     this.onToolChange = this.onToolChange.bind(this);
     this.onHover = this.onHover.bind(this);
+    this.onClick = this.onClick.bind(this);
     this.recenter = this.recenter.bind(this);
     this.onOrbitControlsChange = this.onOrbitControlsChange.bind(this);
   }
@@ -55,6 +74,18 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
+    if (this.transitionEndViewState) {
+      // The viewState prop (from the coordination space) already holds the
+      // end values of the transition, so the intermediate values are only
+      // rendered, rather than being emitted via setViewState.
+      this.setState({
+        transitionViewState: {
+          viewState: nextViewState,
+          endViewState: this.transitionEndViewState,
+        },
+      });
+      return;
+    }
     const use3d = this.use3d();
     // Begin changes for neuroglancer.
     // The following logic reduces the number of viewState updates emitted,
@@ -86,6 +117,62 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       // If the axis is fixed, just use the current target in state i.e don't change target.
       target: spatialAxisFixed && use3d ? viewState.target : nextViewState.target,
     });
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition starts,
+   * when the viewState prop contains transition props
+   * (e.g., when the view state changes due to an annotation frame).
+   */
+  onTransitionStart() {
+    const { viewState } = this.props;
+    this.transitionEndViewState = viewState;
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition ends.
+   */
+  onTransitionEnd() {
+    this.transitionEndViewState = null;
+    this.setState({ transitionViewState: null });
+  }
+
+  /**
+   * Called by DeckGL when a viewState transition is interrupted,
+   * for example by a change to the viewState prop.
+   * This may be called while DeckGL is rendering, so the state is not updated here.
+   * Instead, the stale transitionViewState is ignored by getDeckViewState.
+   */
+  onTransitionInterrupt() {
+    this.transitionEndViewState = null;
+  }
+
+  /**
+   * Get the viewState to pass to DeckGL.
+   * @returns {object} The viewState.
+   */
+  getDeckViewState() {
+    const { viewState } = this.props;
+    const { transitionViewState } = this.state;
+    if (
+      transitionViewState
+      && transitionViewState.endViewState === this.transitionEndViewState
+      && isSameZoomAndTarget(viewState, this.transitionEndViewState)
+    ) {
+      // Render the intermediate values of the in-progress transition.
+      return transitionViewState.viewState;
+    }
+    // Otherwise, the viewState prop has changed since the transition started,
+    // which interrupts the transition (or starts a new one).
+    if (viewState.transitionDuration) {
+      return {
+        ...viewState,
+        onTransitionStart: this.onTransitionStart,
+        onTransitionEnd: this.onTransitionEnd,
+        onTransitionInterrupt: this.onTransitionInterrupt,
+      };
+    }
+    return viewState;
   }
 
   /**
@@ -133,6 +220,34 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     return [];
   }
 
+  /**
+   * Called by DeckGL upon a click.
+   * When an annotation drawing tool is active,
+   * emit the clicked position to the `onAnnotationVertexAdd` prop.
+   * @param {object} info The deck.gl picking info.
+   */
+  onClick(info) {
+    const { annotationActiveTool, onAnnotationVertexAdd } = this.props;
+    if (annotationActiveTool && onAnnotationVertexAdd && info.coordinate) {
+      onAnnotationVertexAdd(info.coordinate);
+    }
+  }
+
+  /**
+   * Get the AnnotationLayer props that are related to editing,
+   * which are shared by the Spatial and Scatterplot components.
+   * @returns {object} The props.
+   */
+  getAnnotationEditingLayerProps() {
+    const { annotationInProgressShape, annotationSelectedShapeUid } = this.props;
+    const { annotationHoverCoord } = this.state;
+    return {
+      inProgressShape: annotationInProgressShape ?? null,
+      hoverCoord: annotationInProgressShape ? annotationHoverCoord : null,
+      selectedShapeUid: annotationSelectedShapeUid ?? null,
+    };
+  }
+
   // TODO: remove this method and use the layer-level onHover instead.
   // (e.g., see delegateHover in spatial-beta/SpatialSubscriber.js).
   // eslint-disable-next-line consistent-return
@@ -142,8 +257,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     } = info;
     const {
       setCellHighlight, cellHighlight, setComponentHover, layers,
-      setHoverInfo,
+      setHoverInfo, annotationInProgressShape,
     } = this.props;
+    if (annotationInProgressShape && coordinate) {
+      // Track the mouse position to preview the in-progress annotation shape.
+      this.setState({ annotationHoverCoord: [coordinate[0], coordinate[1]] });
+    }
     const hasBitmask = (layers || []).some(l => l.type === 'bitmask');
     if (!setCellHighlight || !tile) {
       return null;
@@ -369,9 +488,10 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
   render() {
     const {
       deckRef, viewState, uuid, hideTools, hideRecenter, orbitAxis,
-      spatialCameraSnapshot,
+      spatialCameraSnapshot, annotationActiveTool,
     } = this.props;
     const { gl, tool } = this.state;
+    const hasActiveTool = Boolean(tool || annotationActiveTool);
     const layers = this.getLayers();
     const use3d = this.use3d();
     // RawView path: when there's a real camera snapshot to render from,
@@ -442,7 +562,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     let controller;
     if (isRawView) {
       controller = false;
-    } else if (tool) {
+    } else if (hasActiveTool) {
       controller = { dragPan: false };
     } else {
       controller = true;
@@ -472,11 +592,12 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
           glOptions={DEFAULT_GL_OPTIONS}
           onWebGLInitialized={this.onWebGLInitialized}
           onViewStateChange={this.onViewStateChange}
-          viewState={viewState}
+          viewState={this.getDeckViewState()}
           useDevicePixels={useDevicePixels}
           controller={controller}
-          getCursor={tool ? getCursorWithTool : getCursor}
+          getCursor={hasActiveTool ? getCursorWithTool : getCursor}
           onHover={this.onHover}
+          onClick={this.onClick}
           width="100%"
           height="100%"
         >

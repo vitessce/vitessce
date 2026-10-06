@@ -6,3 +6,4 @@ export {
   getPointSizeDevicePixels,
   getPointOpacity,
 } from './dynamic-opacity.js';
+export { useAnnotationFrameTransition } from './annotation-transition.js';

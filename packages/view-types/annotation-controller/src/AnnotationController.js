@@ -4,156 +4,99 @@
  */
 import React from 'react';
 import {
-  makeStyles,
   Button,
-  MenuList,
-  MenuItem,
-  ListItemText,
   Typography,
-  ArrowLeft,
-  ArrowRight,
+  Edit,
 } from '@vitessce/styles';
-import Markdown from 'react-markdown';
-import { DescriptionType } from '@vitessce/constants-internal';
-
-const useStyles = makeStyles()(theme => ({
-  textSection: {
-    padding: '6px 10px',
-  },
-  annotationMarkdown: {
-    '& p, details, table': {
-      fontSize: '80%',
-      opacity: '0.8',
-    },
-    '& details': {
-      marginBottom: '6px',
-    },
-    '& summary': {
-      // TODO(monorepo): lighten color by 10%
-      borderBottom: `1px solid ${theme.palette.primaryBackground}`,
-      cursor: 'pointer',
-    },
-  },
-  navigation: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '0 4px',
-    borderTop: `1px solid ${theme.palette.primaryBackground}`,
-    borderBottom: `1px solid ${theme.palette.primaryBackground}`,
-  },
-}));
-
-function AnnotationText(props) {
-  const { text, textType } = props;
-  const { classes } = useStyles();
-  if (!text) {
-    return null;
-  }
-  return (
-    <div className={classes.annotationMarkdown}>
-      {textType === DescriptionType.MARKDOWN
-        ? <Markdown>{text}</Markdown>
-        : <p>{text}</p>}
-    </div>
-  );
-}
+import { AnnotationStoryEditor } from './AnnotationStoryEditor.js';
+import { StoryOverview } from './StoryOverview.js';
+import { StoryPlayer } from './StoryPlayer.js';
+import { useStyles } from './styles.js';
 
 /**
- * A minimal annotation story controller.
- * Renders the story and current frame text, along with
- * controls to navigate between frames.
+ * The annotation story controller.
+ * Renders the story overview, or the current frame along with controls
+ * to navigate between frames. When editing is enabled, also renders
+ * a story editor, which emits each edit as a new story object.
  * @param {object} props
  * @param {object|null} props.story The annotation story object.
  * @param {number|null} props.frameIndex The index of the current frame,
  * or null if no frame is active.
- * @param {function} props.setFrameIndex Setter for the current frame index.
+ * @param {function} props.onFrameIndexChange Setter for the current frame index.
+ * @param {function} props.onStoryChange Setter for the story (only used when editing).
+ * @param {boolean} props.canEdit Whether the story can be edited.
+ * @param {boolean} props.isEditing Whether the story is currently being edited
+ * (i.e., the annotationEditable coordination value).
+ * @param {function} props.onEditingChange Setter for isEditing.
+ * @param {function} props.onCreateStory Callback to create a new (empty) story.
+ * @param {boolean} props.isOverlayVisible Whether annotation shapes are visible.
+ * @param {function} props.onOverlayVisibleChange Setter for isOverlayVisible.
+ * @param {boolean} props.isSemanticZoomEnabled Whether semantic zoom is enabled.
+ * @param {function} props.onSemanticZoomChange Setter for isSemanticZoomEnabled.
+ * @param {function} props.onRecenter Callback to re-apply the current frame to the views.
+ * @param {object[]} props.views The annotatable views, as { uid, component }.
+ * @param {function} props.getViewCoordinationValues Function which returns the current
+ * coordination values of a view, as (viewUid, coordinationTypes) => values.
  */
 export function AnnotationController(props) {
   const {
     story,
     frameIndex,
-    setFrameIndex,
+    onFrameIndexChange,
+    onStoryChange,
+    canEdit,
+    isEditing,
+    onEditingChange,
+    onCreateStory,
+    views,
+    getViewCoordinationValues,
   } = props;
   const { classes } = useStyles();
+  const isEditMode = Boolean(canEdit && isEditing && story);
+
+  if (isEditMode) {
+    return (
+      <AnnotationStoryEditor
+        story={story}
+        frameIndex={frameIndex}
+        onStoryChange={onStoryChange}
+        onFrameIndexChange={onFrameIndexChange}
+        views={views}
+        getViewCoordinationValues={getViewCoordinationValues}
+        onDone={() => onEditingChange(false)}
+      />
+    );
+  }
 
   if (!story) {
     return (
-      <div className={classes.textSection}>
-        <Typography variant="body2">No annotation story has been loaded.</Typography>
+      <div className={classes.root}>
+        <div className={classes.overview}>
+          <Typography variant="body2">No annotation story has been loaded.</Typography>
+          {canEdit ? (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<Edit fontSize="small" />}
+              onClick={onCreateStory}
+            >
+              Create a story
+            </Button>
+          ) : null}
+        </div>
       </div>
     );
   }
 
-  const frames = story.frames || [];
-  const numFrames = frames.length;
-  const hasFrameIndex = typeof frameIndex === 'number';
-  const currentFrame = hasFrameIndex ? frames[frameIndex] : null;
-
-  // Navigating back from the first frame returns to the story overview,
-  // where no frame is active.
-  const canGoBack = hasFrameIndex;
-  const canGoForward = hasFrameIndex ? frameIndex < numFrames - 1 : numFrames > 0;
-
-  function goBack() {
-    setFrameIndex(frameIndex > 0 ? frameIndex - 1 : null);
-  }
-
-  function goForward() {
-    setFrameIndex(hasFrameIndex ? frameIndex + 1 : 0);
-  }
-
-  const frameLabel = hasFrameIndex
-    ? `Frame ${frameIndex + 1} of ${numFrames}`
-    : `Overview (${numFrames} frames)`;
-
-  return (
-    <div>
-      <div className={classes.textSection}>
-        {story.title ? <Typography variant="h6">{story.title}</Typography> : null}
-        <AnnotationText text={story.description} textType={story.descriptionType} />
-      </div>
-      <div className={classes.navigation}>
-        <Button
-          size="small"
-          onClick={goBack}
-          disabled={!canGoBack}
-          startIcon={<ArrowLeft />}
-        >
-          Previous
-        </Button>
-        <Typography variant="body2">{frameLabel}</Typography>
-        <Button
-          size="small"
-          onClick={goForward}
-          disabled={!canGoForward}
-          endIcon={<ArrowRight />}
-        >
-          Next
-        </Button>
-      </div>
-      {currentFrame ? (
-        <div className={classes.textSection}>
-          {currentFrame.title
-            ? <Typography variant="subtitle1">{currentFrame.title}</Typography>
-            : null}
-          <AnnotationText
-            text={currentFrame.description}
-            textType={currentFrame.descriptionType}
-          />
-        </div>
-      ) : null}
-      <MenuList dense aria-label="Annotation frames">
-        {frames.map((frame, i) => (
-          <MenuItem
-            key={frame.uid}
-            selected={i === frameIndex}
-            onClick={() => setFrameIndex(i)}
-          >
-            <ListItemText primary={`${i + 1}. ${frame.title || frame.uid}`} />
-          </MenuItem>
-        ))}
-      </MenuList>
-    </div>
+  const isFrameActive = typeof frameIndex === 'number' && Boolean(story.frames[frameIndex]);
+  return isFrameActive ? (
+    <StoryPlayer {...props} onEdit={() => onEditingChange(true)} />
+  ) : (
+    <StoryOverview
+      story={story}
+      canEdit={canEdit}
+      onEdit={() => onEditingChange(true)}
+      onBegin={() => onFrameIndexChange(0)}
+    />
   );
 }

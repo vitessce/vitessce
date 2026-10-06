@@ -3,10 +3,7 @@
 // File adopted from nebula.gl's SelectionLayer
 // https://github.com/uber/nebula.gl/blob/8e9c2ec8d7cf4ca7050909ed826eb847d5e2cd9c/modules/layers/src/layers/selection-layer.js
 import { CompositeLayer } from 'deck.gl';
-import { polygon as turfPolygon, point as turfPoint } from '@turf/helpers';
-import { booleanWithin } from '@turf/boolean-within';
-import { booleanContains } from '@turf/boolean-contains';
-import { booleanOverlap } from '@turf/boolean-overlap';
+import { polygon as turfPolygon } from '@turf/helpers';
 import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { ScatterplotLayer } from '@deck.gl/layers';
 import { SELECTION_TYPE } from 'nebula.gl';
@@ -82,6 +79,16 @@ export default class SelectionLayer extends CompositeLayer {
 
     // Convert the selection to a turf polygon object.
     const selectedPolygon = turfPolygon(flippedCoordinates);
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    flippedCoordinates[0].forEach(([x, y]) => {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    });
 
     // quadtree.visit() takes a callback that returns a boolean:
     // If true returned, then the children of the node are _not_ visited.
@@ -97,37 +104,26 @@ export default class SelectionLayer extends CompositeLayer {
 
       // Create an array to store the results.
       // Clear the array before checking each new layer.
-      const pickingInfos = [];
+      const pickingIds = [];
 
       // It is possible for a layer to not have an obsQuadTree,
       // for example if the layer is a segmentation bitmask without associated
       // obsLocations.
       obsQuadTree?.visit((node, x0, y0, x1, y1) => {
-        const nodePoints = [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]];
-        const nodePolygon = turfPolygon(nodePoints);
-
-        const nodePolygonContainsSelectedPolygon = booleanContains(nodePolygon, selectedPolygon);
-        const nodePolygonWithinSelectedPolygon = booleanWithin(nodePolygon, selectedPolygon);
-        const nodePolygonOverlapsSelectedPolgyon = booleanOverlap(nodePolygon, selectedPolygon);
-
-        if (!nodePolygonContainsSelectedPolygon
-          && !nodePolygonWithinSelectedPolygon
-          && !nodePolygonOverlapsSelectedPolgyon) {
-          // We are not interested in anything below this node,
-          // so return true because we are done with this node.
+        // Reject only nodes outside the lasso's bounding box. Polygon intersections
+        // at every node are far costlier than testing the candidate points directly.
+        // Keep touching boxes so points on the lasso boundary remain selectable.
+        if (x0 > maxX || y0 > maxY || x1 < minX || y1 < minY) {
           return true;
         }
 
-        // This node made it past the above return statement, so it must either
-        // contain, be within, or overlap with the selected polygon.
-
         // Check if this is a leaf node.
-        if (node.data) {
+        if (!node.length) {
           let current = node;
           while (current) {
-            const pointCoords = [].slice.call(getObsCoords(current.data));
-            if (booleanPointInPolygon(turfPoint(pointCoords), selectedPolygon)) {
-              pickingInfos.push(current.data);
+            const [x, y] = getObsCoords(current.data);
+            if (booleanPointInPolygon([x, y], selectedPolygon)) {
+              pickingIds.push(obsIndex[current.data]);
             }
             current = current.next;
           }
@@ -137,7 +133,6 @@ export default class SelectionLayer extends CompositeLayer {
         // We want to visit the children of this node.
         return false;
       });
-      const pickingIds = pickingInfos.map(obsI => obsIndex[obsI]);
       layerOnSelect(pickingIds);
     });
   }
