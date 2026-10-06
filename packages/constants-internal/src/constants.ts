@@ -278,6 +278,7 @@ export const CoordinationType = {
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
   SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
   SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
+  SPATIAL_CAMERA_SNAPSHOT: 'spatialCameraSnapshot',
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',

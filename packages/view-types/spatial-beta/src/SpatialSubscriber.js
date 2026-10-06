@@ -190,6 +190,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
@@ -215,6 +216,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -240,6 +242,10 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
+
+  // A non-null camera snapshot in the coordination space indicates
+  // that a neuroglancer view is present and is publishing its camera state.
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -1178,9 +1184,12 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? spatialCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSpatialCameraSnapshot : null}
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
+            hideRecenter={hasSpatialCameraSnapshot}
             {...annotationEditingProps}
           />
         )

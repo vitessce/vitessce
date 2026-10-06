@@ -1433,9 +1433,7 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-panel': { flex: 1 },
   '.neuroglancer-show-panel-borders .neuroglancer-panel': {
-    borderStyle: 'solid',
-    borderColor: '#000',
-    borderWidth: '2px',
+    border: 'none',
   },
   // Hides the white border around NG view that shows the view is focused
   // '.neuroglancer-panel:focus-within': { borderColor: '#fff' },
