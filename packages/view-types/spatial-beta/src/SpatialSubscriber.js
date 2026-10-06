@@ -1189,7 +1189,6 @@ export function SpatialSubscriber(props) {
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            annotationShapeSelection={annotationShapeSelection}
             hideRecenter={hasSpatialCameraSnapshot}
             {...annotationEditingProps}
           />
