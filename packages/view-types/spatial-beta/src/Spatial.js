@@ -27,6 +27,12 @@ const VOLUME_LAYER_PREFIX = 'volume-layer-';
 
 const AUTO_HIGHLIGHT = false;
 
+// A camera snapshot in 3D rendering mode indicates that
+// the view is synced with a Neuroglancer view.
+const isNeuroglancerSynced = (spatialRenderingMode, spatialCameraSnapshot) => (
+  spatialRenderingMode === '3D' && Boolean(spatialCameraSnapshot)
+);
+
 const VIV_RENDERING_MODES = {
   maximumIntensityProjection: 'Maximum Intensity Projection',
   minimumIntensityProjection: 'Minimum Intensity Projection',
@@ -1195,6 +1201,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       targetT,
       targetZ,
       spatialRenderingMode,
+      spatialCameraSnapshot,
     } = this.props;
     // TODO: always using 0th loader here, create joint file type to split existing multi-image
     // raster.json when necessary.
@@ -1250,20 +1257,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
     }
 
     const rawModelMatrix = image?.image?.instance?.getModelMatrix() || new Matrix4().identity();
-    // Mirror along Z: negate Z, then translate back by the volume's full Z
-    // extent so the mirrored volume lands back in the same bounding region
-    // instead of reflecting to the opposite side of the origin. NG's own
-    // rendering and Viv's image-loader model matrix disagree on this axis;
-    // this compensates for that, independent of whichever camera system
-    // (OrbitView or RawView) is driving the view.
-    // const yMirror = new Matrix4().scale([1, -1, 1]);
-    const yLabelIndex = data?.['0']?.labels?.indexOf('y') ?? -1;
-    const yExtent = yLabelIndex >= 0 ? (data['0'].shape[yLabelIndex] ?? 0) : 0;
-    const yMirror = new Matrix4()
-      .translate([0, yExtent, 0])
-      .scale([1, -1, 1]);
-    // console.log('[y-mirror]', { yExtent, yLabelIndex });
-    const layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
+    let layerDefModelMatrix = rawModelMatrix;
+    if (isNeuroglancerSynced(spatialRenderingMode, spatialCameraSnapshot)) {
+      // Mirror along Y: negate Y, then translate back by the volume's full Y
+      // extent so the mirrored volume lands back in the same bounding region
+      // instead of reflecting to the opposite side of the origin. NG's own
+      // rendering and Viv's image-loader model matrix disagree on this axis;
+      // this compensates for that. Only applied when synced with Neuroglancer,
+      // since otherwise the image would be misaligned with the other layers
+      // (e.g., bitmask segmentations), which are not mirrored.
+      const yLabelIndex = data?.['0']?.labels?.indexOf('y') ?? -1;
+      const yExtent = yLabelIndex >= 0 ? (data['0'].shape[yLabelIndex] ?? 0) : 0;
+      const yMirror = new Matrix4()
+        .translate([0, yExtent, 0])
+        .scale([1, -1, 1]);
+      layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
+    }
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
@@ -2328,6 +2337,10 @@ class Spatial extends AbstractSpatialOrScatterplot {
         'imageChannelScopesByLayer',
         'imageChannelCoordination',
       ].some(shallowDiff)
+      // Compare the boolean rather than the snapshot itself,
+      // to avoid re-creating image layers upon every camera change.
+      || isNeuroglancerSynced(prevProps.spatialRenderingMode, prevProps.spatialCameraSnapshot)
+        !== isNeuroglancerSynced(this.props.spatialRenderingMode, this.props.spatialCameraSnapshot)
     ) {
       // Image layers changed.
       this.onUpdateImages();
