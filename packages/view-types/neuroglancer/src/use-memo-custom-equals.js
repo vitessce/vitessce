@@ -131,37 +131,38 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   } else {
     // Iterate over layers and channels.
     nextDeps.pointLayerScopes?.forEach((layerScope) => {
-      if (
-        curriedShallowDiffByLayer('obsPointsData', layerScope)
-          || curriedShallowDiffByLayer('pointMultiIndicesData', layerScope)
-          || curriedShallowDiffByLayerCoordinationWithKeys('pointLayerCoordination', layerScope, [
-            'spatialLayerVisible',
-            'obsColorEncoding',
-            'spatialLayerColor',
-            'featureSelection',
-            'featureFilterMode',
-            'featureColor',
-            'spatialPointStrokeWidth',
-            'featureValueColormap',
-            'featureValueColormapRange',
-            'featureSelection',
-            'obsSetColor',
-            'obsSetSelection',
-            'additionalObsSets',
-          ])
-          // For opacity, use an epsilon comparison to avoid too many re-renders, as it affects performance.
-          || (
-            Math.abs(
-              (prevDeps?.pointLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacityUnselected ?? 0.25)
-              - (nextDeps?.pointLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacityUnselected ?? 0.25),
-            ) >= 0.05
-          )
-      ) {
+      const prevLayer = prevDeps?.pointLayerCoordination?.[0]?.[layerScope];
+      const nextLayer = nextDeps?.pointLayerCoordination?.[0]?.[layerScope];
+
+      const dataChanged = curriedShallowDiffByLayer('obsPointsData', layerScope)
+        || curriedShallowDiffByLayer('pointMultiIndicesData', layerScope);
+      const keysChanged = curriedShallowDiffByLayerCoordinationWithKeys('pointLayerCoordination', layerScope, [
+        'spatialLayerVisible',
+        'obsColorEncoding',
+        'spatialLayerColor',
+        'featureSelection',
+        'featureFilterMode',
+        'featureColor',
+        'spatialPointStrokeWidth',
+        'featureValueColormap',
+        'featureValueColormapRange',
+        'obsSetColor',
+        'obsSetSelection',
+        'additionalObsSets',
+      ]);
+      const opacityChanged = Math.abs(
+        (prevLayer?.spatialLayerOpacity ?? 1.0) - (nextLayer?.spatialLayerOpacity ?? 1.0),
+      ) >= 0.05;
+      const unselectedChanged = Math.abs(
+        (prevLayer?.spatialLayerOpacityUnselected ?? 0.25)
+        - (nextLayer?.spatialLayerOpacityUnselected ?? 0.25),
+      ) >= 0.05;
+
+      if (dataChanged || keysChanged || opacityChanged || unselectedChanged) {
         forceUpdate = true;
       }
     });
   }
-
   // Return "isEqual" value.
   // (If forceUpdate is true, then isEqual should be false to trigger a re-render.)
   return !forceUpdate;

@@ -30,6 +30,7 @@ import {
   ListItemIcon,
   LinearProgress,
   Palette as PaletteIcon,
+  Tooltip,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
@@ -280,81 +281,39 @@ export default function PointLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const hasUnspecifiedFeatureColors = useMemo(() => {
-    if (Array.isArray(featureSelection)) {
-      if (Array.isArray(featureColor)) {
-        // Check that each selected feature has a specified color.
-        // When we find one that does not, we can return true.
-        return featureSelection.some((featureName) => {
-          const colorForFeature = featureColor.find(fc => fc.name === featureName);
-          return !colorForFeature;
-        });
-      }
-      // There are features selected, but featureColor is not an array,
-      // so we can assume all features lack specified colors.
-      return featureSelection.length > 0;
-    }
-    return true;
-  }, [featureColor, featureSelection]);
+  const hasSelectedFeatures = (
+    Array.isArray(featureSelection)
+    && featureSelection.length > 0
+  );
+  // Sublayer rows are shown for each selected feature.
+  const hasSublayers = Boolean(layerPerFeatureForPoints && hasSelectedFeatures);
 
-  const isStaticColor = (
+  // Modes where the shader uses spatialLayerColor.
+  const usesLayerColor = (
     obsColorEncoding === 'spatialLayerColor'
     || obsColorEncoding === 'geneSelection'
   );
-  const showStaticColor = (
-    obsColorEncoding === 'spatialLayerColor'
-    || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
+  // spatialLayerColor is only used by the shader when:
+  // - Static Color mode with no sublayers (sublayers set colors otherwise), or
+  // - Feature Color mode with no features selected (selected features use featureColor).
+  const colorEditable = (
+    (obsColorEncoding === 'spatialLayerColor' && !hasSublayers)
+    || (obsColorEncoding === 'geneSelection' && !hasSelectedFeatures)
   );
-  const isColormap = obsColorEncoding === 'geneSelection';
 
-  // If the feature color encoding is "geneSelection" and there is only one feature selected,
-  // we can use the first feature's color as the static color, and hook up the featureColor setter
-  // for that feature in the featureColor array.
-  const hasSingleSelectedFeature = (
-    obsColorEncoding === 'geneSelection'
-    && Array.isArray(featureSelection)
-    && featureSelection.length === 1
-  );
-  const color = useMemo(() => {
-    if (showStaticColor) {
-      return spatialLayerColor;
-    }
-    if (hasSingleSelectedFeature) {
-      const selectedFeatureColor = featureColor
-        ?.find(fc => fc.name === featureSelection[0])?.color;
-      if (selectedFeatureColor) {
-        return selectedFeatureColor;
-      }
-    }
-    return null;
-  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor,
-    featureSelection, showStaticColor,
-  ]);
+  const isStaticColor = colorEditable;
+  const isColormap = obsColorEncoding === 'geneSelection' && !hasSublayers;
+  const color = usesLayerColor ? spatialLayerColor : null;
   const setColor = useCallback((newColor) => {
-    if (showStaticColor) {
-      setSpatialLayerColor(newColor);
-    } else if (hasSingleSelectedFeature) {
-      const featureColorIndex = featureColor
-        ?.findIndex(fc => fc.name === featureSelection[0]);
-      if (featureColorIndex !== undefined && featureColorIndex >= 0) {
-        // Update existing feature color.
-        const newFeatureColor = [...featureColor];
-        newFeatureColor[featureColorIndex] = {
-          name: featureSelection[0],
-          color: newColor,
-        };
-        setFeatureColor(newFeatureColor);
-      } else {
-        // Add new feature color.
-        setFeatureColor([
-          ...featureColor,
-          { name: featureSelection[0], color: newColor },
-        ]);
-      }
-    }
-  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor,
-    setFeatureColor, featureSelection, showStaticColor,
-  ]);
+    setSpatialLayerColor(newColor);
+  }, [setSpatialLayerColor]);
+
+  let colorTooltip = null;
+  if (hasSublayers && usesLayerColor) {
+    colorTooltip = 'Colors are set per feature in the rows below.';
+  } else if (!usesLayerColor) {
+    colorTooltip = 'The layer color is not used by the current Color Encoding mode.';
+  }
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -385,11 +344,6 @@ export default function PointLayerController(props) {
   // We only match on FEATURE_TYPE, so only the featureIndex
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
-
-  const hasSelectedFeatures = (
-    Array.isArray(featureSelection)
-    && featureSelection.length > 0
-  );
 
   // // Sync featureColor with featureSelection whenever the selection changes.
   // Removes stale entries for genes that are no longer selected, and seeds
@@ -441,16 +395,24 @@ export default function PointLayerController(props) {
             </Button>
           </Grid>
           <Grid size={1} sx={channelControlCellSx}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={setColor}
-              palette={palette}
-              isStaticColor={isStaticColor}
-              isColormap={isColormap}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
+            <Tooltip
+              title={colorTooltip ?? ''}
+              disableHoverListener={!colorTooltip}
+              placement="top"
+            >
+              <span>
+                <ChannelColorPickerMenu
+                  theme={theme}
+                  color={color}
+                  setColor={colorEditable ? setColor : null}
+                  palette={palette}
+                  isStaticColor={isStaticColor}
+                  isColormap={isColormap}
+                  featureValueColormap={featureValueColormap}
+                  visible={visible}
+                />
+              </span>
+            </Tooltip>
           </Grid>
           <Grid size={6} sx={channelSelectorCellSx}>
             <Typography className={menuClasses.imageLayerName} title={label}>
@@ -591,7 +553,7 @@ export default function PointLayerController(props) {
                 <Grid size={1}>
                   <ChannelColorPickerMenu
                     theme={theme}
-                    color={getDefaultColor('dark')}
+                    color={getDefaultColor(theme)}
                     setColor={null}
                     isStaticColor
                     isColormap={false}

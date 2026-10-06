@@ -713,7 +713,7 @@ export function getPointsShader(layerCoordination) {
         const match = Array.isArray(featureColor)
           ? featureColor.find(fc => fc.name === name)
           : null;
-        return match?.opacity ?? opacity;
+        return opacity * (match?.opacity ?? 1.0);
       })
     : [];
 

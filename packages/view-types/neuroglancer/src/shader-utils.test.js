@@ -576,3 +576,83 @@ describe('getPointsShader spatialLayerOpacityUnselected', () => {
     expect(result).not.toContain('0.1000');
   });
 });
+
+describe('getPointsShader per-feature opacity multiplies with layer opacity', () => {
+  const DEFAULT = '0.7843137254901961, 0.7843137254901961, 0.7843137254901961';
+  const base = {
+    featureIndex: ['A', 'B', 'C'],
+    featureSelection: ['A', 'B'],
+    featureIndexProp: 'gene_index',
+    obsColorEncoding: 'geneSelection',
+  };
+
+  it('layer 0.5 x feature 0.5 = 0.25 for each selected feature', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.5 },
+        { name: 'B', color: [0, 255, 0], opacity: 0.5 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.2500);');
+  });
+
+  it('missing per-feature opacity defaults to 1 (inherits layer opacity)', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.4 },
+        { name: 'B', color: [0, 255, 0] },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2000, 0.5000);');
+  });
+
+  it('layer opacity 1 leaves per-feature opacity unchanged', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 1.0,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.3 },
+        { name: 'B', color: [0, 255, 0], opacity: 0.7 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.3000, 0.7000);');
+  });
+
+  it('unselected opacity also multiplies with layer opacity', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      spatialLayerOpacityUnselected: 0.5,
+      featureColor: [{ name: 'A', color: [255, 0, 0], opacity: 0.5 }],
+    });
+    expect(result).toContain(`vec4 color = vec4(${DEFAULT}, 0.2500);`);
+  });
+
+  it('applies the multiplication in filtered mode too', () => {
+    const result = getPointsShader({
+      ...base,
+      featureFilterMode: 'featureSelection',
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.5 },
+        { name: 'B', color: [0, 255, 0], opacity: 1.0 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.5000);');
+    expect(result).toContain('discard;');
+  });
+
+  it('layer opacity 0 hides selected and unselected points', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0,
+      featureColor: [{ name: 'A', color: [255, 0, 0], opacity: 0.8 }],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.0000, 0.0000);');
+    expect(result).toContain(`vec4 color = vec4(${DEFAULT}, 0.0000);`);
+  });
+});
