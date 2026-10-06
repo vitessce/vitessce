@@ -402,6 +402,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       featureSelection,
       featureFilterMode,
       featureColor,
+      spatialLayerOpacityUnselected,
     } = layerCoordination;
 
     // Obtain the numeric indices of the selected features, to use for filtering.
@@ -474,6 +475,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
     const showUnselected = featureFilterMode !== 'featureSelection';
 
+    const layerOpacity = spatialLayerOpacity ?? 1.0;
+
     // If multiple features are selected, we cannot depend on the filterExtension
     // until we have a deck.gl version that supports filtering by multiple categories.
     // So we handle the filtering logic in getFillColor by providing an alpha value.
@@ -500,12 +503,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
           const featureColorAndOpacityMatch = Array.isArray(featureColor)
             ? featureColor.find(fc => fc.name === featureName)
             : null;
-          const featureOpacity = (featureColorAndOpacityMatch?.opacity
-            ?? spatialLayerOpacity
-            ?? 1.0
-          );
+          const featureOpacity = featureColorAndOpacityMatch?.opacity ?? 1.0;
           // eslint-disable-next-line no-param-reassign
-          target[3] = Math.round(featureOpacity * 255);
+          target[3] = Math.round(layerOpacity * featureOpacity * 255);
           return target;
         }
         if (!showUnselected) {
@@ -525,7 +525,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
         // eslint-disable-next-line no-param-reassign
-        target[3] = 255;
+        target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
         return target;
       };
     } else if (obsColorEncoding === 'geneSelection') {
@@ -540,7 +540,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * 255;
           return target;
         }
         // There is a featureSelection.
@@ -552,10 +552,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             ? featureColor.find(fc => fc.name === featureName)
             : null;
           const featureColorMatch = featureColorAndOpacityMatch?.color;
-          const featureOpacity = (featureColorAndOpacityMatch?.opacity
-            ?? spatialLayerOpacity
-            ?? 1.0
-          );
+          const featureOpacity = featureColorAndOpacityMatch?.opacity ?? 1.0;
           if (featureColorMatch) {
             // eslint-disable-next-line no-param-reassign
             target[0] = featureColorMatch[0];
@@ -564,7 +561,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // eslint-disable-next-line no-param-reassign
             target[2] = featureColorMatch[2];
             // eslint-disable-next-line no-param-reassign
-            target[3] = Math.round(featureOpacity * 255);
+            target[3] = Math.round(layerOpacity * featureOpacity * 255);
             return target;
           }
           // No color found for this feature: use static color.
@@ -575,7 +572,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * 255;
           return target;
         }
         if (!showUnselected) {
@@ -595,7 +592,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
         // eslint-disable-next-line no-param-reassign
-        target[3] = 255;
+        target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
         return target;
       };
     } else if (obsColorEncoding === 'randomByFeature') {
@@ -626,9 +623,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
             const featureColorMatch = Array.isArray(featureColor)
               ? featureColor.find(fc => fc.name === featureName)
               : null;
-            const featureOpacity = featureColorMatch?.opacity ?? spatialLayerOpacity ?? 1.0;
+            const featureOpacity = featureColorMatch?.opacity ?? 1.0;
             // eslint-disable-next-line no-param-reassign
-            target[3] = Math.round(featureOpacity * 255);
+            target[3] = Math.round(layerOpacity * featureOpacity * 255);
             return target;
           }
           if (!showUnselected) {
@@ -648,7 +645,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
           return target;
         };
       }
@@ -674,7 +671,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = layerOpacity * 255;
             return target;
           }
           if (!showUnselected) {
@@ -694,7 +691,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
           return target;
         };
       }
@@ -747,7 +744,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         pickable: true,
         autoHighlight: true,
         onHover: info => delegateHover(info, 'point', layerScope),
-        opacity: spatialLayerOpacity,
+        opacity: 1.0,
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
         // it provides no benefit to request tiles at different zoom levels.
@@ -840,7 +837,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
             updateTriggers: {
               getFillColor: [
                 showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
-                featureSelection, hasMultipleFeaturesSelected,
+                featureSelection, hasMultipleFeaturesSelected, spatialLayerOpacity,
+                spatialLayerOpacityUnselected,
               ],
               getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
               filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
@@ -850,7 +848,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         updateTriggers: {
           getTileData: [
             showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
-            featureSelection, hasMultipleFeaturesSelected,
+            featureSelection, hasMultipleFeaturesSelected, spatialLayerOpacity,
+            spatialLayerOpacityUnselected,
           ],
         },
         /*
