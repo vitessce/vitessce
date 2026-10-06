@@ -5,4 +5,4 @@
 "@vitessce/all": patch
 ---
 
-Adds per feature opactiy when genes are added as feature for points
+Adds per feature opacity when genes are added as feature for points
