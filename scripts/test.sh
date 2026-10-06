@@ -4,7 +4,11 @@ set -o errexit
 die() { echo "$*" 1>&2 ; exit 1; }
 
 # linting
-pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
+# ESLint results do not vary by OS, so CI sets SKIP_LINT=1 on all but one
+# matrix leg rather than paying for the same lint run on every platform.
+if [[ -z "$SKIP_LINT" ]]; then
+  pnpm run lint || die 'eslint failed; try: pnpm run lint-fix'
+fi
 # end linting
 
 # unit tests
