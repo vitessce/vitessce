@@ -1,5 +1,4 @@
 import React, {
-  useEffect,
   useMemo,
   useCallback,
 } from 'react';
@@ -39,7 +38,6 @@ import {
   downloadForUser,
   handleExportJSON,
   handleExportTabular,
-  tryUpgradeTreeToLatestSchema,
 
   FILE_EXTENSION_JSON,
   FILE_EXTENSION_TABULAR,
@@ -117,24 +115,8 @@ export function ObsSetsManagerSubscriber(props) {
   const isReady = useReady([obsSetsStatus]);
   const urls = useUrls([obsSetsUrls]);
 
-  // Validate and upgrade the additionalObsSets.
-  useEffect(() => {
-    if (additionalObsSets) {
-      let upgradedCellSets;
-      let didUpgrade;
-      try {
-        [upgradedCellSets, didUpgrade] = tryUpgradeTreeToLatestSchema(
-          additionalObsSets, SETS_DATATYPE_OBS,
-        );
-      } catch (e) {
-        setWarning(e.message);
-        return;
-      }
-      if (didUpgrade) {
-        setAdditionalObsSets(upgradedCellSets);
-      }
-    }
-  }, [additionalObsSets, setAdditionalObsSets, setWarning]);
+  // Config parsing and file imports already validate and upgrade additionalObsSets.
+  // Repeating that here scans and copies every saved selection on each lasso.
 
   // Get an array of all cell IDs to use for set complement operations.
   const allCellIds = useMemo(() => (obsIndex || []), [obsIndex]);
