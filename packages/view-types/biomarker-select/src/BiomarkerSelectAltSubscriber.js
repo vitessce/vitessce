@@ -135,6 +135,7 @@ export function BiomarkerSelectAltSubscriber(props) {
         setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
         setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
         autocompleteNode={autocompleteNode}
+        getEdges={getEdges}
         stratifications={stratificationOptions}
 
         onFinish={() => {
