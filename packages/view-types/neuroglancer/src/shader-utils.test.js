@@ -13,6 +13,7 @@ import {
   getRandomPerPointShader,
   getRandomPerPointWithSelectionShader,
   getRandomPerPointFilteredShader,
+  getPointsShader,
 } from './shader-utils.js';
 
 // Mock the @vitessce/utils module before importing the module under test.
@@ -95,7 +96,7 @@ void main() {
         setColor(vec4(1, 0, 0, 0.5));
         setPointMarkerBorderWidth(0.0);
     } else {
-        setColor(vec4(0.5019607843137255, 0.5019607843137255, 0.5019607843137255, 0.5));
+        setColor(vec4(0.5019607843137255, 0.5019607843137255, 0.5019607843137255, 0.5000));
         setPointMarkerBorderWidth(0.0);
     }
 }
@@ -121,7 +122,7 @@ void main() {
         setColor(vec4(0, 1, 0, 1));
         setPointMarkerBorderWidth(0.0);
     } else {
-        setColor(vec4(0, 0, 0, 1));
+        setColor(vec4(0, 0, 0, 1.0000));
         setPointMarkerBorderWidth(0.0);
     }
 }
@@ -177,6 +178,7 @@ describe('getGeneSelectionWithSelectionShader', () => {
   it('generates a shader with per-feature colors for selected and default for unselected', () => {
     const result = getGeneSelectionWithSelectionShader(
       [1, 4],
+      [1.0, 0.5],
       [[255, 0, 0], [0, 255, 0]],
       [128, 128, 128],
       [50, 50, 50],
@@ -184,20 +186,21 @@ describe('getGeneSelectionWithSelectionShader', () => {
       'gene_index',
     );
     const expected = `
-void main() {
-    int geneIndex = prop_gene_index();
-    int selectedIndices[2] = int[2](1, 4);
-    vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 1, 0));
-    vec4 color = vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.6);
-    for (int i = 0; i < 2; ++i) {
-        if (geneIndex == selectedIndices[i]) {
-            color = vec4(featureColors[i], 0.6);
+    void main() {
+        int geneIndex = prop_gene_index();
+        int selectedIndices[2] = int[2](1, 4);
+        vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 1, 0));
+        float featureOpacities[2] = float[2](1.0000, 0.5000);
+        vec4 color = vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.6000);
+        for (int i = 0; i < 2; ++i) {
+            if (geneIndex == selectedIndices[i]) {
+                color = vec4(featureColors[i], featureOpacities[i]);
+            }
         }
+        setColor(color);
+        setPointMarkerBorderWidth(0.0);
     }
-    setColor(color);
-    setPointMarkerBorderWidth(0.0);
-}
-`;
+    `;
     expectShaderEqual(result, expected);
   });
 
@@ -208,6 +211,7 @@ void main() {
     // Since featureColors are always normalized, we just check the normal path.
     const result = getGeneSelectionWithSelectionShader(
       [0],
+      [1.0],
       [[0, 0, 255]],
       [255, 255, 255],
       [0, 0, 0],
@@ -219,10 +223,11 @@ void main() {
     int geneIndex = prop_fi();
     int selectedIndices[1] = int[1](0);
     vec3 featureColors[1] = vec3[1](vec3(0, 0, 1));
-    vec4 color = vec4(0, 0, 0, 1);
+    float featureOpacities[1] = float[1](1.0000);
+    vec4 color = vec4(0, 0, 0, 1.0000);
     for (int i = 0; i < 1; ++i) {
         if (geneIndex == selectedIndices[i]) {
-            color = vec4(featureColors[i], 1);
+            color = vec4(featureColors[i], featureOpacities[i]);
         }
     }
     setColor(color);
@@ -238,30 +243,34 @@ describe('getGeneSelectionFilteredShader', () => {
     const result = getGeneSelectionFilteredShader(
       [2, 8],
       [[255, 0, 0], [0, 0, 255]],
+      [0.8, 0.3],
       [128, 128, 128],
       0.75,
       'gene_index',
     );
     const expected = `
-void main() {
-    int geneIndex = prop_gene_index();
-    int selectedIndices[2] = int[2](2, 8);
-    vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 0, 1));
-    bool isSelected = false;
-    vec3 matchedColor = vec3(0.0);
-    for (int i = 0; i < 2; ++i) {
-        if (geneIndex == selectedIndices[i]) {
-            isSelected = true;
-            matchedColor = featureColors[i];
-        }
-    }
-    if (!isSelected) {
-        discard;
-    }
-    setColor(vec4(matchedColor, 0.75));
-    setPointMarkerBorderWidth(0.0);
-}
-`;
+      void main() {
+          int geneIndex = prop_gene_index();
+          int selectedIndices[2] = int[2](2, 8);
+          vec3 featureColors[2] = vec3[2](vec3(1, 0, 0), vec3(0, 0, 1));
+          float featureOpacities[2] = float[2](0.8000, 0.3000);
+          bool isSelected = false;
+          vec3 matchedColor = vec3(0.0);
+          float matchedOpacity = 0.7500;
+          for (int i = 0; i < 2; ++i) {
+              if (geneIndex == selectedIndices[i]) {
+                  isSelected = true;
+                  matchedColor = featureColors[i];
+                  matchedOpacity = featureOpacities[i];
+              }
+          }
+          if (!isSelected) {
+              discard;
+          }
+          setColor(vec4(matchedColor, matchedOpacity));
+          setPointMarkerBorderWidth(0.0);
+      }
+      `;
     expectShaderEqual(result, expected);
   });
 });
@@ -291,26 +300,29 @@ void main() {
 describe('getRandomByFeatureWithSelectionShader', () => {
   it('generates a shader with palette colors for selected and default for unselected', () => {
     const result = getRandomByFeatureWithSelectionShader(
-      [1, 2], [50, 50, 50], 0.8, 'gene_index',
+      [1, 2], [0.8, 0.4], [50, 50, 50], 0.8, 'gene_index',
     );
     const expected = `
 void main() {
     int geneIndex = prop_gene_index();
     vec3 palette[3] = vec3[3](vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1));
     int selectedIndices[2] = int[2](1, 2);
+    float featureOpacities[2] = float[2](0.8000, 0.4000);
     bool isSelected = false;
+    float matchedOpacity = 0.8000;
     for (int i = 0; i < 2; ++i) {
         if (geneIndex == selectedIndices[i]) {
             isSelected = true;
+            matchedOpacity = featureOpacities[i];
         }
     }
     if (isSelected) {
         int colorIdx = geneIndex - (geneIndex / 3) * 3;
         if (colorIdx < 0) { colorIdx = -colorIdx; }
-        setColor(vec4(palette[colorIdx], 0.8));
+        setColor(vec4(palette[colorIdx], matchedOpacity));
         setPointMarkerBorderWidth(0.0);
     } else {
-        setColor(vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.8));
+        setColor(vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.8000));
         setPointMarkerBorderWidth(0.0);
     }
 }
@@ -321,16 +333,19 @@ void main() {
 
 describe('getRandomByFeatureFilteredShader', () => {
   it('generates a shader that discards unselected and uses palette for selected', () => {
-    const result = getRandomByFeatureFilteredShader([0], 1.0, 'gene_index');
+    const result = getRandomByFeatureFilteredShader([0], [0.6], 1.0, 'gene_index');
     const expected = `
 void main() {
     int geneIndex = prop_gene_index();
     vec3 palette[3] = vec3[3](vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1));
     int selectedIndices[1] = int[1](0);
+    float featureOpacities[1] = float[1](0.6000);
     bool isSelected = false;
+    float matchedOpacity = 1.0000;
     for (int i = 0; i < 1; ++i) {
         if (geneIndex == selectedIndices[i]) {
             isSelected = true;
+            matchedOpacity = featureOpacities[i];
         }
     }
     if (!isSelected) {
@@ -338,7 +353,7 @@ void main() {
     }
     int colorIdx = geneIndex - (geneIndex / 3) * 3;
     if (colorIdx < 0) { colorIdx = -colorIdx; }
-    setColor(vec4(palette[colorIdx], 1));
+    setColor(vec4(palette[colorIdx], matchedOpacity));
     setPointMarkerBorderWidth(0.0);
 }
 `;
@@ -405,7 +420,7 @@ void main() {
         setColor(vec4(r, g, b, 0.5));
         setPointMarkerBorderWidth(0.0);
     } else {
-        setColor(vec4(0.39215686274509803, 0.39215686274509803, 0.39215686274509803, 0.5));
+        setColor(vec4(0.39215686274509803, 0.39215686274509803, 0.39215686274509803, 0.5000));
         setPointMarkerBorderWidth(0.0);
     }
 }
@@ -448,5 +463,278 @@ void main() {
 }
 `;
     expectShaderEqual(result, expected);
+  });
+});
+
+// ============================================================
+// Unselected opacity
+// ============================================================
+
+describe('unselectedOpacity parameter', () => {
+  it('spatialLayerColor: applies unselectedOpacity only to unselected points', () => {
+    const result = getSpatialLayerColorWithSelectionShader(
+      [255, 0, 0], 0.5, [2], [128, 128, 128], 'gene_index', 0.0, 0.1,
+    );
+    expect(result).toContain('setColor(vec4(1, 0, 0, 0.5));');
+    expect(result).toContain(
+      'setColor(vec4(0.5019607843137255, 0.5019607843137255, 0.5019607843137255, 0.1000));',
+    );
+  });
+
+  it('geneSelection: applies unselectedOpacity to the default color', () => {
+    const result = getGeneSelectionWithSelectionShader(
+      [1], [1.0], [[255, 0, 0]], [128, 128, 128], [50, 50, 50], 1.0, 'gene_index', 0.0, 0.2,
+    );
+    expect(result).toContain(
+      'vec4 color = vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.2000);',
+    );
+    expect(result).toContain('float featureOpacities[1] = float[1](1.0000);');
+  });
+
+  it('randomByFeature: applies unselectedOpacity only to unselected points', () => {
+    const result = getRandomByFeatureWithSelectionShader(
+      [1], [0.8], [50, 50, 50], 0.8, 'gene_index', 0.0, 0.3,
+    );
+    expect(result).toContain('float featureOpacities[1] = float[1](0.8000);');
+    expect(result).toContain('setColor(vec4(palette[colorIdx], matchedOpacity));');
+    expect(result).toContain(
+      'setColor(vec4(0.19607843137254902, 0.19607843137254902, 0.19607843137254902, 0.3000));',
+    );
+  });
+
+  it('random per point: applies unselectedOpacity only to unselected points', () => {
+    const result = getRandomPerPointWithSelectionShader(
+      [3], [100, 100, 100], 0.5, 'gene_index', 'point_index', 0.0, 0.05,
+    );
+    expect(result).toContain('setColor(vec4(r, g, b, 0.5));');
+    expect(result).toContain(
+      'setColor(vec4(0.39215686274509803, 0.39215686274509803, 0.39215686274509803, 0.0500));',
+    );
+  });
+});
+
+describe('getPointsShader spatialLayerOpacityUnselected', () => {
+  // theme undefined -> mocked getDefaultColor returns [200, 200, 200]
+  const DEFAULT = '0.7843137254901961, 0.7843137254901961, 0.7843137254901961';
+  const base = {
+    featureIndex: ['A', 'B', 'C'],
+    featureSelection: ['B'],
+    featureIndexProp: 'gene_index',
+    pointIndexProp: 'point_index',
+  };
+
+  it('defaults unselected opacity to 0.25 when undefined', () => {
+    const result = getPointsShader({
+      ...base, obsColorEncoding: 'geneSelection', spatialLayerOpacity: 1.0,
+    });
+    expect(result).toContain(`vec4 color = vec4(${DEFAULT}, 0.2500);`);
+  });
+
+  it('multiplies unselected opacity by layer opacity', () => {
+    const result = getPointsShader({
+      ...base,
+      obsColorEncoding: 'geneSelection',
+      spatialLayerOpacity: 0.5,
+      spatialLayerOpacityUnselected: 0.2,
+    });
+    expect(result).toContain(`vec4 color = vec4(${DEFAULT}, 0.1000);`);
+  });
+
+  it('passes unselected opacity through in spatialLayerColor mode', () => {
+    const result = getPointsShader({
+      ...base,
+      obsColorEncoding: 'spatialLayerColor',
+      spatialLayerOpacity: 1.0,
+      spatialLayerOpacityUnselected: 0.1,
+    });
+    expect(result).toContain(`setColor(vec4(${DEFAULT}, 0.1000));`);
+  });
+
+  it('applies to randomByFeature and random modes', () => {
+    const rbf = getPointsShader({
+      ...base, obsColorEncoding: 'randomByFeature', spatialLayerOpacityUnselected: 0.4,
+    });
+    expect(rbf).toContain(`setColor(vec4(${DEFAULT}, 0.4000));`);
+    const rnd = getPointsShader({
+      ...base, obsColorEncoding: 'random', spatialLayerOpacityUnselected: 0.4,
+    });
+    expect(rnd).toContain(`setColor(vec4(${DEFAULT}, 0.4000));`);
+  });
+
+  it('does not affect filtered mode (unselected points are discarded)', () => {
+    const result = getPointsShader({
+      ...base,
+      obsColorEncoding: 'geneSelection',
+      featureFilterMode: 'featureSelection',
+      spatialLayerOpacityUnselected: 0.1,
+    });
+    expect(result).toContain('discard;');
+    expect(result).not.toContain('0.1000');
+  });
+
+  it('discards unselected points when unselected opacity is zero', () => {
+    ['spatialLayerColor', 'geneSelection', 'randomByFeature', 'random'].forEach((obsColorEncoding) => {
+      const result = getPointsShader({
+        ...base,
+        obsColorEncoding,
+        spatialLayerOpacity: 1.0,
+        spatialLayerOpacityUnselected: 0,
+      });
+      expect(result).toContain('discard;');
+      expect(result).not.toContain(`vec4(${DEFAULT}, 0.0000)`);
+    });
+  });
+
+  it('discards unselected points at or below the 0.01 opacity threshold', () => {
+    const atThreshold = getPointsShader({
+      ...base,
+      obsColorEncoding: 'geneSelection',
+      spatialLayerOpacity: 1.0,
+      spatialLayerOpacityUnselected: 0.01,
+    });
+    expect(atThreshold).toContain('discard;');
+    expect(atThreshold).not.toContain(`vec4(${DEFAULT}, 0.0100)`);
+
+    const aboveThreshold = getPointsShader({
+      ...base,
+      obsColorEncoding: 'geneSelection',
+      spatialLayerOpacity: 1.0,
+      spatialLayerOpacityUnselected: 0.02,
+    });
+    expect(aboveThreshold).not.toContain('discard;');
+    expect(aboveThreshold).toContain(`vec4 color = vec4(${DEFAULT}, 0.0200);`);
+  });
+
+  it('uses full layer opacity for unselected when there is no feature selection', () => {
+    const result = getPointsShader({
+      ...base,
+      featureSelection: null,
+      obsColorEncoding: 'geneSelection',
+      spatialLayerOpacity: 1.0,
+      spatialLayerOpacityUnselected: 0.1,
+    });
+    expect(result).not.toContain('0.1000');
+  });
+});
+
+describe('getPointsShader per-feature opacity multiplies with layer opacity', () => {
+  const DEFAULT = '0.7843137254901961, 0.7843137254901961, 0.7843137254901961';
+  const base = {
+    featureIndex: ['A', 'B', 'C'],
+    featureSelection: ['A', 'B'],
+    featureIndexProp: 'gene_index',
+    obsColorEncoding: 'geneSelection',
+  };
+
+  it('layer 0.5 x feature 0.5 = 0.25 for each selected feature', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.5 },
+        { name: 'B', color: [0, 255, 0], opacity: 0.5 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.2500);');
+  });
+
+  it('missing per-feature opacity defaults to 1 (inherits layer opacity)', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.4 },
+        { name: 'B', color: [0, 255, 0] },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2000, 0.5000);');
+  });
+
+  it('layer opacity 1 leaves per-feature opacity unchanged', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 1.0,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.3 },
+        { name: 'B', color: [0, 255, 0], opacity: 0.7 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.3000, 0.7000);');
+  });
+
+  it('unselected opacity also multiplies with layer opacity', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0.5,
+      spatialLayerOpacityUnselected: 0.5,
+      featureColor: [{ name: 'A', color: [255, 0, 0], opacity: 0.5 }],
+    });
+    expect(result).toContain(`vec4 color = vec4(${DEFAULT}, 0.2500);`);
+  });
+
+  it('applies the multiplication in filtered mode too', () => {
+    const result = getPointsShader({
+      ...base,
+      featureFilterMode: 'featureSelection',
+      spatialLayerOpacity: 0.5,
+      featureColor: [
+        { name: 'A', color: [255, 0, 0], opacity: 0.5 },
+        { name: 'B', color: [0, 255, 0], opacity: 1.0 },
+      ],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.5000);');
+    expect(result).toContain('discard;');
+  });
+
+  it('layer opacity 0 hides selected and unselected points', () => {
+    const result = getPointsShader({
+      ...base,
+      spatialLayerOpacity: 0,
+      featureColor: [{ name: 'A', color: [255, 0, 0], opacity: 0.8 }],
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.0000, 0.0000);');
+    expect(result).toContain('discard;');
+    expect(result).not.toContain(`vec4(${DEFAULT}, 0.0000)`);
+  });
+});
+
+describe('getPointsShader randomByFeature respects per-feature opacity', () => {
+  const base = {
+    featureIndex: ['A', 'B', 'C'],
+    featureIndexProp: 'gene_index',
+    obsColorEncoding: 'randomByFeature',
+    spatialLayerOpacity: 0.5,
+    featureColor: [
+      { name: 'A', color: [255, 0, 0], opacity: 0.5 },
+      { name: 'C', color: [0, 0, 255] },
+    ],
+  };
+
+  it('with feature selection', () => {
+    const result = getPointsShader({ ...base, featureSelection: ['A', 'B'] });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.5000);');
+    expect(result).toContain('setColor(vec4(palette[colorIdx], matchedOpacity));');
+  });
+
+  it('with feature selection in filtered mode', () => {
+    const result = getPointsShader({
+      ...base, featureSelection: ['A', 'B'], featureFilterMode: 'featureSelection',
+    });
+    expect(result).toContain('float featureOpacities[2] = float[2](0.2500, 0.5000);');
+    expect(result).toContain('discard;');
+  });
+
+  it('without feature selection, only for features with an opacity value', () => {
+    const result = getPointsShader({ ...base, featureSelection: null });
+    expect(result).toContain('int featureIndices[1] = int[1](0);');
+    expect(result).toContain('float featureOpacities[1] = float[1](0.2500);');
+    expect(result).toContain('float matchedOpacity = 0.5000;');
+    expect(result).toContain('setColor(vec4(color, matchedOpacity));');
+  });
+
+  it('without feature selection or per-feature opacity, uses layer opacity', () => {
+    const result = getPointsShader({ ...base, featureSelection: null, featureColor: null });
+    expect(result).not.toContain('featureOpacities');
+    expect(result).toContain('setColor(vec4(color, 0.5));');
   });
 });
