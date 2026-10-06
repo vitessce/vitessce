@@ -25,6 +25,9 @@ const SHIFT_KEYCODE = 16;
  * indicating those rows that should be initially selected.
  * @prop {boolean} allowMultiple Whether to allow multiple rows to be selected.
  * @prop {boolean} allowUncheck Whether to allow selected rows to be un-checked. By default, false.
+ * @prop {boolean} requireShiftForMultiSelect When `allowMultiple` is true, whether the shift key
+ * must be held to add rows to the selection. If false, each click toggles a row in or out of
+ * the selection. By default, true.
  * @prop {boolean} showTableHead Whether to show the table header element. By default, true.
  * @prop {boolean} showTableInputs Whether to show the table input elements for each row.
  * By default, false.
@@ -40,6 +43,7 @@ export default function SelectableTable(props) {
     selectedIds,
     allowMultiple = false,
     allowUncheck = false,
+    requireShiftForMultiSelect = true,
     showTableHead = true,
     showTableInputs = false,
     testHeight = undefined,
@@ -49,19 +53,22 @@ export default function SelectableTable(props) {
   } = props;
 
   const [selectedRows, setSelectedRows] = useState(null);
-  const [isCheckingMultiple, setIsCheckingMultiple] = useState(false);
+  const [isShiftDown, setIsShiftDown] = useState(false);
+
+  // When shift is not required, every click adds to (or removes from) the selection.
+  const isCheckingMultiple = allowMultiple && (isShiftDown || !requireShiftForMultiSelect);
 
   // Enable selecting multiple rows while the shift key is down.
   useEffect(() => {
     function onKeyDown(event) {
       if (allowMultiple && event.keyCode === SHIFT_KEYCODE) {
-        setIsCheckingMultiple(true);
+        setIsShiftDown(true);
       }
     }
 
     function onKeyUp(event) {
       if (allowMultiple && event.keyCode === SHIFT_KEYCODE) {
-        setIsCheckingMultiple(false);
+        setIsShiftDown(false);
       }
     }
 
@@ -165,7 +172,8 @@ export default function SelectableTable(props) {
       role="button"
       onClick={() => onSelectRow(
         data[index][idKey],
-        !isSelected(data[index][idKey]) || !hasColorEncoding,
+        // Without shift-to-multi-select, clicking a selected row must be able to deselect it.
+        !isSelected(data[index][idKey]) || (!hasColorEncoding && requireShiftForMultiSelect),
       )}
     >
       <div className={clsx(classes.inputContainer, classes.tableCell, { [classes.hiddenInputColumn]: !showTableInputs })}>
