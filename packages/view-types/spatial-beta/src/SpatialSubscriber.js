@@ -35,9 +35,13 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -150,6 +154,8 @@ export function SpatialSubscriber(props) {
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -160,6 +166,11 @@ export function SpatialSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // This includes multi-level (e.g., per-layer/per-channel) coordination values.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
 
   // Get "props" from the coordination space.
   const [{
@@ -185,6 +196,14 @@ export function SpatialSubscriber(props) {
     obsSetColor,
     obsColorEncoding,
     obsSetSelection,
+
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -202,7 +221,16 @@ export function SpatialSubscriber(props) {
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
+
+    setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -531,6 +559,17 @@ export function SpatialSubscriber(props) {
     mergeCoordination, uuid,
   );
 
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
+
   const errors = [
     ...obsPointsErrors,
     ...obsSpotsErrors,
@@ -546,6 +585,7 @@ export function SpatialSubscriber(props) {
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
+    annotationStoryError,
   ];
 
   /*
@@ -589,12 +629,15 @@ export function SpatialSubscriber(props) {
     obsSegmentationsLocationsDataStatus,
     // Images
     imageDataStatus,
+    // Annotations
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     Object.values(obsSpotsUrls || {}).flat(),
     Object.values(obsPointsUrls || {}).flat(),
     Object.values(obsSegmentationsUrls || {}).flat(),
     Object.values(imageUrls || {}).flat(),
+    annotationStoryUrls,
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
@@ -690,6 +733,21 @@ export function SpatialSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
 
+
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    is3dMode ? 0 : annotationTransitionDuration,
+  );
 
   const setViewState = ({
     zoom: newZoom,
@@ -1084,6 +1142,7 @@ export function SpatialSubscriber(props) {
               target: [targetX, targetY, targetZ],
               rotationX,
               rotationOrbit,
+              ...annotationTransitionProps,
             }) : DEFAULT_VIEW_STATE}
             orbitAxis={orbitAxis}
             spatialAxisFixed={spatialAxisFixed}
@@ -1119,6 +1178,10 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            annotationShapes={annotationShapes}
+            annotationOverlayVisible={annotationOverlayVisible}
+            annotationSemanticZoom={annotationSemanticZoom}
+            {...annotationEditingProps}
           />
         )
       }

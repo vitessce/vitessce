@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/all",
-  "version": "4.0.8",
+  "version": "4.0.10",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -37,6 +37,7 @@
     "@vitessce/abstract": "workspace:*",
     "@vitessce/error": "workspace:*",
     "@vitessce/csv": "workspace:*",
+    "@vitessce/annotation-controller": "workspace:*",
     "@vitessce/description": "workspace:*",
     "@vitessce/feature-list": "workspace:*",
     "@vitessce/genomic-profiles": "workspace:*",

@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayer, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
 } from '@vitessce/gl';
+import { ViewType } from '@vitessce/constants-internal';
 import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -114,6 +115,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsPolygonLayer = null;
     this.obsLocationsLayer = null;
     this.neighborhoodsLayer = null;
+    this.annotationLayer = null;
 
     this.layerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
@@ -141,6 +143,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateNeighborhoodsData();
     this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
+    this.onUpdateAnnotationLayer();
   }
 
   createPolygonSegmentationsLayer(layerDef, hasExplicitPolygons) {
@@ -587,6 +590,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       neighborhoodsLayer,
       obsLocationsLayer,
       obsSegmentationsBitmaskLayers,
+      annotationLayer,
     } = this;
     return [
       ...imageLayers,
@@ -596,6 +600,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
   }
 
@@ -763,6 +770,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.imageLayers = this.createImageLayers();
   }
 
+  createAnnotationLayer() {
+    const {
+      annotationShapes,
+      annotationOverlayVisible,
+      annotationSemanticZoom,
+      annotationInProgressShape,
+    } = this.props;
+    return new AnnotationLayer({
+      id: 'annotation-layer',
+      data: annotationShapes,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
+      semanticZoom: annotationSemanticZoom,
+      ...this.getAnnotationEditingLayerProps(),
+      viewType: ViewType.SPATIAL,
+    });
+  }
+
+  onUpdateAnnotationLayer() {
+    const { annotationShapes, annotationInProgressShape } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
+      this.annotationLayer = this.createAnnotationLayer();
+    } else {
+      this.annotationLayer = null;
+    }
+  }
+
   viewInfoDidUpdate() {
     const {
       obsCentroidsIndex,
@@ -903,6 +937,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdateImages();
       forceUpdate = true;
     }
+
+    if ([
+      'annotationShapes', 'annotationOverlayVisible',
+      'annotationSemanticZoom', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
+    ].some(shallowDiff)) {
+      // Annotation info changed.
+      this.onUpdateAnnotationLayer();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }

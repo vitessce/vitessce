@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { generateConfig, getHintOptions } from './VitessceAutoConfig.js';
 import { HINT_TYPE_TO_FILE_TYPE_MAP } from './constants.js';
 
 describe('generateConfig', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('generates config for OME-TIFF file correctly', async () => {
     const urls = ['somefile.ome.tif'];
     const expectedConfig = {
@@ -578,6 +582,27 @@ describe('generateConfig', () => {
 
     const config = await generateConfig(urls);
     expect(config).toEqual(expectedConfig);
+  });
+
+  it('Does the parsing when .zmetadata request is denied with 403', async () => {
+    // Buckets that grant s3:GetObject but not s3:ListBucket answer AccessDenied
+    // rather than Not Found for keys that do not exist, so a missing .zmetadata
+    // arrives as a 403. Reference: the meta-2022-azimuth dataset on data-1.vitessce.io.
+    const urls = ['http://localhost:4204/@fixtures/zarr/anndata-0.8/anndata-csr.adata.zarr'];
+    const realFetch = fetch;
+    vi.stubGlobal('fetch', async (input, init) => {
+      const response = await realFetch(input, init);
+      if (String(input).endsWith('/.zmetadata') && response.status === 404) {
+        return new Response('<Error><Code>AccessDenied</Code></Error>', { status: 403 });
+      }
+      return response;
+    });
+
+    const config = await generateConfig(urls);
+    const [file] = config.datasets[0].files;
+    expect(file.options.obsEmbedding).toEqual([{ path: 'obsm/X_umap', embeddingType: 'UMAP' }]);
+    expect(file.options.obsSets).toEqual([{ name: 'Cell Type', path: 'obs/leiden' }]);
+    expect(config.layout.map(v => v.component)).toContain('heatmap');
   });
 
   it('raises an error when URL with unsupported file format is passed', async () => {

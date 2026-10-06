@@ -969,6 +969,9 @@ importers:
       '@turf/union':
         specifier: catalog:turf
         version: 7.2.0
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../constants-internal
       '@vitessce/globals':
         specifier: workspace:*
         version: link:../globals
@@ -997,6 +1000,9 @@ importers:
         specifier: catalog:nebula.gl
         version: 0.23.8(@deck.gl/core@8.8.27)(@deck.gl/geo-layers@8.8.27(@deck.gl/core@8.8.27)(@deck.gl/extensions@8.8.27(@deck.gl/core@8.8.27)(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)(gl-matrix@3.4.3))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@loaders.gl/core@3.2.10)(@loaders.gl/gltf@3.2.10)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/shadertools@8.5.21)(@luma.gl/webgl@8.5.21))(@deck.gl/layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/core@3.2.10)(@luma.gl/core@8.5.21))(@deck.gl/mesh-layers@8.8.27(@deck.gl/core@8.8.27)(@loaders.gl/images@3.2.10)(@luma.gl/core@8.5.21)(@luma.gl/engine@8.5.21)(@luma.gl/gltools@8.5.21)(@luma.gl/webgl@8.5.21))(@luma.gl/constants@8.5.21)(@luma.gl/core@8.5.21)
     devDependencies:
+      d3-quadtree:
+        specifier: 'catalog:'
+        version: 1.0.7
       glsl-colormap:
         specifier: ^1.0.1
         version: 1.0.1
@@ -1183,6 +1189,9 @@ importers:
       '@vitessce/abstract':
         specifier: workspace:*
         version: link:../../file-types/abstract
+      '@vitessce/annotation-controller':
+        specifier: workspace:*
+        version: link:../../view-types/annotation-controller
       '@vitessce/biomarker-select':
         specifier: workspace:*
         version: link:../../view-types/biomarker-select
@@ -1841,6 +1850,46 @@ importers:
       react:
         specifier: 'catalog:'
         version: 19.2.6
+      vite:
+        specifier: 'catalog:'
+        version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+
+  packages/view-types/annotation-controller:
+    dependencies:
+      '@vitessce/constants-internal':
+        specifier: workspace:*
+        version: link:../../constants-internal
+      '@vitessce/gl':
+        specifier: workspace:*
+        version: link:../../gl
+      '@vitessce/schemas':
+        specifier: workspace:*
+        version: link:../../schemas
+      '@vitessce/styles':
+        specifier: workspace:*
+        version: link:../../styles
+      '@vitessce/vit-s':
+        specifier: workspace:*
+        version: link:../../vit-s
+      lodash-es:
+        specifier: 'catalog:'
+        version: 4.17.21
+      react-markdown:
+        specifier: ^9.0.1
+        version: 9.0.1(@types/react@19.1.6)(react@19.2.6)
+      uuid:
+        specifier: 'catalog:'
+        version: 9.0.1
+    devDependencies:
+      react:
+        specifier: 'catalog:'
+        version: 19.2.6
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.6(react@19.2.6)
       vite:
         specifier: 'catalog:'
         version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)

@@ -22,6 +22,8 @@ export {
 export {
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useRawViewMapping,
+  useViewMapping,
   useInitialCoordination,
   useCoordination,
   useComplexCoordination,
@@ -35,6 +37,7 @@ export {
   useDatasetUids,
   useLoaders,
   useMergeCoordination,
+  useAnnotationFrameCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
@@ -50,7 +53,15 @@ export {
   useComponentLayout,
   useRemoveImageChannelInMetaCoordinationScopes,
   useAddImageChannelInMetaCoordinationScopes,
+  getAnnotationFrameUpdate,
 } from './state/hooks.js';
+export {
+  useAnnotationEditingStore,
+  useAnnotationEditingStoreApi,
+  useAnnotationEditingStoreShallow,
+  useAnnotationEditingForView,
+  getViewCoordinationValuesForFrame,
+} from './state/annotation-editing.js';
 export {
   useDescription,
   useImageData,
@@ -83,6 +94,7 @@ export {
   useFeatureStatsData,
   useFeatureSetStatsData,
   useObsSetStatsData,
+  useAnnotationStoryData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,

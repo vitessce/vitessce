@@ -52,3 +52,7 @@ export {
   normalizeAggregatedFeatureArray,
   filterValidExpressionArrays,
 } from './expr.js';
+export {
+  getAnnotationFrameCoordinationValues,
+  isAnnotationFrameViewStateChange,
+} from './annotation.js';

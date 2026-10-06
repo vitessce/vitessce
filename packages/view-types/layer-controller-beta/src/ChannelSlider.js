@@ -48,12 +48,12 @@ export default function ChannelSlider(props) {
     // If the `window` value is null, then assume it should be
     // auto-initialized using the min/max domain. This can occur
     // upon first load, or when the channel is changed.
-    if (!window && !disabled && Array.isArray(minMaxDomain)) {
-      setWindow(minMaxDomain);
+    if (!window && !disabled && Array.isArray(minMaxDomain?.upperThreeQuarters)) {
+      setWindow(minMaxDomain?.upperThreeQuarters);
     }
   }, [minMaxDomain, window, disabled]);
 
-  const [min, max] = (showValueExtent ? minMaxDomain : fullDomain) || [0, 0];
+  const [min, max] = (showValueExtent ? minMaxDomain?.minMax : fullDomain) || [0, 0];
   const step = max - min < 500 && dtype?.startsWith('Float') ? (max - min) / 500 : 1;
 
   const handleChangeDebounced = useCallback(

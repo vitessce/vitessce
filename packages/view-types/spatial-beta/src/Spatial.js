@@ -3,7 +3,7 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayer, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -14,7 +14,7 @@ import {
   getCellColors,
 } from '@vitessce/sets-utils';
 import { AbstractSpatialOrScatterplot, createQuadTree } from '@vitessce/scatterplot';
-import { CoordinationType } from '@vitessce/constants-internal';
+import { CoordinationType, ViewType } from '@vitessce/constants-internal';
 import { log } from '@vitessce/globals';
 import { getLayerLoaderTuple, isLayerVisible, renderSubBitmaskLayers } from './utils.js';
 
@@ -146,6 +146,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsLayers = [];
     this.obsSpotsLayers = [];
     this.obsPointsLayers = [];
+    this.annotationLayer = null;
 
     this.obsPointsLabelsData = {}; // Keys: pointLayer scopes.
 
@@ -198,6 +199,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateAllSpotsExpressionData();
     this.onUpdateSpotsLayer();
     this.onUpdateImages();
+    this.onUpdateAnnotationLayer();
   }
 
   createPolygonSegmentationLayer(
@@ -1421,6 +1423,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsSpotsLayers,
       obsPointsLayers,
       obsSegmentationsLayers,
+      annotationLayer,
       // neighborhoodsLayer,
       // obsLocationsLayer,
     } = this;
@@ -1433,6 +1436,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
   }
 
@@ -1960,6 +1966,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.imageLayers = this.createImageLayers();
   }
 
+  createAnnotationLayer() {
+    const {
+      annotationShapes,
+      annotationOverlayVisible,
+      annotationSemanticZoom,
+      annotationInProgressShape,
+    } = this.props;
+    return new AnnotationLayer({
+      id: 'annotation-layer',
+      data: annotationShapes,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
+      semanticZoom: annotationSemanticZoom,
+      ...this.getAnnotationEditingLayerProps(),
+      viewType: ViewType.SPATIAL_BETA,
+    });
+  }
+
+  onUpdateAnnotationLayer() {
+    const { annotationShapes, annotationInProgressShape } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
+      this.annotationLayer = this.createAnnotationLayer();
+    } else {
+      this.annotationLayer = null;
+    }
+  }
+
   viewInfoDidUpdate() {
     // TODO: remove extra parameters from parent once no longer used by Spatial/Scatterplot.
     super.viewInfoDidUpdate(
@@ -2255,6 +2288,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdateImages();
       forceUpdate = true;
     }
+
+    if ([
+      'annotationShapes', 'annotationOverlayVisible',
+      'annotationSemanticZoom', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
+    ].some(shallowDiff)) {
+      // Annotation info changed.
+      this.onUpdateAnnotationLayer();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }
