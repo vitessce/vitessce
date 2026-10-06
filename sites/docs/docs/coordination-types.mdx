@@ -194,7 +194,7 @@ The `neuroglancer` view also supports the `segmentationLayer` and `pointLayer` h
 | Coordination type | Description |
 |---|---|
 | `fileUid` | The `uid` of the file definition that supplies this layer's data. |
-| `obsType` | The observation type the layer represents, e.g. `cell`, `spot` or `point`. Used to match layers with data such as obs sets and features. |
+| `obsType` | The observation type the layer represents, e.g. `cell`, `spot` or `point`. Used to match layers with data such as obs sets and features. In the `Neuroglancer` view, giving a point layer the same `obsType` as a segmentation layer marks the points as that segmentation's centroids. The centroids drive on-demand mesh loading (only meshes near the viewport are fetched), and `obsColorEncoding: 'geneSelection'` on those points becomes quantitative colormap coloring instead of per-feature colors. |
 | `spatialLayerLabel` | Display name for the layer in the layer controller. Defaults to the capitalized `obsType`. |
 | `spatialLayerVisible` | Whether the layer is rendered. |
 | `spatialLayerOpacity` | Layer opacity from `0` to `1`. For point layers, per-feature and unselected opacities are multiplied by this value. |
@@ -238,6 +238,23 @@ The `neuroglancer` view also supports the `segmentationLayer` and `pointLayer` h
 | `legendVisible` | Whether the layer's color legend is shown. |
 | `spatialChannelsSortOrder` | Order of channels in the layer controller: `original` (as in the file) or `alphabetical`. |
 | `spatialRenderingMode` | Whether the spatial view renders in `2D` or `3D`. View-level; not set per layer. |
+
+#### Segmentation centroids in the Neuroglancer view
+
+To enable on-demand mesh loading, give the centroid point layer the same `obsType` as the segmentation channel:
+
+```js
+config.linkViewsByObject([ngView, lcView], {
+  segmentationLayer: CL([{
+    fileUid: 'cell-meshes',
+    segmentationChannel: CL([{ obsType: 'cell' }]),
+  }]),
+  pointLayer: CL([{
+    fileUid: 'cell-centroids',
+    obsType: 'cell', // same obsType as the segmentation channel
+  }]),
+});
+```
 
 ### Point layer opacity
 
