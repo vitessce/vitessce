@@ -435,7 +435,11 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
           lo = mid + 1;
         }
       }
-      return lo;
+      // If targetValue is greater than the max value of every row group
+      // (e.g., the final morton code of the bottom-right tile),
+      // lo will equal totalNumRowGroups, which is out of bounds.
+      // Clamp to the index of the final row group.
+      return Math.min(lo, totalNumRowGroups - 1);
     },
     meta: { queryClient, store },
   });
