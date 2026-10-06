@@ -24,9 +24,6 @@ import {
   useSegmentationMultiObsColors,
   useGridItemSize,
   useMemoCustomComparison,
-  useSetComponentViewInfo,
-  useComponentViewInfo,
-  useViewConfig,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
@@ -101,7 +98,6 @@ export function NeuroglancerSubscriber(props) {
 
   const loaders = useLoaders();
   const mergeCoordination = useMergeCoordination();
-  const setRawCameraSnapshot = useSetComponentViewInfo(uuid);
 
   const { classes } = useStyles();
 
@@ -155,7 +151,9 @@ export function NeuroglancerSubscriber(props) {
     obsSetSelection: cellSetSelection,
     additionalObsSets: additionalCellSets,
     obsHighlight: cellHighlight,
+    spatialCameraSnapshot,
   }, {
+    setSpatialCameraSnapshot,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -324,13 +322,11 @@ export function NeuroglancerSubscriber(props) {
     pointMultiIndicesData,
   );
 
-  const derivedCenterRef = useRef(null);
   const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(!!initialNgCameraState);
 
   const latestViewerStateRef = useRef({
     ...initialViewerState,
-    ...(initialNgCameraState ?? (derivedCenterRef.current
-      ? { position: derivedCenterRef.current } : {})),
+    ...(initialNgCameraState ?? {}),
   });
 
   const segmentationUrl = useMemo(() => {
@@ -344,49 +340,51 @@ export function NeuroglancerSubscriber(props) {
     return obsPointsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [pointLayerScopes, obsPointsUrls]);
 
+  // Contents of the precomputed `info` JSON files, fetched by the data loaders.
+  const segmentationInfo = obsSegmentationsData?.[segmentationLayerScopes?.[0]]
+    ?.neuroglancerInfo ?? null;
+  const annotationInfo = obsPointsData?.[pointLayerScopes?.[0]]
+    ?.neuroglancerInfo ?? null;
+
+  const derivedCenter = useMemo(() => {
+    // Prefer the annotation layer's real content bounds when available --
+    // the raw raster volume's declared size can span far more empty space
+    // than where the actual data sits (e.g. a thin tissue section inside
+    // a much taller declared Z range). Mirrors the priority order in
+    // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
+    // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
+    // which would need fetching actual mesh geometry rather than a single
+    // info JSON.
+    const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
+    if (Array.isArray(lower) && Array.isArray(upper)
+        && lower.length === 3 && upper.length === 3
+        && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
+      return lower.map((lo, i) => (lo + upper[i]) / 2);
+    }
+    const scale = segmentationInfo?.scales?.[0];
+    const size = scale?.size;
+    const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
+    const resolution = scale?.resolution ?? [1, 1, 1];
+    if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
+      return size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
+    }
+    return null;
+  }, [segmentationInfo, annotationInfo]);
+
   useEffect(() => {
     if (initialNgCameraState || !segmentationUrl) {
       setHasResolvedInitialCamera(true);
       return;
     }
-    Promise.all([
-      fetch(`${segmentationUrl.replace(/\/+$/, '')}/info`).then(r => r.json()).catch(() => null),
-      cellsUrl ? fetch(`${cellsUrl}/info`).then(r => r.json()).catch(() => null) : Promise.resolve(null),
-    ]).then(([segInfo, annotationInfo]) => {
-      // Prefer the annotation layer's real content bounds when available --
-      // the raw raster volume's declared size can span far more empty space
-      // than where the actual data sits (e.g. a thin tissue section inside
-      // a much taller declared Z range). Mirrors the priority order in
-      // tissue-map-tools' compute_initial_camera_state (mesh bounds > point
-      // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
-      // which would need fetching actual mesh geometry rather than a single
-      // info JSON.
-      const { lower_bound: lower, upper_bound: upper } = annotationInfo ?? {};
-      let center;
-      if (Array.isArray(lower) && Array.isArray(upper)
-          && lower.length === 3 && upper.length === 3
-          && lower.every(Number.isFinite) && upper.every(Number.isFinite)) {
-        center = lower.map((lo, i) => (lo + upper[i]) / 2);
-      } else {
-        const scale = segInfo?.scales?.[0];
-        const size = scale?.size;
-        const voxelOffset = scale?.voxel_offset ?? [0, 0, 0];
-        const resolution = scale?.resolution ?? [1, 1, 1];
-        if (Array.isArray(size) && size.length === 3 && size.every(Number.isFinite)) {
-          center = size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
-        }
-      }
-      if (center) {
-        derivedCenterRef.current = center;
-        latestViewerStateRef.current = {
-          ...latestViewerStateRef.current,
-          position: center,
-        };
-      }
-    })
-      .catch(err => console.warn('[NeuroglancerSubscriber] failed to derive default center:', err))
-      .finally(() => setHasResolvedInitialCamera(true));
-  }, [segmentationUrl, cellsUrl, initialNgCameraState]);
+    if (derivedCenter) {
+      latestViewerStateRef.current = {
+        ...latestViewerStateRef.current,
+        position: derivedCenter,
+      };
+      incrementLatestViewerStateIteration();
+    }
+    setHasResolvedInitialCamera(true);
+  }, [segmentationUrl, derivedCenter, initialNgCameraState]);
 
   const errors = [
     ...obsPointsErrors,
@@ -431,37 +429,27 @@ export function NeuroglancerSubscriber(props) {
     ty: spatialTargetY,
   });
 
-  const lastAppliedSpatialBetaSnapshotRef = useRef(null);
+  // The most recent camera snapshot that was either published by this view
+  // or already applied to it. Used to ignore our own writes when they
+  // come back to us via the coordination space.
+  const lastSeenCameraSnapshotRef = useRef(null);
   const spatialBetaJustPushedRef = useRef(false);
 
-  // Find the spatialBeta view showing the same dataset, so we can read its
-  // camera snapshot back (to sync in reverse direction: spatialBeta -> NG, for direct
-  // dragging inside spatialBeta's own panel).
-  const viewConfig = useViewConfig();
-
-  const spatialBetaUuid = useMemo(() => {
-    const layout = viewConfig?.layout;
-    if (!Array.isArray(layout)) return null;
-    const ownDatasetScope = coordinationScopes?.dataset;
-    const match = layout.find(v => v.component === 'spatialBeta'
-      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
-    return match?.uid ?? null;
-  }, [viewConfig, coordinationScopes]);
-  const spatialBetaCameraSnapshot = useComponentViewInfo(spatialBetaUuid ? `${spatialBetaUuid}-camera` : null);
-
+  // Sync in the reverse direction (spatialBeta -> NG), for direct dragging
+  // inside spatialBeta's own panel. The snapshot is shared via the
+  // spatialCameraSnapshot coordination type.
   useEffect(() => {
-    if (!spatialBetaCameraSnapshot) return;
-    if (spatialBetaCameraSnapshot === lastAppliedSpatialBetaSnapshotRef.current) return;
-    lastAppliedSpatialBetaSnapshotRef.current = spatialBetaCameraSnapshot;
+    if (!spatialCameraSnapshot) return;
+    if (spatialCameraSnapshot === lastSeenCameraSnapshotRef.current) return;
+    lastSeenCameraSnapshotRef.current = spatialCameraSnapshot;
 
-    const { position, projectionOrientation, projectionScale } = spatialBetaCameraSnapshot;
-    if (!Array.isArray(position) || !Array.isArray(projectionOrientation)) return;
-    // console.log('[ng consume]', JSON.stringify(position, projectionScale, projectionOrientation));
-    // spatialBeta's local camera lives in the Q_Y_UP-flipped frame (see the
+    const { position, quaternion, projectionScale } = spatialCameraSnapshot;
+    if (!Array.isArray(position) || !Array.isArray(quaternion)) return;
+    // The snapshot quaternion lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
-    // to spatialBeta in handleStateUpdate above). Q_Y_UP is self-inverse, so
+    // in handleStateUpdate below). Q_Y_UP is self-inverse, so
     // applying it again un-does that flip before pushing back into NG.
-    const unflipped = multiplyQuat(projectionOrientation, Q_Y_UP);
+    const unflipped = multiplyQuat(quaternion, Q_Y_UP);
 
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.vitessce;
     spatialBetaJustPushedRef.current = true;
@@ -472,7 +460,7 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
     };
     incrementLatestViewerStateIteration();
-  }, [spatialBetaCameraSnapshot]);
+  }, [spatialCameraSnapshot]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -983,23 +971,16 @@ export function NeuroglancerSubscriber(props) {
   }, [cellsUrl, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
 
 
-  // URL of the annotation source for the points layer.
-  // To fetch cells/info and spatial chunk files for viewport culling.
+  // Annotation info (cells/info) for the points layer, along with its URL,
+  // used to fetch spatial chunk files for viewport culling.
   useEffect(() => {
-    if (!cellsUrl) return;
-    // Fetch annotation info
-    fetch(`${cellsUrl}/info`)
-      .then(r => r.json())
-      .then((info) => {
-        const infoWithUrl = {
-          ...info,
-          url: cellsUrl,
-        };
-        annotationInfoRef.current = infoWithUrl;
-        if (annotationTransformRef.current) setAnnotationReady(true);
-      })
-      .catch(err => console.error('failed to fetch annotation info:', err));
-  }, [cellsUrl]);
+    if (!cellsUrl || !annotationInfo) return;
+    annotationInfoRef.current = {
+      ...annotationInfo,
+      url: cellsUrl,
+    };
+    if (annotationTransformRef.current) setAnnotationReady(true);
+  }, [cellsUrl, annotationInfo]);
 
 
   // Once both annotation info and transform are available, trigger the initial
@@ -1029,21 +1010,19 @@ export function NeuroglancerSubscriber(props) {
   const handleStateUpdate = useCallback((newState) => {
     lastInteractionSource.current = LAST_INTERACTION_SOURCE.neuroglancer;
     const { projectionScale, projectionOrientation, position } = newState;
-    // Publish NG's raw camera state through the existing generic viewInfo
-    // registry (the same mechanism spatialBeta uses to publish its own
-    // canvas size) -- no Euler decomposition, position/quaternion pass
+    // Publish NG's raw camera state via the spatialCameraSnapshot
+    // coordination type -- no Euler decomposition, position/quaternion pass
     // through unchanged. spatialBeta's RawView reads this directly.
     if (Array.isArray(position) && Array.isArray(projectionOrientation)) {
       const flippedQuaternion = multiplyQuat(projectionOrientation, Q_Y_UP);
       const snapshot = {
-        position,
-        quaternion: flippedQuaternion,
+        position: Array.from(position),
+        quaternion: Array.from(flippedQuaternion),
         projectionScale,
-        target: position,
         fovDegrees: 45,
       };
-      // console.log('[RawView] publishing snapshot', JSON.stringify(snapshot));
-      setRawCameraSnapshot(snapshot);
+      lastSeenCameraSnapshotRef.current = snapshot;
+      setSpatialCameraSnapshot(snapshot);
     }
     // NG updates it's current state
     latestViewerStateRef.current = {
@@ -1053,7 +1032,7 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     updateVisibleSegmentsThrottledRef.current?.();
-  }, [setRawCameraSnapshot]);
+  }, [setSpatialCameraSnapshot]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.

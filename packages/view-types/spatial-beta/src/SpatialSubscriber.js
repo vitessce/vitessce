@@ -35,8 +35,6 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
-  useViewConfig,
-  useComponentViewInfo,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
 } from '@vitessce/vit-s';
@@ -159,24 +157,11 @@ export function SpatialSubscriber(props) {
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
-  const setSpatialBetaCameraSnapshot = useSetComponentViewInfo(`${uuid}-camera`);
   const mergeCoordination = useMergeCoordination();
 
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
-  const viewConfig = useViewConfig();
-  const neuroglancerUuid = useMemo(() => {
-    const layout = viewConfig?.layout;
-    if (!Array.isArray(layout)) return null;
-    const ownDatasetScope = coordinationScopes?.dataset;
-    const match = layout.find(v => v.component === 'neuroglancer'
-      && (!ownDatasetScope || v.coordinationScopes?.dataset === ownDatasetScope));
-    return match?.uid ?? null;
-  }, [viewConfig, coordinationScopes]);
-
-  const hasPairedNeuroglancerView = neuroglancerUuid !== null;
-  const rawCameraSnapshot = useComponentViewInfo(neuroglancerUuid);
 
   // Merge the coordination values that the current annotation frame defines for this view
   // into the coordination space, whenever the frame changes. The story itself is read-only.
@@ -201,6 +186,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
@@ -224,6 +210,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -242,6 +229,10 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
+
+  // A non-null camera snapshot in the coordination space indicates
+  // that a neuroglancer view is present and is publishing its camera state.
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -1164,13 +1155,13 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
-            rawCameraSnapshot={hasPairedNeuroglancerView ? rawCameraSnapshot : null}
-            setSpatialBetaCameraSnapshot={hasPairedNeuroglancerView ? setSpatialBetaCameraSnapshot : null}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? spatialCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSpatialCameraSnapshot : null}
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
             annotationShapeSelection={annotationShapeSelection}
-            hideRecenter={hasPairedNeuroglancerView}
+            hideRecenter={hasSpatialCameraSnapshot}
           />
         )
       }
