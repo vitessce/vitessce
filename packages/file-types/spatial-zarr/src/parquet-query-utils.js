@@ -8,6 +8,7 @@
 import { tableFromIPC } from 'apache-arrow';
 import { range } from 'lodash-es';
 import { log } from '@vitessce/globals';
+import { fetchQueryWithSignal } from '@vitessce/zarr-utils';
 import { sdataMortonQueryRectAux } from './spatialdata-points-zorder.js';
 
 /** @import { QueryClient } from '@tanstack/react-query' */
@@ -58,26 +59,33 @@ async function _getParquetModule({ queryClient }) {
 }
 
 // Utility functions for loading particular row groups, rows, row group extent, and binary searching.
-async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery = undefined, partIndex = undefined) {
-  return queryClient.fetchQuery({
+// Each function accepts an optional AbortSignal (alongside the queryClient and store),
+// which allows the caller to stop waiting on the query.
+// Since queries are shared among concurrent callers, within each queryFn,
+// the query's own signal (ctx.signal) is passed to nested queries and store requests,
+// rather than the signal of a particular caller.
+// See fetchQueryWithSignal for more details.
+async function _loadParquetBytes({ queryClient, store, signal }, parquetPath, rangeQuery = undefined, partIndex = undefined) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_loadParquetBytes', parquetPath, rangeQuery, partIndex],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
+      const { signal } = ctx;
       const rangeQuery = ctx.queryKey[3];
       const { offset, length, suffixLength } = rangeQuery || {};
 
-      let getter = path => store.get(path);
+      let getter = path => store.get(path, { signal });
       if (rangeQuery !== undefined && store.getRange) {
         if (suffixLength !== undefined) {
           getter = path => store.getRange(path, {
             suffixLength,
-          });
+          }, { signal });
         } else {
           getter = path => store.getRange(path, {
             offset,
             length,
-          });
+          }, { signal });
         }
       }
 
@@ -94,15 +102,16 @@ async function _loadParquetBytes({ queryClient, store }, parquetPath, rangeQuery
       return parquetBytes;
     },
     meta: { store },
-  });
+  }, signal);
 }
 
-async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, partIndex = undefined) {
-  return queryClient.fetchQuery({
+async function _loadParquetSchemaBytes({ queryClient, store, signal }, parquetPath, partIndex = undefined) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_loadParquetSchemaBytes', parquetPath, partIndex],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const store = ctx.meta?.store;
+      const { signal } = ctx;
       // Assume the store has already been extended (withGetRange)
       // via applyStoreExtensions.
       // Step 1: Fetch last 8 bytes to get footer length and magic number
@@ -113,13 +122,13 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       // TODO: use _loadParquetBytes here and below instead?
       let tailBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: TAIL_LENGTH,
-      });
+      }, { signal });
       if (!tailBytes) {
         // Case 2: Rather than a single file, this may be a directory with multiple parts.
         partZeroPath = `${parquetPath}/part.${partIndex ?? 0}.parquet`;
         tailBytes = await store.getRange(`/${partZeroPath}`, {
           suffixLength: TAIL_LENGTH,
-        });
+        }, { signal });
       }
 
       if (!tailBytes || tailBytes.length < TAIL_LENGTH) {
@@ -143,7 +152,7 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       // Step 3. Fetch the full footer bytes
       const footerBytes = await store.getRange(`/${partZeroPath}`, {
         suffixLength: footerLength + TAIL_LENGTH,
-      });
+      }, { signal });
       if (!footerBytes || footerBytes.length !== footerLength + TAIL_LENGTH) {
         throw new Error(`Failed to load parquet footer bytes for ${parquetPath}`);
       }
@@ -151,15 +160,16 @@ async function _loadParquetSchemaBytes({ queryClient, store }, parquetPath, part
       return footerBytes;
     },
     meta: { queryClient, store },
-  });
+  }, signal);
 }
 
-export async function _loadParquetMetadataByPart({ queryClient, store }, parquetPath) {
-  return queryClient.fetchQuery({
+export async function _loadParquetMetadataByPart({ queryClient, store, signal }, parquetPath) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_loadParquetMetadataByPart', parquetPath],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
+      const { signal } = ctx;
       const { readSchema, readMetadata } = await _getParquetModule({ queryClient });
 
       let partIndex = 0;
@@ -169,7 +179,7 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
         try {
           // TODO: support multiple tries upon failure?
           // eslint-disable-next-line no-await-in-loop
-          const schemaBytes = await _loadParquetSchemaBytes({ queryClient, store }, parquetPath, partIndex);
+          const schemaBytes = await _loadParquetSchemaBytes({ queryClient, store, signal }, parquetPath, partIndex);
           if (schemaBytes) {
             const wasmSchema = readSchema(schemaBytes);
             /** @type {import('apache-arrow').Table} */
@@ -188,6 +198,10 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
             // No more parts found.
             numParts = partIndex;
             log.info(`Found ${numParts} parts for parquet path ${parquetPath}; An above "Failed to load parquet footerLength" error is expected for the subsequent part.`);
+          } else {
+            // For example, the request was aborted.
+            // Re-throw, otherwise this loop would never terminate.
+            throw error;
           }
         }
       } while (numParts === undefined);
@@ -221,20 +235,21 @@ export async function _loadParquetMetadataByPart({ queryClient, store }, parquet
       return result;
     },
     meta: { queryClient },
-  });
+  }, signal);
 }
 
 
-export async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex) {
-  return queryClient.fetchQuery({
+export async function _loadParquetRowGroupByGroupIndex({ queryClient, store, signal }, parquetPath, rowGroupIndex) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupByGroupIndex', parquetPath, rowGroupIndex],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
+      const { signal } = ctx;
       const { readParquetRowGroup } = await _getParquetModule({ queryClient });
 
-      const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
+      const allMetadata = await _loadParquetMetadataByPart({ queryClient, store, signal }, parquetPath);
       if (rowGroupIndex < 0 || rowGroupIndex >= allMetadata.totalNumRowGroups) {
         throw new Error(`Row group index ${rowGroupIndex} is out of bounds for parquet table with ${allMetadata.totalNumRowGroups} row groups.`);
       }
@@ -263,25 +278,26 @@ export async function _loadParquetRowGroupByGroupIndex({ queryClient, store }, p
       const rowGroupFileOffset = rowGroupMetadata.fileOffset();
       const rowGroupCompressedSize = rowGroupMetadata.compressedSize();
 
-      const rowGroupBytes = await _loadParquetBytes({ queryClient, store }, parquetPath, { offset: rowGroupFileOffset, length: rowGroupCompressedSize }, partIndex);
+      const rowGroupBytes = await _loadParquetBytes({ queryClient, store, signal }, parquetPath, { offset: rowGroupFileOffset, length: rowGroupCompressedSize }, partIndex);
       const rowGroupIPC = readParquetRowGroup(schemaBytes, rowGroupBytes, rowGroupIndexRelativeToPart).intoIPCStream();
       const rowGroupTable = tableFromIPC(rowGroupIPC);
       return rowGroupTable;
     },
     meta: { queryClient, store },
-  });
+  }, signal);
 }
 
-async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetPath, columnName, rowGroupIndex) {
-  return queryClient.fetchQuery({
+async function _loadParquetRowGroupColumnExtent({ queryClient, store, signal }, parquetPath, columnName, rowGroupIndex) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_loadParquetRowGroupColumnExtent', parquetPath, columnName, rowGroupIndex],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
+      const { signal } = ctx;
 
       // Load the min/max extent (via first/last row) for a specific column in a specific row group.
-      const rowGroupTable = await _loadParquetRowGroupByGroupIndex({ queryClient, store }, parquetPath, rowGroupIndex);
+      const rowGroupTable = await _loadParquetRowGroupByGroupIndex({ queryClient, store, signal }, parquetPath, rowGroupIndex);
       const column = rowGroupTable.getChild(columnName);
       if (!column) {
         throw new Error(`Column ${columnName} not found in row group ${rowGroupIndex} of parquet table at ${parquetPath}.`);
@@ -293,7 +309,7 @@ async function _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetP
       return { min: column.get(0), max: column.get(column.length - 1) };
     },
     meta: { queryClient, store },
-  });
+  }, signal);
 }
 
 /*
@@ -351,7 +367,7 @@ function getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi) {
   return cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
 }
 
-async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
+async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi, signal) {
   // The assumption here is that it is very cheap to check the cached
   // row group indices (and their min/max values), while loading a row group is expensive.
   const queryCache = queryClient.getQueryCache();
@@ -364,6 +380,7 @@ async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
     queryKey: q.queryKey,
     index: q.queryKey[4],
     status: q.state.status,
+    fetchStatus: q.state.fetchStatus,
     min: q.state.data?.min,
     max: q.state.data?.max,
   })).filter(v => v !== null).toSorted((a, b) => a.index - b.index);
@@ -371,28 +388,34 @@ async function getCachedInRange(queryClient, parquetPath, columnName, lo, hi) {
   const cachedInRange = cachedRowGroupInfo.filter(c => c.index >= lo && c.index < hi);
   // We want to await any pending queries here before returning, to avoid accumulating many pending queries.
   // One of the pending queries may contain an answer that allows us to skip other queries.
-  const pendingQueries = cachedInRange.filter(c => c.status !== 'success');
+  // Only in-flight queries are awaited. For example, a query that was cancelled
+  // (because all of its callers aborted) reverts to an idle, data-less state,
+  // and has nothing to await.
+  const pendingQueries = cachedInRange.filter(c => c.status !== 'success' && c.fetchStatus === 'fetching');
   if (pendingQueries.length === 0) {
-    return cachedInRange;
+    return getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi);
   }
-  const pendingPromises = pendingQueries.map(c => queryClient.ensureQueryData({
+  // Since these queries are already in-flight, fetchQuery (without a queryFn)
+  // returns the promise for the in-flight request.
+  const pendingPromises = pendingQueries.map(c => fetchQueryWithSignal(queryClient, {
     queryKey: c.queryKey,
-  }));
+  }, signal));
   // console.log('Awaiting', pendingPromises.length, 'pending cached row group extent queries', pendingQueries);
   await Promise.all(pendingPromises);
 
   return getCachedInRangeSync(queryClient, parquetPath, columnName, lo, hi);
 }
 
-async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, columnName, targetValue) {
+async function _bisectRowGroupsRight({ queryClient, store, signal }, parquetPath, columnName, targetValue) {
   // Identify the row group index.
-  return queryClient.fetchQuery({
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_bisectRowGroupsRight', parquetPath, columnName, targetValue],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
-      const allMetadata = await _loadParquetMetadataByPart({ queryClient, store }, parquetPath);
+      const { signal } = ctx;
+      const allMetadata = await _loadParquetMetadataByPart({ queryClient, store, signal }, parquetPath);
       const { totalNumRowGroups } = allMetadata;
 
       let lo = 0;
@@ -406,7 +429,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
         // Check getQueryCache every iteration, in case it has changed while the loop was executing.
         // (Is this even possible though? E.g., due to the usage of Promise.all?)
         // eslint-disable-next-line no-await-in-loop
-        const cachedInRange = await getCachedInRange(queryClient, parquetPath, columnName, lo, hi);
+        const cachedInRange = await getCachedInRange(queryClient, parquetPath, columnName, lo, hi, signal);
         // We want to find the first interval (from right) where targetValue >= c.max.
         // eslint-disable-next-line no-loop-func
         const betterLo = cachedInRange.slice().reverse().find(c => c.index > lo && targetValue >= c.max);
@@ -428,7 +451,7 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
 
         const mid = Math.floor((lo + hi) / 2);
         // eslint-disable-next-line no-await-in-loop
-        const { max: midVal } = await _loadParquetRowGroupColumnExtent({ queryClient, store }, parquetPath, columnName, mid);
+        const { max: midVal } = await _loadParquetRowGroupColumnExtent({ queryClient, store, signal }, parquetPath, columnName, mid);
         if (midVal === null || targetValue <= midVal) {
           hi = mid;
         } else {
@@ -438,16 +461,17 @@ async function _bisectRowGroupsRight({ queryClient, store }, parquetPath, column
       return lo;
     },
     meta: { queryClient, store },
-  });
+  }, signal);
 }
 
-export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath, tileBbox, allPointsBbox, mortonCodeColumnName) {
-  return queryClient.fetchQuery({
+export async function _rectToRowGroupIndices({ queryClient, store, signal }, parquetPath, tileBbox, allPointsBbox, mortonCodeColumnName) {
+  return fetchQueryWithSignal(queryClient, {
     queryKey: ['SpatialDataTableSource', '_rectToRowGroupIndices', parquetPath, tileBbox, allPointsBbox],
     staleTime: Infinity,
     queryFn: async (ctx) => {
       const queryClient = /** @type {QueryClient} */ (ctx.meta?.queryClient);
       const store = ctx.meta?.store;
+      const { signal } = ctx;
 
       const mortonIntervals = sdataMortonQueryRectAux(allPointsBbox, [
         [tileBbox.left, tileBbox.top], // TODO: is this backwards (bottom/top)?
@@ -481,8 +505,8 @@ export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath
         const [endMin, endMax] = mortonIntervals[endIndex];
         // Check if the start and end intervals span multiple row groups.
         const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-          _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, startMin),
-          _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, endMax),
+          _bisectRowGroupsRight({ queryClient, store, signal }, parquetPath, mortonCodeColumnName, startMin),
+          _bisectRowGroupsRight({ queryClient, store, signal }, parquetPath, mortonCodeColumnName, endMax),
         ]);
         // console.log('Between intervals ', startIndex, endIndex, ' rowGroupIndexMin/max: ', rowGroupIndexMin, rowGroupIndexMax);
         if (rowGroupIndexMin === rowGroupIndexMax) {
@@ -514,8 +538,8 @@ export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath
             const [intervalMin, intervalMax] = mortonIntervals[startIndex];
             // eslint-disable-next-line no-await-in-loop
             const [rowGroupIndexMin, rowGroupIndexMax] = await Promise.all([
-              _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, intervalMin),
-              _bisectRowGroupsRight({ queryClient, store }, parquetPath, mortonCodeColumnName, intervalMax),
+              _bisectRowGroupsRight({ queryClient, store, signal }, parquetPath, mortonCodeColumnName, intervalMin),
+              _bisectRowGroupsRight({ queryClient, store, signal }, parquetPath, mortonCodeColumnName, intervalMax),
             ]);
             if (rowGroupIndexMin <= rowGroupIndexMax) {
               coveredRowGroupIndices = coveredRowGroupIndices.concat(range(rowGroupIndexMin, rowGroupIndexMax + 1));
@@ -535,5 +559,5 @@ export async function _rectToRowGroupIndices({ queryClient, store }, parquetPath
       return uniqueCoveredRowGroupIndices;
     },
     meta: { queryClient, store },
-  });
+  }, signal);
 }

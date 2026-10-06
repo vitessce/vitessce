@@ -9,6 +9,7 @@ export {
   UNCACHED_READ,
 } from './normalize.js';
 export type { QueryClientLike } from './normalize.js';
+export { fetchQueryWithSignal } from './query-signal.js';
 export { createStoreFromMapContents } from './base64-store.js';
 export { withGetRange } from './base-getrange.js';
 export {
