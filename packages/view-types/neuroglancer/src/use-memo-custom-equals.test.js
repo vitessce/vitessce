@@ -1,15 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 
-const makeDeps = layer => ({
+// Shared references so shallowDiff on top-level deps sees no change;
+// only the per-layer coordination differs between prev and next.
+const SHARED_DEPS = {
   theme: 'dark',
   showAxisLines: false,
   segmentationLayerScopes: [],
   segmentationChannelScopesByLayer: {},
   pointLayerScopes: ['A'],
-  pointLayerCoordination: [{ A: layer }],
   obsPointsData: {},
   pointMultiIndicesData: {},
+};
+
+
+const makeDeps = layer => ({
+  ...SHARED_DEPS,
+  pointLayerCoordination: [{ A: layer }],
 });
 
 describe('customIsEqualForInitialViewerState point opacity', () => {
