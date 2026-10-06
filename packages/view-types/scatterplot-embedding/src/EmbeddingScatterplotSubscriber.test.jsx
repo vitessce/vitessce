@@ -19,6 +19,7 @@ vi.mock('@vitessce/vit-s', () => ({
   useObsSetsData: () => [{ obsSets: state.sets }, 'success', [], null],
   useAnnotationStoryData: () => [{}, 'success', [], null],
   useAnnotationFrameCoordination: () => {},
+  useAnnotationEditingForView: () => ({}),
   useFeatureSelection: () => [null, [], 'success', []],
   useObsFeatureMatrixIndices: () => [{ obsIndex: state.index }, 'success', [], null],
   useFeatureLabelsData: () => [{}, 'success', [], null],
@@ -39,6 +40,7 @@ vi.mock('@vitessce/scatterplot', () => ({
   ScatterplotOptions: () => null,
   getPointSizeDevicePixels: () => 1,
   getPointOpacity: () => 1,
+  useAnnotationFrameTransition: () => ({}),
 }));
 vi.mock('@vitessce/legend', () => ({ Legend: () => null }));
 

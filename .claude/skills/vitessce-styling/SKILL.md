@@ -1,6 +1,6 @@
 ---
 name: vitessce-styling
-description: Use when adding or modifying styles, CSS, visual appearance, or layout in Vitessce components. Covers the JSS-based makeStyles pattern, theme access, MUI component usage, and color conventions. Trigger on "add styles", "style this component", "change the appearance", "CSS", "theme colors", "use MUI", "add padding", "position an element", or any layout/visual change in a component.
+description: Use when adding or modifying styles, CSS, visual appearance, or layout in Vitessce components. Covers the makeStyles pattern, theme access, MUI component usage, and color conventions. Trigger on "add styles", "style this component", "change the appearance", "CSS", "theme colors", "use MUI", "add padding", "position an element", or any layout/visual change in a component.
 ---
 
 # Styling in Vitessce

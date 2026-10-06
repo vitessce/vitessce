@@ -319,7 +319,14 @@ function GlobalSelectionSlider({
  */
 function LayerOption({ name, inputId, children }) {
   return (
-    <Grid container direction="row" alignItems="center" justifyContent="center">
+    <Grid
+      container
+      direction="row"
+      sx={{
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Grid size={6}>
         <InputLabel htmlFor={inputId}>{name}:</InputLabel>
       </Grid>
@@ -388,7 +395,7 @@ function LayerOptions({
   const opacitySliderId = useId();
   const zeroTransparentId = useId();
   return (
-    <Grid container direction="column" sx={{ width: '100%' }}>
+    <Grid container sx={{ flexDirection: 'column', width: '100%' }}>
       {hasZStack
         && !disable3d
         && hasViewableResolutions

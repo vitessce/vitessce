@@ -270,7 +270,13 @@ export default function SpotLayerController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
+        <Grid
+          container
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+          }}
+        >
           <Grid size={1}>
             <Button
               onClick={handleVisibleChange}

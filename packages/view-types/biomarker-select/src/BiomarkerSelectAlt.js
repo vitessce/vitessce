@@ -26,7 +26,13 @@ export function BiomarkerSelectAlt(props) {
   return (
     <Grid container sx={{ border: '0px solid red' }}>
       <Grid container size={12} className={classes.header}>
-        <Grid container size={4} justifyContent="flex-end">
+        <Grid
+          container
+          size={4}
+          sx={{
+            justifyContent: 'flex-end',
+          }}
+        >
           <BiomarkerSelectAltGeneAutocomplete
             setFeatureSelection={setFeatureSelection}
             autocompleteNode={autocompleteNode}
@@ -37,7 +43,14 @@ export function BiomarkerSelectAlt(props) {
             setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
           />
         </Grid>
-        <Grid container size={5} justifyContent="flex-start" flexDirection="column">
+        <Grid
+          container
+          size={5}
+          sx={{
+            justifyContent: 'flex-start',
+            flexDirection: 'column',
+          }}
+        >
           <BiomarkerSelectAltSampleGroups
             setSampleSetFilter={setSampleSetFilter}
             setSampleSetSelection={setSampleSetSelection}
