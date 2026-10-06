@@ -66,12 +66,16 @@ function getExistingScope(layout, coordinationType) {
  * @param {object} options
  * @param {number} options.width The width (in grid columns) of the annotationController.
  * @param {string} options.uid The preferred uid for the annotationController view.
+ * @param {boolean} options.closeButtonVisible The value of the new view's
+ * props.closeButtonVisible value. Optional. If not provided, props.closeButtonVisible
+ * is not defined for the new view (i.e., the default is used).
  * @returns {object} The new view config.
  */
 export function addAnnotationControllerView(config, options = {}) {
   const {
     width = DEFAULT_ANNOTATION_CONTROLLER_WIDTH,
     uid = DEFAULT_ANNOTATION_CONTROLLER_UID,
+    closeButtonVisible,
   } = options;
   if (!Number.isInteger(width) || width < 1 || width >= NUM_GRID_COLUMNS) {
     throw new Error(`The annotationController width must be a whole number between 1 and ${NUM_GRID_COLUMNS - 1}.`);
@@ -107,6 +111,7 @@ export function addAnnotationControllerView(config, options = {}) {
     uid: getUniqueViewUid(layout, uid),
     component: ViewType.ANNOTATION_CONTROLLER,
     ...(Object.keys(coordinationScopes).length > 0 ? { coordinationScopes } : {}),
+    ...(closeButtonVisible !== undefined ? { props: { closeButtonVisible } } : {}),
     x: remainingColumns,
     y: 0,
     w: width,

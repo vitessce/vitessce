@@ -8,4 +8,5 @@ export {
   getOnHoverCallback,
   createQuadTree,
   AbstractSpatialOrScatterplot,
+  useAnnotationFrameTransition,
 } from './shared-spatial-scatterplot/index.js';

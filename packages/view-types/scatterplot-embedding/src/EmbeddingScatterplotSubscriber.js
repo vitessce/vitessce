@@ -15,6 +15,7 @@ import {
   useObsSetsData,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -33,14 +34,19 @@ import {
   setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
   colorIndicesFromCodes, getObsIndexMap, stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
+import {
+  pluralize as plur, commaNumber, aggregateFeatureArrays, getAnnotationFrameCoordinationValues,
+} from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
+  useAnnotationFrameTransition,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import {
+  ViewType, CoordinationType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping,
+} from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
@@ -73,6 +79,8 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelection: sampleSetSelectionFromProps,
     // Circle scale factor:
     circleScaleFactor = 0.8,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -137,6 +145,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     annotationSemanticZoom,
     annotationTransitionDuration,
     annotationEditable,
+    annotationFrameIndex,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -168,6 +177,13 @@ export function EmbeddingScatterplotSubscriber(props) {
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
     coordinationValues, uuid,
+  );
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
   );
 
   const {
@@ -595,6 +611,20 @@ export function EmbeddingScatterplotSubscriber(props) {
     obsSetsColumns,
   ]);
 
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_Y],
+    },
+    annotationTransitionDuration,
+  );
+
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -665,7 +695,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         uuid={uuid}
         onSelectionBusy={setIsSelectionPending}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom, target: [targetX, targetY, targetZ], ...annotationTransitionProps }}
         setViewState={setViewState}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
@@ -715,6 +745,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         annotationSemanticZoom={annotationSemanticZoom}
         annotationTransitionDuration={annotationTransitionDuration}
         annotationEditable={annotationEditable}
+        {...annotationEditingProps}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber

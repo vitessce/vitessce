@@ -53,7 +53,15 @@ export {
   useComponentLayout,
   useRemoveImageChannelInMetaCoordinationScopes,
   useAddImageChannelInMetaCoordinationScopes,
+  getAnnotationFrameUpdate,
 } from './state/hooks.js';
+export {
+  useAnnotationEditingStore,
+  useAnnotationEditingStoreApi,
+  useAnnotationEditingStoreShallow,
+  useAnnotationEditingForView,
+  getViewCoordinationValuesForFrame,
+} from './state/annotation-editing.js';
 export {
   useDescription,
   useImageData,

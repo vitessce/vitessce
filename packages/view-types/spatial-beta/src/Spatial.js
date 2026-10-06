@@ -1436,7 +1436,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
-      annotationLayer,
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
   }
 
@@ -1969,21 +1971,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       annotationShapes,
       annotationOverlayVisible,
       annotationSemanticZoom,
-      annotationShapeSelection,
+      annotationInProgressShape,
     } = this.props;
     return new AnnotationLayer({
       id: 'annotation-layer',
       data: annotationShapes,
-      visible: annotationOverlayVisible,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
       semanticZoom: annotationSemanticZoom,
-      selectedShapeUid: annotationShapeSelection,
+      ...this.getAnnotationEditingLayerProps(),
       viewType: ViewType.SPATIAL_BETA,
     });
   }
 
   onUpdateAnnotationLayer() {
-    const { annotationShapes } = this.props;
-    if (annotationShapes) {
+    const { annotationShapes, annotationInProgressShape } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
       this.annotationLayer = this.createAnnotationLayer();
     } else {
       this.annotationLayer = null;
@@ -2288,7 +2291,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if ([
       'annotationShapes', 'annotationOverlayVisible',
-      'annotationSemanticZoom', 'annotationShapeSelection',
+      'annotationSemanticZoom', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
     ].some(shallowDiff)) {
       // Annotation info changed.
       this.onUpdateAnnotationLayer();

@@ -8,6 +8,6 @@ export {
   LineLayer,
 } from '@deck.gl/layers';
 export { TileLayer } from '@deck.gl/geo-layers';
-export { OrthographicView, OrbitView } from '@deck.gl/core';
+export { OrthographicView, OrbitView, LinearInterpolator } from '@deck.gl/core';
 export { ContourLayer } from '@deck.gl/aggregation-layers';
 export { DataFilterExtension, PathStyleExtension } from '@deck.gl/extensions';
