@@ -40,6 +40,9 @@ const useStyles = makeStyles()(theme => ({
  * form of the name of the variable.
  * @param {boolean} props.enableMultiSelect If true, allow
  * shift-clicking to select multiple genes.
+ * @param {boolean} props.requireShiftForMultiSelect If true,
+ * require shift+click to select multiple features. If false,
+ * clicking subsequent features results in multi-selection.
  * @param {boolean} props.showTable If true, shows a table with the feature name and id.
  * @param {'alphabetical'|'original'} props.sort The sort order of the genes. If sort is defined and
  * it is not equal to `alphabetical`, the genes will be displayed in the feature list in
@@ -54,6 +57,7 @@ export function FeatureListSubscriber(props) {
     theme,
     title: titleOverride,
     enableMultiSelect = false,
+    requireShiftForMultiSelect = true,
     showTable = false,
     sort = 'alphabetical',
     sortKey = null,
@@ -176,6 +180,7 @@ export function FeatureListSubscriber(props) {
           setGeneFilter={setGeneFilter}
           setGeneHighlight={setGeneHighlight}
           enableMultiSelect={enableMultiSelect}
+          requireShiftForMultiSelect={requireShiftForMultiSelect}
           hasFeatureLabels={hasFeatureLabels}
           primaryColumnName={primaryColumnName}
         />
