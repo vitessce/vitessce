@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat,
-  vconcat,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
@@ -80,10 +79,13 @@ function generateNeuroglancerMerfish() {
     url: sdataUrl,
     options: {
       obsFeatureMatrix: {
-        path: 'tables/gene_expression_baysor/X',
+        path: 'tables/gene_expression_cellpose/layers/log_norm',
       },
+      obsEmbedding: [
+        { path: 'tables/gene_expression_cellpose/obsm/X_umap', embeddingType: 'UMAP' },
+      ],
       obsSets: {
-        tablePath: 'tables/gene_expression_baysor',
+        tablePath: 'tables/gene_expression_cellpose',
         obsSets: [
           {
             name: 'Cell Types',
@@ -98,7 +100,7 @@ function generateNeuroglancerMerfish() {
     },
   });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
+  const neuroglancerView = config.addView(dataset, 'neuroglancer', { x: 0, y: 0, w: 5, h: 7 }).setProps({
     // Note: this is a temporary mechanism to pass an initial NG camera state.
     // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
     // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
@@ -118,9 +120,14 @@ function generateNeuroglancerMerfish() {
     },
     showAxisLines: true,
   });
-  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
-  const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
-  const obsSets = config.addView(dataset, 'obsSets');
+  const umap = config.addView(dataset, 'scatterplot', { mapping: 'UMAP', x: 5, y: 0, w: 4, h: 7 });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 4 }).setProps({ layerPerFeatureForPoints: true });
+  const geneList = config.addView(dataset, 'featureList', { x: 9, y: 4, w: 3, h: 3 }).setProps({ enableMultiSelect: true });
+  const heatmap = config.addView(dataset, 'heatmap', { x: 0, y: 7, w: 6, h: 5 });
+  const obsSets = config.addView(dataset, 'obsSets', { x: 6, y: 7, w: 3, h: 5 });
+  const violin = config.addView(dataset, 'obsSetFeatureValueDistribution', { x: 9, y: 7, w: 3, h: 5 });
+
+  config.linkViewsByObject([violin], { featureValueTransform: 'log1p' }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, lcView], {
     spatialRenderingMode: '3D',
@@ -175,7 +182,6 @@ function generateNeuroglancerMerfish() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
-  config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
   const configJSON = config.toJSON();
   return configJSON;
 }
