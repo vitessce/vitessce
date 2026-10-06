@@ -16,6 +16,7 @@ export function BiomarkerSelectAlt(props) {
     setCurrentModalitySpecificSelection,
 
     autocompleteNode,
+    getEdges,
 
     stratifications,
   } = props;
@@ -29,6 +30,7 @@ export function BiomarkerSelectAlt(props) {
           <BiomarkerSelectAltGeneAutocomplete
             setFeatureSelection={setFeatureSelection}
             autocompleteNode={autocompleteNode}
+            getEdges={getEdges}
 
             currentModalityAgnosticSelection={currentModalityAgnosticSelection}
             setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
