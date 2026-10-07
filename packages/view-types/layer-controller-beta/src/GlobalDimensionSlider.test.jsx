@@ -23,12 +23,12 @@ describe('GlobalDimensionSlider.js', () => {
   describe('<GlobalDimensionSlider />', () => {
     it('offers the 3D switch by default', async () => {
       renderZSlider();
-      expect(await screen.findByRole('checkbox', { name: '3D' })).toBeDefined();
+      expect(await screen.findByRole('switch', { name: '3D' })).toBeDefined();
     });
 
     it('withholds the 3D switch when a config disables 3D', () => {
       renderZSlider({ enable3d: false });
-      expect(screen.queryByRole('checkbox', { name: '3D' })).toBeNull();
+      expect(screen.queryByRole('switch', { name: '3D' })).toBeNull();
       // The Z-slice slider itself must survive.
       expect(screen.queryByLabelText('Z-slice slider')).not.toBeNull();
     });
@@ -43,7 +43,7 @@ describe('GlobalDimensionSlider.js', () => {
           max={3}
         />,
       );
-      expect(screen.queryByRole('checkbox', { name: '3D' })).toBeNull();
+      expect(screen.queryByRole('switch', { name: '3D' })).toBeNull();
     });
   });
 });

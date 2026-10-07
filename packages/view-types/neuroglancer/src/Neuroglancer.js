@@ -13,7 +13,6 @@ function createWorker() {
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
-    this.bundleRoot = createWorker();
     this.cellColorMapping = props.cellColorMapping;
     this.justReceivedExternalUpdate = false;
     this.prevMouseStateChanged = null;
@@ -23,6 +22,7 @@ export class NeuroglancerComp extends PureComponent {
     // To avoid closure for onSegmentClick(), to update the selection
     this.latestOnSegmentClick = props.onSegmentClick;
     this.latestOnSelectHoveredCoords = props.onSelectHoveredCoords;
+    this.state = { bundleRootReady: false };
   }
 
   onRef(viewerRef) {
@@ -92,7 +92,7 @@ export class NeuroglancerComp extends PureComponent {
       };
 
       onViewerReady?.(() => {
-        const panel = [...viewer.display.panels][0];
+        const panel = viewer.display.panels.values().next().value;
         /* eslint-disable-next-line no-underscore-dangle */
         return panel?.projectionParameters?.value_?.viewProjectionMat;
       });
@@ -119,6 +119,16 @@ export class NeuroglancerComp extends PureComponent {
     }
   }
 
+  componentDidMount() {
+    this.bundleRoot = createWorker();
+    this.setState({ bundleRootReady: true });
+  }
+
+  componentWillUnmount() {
+    this.bundleRoot?.terminate();
+    this.bundleRoot = null;
+  }
+
   render() {
     const { classes,
       viewerState,
@@ -128,24 +138,26 @@ export class NeuroglancerComp extends PureComponent {
       onViewerReady,
       meshOpacity,
     } = this.props;
-
+    const { bundleRootReady } = this.state;
     return (
       <>
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            <LazyReactNeuroglancer
-              brainMapsClientId="NOT_A_VALID_ID"
-              viewerState={viewerState}
-              onViewerStateChanged={this.onViewerStateChanged}
-              onLayerLoadingChange={onLayerLoadingChange}
-              bundleRoot={this.bundleRoot}
-              cellColorMapping={cellColorMapping}
-              ref={this.onRef}
-              onAnnotationSourceReady={onAnnotationSourceReady}
-              onViewerReady={onViewerReady}
-              meshOpacity={meshOpacity}
-            />
+            {bundleRootReady && (
+              <LazyReactNeuroglancer
+                brainMapsClientId="NOT_A_VALID_ID"
+                viewerState={viewerState}
+                onViewerStateChanged={this.onViewerStateChanged}
+                onLayerLoadingChange={onLayerLoadingChange}
+                bundleRoot={this.bundleRoot}
+                cellColorMapping={cellColorMapping}
+                ref={this.onRef}
+                onAnnotationSourceReady={onAnnotationSourceReady}
+                onViewerReady={onViewerReady}
+                meshOpacity={meshOpacity}
+              />
+            )}
           </Suspense>
         </div>
       </>

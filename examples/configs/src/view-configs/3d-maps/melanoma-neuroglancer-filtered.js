@@ -34,7 +34,7 @@ function generateNeuroglancerMinimalConfiguration() {
   dataset.addFile({
     fileType: 'obsEmbedding.csv',
     url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
-    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+
     options: {
       obsIndex: 'id',
       obsEmbedding: ['tSNE1', 'tSNE2'],
@@ -48,7 +48,6 @@ function generateNeuroglancerMinimalConfiguration() {
   dataset.addFile({
     fileType: 'obsSets.csv',
     url: 'https://storage.googleapis.com/vitessce-demo-data/neuroglancer-march-2025/melanoma_with_embedding_filtered_ids.csv',
-    // url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -88,9 +87,6 @@ function generateNeuroglancerMinimalConfiguration() {
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // Note: this is a temporary mechanism to pass an initial NG camera state.
-    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
-    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState: {
       position: [49.5, 1000.5, 5209.5],
       projectionScale: 1024,

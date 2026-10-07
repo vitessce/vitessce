@@ -486,13 +486,22 @@ export default function LayerController(props) {
         aria-controls={`layer-${name}-controls`}
         aria-expanded={isExpanded}
       >
-        <Grid container direction="column" justifyContent="center" sx={{ flexGrow: 1 }}>
+        <Grid
+          container
+          sx={{
+            flexDirection: 'column',
+            justifyContent: 'center',
+            flexGrow: 1,
+          }}
+        >
           <Grid
             container
             size={12}
             direction="row"
-            alignItems="flex-start"
             classes={{ item: overflowEllipsisGridClasses.item }}
+            sx={{
+              alignItems: 'flex-start',
+            }}
           >
             <Box
               component="div"

@@ -447,6 +447,21 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_ORBIT, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ORBIT_AXIS, 'Y', z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_FIXED, false, z.boolean().nullable()),
+  // A raw 3D camera state, shared between spatialBeta and neuroglancer views.
+  // A non-null value indicates that both views are present and should be synchronized.
+  new PluginCoordinationType(
+    CoordinationType.SPATIAL_CAMERA_SNAPSHOT,
+    null,
+    z.object({
+      // Orbit target / pivot point.
+      position: z.array(z.number()).length(3),
+      // Camera orientation [x, y, z, w], in the Y-up frame used by spatialBeta.
+      quaternion: z.array(z.number()).length(4),
+      // Height of the visible region at the pivot (Neuroglancer's projectionScale).
+      projectionScale: z.number(),
+      fovDegrees: z.number(),
+    }).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.SPATIAL_IMAGE_LAYER, null, imageLayerObj.nullable()),
   new PluginCoordinationType(
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
@@ -504,6 +519,7 @@ export const baseCoordinationTypes = [
     z.array(z.object({
       name: z.string(),
       color: rgbArray,
+      opacity: z.number().min(0).max(1).optional(),
     })).nullable(),
   ),
   new PluginCoordinationType(
@@ -600,6 +616,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED, 0.25, z.number().min(0).max(1)),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLORMAP, null, z.string().nullable()), // TODO: enum to be more strict
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_MODEL_MATRIX, null, z.array(z.number()).length(16).nullable()),
@@ -667,7 +684,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPES, null, annotationShapesArray.nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_FRAME_INDEX, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_OVERLAY_VISIBLE, true, z.boolean()),
-  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 0, z.number()), // TODO: make this non-zero by default?
+  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 500, z.number()), // TODO: make this non-zero by default?
   new PluginCoordinationType(CoordinationType.ANNOTATION_SEMANTIC_ZOOM, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.ANNOTATION_EDITABLE, false, z.boolean()),
 ];

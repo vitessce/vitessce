@@ -16,7 +16,6 @@ function generateNeuroglancerMerfish() {
   const pointsUrl = 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/merfish_mouse_ileum_precomputed_all_prop/molecule_baysor';
   // const pointsUrl =  'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
 
-  // TODO: check if these meshes are sharded or not (sharded may not be compatible with NG version that we are currently using).
   const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
 
   const withPoints = true;
@@ -101,23 +100,6 @@ function generateNeuroglancerMerfish() {
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer', { x: 0, y: 0, w: 5, h: 7 }).setProps({
-    // Note: this is a temporary mechanism to pass an initial NG camera state.
-    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
-    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
-    initialNgCameraState: {
-      position: [
-        3276962.5,
-        3271567.5,
-        1.72,
-      ],
-      projectionScale: 11521,
-      projectionOrientation: [
-        -0.0017234950792044401,
-        -0.031710099428892136,
-        0.02632056176662445,
-        0.999148964881897,
-      ],
-    },
     showAxisLines: true,
   });
   const umap = config.addView(dataset, 'scatterplot', { mapping: 'UMAP', x: 5, y: 0, w: 4, h: 7 });
@@ -131,18 +113,6 @@ function generateNeuroglancerMerfish() {
 
   config.linkViewsByObject([neuroglancerView, lcView], {
     spatialRenderingMode: '3D',
-    spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationZ: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
-
-  config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
         fileUid: 'merfish-meshes',

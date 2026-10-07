@@ -112,6 +112,8 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
     - `spatialChannelLabelsVisible`
     - `spatialChannelLabelsOrientation`
     - `spatialChannelLabelSize`
+    - `spatialLayerLabel`
+    - `spatialChannelsSortOrder`
     - `imageChannel`
         - `spatialTargetC`
         - `spatialChannelVisible`
@@ -122,6 +124,7 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
     - `fileUid`
     - `spatialLayerVisible`
     - `spatialLayerOpacity`
+    - `spatialLayerLabel`
     - `segmentationChannel`
         - `obsType`
         - `spatialTargetC`
@@ -145,6 +148,7 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
     - `obsType`
     - `spatialLayerVisible`
     - `spatialLayerOpacity`
+    - `spatialLayerLabel`
     - `spatialSpotRadius`
     - `spatialSpotFilled`
     - `spatialSpotStrokeWidth`
@@ -162,15 +166,163 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
     - `legendVisible`
 - `pointLayer`
     - `obsType`
+    - `spatialLayerLabel`
+    - `spatialLayerLabel`
     - `spatialLayerVisible`
     - `spatialLayerOpacity`
+    - `spatialLayerOpacityUnselected`
+    - `spatialLayerColor`
     - `obsColorEncoding`
     - `featureSelection`
+    - `featureFilterMode`
+    - `featureColor`
     - `featureValueColormap`
     - `featureValueColormapRange`
-    - `spatialLayerColor`
+    - `spatialPointStrokeWidth`
+    - `obsSetColor`
+    - `obsSetSelection`
+    - `additionalObsSets`
     - `obsHighlight`
     - `tooltipsVisible`
     - `tooltipCrosshairsVisible`
     - `legendVisible`
 
+The `neuroglancer` view also supports the `segmentationLayer` and `pointLayer` hierarchies.
+
+### Descriptions
+
+| Coordination type | Description |
+|---|---|
+| `fileUid` | The `uid` of the file definition that supplies this layer's data. |
+| `obsType` | The observation type the layer represents, e.g. `cell`, `spot` or `point`. Used to match layers with data such as obs sets and features. In the `Neuroglancer` view, giving a point layer the same `obsType` as a segmentation layer marks the points as that segmentation's centroids. The centroids drive on-demand mesh loading (only meshes near the viewport are fetched), and `obsColorEncoding: 'geneSelection'` on those points becomes quantitative colormap coloring instead of per-feature colors. |
+| `spatialLayerLabel` | Display name for the layer in the layer controller. Defaults to the capitalized `obsType`. |
+| `spatialLayerVisible` | Whether the layer is rendered. |
+| `spatialLayerOpacity` | Layer opacity from `0` to `1`. For point layers, per-feature and unselected opacities are multiplied by this value. |
+| `spatialLayerOpacityUnselected` | Point layers only. Opacity of points whose feature is not in `featureSelection`, relative to `spatialLayerOpacity`. See [Point layer opacity](#point-layer-opacity). |
+| `spatialLayerColor` | Static RGB color (`[r, g, b]`, 0–255) for spot and point layers. Used when `obsColorEncoding` is `spatialLayerColor`, and as the fallback for selected features without a `featureColor` entry. |
+| `spatialLayerColormap` | Colormap applied to an image layer. When `null`, each channel uses its own `spatialChannelColor`. |
+| `spatialLayerTransparentColor` | RGB color rendered as transparent in an image layer, e.g. `[0, 0, 0]` to hide a black background. |
+| `spatialLayerModelMatrix` | 16-element (4×4) transformation matrix applied to the layer's coordinates. |
+| `volumetricRenderingAlgorithm` | Algorithm for 3D image rendering, e.g. `maximumIntensityProjection` or `additive`. |
+| `spatialTargetResolution` | Resolution level of a multiscale image to load for 3D rendering. |
+| `spatialSliceX`, `spatialSliceY`, `spatialSliceZ` | `[min, max]` clipping range along each axis for 3D rendering. |
+| `photometricInterpretation` | How image channels map to color: `BlackIsZero` (multiplexed or fluorescence) or `RGB`. |
+| `pixelHighlight` | Values of the currently hovered pixel. Set on hover; not usually configured. |
+| `spatialChannelLabelsVisible` | Whether channel names are drawn on the image. |
+| `spatialChannelLabelsOrientation` | Orientation of channel labels: `vertical` or `horizontal`. |
+| `spatialChannelLabelSize` | Font size of channel labels, in pixels. |
+| `spatialTargetC` | Index of the channel within the image or segmentation file. |
+| `spatialChannelVisible` | Whether the channel is rendered. |
+| `spatialChannelColor` | RGB color for an image or segmentation channel. |
+| `spatialChannelOpacity` | Opacity from `0` to `1` for a segmentation channel. |
+| `spatialChannelWindow` | `[min, max]` contrast limits for an image channel. |
+| `spatialMaxResolution` | Maximum resolution level loaded for the channel. |
+| `spatialSegmentationFilled` | Whether segmentation polygons are filled (`true`) or drawn as outlines (`false`). |
+| `spatialSegmentationStrokeWidth` | Outline width for unfilled segmentations. |
+| `spatialSpotRadius` | Spot radius, in the layer's coordinate units. |
+| `spatialSpotFilled` | Whether spots are filled (`true`) or drawn as outlines (`false`). |
+| `spatialSpotStrokeWidth` | Outline width for unfilled spots. |
+| `spatialPointStrokeWidth` | Outline width of point markers. `0` removes the outline. |
+| `obsColorEncoding` | How observations are colored. Segmentations and spots: `spatialChannelColor`/`spatialLayerColor`, `cellSetSelection` or `geneSelection`. Points: `spatialLayerColor` (static), `geneSelection` (per-feature color), `randomByFeature` or `random` (per point). |
+| `featureSelection` | Array of selected feature names (e.g. genes). |
+| `featureFilterMode` | `featureSelection` hides points whose feature is not selected; `null` shows all points. |
+| `featureColor` | Per-feature colors and opacities for point layers: `[{ name, color: [r, g, b], opacity }]`. `opacity` is relative to `spatialLayerOpacity` and defaults to `1`. |
+| `featureValueColormap` | Colormap for quantitative (expression) coloring, e.g. `viridis`. |
+| `featureValueColormapRange` | `[low, high]` normalized range (`0`–`1`) mapped onto the colormap. |
+| `obsSetColor` | Colors for obs sets: `[{ path, color }]`. |
+| `obsSetSelection` | Array of selected obs set paths. |
+| `additionalObsSets` | User-created obs sets that aren't part of the loaded data. |
+| `obsHighlight` | ID of the currently hovered observation. Set on hover; not usually configured. |
+| `tooltipsVisible` | Whether hover tooltips are shown. |
+| `tooltipCrosshairsVisible` | Whether crosshairs are drawn at the hovered position. |
+| `legendVisible` | Whether the layer's color legend is shown. |
+| `spatialChannelsSortOrder` | Order of channels in the layer controller: `original` (as in the file) or `alphabetical`. |
+| `spatialRenderingMode` | Whether the spatial view renders in `2D` or `3D`. View-level; not set per layer. |
+
+#### Segmentation centroids in the Neuroglancer view
+
+To enable on-demand mesh loading, give the centroid point layer the same `obsType` as the segmentation channel:
+
+```js
+config.linkViewsByObject([ngView, lcView], {
+  segmentationLayer: CL([{
+    fileUid: 'cell-meshes',
+    segmentationChannel: CL([{ obsType: 'cell' }]),
+  }]),
+  pointLayer: CL([{
+    fileUid: 'cell-centroids',
+    obsType: 'cell', // same obsType as the segmentation channel
+  }]),
+});
+```
+
+### Point layer opacity
+
+Point layer opacities multiply down the layer hierarchy:
+
+| Points | Effective opacity |
+|---|---|
+| No feature selection | `spatialLayerOpacity` |
+| Selected feature | `spatialLayerOpacity × featureColor[i].opacity` (default `1`) |
+| Unselected feature | `spatialLayerOpacity × spatialLayerOpacityUnselected` (default `0.25`) |
+
+When `featureFilterMode` is `'featureSelection'`, unselected points are hidden and `spatialLayerOpacityUnselected` has no effect.
+
+```json
+"coordinationSpace": {
+  "spatialLayerOpacityUnselected": { "A": 0.1 }
+}
+```
+
+### Per-feature point layers
+
+For transcript-level data (e.g. MERFISH or Xenium), each point is a single molecule with a feature (gene) label. When a point layer uses `obsColorEncoding: 'geneSelection'` (shown as **Feature Color** in the layer controller), every feature in `featureSelection` gets its own sub-row in the `layerControllerBeta` view. Each sub-row has its own color and opacity.
+
+![Layer controller showing a Transcripts point layer with per-feature sub-rows and an Unselected row](/img/point-layer-per-feature.png)
+
+The point layer row contains:
+
+| Row | Controls |
+|---|---|
+| **Layer** (e.g. Transcripts) | Visibility, layer color, layer opacity (`spatialLayerOpacity`), and options menu (color encoding, filter to feature selection, colormap, tooltips, legend). |
+| **Feature** (one per selected feature) | Remove the feature from the selection, set its color, and set its opacity. Stored in `featureColor`. |
+| **Unselected** | Show or hide points whose feature is not selected (toggles `featureFilterMode`), and set their opacity (`spatialLayerOpacityUnselected`). Unselected points use the theme's default color. |
+
+Opacities multiply down the hierarchy (see [Point layer opacity](#point-layer-opacity)). For example, a layer opacity of `0.5` and a feature opacity of `0.5` render that feature at `0.25`.
+
+When features have sub-rows, the layer row's color is not editable, because colors are set per feature. With no features selected, the layer row's color sets `spatialLayerColor`, which is applied to all points.
+
+Per-feature colors and opacities only apply in **Feature Color** mode:
+
+| `obsColorEncoding` | Feature color | Feature opacity |
+|---|---|---|
+| `geneSelection` (Feature Color) | editable | editable |
+| `spatialLayerColor` (Static Color) | uses the layer color | not applied |
+| `randomByFeature` | assigned from a palette | not applied |
+| `random` | random per point | not applied |
+
+#### Example
+
+```js
+config.linkViewsByObject([spatialView, lcView], {
+  pointLayer: CL([
+    {
+      fileUid: 'merfish-points',
+      obsType: 'point',
+      featureType: 'gene',
+      spatialLayerLabel: 'Transcripts',
+      spatialLayerVisible: true,
+      spatialLayerOpacity: 1,
+      spatialLayerOpacityUnselected: 0.1,
+      obsColorEncoding: 'geneSelection',
+      featureSelection: ['Ada', 'Adgre5'],
+      featureColor: [
+        { name: 'Ada', color: [255, 0, 0], opacity: 1.0 },
+        { name: 'Adgre5', color: [0, 128, 255], opacity: 0.5 },
+      ],
+    },
+  ]),
+});
+```
+
+Features selected without a `featureColor` entry are automatically given a color from the default palette and an opacity of `1`.

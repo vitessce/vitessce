@@ -61,13 +61,31 @@ export default function LayerPerFeatureController(props) {
     featureIndex,
     obsColorEncoding,
     loadingDoneFraction,
-    opacity,
-    handleOpacityChange,
   } = props;
 
   const featureColorIndex = useMemo(() => (
     featureColor?.findIndex(fc => fc.name === featureName) ?? -1
   ), [featureColor, featureName]);
+
+  const featureOpacity = featureColor?.[featureColorIndex]?.opacity ?? 1.0;
+
+  const handleFeatureOpacityChange = useCallback((e, newValue) => {
+    if (featureColorIndex >= 0) {
+      const nextFeatureColor = [...featureColor];
+      nextFeatureColor[featureColorIndex] = {
+        ...nextFeatureColor[featureColorIndex],
+        opacity: newValue,
+      };
+      setFeatureColor(nextFeatureColor);
+    } else {
+      // No entry yet — create one with the opacity
+      setFeatureColor([
+        ...(featureColor ?? []),
+        { name: featureName, color: spatialLayerColor ?? [255, 255, 255], opacity: newValue },
+      ]);
+    }
+  }, [featureName, featureColor, setFeatureColor, featureColorIndex, spatialLayerColor]);
+
 
   const varIndex = useMemo(() => (
     featureIndex?.indexOf(featureName) ?? -1
@@ -162,7 +180,13 @@ export default function LayerPerFeatureController(props) {
   return (
     <Grid key={featureName} className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-        <Grid container direction="row" justifyContent="space-between">
+        <Grid
+          container
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+          }}
+        >
           <Grid size={1}>
             <Button
               onClick={handleRemoveFeature}
@@ -199,11 +223,11 @@ export default function LayerPerFeatureController(props) {
           </Grid>
           <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
             <Slider
-              value={opacity}
+              value={featureOpacity}
               min={0}
               max={1}
               step={0.001}
-              onChange={handleOpacityChange}
+              onChange={handleFeatureOpacityChange}
               className={menuClasses.imageLayerOpacitySlider}
               orientation="horizontal"
               aria-label={`Adjust opacity for layer ${featureName}`}
@@ -226,9 +250,11 @@ export default function LayerPerFeatureController(props) {
           <Grid
             size={12}
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.layerFeatureControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}

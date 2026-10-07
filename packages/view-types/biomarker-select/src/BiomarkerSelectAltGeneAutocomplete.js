@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
+import { uniqBy } from 'lodash-es';
 import {
   Grid, Button,
   Typography,
@@ -14,6 +15,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
   const {
     setFeatureSelection,
     autocompleteNode,
+    getEdges,
     currentModalityAgnosticSelection,
     setCurrentModalityAgnosticSelection,
     setCurrentModalitySpecificSelection,
@@ -25,19 +27,19 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
   const [biomarkerInfoOpen, setBiomarkerInfoOpen] = useState(false);
 
 
-  function confirmSelectedItem() {
+  async function confirmSelectedItem() {
     // eslint-disable-next-line max-len
     if (selectedItem && !currentModalityAgnosticSelection?.find(item => item.kgId === selectedItem?.kgId)) {
-      setCurrentModalityAgnosticSelection([
-        ...(currentModalityAgnosticSelection || []),
-        selectedItem,
-      ]);
-      // TODO: directly set featureSelection coordination value here instead?
-      // console.log('Setting specific selection to:', selectedItem);
-      const nextModalitySpecificSelection = [
+      const nextModalityAgnosticSelection = [
         ...(currentModalityAgnosticSelection || []),
         selectedItem,
       ];
+      const matchingGenes = await Promise.all(
+        nextModalityAgnosticSelection.map(item => getEdges(item, 'gene')),
+      );
+      const nextModalitySpecificSelection = uniqBy(matchingGenes.flat(), 'label');
+      setCurrentModalityAgnosticSelection(nextModalityAgnosticSelection);
+      setCurrentModalitySpecificSelection(nextModalitySpecificSelection);
       setFeatureSelection(nextModalitySpecificSelection.map(d => d.label));
     }
   }
@@ -73,7 +75,13 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
       </Grid>
       {selectedItem ? (
         <>
-          <Grid container size={12} flexDirection="row">
+          <Grid
+            container
+            size={12}
+            sx={{
+              flexDirection: 'row',
+            }}
+          >
             <Button onClick={() => setBiomarkerInfoOpen(true)}>
               View {selectedItem.nodeType} info
             </Button>

@@ -2,6 +2,7 @@
 /* eslint-disable prefer-destructuring */
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
+import { Matrix4 } from 'math.gl';
 import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
 } from '@vitessce/gl';
@@ -402,6 +403,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       featureSelection,
       featureFilterMode,
       featureColor,
+      spatialLayerOpacityUnselected,
     } = layerCoordination;
 
     // Obtain the numeric indices of the selected features, to use for filtering.
@@ -474,6 +476,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     );
     const showUnselected = featureFilterMode !== 'featureSelection';
 
+    const layerOpacity = spatialLayerOpacity ?? 1.0;
+
     // If multiple features are selected, we cannot depend on the filterExtension
     // until we have a deck.gl version that supports filtering by multiple categories.
     // So we handle the filtering logic in getFillColor by providing an alpha value.
@@ -495,8 +499,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
           target[1] = staticColor[1];
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
+
+          const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+          const featureColorAndOpacityMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)
+            : null;
+          const featureOpacity = featureColorAndOpacityMatch?.opacity ?? 1.0;
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = Math.round(layerOpacity * featureOpacity * 255);
           return target;
         }
         if (!showUnselected) {
@@ -516,7 +526,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
         // eslint-disable-next-line no-param-reassign
-        target[3] = 255;
+        target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
         return target;
       };
     } else if (obsColorEncoding === 'geneSelection') {
@@ -531,7 +541,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * 255;
           return target;
         }
         // There is a featureSelection.
@@ -539,9 +549,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
         if (isSelected) {
           // Find the color for this feature.
           const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
-          const featureColorMatch = Array.isArray(featureColor)
-            ? featureColor.find(fc => fc.name === featureName)?.color
+          const featureColorAndOpacityMatch = Array.isArray(featureColor)
+            ? featureColor.find(fc => fc.name === featureName)
             : null;
+          const featureColorMatch = featureColorAndOpacityMatch?.color;
+          const featureOpacity = featureColorAndOpacityMatch?.opacity ?? 1.0;
           if (featureColorMatch) {
             // eslint-disable-next-line no-param-reassign
             target[0] = featureColorMatch[0];
@@ -550,7 +562,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // eslint-disable-next-line no-param-reassign
             target[2] = featureColorMatch[2];
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = Math.round(layerOpacity * featureOpacity * 255);
             return target;
           }
           // No color found for this feature: use static color.
@@ -561,7 +573,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = staticColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * 255;
           return target;
         }
         if (!showUnselected) {
@@ -581,7 +593,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         // eslint-disable-next-line no-param-reassign
         target[2] = defaultColor[2];
         // eslint-disable-next-line no-param-reassign
-        target[3] = 255;
+        target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
         return target;
       };
     } else if (obsColorEncoding === 'randomByFeature') {
@@ -607,8 +619,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
             target[1] = color[1];
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
+
+            const featureName = pointFeatureIndex?.[data.src.featureIndices[index]];
+            const featureColorMatch = Array.isArray(featureColor)
+              ? featureColor.find(fc => fc.name === featureName)
+              : null;
+            const featureOpacity = featureColorMatch?.opacity ?? 1.0;
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = Math.round(layerOpacity * featureOpacity * 255);
             return target;
           }
           if (!showUnselected) {
@@ -628,7 +646,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
           return target;
         };
       }
@@ -654,7 +672,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
             // eslint-disable-next-line no-param-reassign
             target[2] = color[2];
             // eslint-disable-next-line no-param-reassign
-            target[3] = 255;
+            target[3] = layerOpacity * 255;
             return target;
           }
           if (!showUnselected) {
@@ -674,7 +692,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
           // eslint-disable-next-line no-param-reassign
           target[2] = defaultColor[2];
           // eslint-disable-next-line no-param-reassign
-          target[3] = 255;
+          target[3] = layerOpacity * spatialLayerOpacityUnselected * 255;
           return target;
         };
       }
@@ -727,7 +745,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
         pickable: true,
         autoHighlight: true,
         onHover: info => delegateHover(info, 'point', layerScope),
-        opacity: spatialLayerOpacity,
+        opacity: 1.0,
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
         // it provides no benefit to request tiles at different zoom levels.
@@ -820,7 +838,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
             updateTriggers: {
               getFillColor: [
                 showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
-                featureSelection, hasMultipleFeaturesSelected,
+                featureSelection, hasMultipleFeaturesSelected, spatialLayerOpacity,
+                spatialLayerOpacityUnselected,
               ],
               getFilterValue: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
               filterRange: [hasFeatureIndicesMinMax, showUnselected, featureSelection],
@@ -830,7 +849,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
         updateTriggers: {
           getTileData: [
             showUnselected, featureColor, obsColorEncoding, spatialLayerColor,
-            featureSelection, hasMultipleFeaturesSelected,
+            featureSelection, hasMultipleFeaturesSelected, spatialLayerOpacity,
+            spatialLayerOpacityUnselected,
           ],
         },
         /*
@@ -1188,7 +1208,19 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const is3dMode = spatialRenderingMode === '3D';
     const isRgb = layerCoordination[CoordinationType.PHOTOMETRIC_INTERPRETATION] === 'RGB';
 
-    const [Layer, layerLoader] = getLayerLoaderTuple(data, is3dMode);
+    const [Layer, nextLayerLoader] = getLayerLoaderTuple(data, is3dMode);
+    // getLayerLoaderTuple wraps `loader` in a fresh array on every call for
+    // the 3D/VolumeLayer case (`Array.isArray(loader) ? loader : [loader]`),
+    // even when the underlying loader is unchanged -- viv treats `loader`
+    // as an identity-checked trigger (same as `selections`, below), so a
+    // new wrapper array every render was causing a full volume reprocess
+    // on every camera-driven re-render, not just real data changes.
+    const prevLayerLoader = this.imageLayerLoaders?.[layerScope];
+    const layerLoader = isEqual(prevLayerLoader, nextLayerLoader)
+      ? prevLayerLoader
+      : nextLayerLoader;
+    if (!this.imageLayerLoaders) this.imageLayerLoaders = {};
+    this.imageLayerLoaders[layerScope] = layerLoader;
 
     const colormap = isRgb ? null : layerCoordination[CoordinationType.SPATIAL_LAYER_COLORMAP];
     const renderingMode = layerCoordination[CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM];
@@ -1217,8 +1249,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       rgbInterleavedProps.visible = visible;
     }
 
-    // TODO: support model matrix from coordination space also.
-    const layerDefModelMatrix = image?.image?.instance?.getModelMatrix() || {};
+    const rawModelMatrix = image?.image?.instance?.getModelMatrix() || new Matrix4().identity();
+    // Mirror along Z: negate Z, then translate back by the volume's full Z
+    // extent so the mirrored volume lands back in the same bounding region
+    // instead of reflecting to the opposite side of the origin. NG's own
+    // rendering and Viv's image-loader model matrix disagree on this axis;
+    // this compensates for that, independent of whichever camera system
+    // (OrbitView or RawView) is driving the view.
+    // const yMirror = new Matrix4().scale([1, -1, 1]);
+    const yLabelIndex = data?.['0']?.labels?.indexOf('y') ?? -1;
+    const yExtent = yLabelIndex >= 0 ? (data['0'].shape[yLabelIndex] ?? 0) : 0;
+    const yMirror = new Matrix4()
+      .translate([0, yExtent, 0])
+      .scale([1, -1, 1]);
+    // console.log('[y-mirror]', { yExtent, yLabelIndex });
+    const layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
 
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
@@ -1436,7 +1481,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       // obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
-      annotationLayer,
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
   }
 
@@ -1969,21 +2016,22 @@ class Spatial extends AbstractSpatialOrScatterplot {
       annotationShapes,
       annotationOverlayVisible,
       annotationSemanticZoom,
-      annotationShapeSelection,
+      annotationInProgressShape,
     } = this.props;
     return new AnnotationLayer({
       id: 'annotation-layer',
       data: annotationShapes,
-      visible: annotationOverlayVisible,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
       semanticZoom: annotationSemanticZoom,
-      selectedShapeUid: annotationShapeSelection,
+      ...this.getAnnotationEditingLayerProps(),
       viewType: ViewType.SPATIAL_BETA,
     });
   }
 
   onUpdateAnnotationLayer() {
-    const { annotationShapes } = this.props;
-    if (annotationShapes) {
+    const { annotationShapes, annotationInProgressShape } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
       this.annotationLayer = this.createAnnotationLayer();
     } else {
       this.annotationLayer = null;
@@ -2288,7 +2336,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
     if ([
       'annotationShapes', 'annotationOverlayVisible',
-      'annotationSemanticZoom', 'annotationShapeSelection',
+      'annotationSemanticZoom', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
     ].some(shallowDiff)) {
       // Annotation info changed.
       this.onUpdateAnnotationLayer();

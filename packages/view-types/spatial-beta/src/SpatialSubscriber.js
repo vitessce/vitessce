@@ -37,9 +37,11 @@ import {
   useAuxiliaryCoordination,
   useAnnotationStoryData,
   useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -152,6 +154,8 @@ export function SpatialSubscriber(props) {
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -186,6 +190,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
@@ -197,7 +202,9 @@ export function SpatialSubscriber(props) {
     annotationShapes,
     annotationOverlayVisible,
     annotationSemanticZoom,
-    annotationShapeSelection,
+    annotationTransitionDuration,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -209,6 +216,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -219,6 +227,13 @@ export function SpatialSubscriber(props) {
     setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
 
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
+
   const {
     spatialZoom: initialZoom,
     spatialTargetX: initialTargetX,
@@ -227,6 +242,10 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
+
+  // A non-null camera snapshot in the coordination space indicates
+  // that a neuroglancer view is present and is publishing its camera state.
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -372,6 +391,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_COLOR,
       CoordinationType.FEATURE_FILTER_MODE,
@@ -720,6 +740,21 @@ export function SpatialSubscriber(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
 
+
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    is3dMode ? 0 : annotationTransitionDuration,
+  );
 
   const setViewState = ({
     zoom: newZoom,
@@ -1114,6 +1149,7 @@ export function SpatialSubscriber(props) {
               target: [targetX, targetY, targetZ],
               rotationX,
               rotationOrbit,
+              ...annotationTransitionProps,
             }) : DEFAULT_VIEW_STATE}
             orbitAxis={orbitAxis}
             spatialAxisFixed={spatialAxisFixed}
@@ -1149,10 +1185,13 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? spatialCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSpatialCameraSnapshot : null}
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            annotationShapeSelection={annotationShapeSelection}
+            hideRecenter={hasSpatialCameraSnapshot}
+            {...annotationEditingProps}
           />
         )
       }

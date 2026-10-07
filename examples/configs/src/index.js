@@ -112,6 +112,7 @@ import { neuroglancerMisCellOnly } from './view-configs/3d-maps/neuroglancer-mis
 import { neuroglancerInterscellar } from './view-configs/3d-maps/neuroglancer-mis-interscellar.js';
 import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko.js';
 import { neuroglancerHnE } from './view-configs/3d-maps/neuroglancer-h&e.js';
+import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -250,6 +251,7 @@ export const configs = {
   'neuroglancer-interscellar': neuroglancerInterscellar,
   'neuroglancer-macosko': neuroglancerMacosko,
   'neuroglancer-hne': neuroglancerHnE,
+  'neuroglancer-cube': testCubeNeuroglancer,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,

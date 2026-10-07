@@ -30,6 +30,7 @@ import {
   ListItemIcon,
   LinearProgress,
   Palette as PaletteIcon,
+  Tooltip,
 } from '@vitessce/styles';
 import { PopperMenu } from '@vitessce/vit-s';
 import { PointsIconSVG } from '@vitessce/icons';
@@ -243,6 +244,7 @@ export default function PointLayerController(props) {
     obsType,
     spatialLayerVisible: visible,
     spatialLayerOpacity: opacity,
+    spatialLayerOpacityUnselected,
     spatialLayerLabel,
     obsColorEncoding,
     featureColor,
@@ -258,6 +260,7 @@ export default function PointLayerController(props) {
   const {
     setSpatialLayerVisible: setVisible,
     setSpatialLayerOpacity: setOpacity,
+    setSpatialLayerOpacityUnselected,
     setObsColorEncoding,
     setFeatureColor,
     setFeatureFilterMode,
@@ -278,81 +281,39 @@ export default function PointLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const hasUnspecifiedFeatureColors = useMemo(() => {
-    if (Array.isArray(featureSelection)) {
-      if (Array.isArray(featureColor)) {
-        // Check that each selected feature has a specified color.
-        // When we find one that does not, we can return true.
-        return featureSelection.some((featureName) => {
-          const colorForFeature = featureColor.find(fc => fc.name === featureName);
-          return !colorForFeature;
-        });
-      }
-      // There are features selected, but featureColor is not an array,
-      // so we can assume all features lack specified colors.
-      return featureSelection.length > 0;
-    }
-    return true;
-  }, [featureColor, featureSelection]);
+  const hasSelectedFeatures = (
+    Array.isArray(featureSelection)
+    && featureSelection.length > 0
+  );
+  // Sublayer rows are shown for each selected feature.
+  const hasSublayers = Boolean(layerPerFeatureForPoints && hasSelectedFeatures);
 
-  const isStaticColor = (
+  // Modes where the shader uses spatialLayerColor.
+  const usesLayerColor = (
     obsColorEncoding === 'spatialLayerColor'
     || obsColorEncoding === 'geneSelection'
   );
-  const showStaticColor = (
-    obsColorEncoding === 'spatialLayerColor'
-    || (obsColorEncoding === 'geneSelection' && hasUnspecifiedFeatureColors)
+  // spatialLayerColor is only used by the shader when:
+  // - Static Color mode with no sublayers (sublayers set colors otherwise), or
+  // - Feature Color mode with no features selected (selected features use featureColor).
+  const colorEditable = (
+    (obsColorEncoding === 'spatialLayerColor' && !hasSublayers)
+    || (obsColorEncoding === 'geneSelection' && !hasSelectedFeatures)
   );
-  const isColormap = obsColorEncoding === 'geneSelection';
 
-  // If the feature color encoding is "geneSelection" and there is only one feature selected,
-  // we can use the first feature's color as the static color, and hook up the featureColor setter
-  // for that feature in the featureColor array.
-  const hasSingleSelectedFeature = (
-    obsColorEncoding === 'geneSelection'
-    && Array.isArray(featureSelection)
-    && featureSelection.length === 1
-  );
-  const color = useMemo(() => {
-    if (showStaticColor) {
-      return spatialLayerColor;
-    }
-    if (hasSingleSelectedFeature) {
-      const selectedFeatureColor = featureColor
-        ?.find(fc => fc.name === featureSelection[0])?.color;
-      if (selectedFeatureColor) {
-        return selectedFeatureColor;
-      }
-    }
-    return null;
-  }, [hasSingleSelectedFeature, spatialLayerColor, featureColor,
-    featureSelection, showStaticColor,
-  ]);
+  const isStaticColor = colorEditable;
+  const isColormap = obsColorEncoding === 'geneSelection' && !hasSublayers;
+  const color = usesLayerColor ? spatialLayerColor : null;
   const setColor = useCallback((newColor) => {
-    if (showStaticColor) {
-      setSpatialLayerColor(newColor);
-    } else if (hasSingleSelectedFeature) {
-      const featureColorIndex = featureColor
-        ?.findIndex(fc => fc.name === featureSelection[0]);
-      if (featureColorIndex !== undefined && featureColorIndex >= 0) {
-        // Update existing feature color.
-        const newFeatureColor = [...featureColor];
-        newFeatureColor[featureColorIndex] = {
-          name: featureSelection[0],
-          color: newColor,
-        };
-        setFeatureColor(newFeatureColor);
-      } else {
-        // Add new feature color.
-        setFeatureColor([
-          ...featureColor,
-          { name: featureSelection[0], color: newColor },
-        ]);
-      }
-    }
-  }, [hasSingleSelectedFeature, setSpatialLayerColor, featureColor,
-    setFeatureColor, featureSelection, showStaticColor,
-  ]);
+    setSpatialLayerColor(newColor);
+  }, [setSpatialLayerColor]);
+
+  let colorTooltip = null;
+  if (hasSublayers && usesLayerColor) {
+    colorTooltip = 'Colors are set per feature in the rows below.';
+  } else if (!usesLayerColor) {
+    colorTooltip = 'The layer color is not used by the current Color Encoding mode.';
+  }
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -364,6 +325,12 @@ export default function PointLayerController(props) {
   }, [visible, setVisible]);
 
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
+  const handleUnselectedOpacityChange = useCallback(
+    (e, v) => setSpatialLayerOpacityUnselected?.(v),
+    [setSpatialLayerOpacityUnselected],
+  );
+
+
   const handleOpenChange = useCallback(() => setOpen(prev => !prev), []);
 
   const enableFeaturesAndSetsDropdown = false;
@@ -377,11 +344,6 @@ export default function PointLayerController(props) {
   // We only match on FEATURE_TYPE, so only the featureIndex
   // will be relevant/correct here.
   const { featureIndex } = pointMatrixIndicesData || {};
-
-  const hasSelectedFeatures = (
-    Array.isArray(featureSelection)
-    && featureSelection.length > 0
-  );
 
   // // Sync featureColor with featureSelection whenever the selection changes.
   // Removes stale entries for genes that are no longer selected, and seeds
@@ -422,7 +384,13 @@ export default function PointLayerController(props) {
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between" sx={channelRowContainerSx}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
           <Grid size={1} sx={channelControlCellSx}>
             <Button
               onClick={handleVisibleChange}
@@ -433,16 +401,24 @@ export default function PointLayerController(props) {
             </Button>
           </Grid>
           <Grid size={1} sx={channelControlCellSx}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={setColor}
-              palette={palette}
-              isStaticColor={isStaticColor}
-              isColormap={isColormap}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
+            <Tooltip
+              title={colorTooltip ?? ''}
+              disableHoverListener={!colorTooltip}
+              placement="top"
+            >
+              <span>
+                <ChannelColorPickerMenu
+                  theme={theme}
+                  color={color}
+                  setColor={colorEditable ? setColor : null}
+                  palette={palette}
+                  isStaticColor={isStaticColor}
+                  isColormap={isColormap}
+                  featureValueColormap={featureValueColormap}
+                  visible={visible}
+                />
+              </span>
+            </Tooltip>
           </Grid>
           <Grid size={6} sx={channelSelectorCellSx}>
             <Typography className={menuClasses.imageLayerName} title={label}>
@@ -497,9 +473,11 @@ export default function PointLayerController(props) {
           <Grid
             size={12}
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <LinearProgress
               variant={loadingDoneFraction === 0.0 ? 'indeterminate' : 'determinate'}
@@ -510,9 +488,11 @@ export default function PointLayerController(props) {
         {enableFeaturesAndSetsDropdown && open ? (
           <Grid
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.pointFeatureControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <Tabs
               value={coloringTabIndex}
@@ -522,7 +502,7 @@ export default function PointLayerController(props) {
               <Tab label="Feature List" />
             </Tabs>
             {coloringTabIndex === 0 && (
-              <Grid size={12} container direction="column">
+              <Grid size={12} container sx={{ flexDirection: 'column' }}>
                 <MenuList style={{ maxHeight: '200px', overflowY: 'auto' }} dense>
                   {featureIndex && featureIndex.length > 0 ? featureIndex.map(featureName => (
                     <MenuItem
@@ -561,13 +541,17 @@ export default function PointLayerController(props) {
               setFeatureSelection={setFeatureSelection}
               obsColorEncoding={obsColorEncoding}
               loadingDoneFraction={loadingDoneFraction}
-              opacity={opacity}
-              handleOpacityChange={handleOpacityChange}
             />
           ))}
           <Grid className={lcClasses.layerControllerGrid}>
             <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-              <Grid container direction="row" justifyContent="space-between">
+              <Grid
+                container
+                direction="row"
+                sx={{
+                  justifyContent: 'space-between',
+                }}
+              >
                 <Grid size={1}>
                   <Button
                     onClick={() => setFeatureFilterMode(
@@ -585,7 +569,7 @@ export default function PointLayerController(props) {
                 <Grid size={1}>
                   <ChannelColorPickerMenu
                     theme={theme}
-                    color={getDefaultColor('dark')}
+                    color={getDefaultColor(theme)}
                     setColor={null}
                     isStaticColor
                     isColormap={false}
@@ -599,11 +583,11 @@ export default function PointLayerController(props) {
                 </Grid>
                 <Grid size={2} sx={{ paddingRight: '12px', overflow: 'visible' }}>
                   <Slider
-                    value={opacity}
+                    value={spatialLayerOpacityUnselected ?? 0.25}
                     min={0}
                     max={1}
                     step={0.001}
-                    onChange={handleOpacityChange}
+                    onChange={handleUnselectedOpacityChange}
                     className={menuClasses.imageLayerOpacitySlider}
                     orientation="horizontal"
                     aria-label="Adjust opacity for unselected layer"

@@ -278,6 +278,10 @@ export function GatingSubscriber(props) {
   // initiated the change paints immediately — and re-render this view afterwards.
   const deferredCellSetSelection = useDeferredValue(cellSetSelection);
   const deferredCellSetColor = useDeferredValue(cellSetColor);
+  // A lasso selection made while coloring by feature values also switches the
+  // encoding to set selection. Defer it with the selection and colors, so the
+  // points do not first show the previous selection's colors for every cell.
+  const deferredCellColorEncoding = useDeferredValue(cellColorEncoding);
 
   // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
   // Map costs one string hash lookup per point per render, plus a per-observation
@@ -510,7 +514,7 @@ export function GatingSubscriber(props) {
         setCellHighlight={setCellHighlight}
         cellRadius={cellRadius}
         cellOpacity={cellOpacity}
-        cellColorEncoding={cellColorEncoding}
+        cellColorEncoding={deferredCellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
