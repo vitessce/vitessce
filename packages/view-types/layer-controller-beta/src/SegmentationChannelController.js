@@ -33,6 +33,7 @@ import {
   channelSliderCellSx,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+import { SingleFeatureSelect } from './SingleFeatureSelect.js';
 
 
 const useStyles = makeStyles()(() => ({
@@ -217,65 +218,6 @@ function SegmentationChannelEllipsisMenu(props) {
   );
 }
 
-// Convert a featureAggregationStrategy value to an index into featureSelection.
-// Returns null for strategies that combine multiple features (sum, mean, etc.).
-function getSelectedFeatureIndex(featureAggregationStrategy, featureSelection) {
-  if (featureAggregationStrategy == null || featureAggregationStrategy === 'first') {
-    // The spatial view falls back to 'first' when the strategy is null.
-    return 0;
-  }
-  if (featureAggregationStrategy === 'last') {
-    return featureSelection.length - 1;
-  }
-  if (
-    typeof featureAggregationStrategy === 'number'
-    && featureAggregationStrategy >= 0
-    && featureAggregationStrategy < featureSelection.length
-  ) {
-    return featureAggregationStrategy;
-  }
-  return null;
-}
-
-function SegmentationChannelFeatureSelect(props) {
-  const {
-    featureSelection,
-    featureAggregationStrategy,
-    setFeatureAggregationStrategy,
-  } = props;
-
-  const { classes: lcClasses } = useControllerSectionStyles();
-  const { classes: selectClasses } = useSelectStyles();
-
-  const selectedFeatureIndex = getSelectedFeatureIndex(
-    featureAggregationStrategy, featureSelection,
-  );
-
-  const handleFeatureChange = useCallback((e) => {
-    setFeatureAggregationStrategy(Number(e.target.value));
-  }, [setFeatureAggregationStrategy]);
-
-  return (
-    <Grid className={lcClasses.layerControllerGrid}>
-      <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
-        <NativeSelect
-          onChange={handleFeatureChange}
-          value={selectedFeatureIndex ?? ''}
-          inputProps={{ 'aria-label': 'Select the feature used for colormap-based coloring' }}
-          classes={{ root: selectClasses.selectRoot }}
-        >
-          {selectedFeatureIndex === null ? (
-            <option value="" disabled>Select a feature</option>
-          ) : null}
-          {featureSelection.map((featureName, i) => (
-            <option key={featureName} value={i}>{featureName}</option>
-          ))}
-        </NativeSelect>
-      </Paper>
-    </Grid>
-  );
-}
-
 export default function SegmentationChannelController(props) {
   const {
     label,
@@ -420,7 +362,7 @@ export default function SegmentationChannelController(props) {
         </Paper>
       </Grid>
       {isColormap && hasMultipleFeaturesSelected ? (
-        <SegmentationChannelFeatureSelect
+        <SingleFeatureSelect
           featureSelection={featureSelection}
           featureAggregationStrategy={featureAggregationStrategy}
           setFeatureAggregationStrategy={setFeatureAggregationStrategy}

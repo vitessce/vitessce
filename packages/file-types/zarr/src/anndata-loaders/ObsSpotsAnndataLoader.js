@@ -39,6 +39,7 @@ export default class ObsSpotsAnndataLoader extends AbstractTwoStepLoader {
         // obsSetColor: null,
         // obsSetSelection: null,
         // additionalObsSets: null,
+        featureAggregationStrategy: null,
       }),
     };
     const [obsIndex, obsSpots] = await Promise.all([

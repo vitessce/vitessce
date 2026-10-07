@@ -546,6 +546,9 @@ export const baseCoordinationTypes = [
     ]),
     // An index of a featureSelection array element.
     z.number(),
+    // The name of a featureSelection array element.
+    // Any string other than the reserved values above is treated as a feature name.
+    z.string(),
   ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,

@@ -36,6 +36,7 @@ import {
 } from '@vitessce/sets-utils';
 import {
   pluralize as plur, commaNumber, aggregateFeatureArrays, getAnnotationFrameCoordinationValues,
+  resolveFeatureAggregationStrategy,
 } from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
@@ -201,8 +202,10 @@ export function EmbeddingScatterplotSubscriber(props) {
     || sampleSetSelectionFromCoordination
   );
 
-  const featureAggregationStrategyToUse = featureAggregationStrategy
-    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  // Convert a feature name into its index within the geneSelection.
+  const featureAggregationStrategyToUse = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [width, height, deckRef] = useDeckCanvasSize();
 

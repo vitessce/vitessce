@@ -27,6 +27,21 @@ describe('expr-agg-hooks.js', () => {
       expect(result.extents).toEqual([extentB]);
     });
 
+    it('selects a single feature by name', () => {
+      const result = aggregateExpressionForScope(
+        [geneA, geneB, geneC], [extentA, extentB, extentC], 'GENE_C', ['GENE_A', 'GENE_B', 'GENE_C'],
+      );
+      expect(result.normData).toEqual([geneC]);
+      expect(result.extents).toEqual([extentC]);
+    });
+
+    it('falls back to the first feature when the named feature is not selected', () => {
+      const result = aggregateExpressionForScope(
+        [geneA, geneB], [extentA, extentB], 'GENE_C', ['GENE_A', 'GENE_B'],
+      );
+      expect(result.normData).toEqual([geneA]);
+    });
+
     it('treats null as first and supports last', () => {
       expect(aggregateExpressionForScope([geneA, geneB], [extentA, extentB], null).normData)
         .toEqual([geneA]);

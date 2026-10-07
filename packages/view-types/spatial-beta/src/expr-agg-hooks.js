@@ -3,6 +3,7 @@ import {
   aggregateFeatureArrays,
   normalizeAggregatedFeatureArray,
   filterValidExpressionArrays,
+  resolveFeatureAggregationStrategy,
 } from '@vitessce/utils';
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
@@ -40,15 +41,18 @@ function getSingleFeatureIndex(strategy, numFeatures) {
  * @param {(null|Uint8Array)[]} normData Per-feature normalized arrays.
  * @param {([number, number]|null)[]} extents Per-feature extents.
  * @param {string|number|null} strategy The featureAggregationStrategy value.
+ * @param {string[]|null} featureSelection The featureSelection value,
+ * used to resolve a strategy that refers to a feature by name.
  * @returns {{ normData: Uint8Array[], extents: [number, number][] }|null}
  * Single-element arrays to use in place of the per-feature arrays,
  * or null if no aggregation is necessary.
  */
-export function aggregateExpressionForScope(normData, extents, strategy) {
+export function aggregateExpressionForScope(normData, extents, strategy, featureSelection) {
   if (!Array.isArray(normData) || normData.length <= 1) {
     return null;
   }
-  const strategyToUse = strategy ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  const strategyToUse = resolveFeatureAggregationStrategy(strategy, featureSelection)
+    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const featureIndex = getSingleFeatureIndex(strategyToUse, normData.length);
   if (featureIndex !== null) {
@@ -98,11 +102,15 @@ export function useAggregatedNormalizedExpressionDataForLayers({
     const extentsByLayer = { ...spotMultiExpressionExtents };
 
     spotLayerScopes.forEach((layerScope) => {
-      const strategy = spotLayerCoordination[0][layerScope]?.featureAggregationStrategy;
+      const {
+        featureAggregationStrategy,
+        featureSelection,
+      } = spotLayerCoordination[0][layerScope] || {};
       const result = aggregateExpressionForScope(
         spotMultiExpressionData[layerScope],
         spotMultiExpressionExtents?.[layerScope],
-        strategy,
+        featureAggregationStrategy,
+        featureSelection,
       );
       if (result) {
         normDataByLayer[layerScope] = result.normData;
@@ -138,12 +146,15 @@ export function useAggregatedNormalizedExpressionDataForChannels({
     segmentationLayerScopes.forEach((layerScope) => {
       const channelScopes = segmentationChannelScopesByLayer[layerScope];
       channelScopes?.forEach((channelScope) => {
-        const strategy = segmentationChannelCoordination[0][layerScope]?.[channelScope]
-          ?.featureAggregationStrategy;
+        const {
+          featureAggregationStrategy,
+          featureSelection,
+        } = segmentationChannelCoordination[0][layerScope]?.[channelScope] || {};
         const result = aggregateExpressionForScope(
           segmentationMultiExpressionData[layerScope]?.[channelScope],
           segmentationMultiExpressionExtents?.[layerScope]?.[channelScope],
-          strategy,
+          featureAggregationStrategy,
+          featureSelection,
         );
         if (result) {
           normDataByLayer[layerScope] = {
