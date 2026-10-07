@@ -50,6 +50,7 @@ import {
   GREY_HEX,
   remapCellColors,
   autoColorForId,
+  ngMetersPerUnit,
 } from './utils.js';
 
 
@@ -444,8 +445,18 @@ export function NeuroglancerSubscriber(props) {
     if (spatialCameraSnapshot === lastSeenCameraSnapshotRef.current) return;
     lastSeenCameraSnapshotRef.current = spatialCameraSnapshot;
 
-    const { position, quaternion, projectionScale } = spatialCameraSnapshot;
+    const { quaternion } = spatialCameraSnapshot;
+    let { position, projectionScale } = spatialCameraSnapshot;
     if (!Array.isArray(position) || !Array.isArray(quaternion)) return;
+    // Convert an incoming snapshot (e.g. from spatialBeta, in µm scene units)
+    // into NG's coordinate units. Skipped if either side's unit is unknown.
+    const ownMpu = ngMetersPerUnit(latestViewerStateRef.current?.dimensions);
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (ownMpu && inMpu && ownMpu !== inMpu) {
+      const k = inMpu / ownMpu;
+      position = position.map(p => p * k);
+      projectionScale *= k;
+    }
     // The snapshot quaternion lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
     // in handleStateUpdate below). Q_Y_UP is self-inverse, so
@@ -1021,6 +1032,7 @@ export function NeuroglancerSubscriber(props) {
         quaternion: Array.from(flippedQuaternion),
         projectionScale,
         fovDegrees: 45,
+        metersPerUnit: ngMetersPerUnit(latestViewerStateRef.current?.dimensions),
       };
       lastSeenCameraSnapshotRef.current = snapshot;
       setSpatialCameraSnapshot(snapshot);
