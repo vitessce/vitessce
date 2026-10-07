@@ -37,6 +37,7 @@ export {
   getBoundingCube,
   abbreviateNumber,
   filterSelection,
+  getClampedZIndex,
 } from './layer-controller.js';
 export {
   DOMAINS,

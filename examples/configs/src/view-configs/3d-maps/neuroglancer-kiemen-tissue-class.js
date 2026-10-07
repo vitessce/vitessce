@@ -95,31 +95,10 @@ function generateNeuroglancerTissueClasses() {
     },
   });
 
-//   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
-//     spatialRenderingMode: '3D',
-//     spatialZoom: 0,
-//     spatialTargetT: 0,
-//     spatialTargetX: 0,
-//     spatialTargetY: 0,
-//     spatialTargetZ: 0,
-//     spatialRotationX: 0,
-//     spatialRotationY: 0,
-//     spatialRotationOrbit: 0,
-//   }, { meta: false });
-config.linkViewsByObject([spatialView, lcView], {
+  config.linkViewsByObject([spatialView, lcView, neuroglancerView], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
-  
-  config.linkViewsByObject([neuroglancerView], {
-    spatialRenderingMode: '3D',
-    spatialZoom: 0,
+    spatialTargetT: 0,
     spatialTargetX: 0,
     spatialTargetY: 0,
     spatialTargetZ: 0,
@@ -142,7 +121,7 @@ config.linkViewsByObject([spatialView, lcView], {
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0, 9],
+            spatialChannelWindow: [0, 10],
           },
         ]),
       },

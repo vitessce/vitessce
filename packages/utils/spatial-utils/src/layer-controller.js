@@ -11,6 +11,20 @@ export const toRgbUIString = (on, arr, theme) => {
 };
 
 /**
+ * Clamp a z target to a valid plane index for this loader.
+ * In 3D, spatialTargetZ holds a camera target in scene units, which can
+ * exceed the number of planes; geotiff throws on out-of-range indices.
+ */
+export function getClampedZIndex(data, targetZ) {
+  const level = Array.isArray(data) ? data[0] : data;
+  const zLabelIndex = level?.labels?.indexOf('z') ?? -1;
+  const sizeZ = zLabelIndex >= 0 ? level.shape[zLabelIndex] : 1;
+  return Number.isFinite(targetZ)
+    ? Math.min(Math.max(Math.round(targetZ), 0), sizeZ - 1)
+    : 0;
+}
+
+/**
  * Ensure that the channel selection object does not have
  * extra dimension keys, as this will cause Viv functions
  * to throw errors about not being able to access the data.
