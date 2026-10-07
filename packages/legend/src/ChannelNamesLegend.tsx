@@ -12,7 +12,7 @@ const useStyles = makeStyles()(() => ({
     paddingLeft: '10px',
     paddingBottom: '10px',
     // Keep long channel names within the view so they can be truncated.
-    maxWidth: '100%',
+    maxWidth: '90%',
     boxSizing: 'border-box',
   },
   channelNamesLegendLayer: {
