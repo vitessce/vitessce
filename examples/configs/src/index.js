@@ -111,9 +111,9 @@ import { neuroglancerInvasive } from './view-configs/3d-maps/neuroglancer-invasi
 import { neuroglancerMisCellOnly } from './view-configs/3d-maps/neuroglancer-mis-cell-only.js';
 import { neuroglancerInterscellar } from './view-configs/3d-maps/neuroglancer-mis-interscellar.js';
 import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko.js';
-import { neuroglancerHnE } from './view-configs/3d-maps/neuroglancer-h&e.js';
+import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
-import { pancreasNeuroglancer } from './view-configs/3d-maps/neuroglancer-pancreas.js';
+import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -251,9 +251,9 @@ export const configs = {
   'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
   'neuroglancer-interscellar': neuroglancerInterscellar,
   'neuroglancer-macosko': neuroglancerMacosko,
-  'neuroglancer-hne': neuroglancerHnE,
+  'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
-  'neuroglancer-pancreas': pancreasNeuroglancer,
+  'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,

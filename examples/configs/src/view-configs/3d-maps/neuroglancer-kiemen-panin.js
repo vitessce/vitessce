@@ -7,10 +7,10 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
-function generateNeuroglancerPancreasConfiguration() {
+function generateNeuroglancerPaninConfiguration() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'PanIn',
+    name: 'Pancreas (Kiemen et al.)',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -27,7 +27,7 @@ function generateNeuroglancerPancreasConfiguration() {
     fileType: 'obsSegmentations.ng-precomputed',
     url: 'https://data-2.vitessce.io/data/kiemenetal/3dtm-outputs-sep-2026/5xPanin_precomputed/',
     coordinationValues: {
-      fileUid: 'panIn-meshes',
+      fileUid: 'panin-lesions-mesh',
     },
   });
 
@@ -41,7 +41,7 @@ function generateNeuroglancerPancreasConfiguration() {
       obsIndex: 'id',
       obsSets: [
         {
-          name: 'Layer',
+          name: 'PanIN lesions',
           column: 'layer',
         },
       ],
@@ -96,7 +96,7 @@ function generateNeuroglancerPancreasConfiguration() {
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
-        fileUid: 'panIn-meshes',
+        fileUid: 'panin-lesions-mesh',
         spatialLayerOpacity: 1,
         spatialTargetResolution: null,
         spatialLayerVisible: true,
@@ -117,4 +117,4 @@ function generateNeuroglancerPancreasConfiguration() {
   return configJSON;
 }
 
-export const pancreasNeuroglancer = generateNeuroglancerPancreasConfiguration();
+export const neuroglancerKiemenPanin = generateNeuroglancerPaninConfiguration();

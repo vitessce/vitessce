@@ -8,10 +8,10 @@ import {
 } from '@vitessce/config';
 import { makeIdsCsvDataUrl, makeColorsCsvDataUrl } from '../../utils.js';
 
-function generateNeuroglancerHnE() {
+function generateNeuroglancerTissueClasses() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'PanIn',
+    name: 'Pancreas (Kiemen et al.)',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
@@ -20,7 +20,7 @@ function generateNeuroglancerHnE() {
       offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xLabelled.offsets.json',
     },
     coordinationValues: {
-      fileUid: 'PanIn',
+      fileUid: 'tissue-classes',
     },
   });
 
@@ -28,7 +28,7 @@ function generateNeuroglancerHnE() {
     fileType: 'obsSegmentations.ng-precomputed',
     url: 'https://data-2.vitessce.io/data/kiemenetal/3dtm-outputs-sep-2026/5xLabelled_precomputed/',
     coordinationValues: {
-      fileUid: 'melanom-meshes',
+      fileUid: 'tissue-classes-mesh',
     },
   });
 
@@ -75,14 +75,14 @@ function generateNeuroglancerHnE() {
       obsIndex: 'id',
       obsSets: [
         {
-          name: 'id',
+          name: 'Tissue Classes',
           column: 'id',
         },
       ],
     },
   });
 
-  const spatialThreeView = config.addView(dataset, 'spatialBeta');
+  const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
 
@@ -95,10 +95,31 @@ function generateNeuroglancerHnE() {
     },
   });
 
-  config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
+//   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
+//     spatialRenderingMode: '3D',
+//     spatialZoom: 0,
+//     spatialTargetT: 0,
+//     spatialTargetX: 0,
+//     spatialTargetY: 0,
+//     spatialTargetZ: 0,
+//     spatialRotationX: 0,
+//     spatialRotationY: 0,
+//     spatialRotationOrbit: 0,
+//   }, { meta: false });
+config.linkViewsByObject([spatialView, lcView], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
-    spatialTargetT: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
+    spatialTargetZ: 0,
+    spatialRotationX: 0,
+    spatialRotationY: 0,
+    spatialRotationOrbit: 0,
+  }, { meta: false });
+  
+  config.linkViewsByObject([neuroglancerView], {
+    spatialRenderingMode: '3D',
+    spatialZoom: 0,
     spatialTargetX: 0,
     spatialTargetY: 0,
     spatialTargetZ: 0,
@@ -107,18 +128,21 @@ function generateNeuroglancerHnE() {
     spatialRotationOrbit: 0,
   }, { meta: false });
 
-  config.linkViewsByObject([spatialThreeView, lcView], {
+  config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL([
       {
-        fileUid: 'PanIn',
+        fileUid: 'tissue-classes',
         spatialLayerOpacity: 1,
-        spatialTargetResolution: null,
+        spatialTargetResolution: 5,
+        photometricInterpretation: 'BlackIsZero',
+        volumetricRenderingAlgorithm: 'additive',
         imageChannel: CL([
           {
             spatialTargetC: 0,
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [0, 9],
           },
         ]),
       },
@@ -128,7 +152,7 @@ function generateNeuroglancerHnE() {
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
-        fileUid: 'melanom-meshes',
+        fileUid: 'tissue-classes-mesh',
         spatialLayerOpacity: 1,
         spatialTargetResolution: null,
         spatialLayerVisible: true,
@@ -143,10 +167,10 @@ function generateNeuroglancerHnE() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
-  config.layout(hconcat(neuroglancerView, spatialThreeView, vconcat(lcView, obsSets)));
+  config.layout(hconcat(neuroglancerView, spatialView, vconcat(lcView, obsSets)));
 
   const configJSON = config.toJSON();
   return configJSON;
 }
 
-export const neuroglancerHnE = generateNeuroglancerHnE();
+export const neuroglancerKiemenTissueClasses = generateNeuroglancerTissueClasses();
