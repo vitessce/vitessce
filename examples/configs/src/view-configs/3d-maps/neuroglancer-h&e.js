@@ -45,16 +45,16 @@ function generateNeuroglancerHnE() {
   dataset.addFile({
     fileType: 'obsColors.csv',
     url: makeColorsCsvDataUrl({
-    1: '#cc6677',
-        2: '#332288',
-        3: '#ddcc77',
-        4: '#117733',
-        5: '#88ccee',
-        6: '#882255',
-        // 7: '#44aa99', This is the tissue background
-        8: '#999933',
-        9: '#aa4499',
-        10: '#dddddd',
+      1: '#cc6677',
+      2: '#332288',
+      3: '#ddcc77',
+      4: '#117733',
+      5: '#88ccee',
+      6: '#882255',
+      // 7: '#44aa99', This is the tissue background
+      8: '#999933',
+      9: '#aa4499',
+      10: '#dddddd',
     }),
     options: {
       obsIndex: 'id',
