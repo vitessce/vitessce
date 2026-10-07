@@ -348,7 +348,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
       fovDegrees,
       1,
       Math.max(projectionScale * 1e-4, 1e-3),
-      Math.max(projectionScale * 100, 1e5)
+      Math.max(projectionScale * 100, 1e5),
     );
     camera.updateProjectionMatrix();
 

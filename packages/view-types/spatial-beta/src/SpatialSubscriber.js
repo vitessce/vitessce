@@ -685,12 +685,12 @@ export function SpatialSubscriber(props) {
   const sceneMetersPerUnit = useMemo(() => {
     const firstLayer = Object.values(imageData ?? {})[0];
     return getSceneMetersPerUnit(firstLayer?.image?.instance);
-    }, [imageData]);
+  }, [imageData]);
 
-    // Rescale an incoming snapshot (position, projectionScale) into scene units.
-    // Passed through unchanged when units already match or either side is unknown,
-    // which also preserves object identity for the echo checks in the renderer.
-    const sceneCameraSnapshot = useMemo(() => {
+  // Rescale an incoming snapshot (position, projectionScale) into scene units.
+  // Passed through unchanged when units already match or either side is unknown,
+  // which also preserves object identity for the echo checks in the renderer.
+  const sceneCameraSnapshot = useMemo(() => {
     if (!spatialCameraSnapshot) return null;
     const inMpu = spatialCameraSnapshot.metersPerUnit;
     if (!sceneMetersPerUnit || !inMpu || inMpu === sceneMetersPerUnit) {
@@ -703,11 +703,11 @@ export function SpatialSubscriber(props) {
       projectionScale: spatialCameraSnapshot.projectionScale * k,
       metersPerUnit: sceneMetersPerUnit,
     };
-    }, [spatialCameraSnapshot, sceneMetersPerUnit]);
+  }, [spatialCameraSnapshot, sceneMetersPerUnit]);
 
-    const setSceneCameraSnapshot = useCallback((snapshot) => {
-      setSpatialCameraSnapshot({ ...snapshot, metersPerUnit: sceneMetersPerUnit });
-    }, [setSpatialCameraSnapshot, sceneMetersPerUnit]);
+  const setSceneCameraSnapshot = useCallback((snapshot) => {
+    setSpatialCameraSnapshot({ ...snapshot, metersPerUnit: sceneMetersPerUnit });
+  }, [setSpatialCameraSnapshot, sceneMetersPerUnit]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
