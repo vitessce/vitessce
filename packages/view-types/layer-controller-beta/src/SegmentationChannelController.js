@@ -217,6 +217,65 @@ function SegmentationChannelEllipsisMenu(props) {
   );
 }
 
+// Convert a featureAggregationStrategy value to an index into featureSelection.
+// Returns null for strategies that combine multiple features (sum, mean, etc.).
+function getSelectedFeatureIndex(featureAggregationStrategy, featureSelection) {
+  if (featureAggregationStrategy == null || featureAggregationStrategy === 'first') {
+    // The spatial view falls back to 'first' when the strategy is null.
+    return 0;
+  }
+  if (featureAggregationStrategy === 'last') {
+    return featureSelection.length - 1;
+  }
+  if (
+    typeof featureAggregationStrategy === 'number'
+    && featureAggregationStrategy >= 0
+    && featureAggregationStrategy < featureSelection.length
+  ) {
+    return featureAggregationStrategy;
+  }
+  return null;
+}
+
+function SegmentationChannelFeatureSelect(props) {
+  const {
+    featureSelection,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
+  } = props;
+
+  const { classes: lcClasses } = useControllerSectionStyles();
+  const { classes: selectClasses } = useSelectStyles();
+
+  const selectedFeatureIndex = getSelectedFeatureIndex(
+    featureAggregationStrategy, featureSelection,
+  );
+
+  const handleFeatureChange = useCallback((e) => {
+    setFeatureAggregationStrategy(Number(e.target.value));
+  }, [setFeatureAggregationStrategy]);
+
+  return (
+    <Grid className={lcClasses.layerControllerGrid}>
+      <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
+        <NativeSelect
+          onChange={handleFeatureChange}
+          value={selectedFeatureIndex ?? ''}
+          inputProps={{ 'aria-label': 'Select the feature used for colormap-based coloring' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {selectedFeatureIndex === null ? (
+            <option value="" disabled>Select a feature</option>
+          ) : null}
+          {featureSelection.map((featureName, i) => (
+            <option key={featureName} value={i}>{featureName}</option>
+          ))}
+        </NativeSelect>
+      </Paper>
+    </Grid>
+  );
+}
+
 export default function SegmentationChannelController(props) {
   const {
     label,
@@ -237,6 +296,8 @@ export default function SegmentationChannelController(props) {
     setStrokeWidth,
 
     featureSelection,
+    featureAggregationStrategy,
+    setFeatureAggregationStrategy,
     obsColorEncoding,
     featureValueColormap,
     featureValueColormapRange,
@@ -260,6 +321,9 @@ export default function SegmentationChannelController(props) {
 
   const isStaticColor = obsColorEncoding === 'spatialChannelColor';
   const isColormap = obsColorEncoding === 'geneSelection';
+  const hasMultipleFeaturesSelected = (
+    Array.isArray(featureSelection) && featureSelection.length > 1
+  );
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -273,86 +337,95 @@ export default function SegmentationChannelController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
-    <Grid className={lcClasses.layerControllerGrid}>
-      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid
-          container
-          direction="row"
-          sx={[{
-            justifyContent: 'space-between',
-          }, channelRowContainerSx]}
-        >
-          <Grid size={1} sx={channelControlCellSx}>
-            <Button
-              onClick={handleVisibleChange}
-              className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle channel visibility"
-            >
-              <Visibility />
-            </Button>
+    <>
+      <Grid className={lcClasses.layerControllerGrid}>
+        <Paper elevation={4} className={lcClasses.layerControllerRoot}>
+          <Grid
+            container
+            direction="row"
+            sx={[{
+              justifyContent: 'space-between',
+            }, channelRowContainerSx]}
+          >
+            <Grid size={1} sx={channelControlCellSx}>
+              <Button
+                onClick={handleVisibleChange}
+                className={menuClasses.imageLayerVisibleButton}
+                aria-label="Toggle channel visibility"
+              >
+                <Visibility />
+              </Button>
+            </Grid>
+            <Grid size={1} sx={channelControlCellSx}>
+              <ChannelColorPickerMenu
+                theme={theme}
+                color={color}
+                setColor={setColor}
+                palette={palette}
+                isStaticColor={isStaticColor}
+                isColormap={isColormap}
+                featureValueColormap={featureValueColormap}
+                visible={visible}
+              />
+            </Grid>
+            <Grid size={6} sx={channelSelectorCellSx}>
+              <Typography
+                className={clsx(menuClasses.imageLayerName, classes.channelName)}
+                title={capitalize(label)}
+              >
+                {capitalize(label)}
+                {/* capitalize(plur(label, 2)) */}
+              </Typography>
+            </Grid>
+            <Grid size={2} sx={channelSliderCellSx}>
+              <Slider
+                value={opacity}
+                min={0}
+                max={1}
+                step={0.001}
+                onChange={handleOpacityChange}
+                className={menuClasses.imageLayerOpacitySlider}
+                orientation="horizontal"
+                aria-label={`Adjust opacity for layer ${label}`}
+              />
+            </Grid>
+            <Grid size={1} sx={channelControlCellSx}>
+              <SegmentationChannelEllipsisMenu
+                obsType={obsType}
+                featureType={featureType}
+                featureValueType={featureValueType}
+                strokeWidth={strokeWidth}
+                setStrokeWidth={setStrokeWidth}
+                filled={filled}
+                setFilled={setFilled}
+                featureSelection={featureSelection}
+                obsColorEncoding={obsColorEncoding}
+                setObsColorEncoding={setObsColorEncoding}
+                featureValueColormap={featureValueColormap}
+                setFeatureValueColormap={setFeatureValueColormap}
+                featureValueColormapRange={featureValueColormapRange}
+                setFeatureValueColormapRange={setFeatureValueColormapRange}
+                tooltipsVisible={tooltipsVisible}
+                setTooltipsVisible={setTooltipsVisible}
+                tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+                setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+                legendVisible={legendVisible}
+                setLegendVisible={setLegendVisible}
+              />
+            </Grid>
+            <Grid size={1} sx={channelControlCellSx}>
+              <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
+            </Grid>
           </Grid>
-          <Grid size={1} sx={channelControlCellSx}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={setColor}
-              palette={palette}
-              isStaticColor={isStaticColor}
-              isColormap={isColormap}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
-          </Grid>
-          <Grid size={6} sx={channelSelectorCellSx}>
-            <Typography
-              className={clsx(menuClasses.imageLayerName, classes.channelName)}
-              title={capitalize(label)}
-            >
-              {capitalize(label)}
-              {/* capitalize(plur(label, 2)) */}
-            </Typography>
-          </Grid>
-          <Grid size={2} sx={channelSliderCellSx}>
-            <Slider
-              value={opacity}
-              min={0}
-              max={1}
-              step={0.001}
-              onChange={handleOpacityChange}
-              className={menuClasses.imageLayerOpacitySlider}
-              orientation="horizontal"
-              aria-label={`Adjust opacity for layer ${label}`}
-            />
-          </Grid>
-          <Grid size={1} sx={channelControlCellSx}>
-            <SegmentationChannelEllipsisMenu
-              obsType={obsType}
-              featureType={featureType}
-              featureValueType={featureValueType}
-              strokeWidth={strokeWidth}
-              setStrokeWidth={setStrokeWidth}
-              filled={filled}
-              setFilled={setFilled}
-              featureSelection={featureSelection}
-              obsColorEncoding={obsColorEncoding}
-              setObsColorEncoding={setObsColorEncoding}
-              featureValueColormap={featureValueColormap}
-              setFeatureValueColormap={setFeatureValueColormap}
-              featureValueColormapRange={featureValueColormapRange}
-              setFeatureValueColormapRange={setFeatureValueColormapRange}
-              tooltipsVisible={tooltipsVisible}
-              setTooltipsVisible={setTooltipsVisible}
-              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-              legendVisible={legendVisible}
-              setLegendVisible={setLegendVisible}
-            />
-          </Grid>
-          <Grid size={1} sx={channelControlCellSx}>
-            <VectorIconSVG className={classes.layerTypeSegmentationIcon} />
-          </Grid>
-        </Grid>
-      </Paper>
-    </Grid>
+        </Paper>
+      </Grid>
+      {isColormap && hasMultipleFeaturesSelected ? (
+        <SegmentationChannelFeatureSelect
+          featureSelection={featureSelection}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
+        />
+      ) : null}
+    </>
   );
 }

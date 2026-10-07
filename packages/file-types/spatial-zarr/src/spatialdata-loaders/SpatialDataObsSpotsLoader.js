@@ -155,6 +155,7 @@ export default class SpatialDataObsSpotsLoader extends AbstractTwoStepLoader {
         spatialLayerVisible: true,
         spatialLayerOpacity: 1.0,
         spatialSpotRadius,
+        featureAggregationStrategy: null,
         // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
         // after resolving https://github.com/vitessce/vitessce/issues/1760
         // featureValueColormapRange: [0, 1],

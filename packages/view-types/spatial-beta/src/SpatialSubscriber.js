@@ -545,6 +545,7 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForLayers({
     multiExpressionData: spotMultiExpressionNormData,
+    multiExpressionExtents: spotMultiExpressionExtents,
     layerScopes: spotLayerScopes,
     layerCoordination: spotLayerCoordination,
   });
@@ -554,6 +555,7 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForChannels({
     multiExpressionData: segmentationMultiExpressionNormData,
+    multiExpressionExtents: segmentationMultiExpressionExtents,
     layerScopes: segmentationLayerScopes,
     layerCoordination: segmentationLayerCoordination,
     channelScopesByLayer: segmentationChannelScopesByLayer,
