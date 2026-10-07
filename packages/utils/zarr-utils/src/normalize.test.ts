@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { QueryClient } from '@tanstack/react-query';
 import { type AbsolutePath, AsyncReadable, type RangeQuery, extendStore } from 'zarrita';
 import { withQueryClientCache, UNCACHED_READ, type QueryClientLike } from './normalize.js';
 
@@ -40,6 +41,9 @@ function makeQueryClientStub() {
       const key = JSON.stringify(queryKey);
       let promise = cache.get(key);
       if (!promise) {
+        if (!queryFn) {
+          throw new Error('Expected a queryFn');
+        }
         promise = queryFn();
         cache.set(key, promise);
       }
@@ -173,5 +177,55 @@ describe('CachedStore', () => {
     await cached.get('/X/indices/1');
     expect(getFetchQueryCalls()).toEqual(2);
     expect(seen.filter(([label]) => label === 'get:/X/indices/1').length).toEqual(1);
+  });
+
+  it('does not abort a shared read when one reader aborts', async () => {
+    const seenSignals: Array<AbortSignal | undefined> = [];
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const store = {
+      async get(key: AbsolutePath, opts?: RequestInit) {
+        seenSignals.push(opts?.signal ?? undefined);
+        await gate;
+        return new TextEncoder().encode(key);
+      },
+    };
+    const queryClient = new QueryClient() as unknown as QueryClientLike;
+    const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const controllerA = new AbortController();
+    const controllerB = new AbortController();
+    const promiseA = cached.get('/X/0.0', { signal: controllerA.signal });
+    const promiseB = cached.get('/X/0.0', { signal: controllerB.signal });
+    controllerA.abort();
+    await expect(promiseA).rejects.toThrow(/abort/i);
+    // The store received the query's own signal rather than either reader's signal.
+    expect(seenSignals.length).toEqual(1);
+    expect(seenSignals[0]).toBeDefined();
+    expect(seenSignals[0]).not.toBe(controllerA.signal);
+    expect(seenSignals[0]?.aborted).toEqual(false);
+    release();
+    expect(new TextDecoder().decode(await promiseB)).toEqual('/X/0.0');
+  });
+
+  it('aborts a read once every reader aborts', async () => {
+    const seenSignals: Array<AbortSignal | undefined> = [];
+    const store = {
+      async get(key: AbsolutePath, opts?: RequestInit) {
+        seenSignals.push(opts?.signal ?? undefined);
+        return new Promise<Uint8Array>(() => undefined);
+      },
+    };
+    const queryClient = new QueryClient() as unknown as QueryClientLike;
+    const cached = getCachedStore(store, 'http://example.com/a.zarr', queryClient);
+    const controllerA = new AbortController();
+    const controllerB = new AbortController();
+    const promiseA = cached.get('/X/0.0', { signal: controllerA.signal });
+    const promiseB = cached.get('/X/0.0', { signal: controllerB.signal });
+    controllerA.abort();
+    controllerB.abort();
+    await expect(promiseA).rejects.toThrow(/abort/i);
+    await expect(promiseB).rejects.toThrow(/abort/i);
+    expect(seenSignals.length).toEqual(1);
+    expect(seenSignals[0]?.aborted).toEqual(true);
   });
 });
