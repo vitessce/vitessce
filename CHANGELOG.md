@@ -1,4 +1,11 @@
 
+## 4.1.1
+
+### Patch Changes
+
+- Truncate long channel names in the spatial view's channel names legend to a single line with an ellipsis. (`@vitessce/legend`) ([#2643](https://github.com/vitessce/vitessce/pull/2643))
+
+
 ## 4.1.0
 
 ### Minor Changes
