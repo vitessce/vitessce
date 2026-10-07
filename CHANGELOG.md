@@ -1,4 +1,37 @@
 
+## 4.1.0
+
+### Minor Changes
+
+- Upgrade from Material UI (MUI) v7 to v9, and from MUI X Data Grid v8 to v9. Removed the unused @mui/lab dependency. (`@vitessce/styles`) ([#2601](https://github.com/vitessce/vitessce/pull/2601))
+
+### Patch Changes
+
+- Add annotation story editing to the annotation controller (frames, text, view state capture, and shapes drawn on spatial/scatterplot views via a new annotation editing store), and only re-apply annotation shapes when the active frame is edited in-place. (`@vitessce/annotation-controller`, `@vitessce/vit-s`, `@vitessce/styles`, `@vitessce/scatterplot`, `@vitessce/scatterplot-embedding`, `@vitessce/spatial`, `@vitessce/spatial-beta`) ([#2628](https://github.com/vitessce/vitessce/pull/2628))
+
+- Remove repeated validation of selection history after each lasso. Configs and imported files remain validated and upgraded on entry. (`@vitessce/obs-sets-manager`) ([#2629](https://github.com/vitessce/vitessce/pull/2629))
+
+- Fix a flash of the previous selection's colors after a lasso selection made while coloring by feature values. The switch to set-selection coloring is now deferred together with the new selection and colors, so the points change straight from feature values to the new selection. (`@vitessce/scatterplot-embedding`, `@vitessce/scatterplot-gating`) ([#2629](https://github.com/vitessce/vitessce/pull/2629))
+
+- Synced spatialBeta and Neuroglancer interactions and camera using OrbitControls from three.js. (`@vitessce/neuroglancer`, `@vitessce/spatial-beta`, `@vitessce/scatterplot`, `@vitessce/example-configs`) ([#2617](https://github.com/vitessce/vitessce/pull/2617))
+
+- Speed up lasso selection by pruning quadtree nodes against the selection's bounding box and testing candidate points against the exact polygon. Include observations at index zero. (`@vitessce/gl`) ([#2629](https://github.com/vitessce/vitessce/pull/2629))
+
+- Add `requireShiftForMultiSelect` prop to the feature list view to allow toggling multiple features with plain clicks (no shift key) when `enableMultiSelect` is true. (`@vitessce/feature-list`) ([#2634](https://github.com/vitessce/vitessce/pull/2634))
+
+- Only apply the Y-mirror to image layers in the spatialBeta view when synced with Neuroglancer (3D rendering mode with a camera snapshot), fixing misalignment between image and bitmask segmentation layers. (`@vitessce/spatial-beta`) ([#2639](https://github.com/vitessce/vitessce/pull/2639))
+
+- Fix the bottom-right tile of tiled points failing to load by clamping the row group bisection result to the final row group index. (`@vitessce/spatial-zarr`) ([#2638](https://github.com/vitessce/vitessce/pull/2638))
+
+- Fix tiled points not loading in the final row/column of tiles by clamping (rather than throwing on) Morton query rectangles that extend beyond the points bounding box. (`@vitessce/spatial-zarr`) ([#2637](https://github.com/vitessce/vitessce/pull/2637))
+
+- Resolve pathway and other non-gene selections in the biomarker selector to their member genes, so the feature selection receives gene labels instead of the pathway itself. (`@vitessce/biomarker-select`) ([#2632](https://github.com/vitessce/vitessce/pull/2632))
+
+- Adds per feature opacity when genes are added as feature for points (`@vitessce/layer-controller-beta`, `@vitessce/neuroglancer`, `@vitessce/spatial-beta`, `@vitessce/all`) ([#2500](https://github.com/vitessce/vitessce/pull/2500))
+
+- Add the `spatialCameraSnapshot` coordination type to sync cameras between the Neuroglancer and spatialBeta views, vendor the required three/three-stdlib code, and move Neuroglancer `info` fetching into the data loaders. (`@vitessce/neuroglancer`, `@vitessce/spatial-beta`) ([#2617](https://github.com/vitessce/vitessce/pull/2617))
+
+
 ## 4.0.10
 
 ### Patch Changes
