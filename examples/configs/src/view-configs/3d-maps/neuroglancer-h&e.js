@@ -32,34 +32,38 @@ function generateNeuroglancerHnE() {
     },
   });
 
-//   dataset.addFile({
-//     fileType: 'obsFeatureMatrix.csv',
-//     url: makeIdsCsvDataUrl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-//     coordinationValues: {
-//       obsType: 'cell',
-//       featureType: 'feature',
-//       featureValueType: 'value',
-//     },
-//   });
+  dataset.addFile({
+    fileType: 'obsFeatureMatrix.csv',
+    url: makeIdsCsvDataUrl([1, 2, 3, 4, 5, 6, 8, 9, 10]),
+    coordinationValues: {
+      obsType: 'cell',
+      featureType: 'feature',
+      featureValueType: 'value',
+    },
+  });
 
-//   dataset.addFile({
-//     fileType: 'obsColors.csv',
-//     url: makeColorsCsvDataUrl({
-//       1: '#d74242',
-//       2: '#b9d742',
-//       3: '#42d77d',
-//       4: '#427dd7',
-//       5: '#b942d7',
-//     //   6:
-//     }),
-//     options: {
-//       obsIndex: 'id',
-//       obsColors: 'color',
-//     },
-//     coordinationValues: {
-//       obsType: 'cell',
-//     },
-//   });
+  dataset.addFile({
+    fileType: 'obsColors.csv',
+    url: makeColorsCsvDataUrl({
+    1: '#cc6677',
+        2: '#332288',
+        3: '#ddcc77',
+        4: '#117733',
+        5: '#88ccee',
+        6: '#882255',
+        // 7: '#44aa99', This is the tissue background
+        8: '#999933',
+        9: '#aa4499',
+        10: '#dddddd',
+    }),
+    options: {
+      obsIndex: 'id',
+      obsColors: 'color',
+    },
+    coordinationValues: {
+      obsType: 'cell',
+    },
+  });
 
   dataset.addFile({
     fileType: 'obsSets.csv',
@@ -86,12 +90,11 @@ function generateNeuroglancerHnE() {
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
       position: [15921000, 12177000, 2448000],
-      projectionScale: 40000000,   // ~ largest extent; lower to zoom in
+      projectionScale: 40000000,
       projectionOrientation: [0, 0, 0, 1],
-    }
+    },
   });
 
-  // Sync the zoom/rotation/pan states
   config.linkViewsByObject([spatialThreeView, lcView, neuroglancerView], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
@@ -102,10 +105,8 @@ function generateNeuroglancerHnE() {
     spatialRotationX: 0,
     spatialRotationY: 0,
     spatialRotationOrbit: 0,
-    // Should there be a Z-target/rotation specified here?
   }, { meta: false });
 
-  // Initialize the image properties
   config.linkViewsByObject([spatialThreeView, lcView], {
     imageLayer: CL([
       {
