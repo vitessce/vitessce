@@ -3,7 +3,8 @@ import type { ImageWrapper } from '@vitessce/image-utils';
 export type SetPath = string[];
 export type ObsSetColorEntry = { path: SetPath; color: number[] };
 export type FeatureColorEntry = { name: string; color: number[] };
-export type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | number | null;
+// Strings other than the reserved values are interpreted as feature names.
+export type FeatureAggregationStrategy = 'first' | 'last' | 'sum' | 'mean' | 'difference' | number | string | null;
 export type ObsColorEncoding = 'geneSelection' | 'cellSetSelection' | 'spatialChannelColor'
   | 'spatialLayerColor' | 'random' | 'randomByFeature' | string;
 

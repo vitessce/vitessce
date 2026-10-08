@@ -546,6 +546,9 @@ export const baseCoordinationTypes = [
     ]),
     // An index of a featureSelection array element.
     z.number(),
+    // The name of a featureSelection array element.
+    // Any string other than the reserved values above is treated as a feature name.
+    z.string(),
   ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,
@@ -640,6 +643,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPOT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.POINT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_RADIUS, 25.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_SHAPE, 'circle', z.enum(['circle', 'square']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),

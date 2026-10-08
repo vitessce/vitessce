@@ -28,6 +28,7 @@ import {
   useSelectStyles,
 } from './styles.js';
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
+import { SingleFeatureSelect } from './SingleFeatureSelect.js';
 
 const useStyles = makeStyles()(() => ({
   layerTypeSpotIcon: {
@@ -222,6 +223,7 @@ export default function SpotLayerController(props) {
 
     obsColorEncoding,
     featureSelection,
+    featureAggregationStrategy,
     featureValueColormap,
     featureValueColormapRange,
     tooltipsVisible,
@@ -237,6 +239,7 @@ export default function SpotLayerController(props) {
     setSpatialLayerColor: setColor,
     setObsColorEncoding,
     setFeatureSelection,
+    setFeatureAggregationStrategy,
     setFeatureValueColormap,
     setFeatureValueColormapRange,
     setTooltipsVisible,
@@ -255,6 +258,9 @@ export default function SpotLayerController(props) {
 
   const isStaticColor = obsColorEncoding === 'spatialLayerColor';
   const isColormap = obsColorEncoding === 'geneSelection';
+  const hasMultipleFeaturesSelected = (
+    Array.isArray(featureSelection) && featureSelection.length > 1
+  );
 
   const { classes } = useStyles();
   const { classes: lcClasses } = useControllerSectionStyles();
@@ -268,79 +274,88 @@ export default function SpotLayerController(props) {
   const handleOpacityChange = useCallback((e, v) => setOpacity(v), [setOpacity]);
 
   return (
-    <Grid className={lcClasses.layerControllerGrid}>
-      <Paper elevation={4} className={lcClasses.layerControllerRoot}>
-        <Grid
-          container
-          direction="row"
-          sx={{
-            justifyContent: 'space-between',
-          }}
-        >
-          <Grid size={1}>
-            <Button
-              onClick={handleVisibleChange}
-              className={menuClasses.imageLayerVisibleButton}
-              aria-label="Toggle spot layer visibility"
-            >
-              <Visibility />
-            </Button>
+    <>
+      <Grid className={lcClasses.layerControllerGrid}>
+        <Paper elevation={4} className={lcClasses.layerControllerRoot}>
+          <Grid
+            container
+            direction="row"
+            sx={{
+              justifyContent: 'space-between',
+            }}
+          >
+            <Grid size={1}>
+              <Button
+                onClick={handleVisibleChange}
+                className={menuClasses.imageLayerVisibleButton}
+                aria-label="Toggle spot layer visibility"
+              >
+                <Visibility />
+              </Button>
+            </Grid>
+            <Grid size={1}>
+              <ChannelColorPickerMenu
+                theme={theme}
+                color={color}
+                setColor={setColor}
+                palette={palette}
+                isStaticColor={isStaticColor}
+                isColormap={isColormap}
+                featureValueColormap={featureValueColormap}
+                visible={visible}
+              />
+            </Grid>
+            <Grid size={6}>
+              <Typography className={menuClasses.imageLayerName}>
+                {label}
+              </Typography>
+            </Grid>
+            <Grid size={2}>
+              <Slider
+                value={opacity}
+                min={0}
+                max={1}
+                step={0.001}
+                onChange={handleOpacityChange}
+                className={menuClasses.imageLayerOpacitySlider}
+                orientation="horizontal"
+                aria-label={`Adjust opacity for layer ${label}`}
+              />
+            </Grid>
+            <Grid size={1}>
+              <SpotLayerEllipsisMenu
+                filled={filled}
+                setFilled={setFilled}
+                strokeWidth={strokeWidth}
+                setStrokeWidth={setStrokeWidth}
+                featureSelection={featureSelection}
+                obsColorEncoding={obsColorEncoding}
+                setObsColorEncoding={setObsColorEncoding}
+                featureValueColormap={featureValueColormap}
+                setFeatureValueColormap={setFeatureValueColormap}
+                featureValueColormapRange={featureValueColormapRange}
+                setFeatureValueColormapRange={setFeatureValueColormapRange}
+                tooltipsVisible={tooltipsVisible}
+                setTooltipsVisible={setTooltipsVisible}
+                tooltipCrosshairsVisible={tooltipCrosshairsVisible}
+                setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
+                legendVisible={legendVisible}
+                setLegendVisible={setLegendVisible}
+              />
+            </Grid>
+            <Grid size={1}>
+              <SpotsIconSVG className={classes.layerTypeSpotIcon} />
+            </Grid>
           </Grid>
-          <Grid size={1}>
-            <ChannelColorPickerMenu
-              theme={theme}
-              color={color}
-              setColor={setColor}
-              palette={palette}
-              isStaticColor={isStaticColor}
-              isColormap={isColormap}
-              featureValueColormap={featureValueColormap}
-              visible={visible}
-            />
-          </Grid>
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
-              {label}
-            </Typography>
-          </Grid>
-          <Grid size={2}>
-            <Slider
-              value={opacity}
-              min={0}
-              max={1}
-              step={0.001}
-              onChange={handleOpacityChange}
-              className={menuClasses.imageLayerOpacitySlider}
-              orientation="horizontal"
-              aria-label={`Adjust opacity for layer ${label}`}
-            />
-          </Grid>
-          <Grid size={1}>
-            <SpotLayerEllipsisMenu
-              filled={filled}
-              setFilled={setFilled}
-              strokeWidth={strokeWidth}
-              setStrokeWidth={setStrokeWidth}
-              featureSelection={featureSelection}
-              obsColorEncoding={obsColorEncoding}
-              setObsColorEncoding={setObsColorEncoding}
-              featureValueColormap={featureValueColormap}
-              setFeatureValueColormap={setFeatureValueColormap}
-              featureValueColormapRange={featureValueColormapRange}
-              setFeatureValueColormapRange={setFeatureValueColormapRange}
-              tooltipsVisible={tooltipsVisible}
-              setTooltipsVisible={setTooltipsVisible}
-              tooltipCrosshairsVisible={tooltipCrosshairsVisible}
-              setTooltipCrosshairsVisible={setTooltipCrosshairsVisible}
-              legendVisible={legendVisible}
-              setLegendVisible={setLegendVisible}
-            />
-          </Grid>
-          <Grid size={1}>
-            <SpotsIconSVG className={classes.layerTypeSpotIcon} />
-          </Grid>
-        </Grid>
-      </Paper>
-    </Grid>
+        </Paper>
+      </Grid>
+      {isColormap && hasMultipleFeaturesSelected ? (
+        <SingleFeatureSelect
+          featureSelection={featureSelection}
+          featureAggregationStrategy={featureAggregationStrategy}
+          setFeatureAggregationStrategy={setFeatureAggregationStrategy}
+        />
+      ) : null}
+    </>
   );
 }
