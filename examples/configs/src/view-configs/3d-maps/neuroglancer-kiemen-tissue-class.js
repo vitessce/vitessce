@@ -51,7 +51,7 @@ function generateNeuroglancerTissueClasses() {
       4: '#117733',
       5: '#88ccee',
       6: '#882255',
-      // 7: '#44aa99', This is the tissue background
+      // 7: '#44aa99', //This is the tissue background
       8: '#999933',
       9: '#aa4499',
       10: '#dddddd',
