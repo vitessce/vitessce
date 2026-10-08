@@ -32,6 +32,7 @@ export default class ObsSpotsAnndataLoader extends AbstractTwoStepLoader {
         spatialLayerVisible: true,
         spatialLayerOpacity: 1.0,
         spatialSpotRadius: 10.0, // TODO: get this from adata.uns if possible.
+        spatialSpotShape: null,
         // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
         // after resolving https://github.com/vitessce/vitessce/issues/1760
         // featureValueColormapRange: [0, 1],

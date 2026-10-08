@@ -364,6 +364,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_SHAPE,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,

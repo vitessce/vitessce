@@ -4,7 +4,7 @@ import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import {
-  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer, SpotLayer,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -338,6 +338,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerVisible,
       spatialLayerOpacity,
       spatialSpotRadius,
+      spatialSpotShape,
       spatialSpotFilled,
       spatialSpotStrokeWidth,
       obsColorEncoding,
@@ -351,7 +352,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialLayerColor
       : getDefaultColor(theme);
 
-    return new deck.ScatterplotLayer({
+    return new SpotLayer({
       id: `${SPOT_LAYER_PREFIX}${layerScope}`,
       data: this.obsSpotsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
@@ -363,6 +364,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineWidth: !spatialSpotFilled ? spatialSpotStrokeWidth : 0,
       visible: spatialLayerVisible,
       getRadius: spatialSpotRadius,
+      spotShape: spatialSpotShape,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsSpots.data[0][index];

@@ -150,6 +150,7 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
     - `spatialLayerOpacity`
     - `spatialLayerLabel`
     - `spatialSpotRadius`
+    - `spatialSpotShape`
     - `spatialSpotFilled`
     - `spatialSpotStrokeWidth`
     - `obsColorEncoding`
@@ -220,6 +221,7 @@ The `neuroglancer` view also supports the `segmentationLayer` and `pointLayer` h
 | `spatialSegmentationFilled` | Whether segmentation polygons are filled (`true`) or drawn as outlines (`false`). |
 | `spatialSegmentationStrokeWidth` | Outline width for unfilled segmentations. |
 | `spatialSpotRadius` | Spot radius, in the layer's coordinate units. |
+| `spatialSpotShape` | Spot shape: `circle` (default) or `square`. `null` is treated as `circle`. For squares, the radius is half of the side length. |
 | `spatialSpotFilled` | Whether spots are filled (`true`) or drawn as outlines (`false`). |
 | `spatialSpotStrokeWidth` | Outline width for unfilled spots. |
 | `spatialPointStrokeWidth` | Outline width of point markers. `0` removes the outline. |
