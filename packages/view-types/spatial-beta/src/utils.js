@@ -5,6 +5,42 @@ import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
 
 
+const UNIT_TO_METERS = {
+  m: 1,
+  meter: 1,
+  mm: 1e-3,
+  millimeter: 1e-3,
+  um: 1e-6,
+  μm: 1e-6,
+  micrometer: 1e-6,
+  micron: 1e-6,
+  nm: 1e-9,
+  nanometer: 1e-9,
+};
+
+const toMeters = u => (u ? UNIT_TO_METERS[u.normalize('NFKC')] ?? null : null);
+
+/**
+  + * Meters per 3D scene unit, i.e. the unit of ImageWrapper.getModelMatrix().
+  + * OME-TIFF: physicalSizeToMatrix divides by 1 um, so the scene is in µm
+  + * (only if physical sizes exist; otherwise the scene is in pixels: unknown).
+  + * OME-Zarr: the matrix is in the units of the NGFF axes.
+  + */
+export function getSceneMetersPerUnit(imageWrapper) {
+  const metadata = imageWrapper?.vivLoader?.metadata;
+  if (!metadata) return null;
+  if ('Pixels' in metadata) {
+    return imageWrapper.hasPhysicalSize() ? 1e-6 : null;
+  }
+  if ('multiscales' in metadata) {
+    const axes = metadata.multiscales?.[0]?.axes ?? [];
+    const xAxis = axes.find(a => (typeof a === 'string' ? a : a?.name) === 'x');
+    return toMeters(typeof xAxis === 'object' ? xAxis?.unit : null);
+  }
+  return null;
+}
+
+
 /**
  * Get the modelMatrix to pass to viv's VolumeLayer for a given image.
  *

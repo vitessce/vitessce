@@ -46,7 +46,7 @@ import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { getInitialSpatialTargets } from './utils.js';
+import { getInitialSpatialTargets, getSceneMetersPerUnit } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -678,6 +678,37 @@ export function SpatialSubscriber(props) {
     segmentationChannelScopesByLayer,
   ]);
 
+  // Physical size of one 3D scene unit (e.g. 1e-6 for µm), taken from the first
+  // image layer. Used to convert camera snapshots coming from other views
+  // (e.g. Neuroglancer in nm) into this view's coordinate space.
+
+  const sceneMetersPerUnit = useMemo(() => {
+    const firstLayer = Object.values(imageData ?? {})[0];
+    return getSceneMetersPerUnit(firstLayer?.image?.instance);
+  }, [imageData]);
+
+  // Rescale an incoming snapshot (position, projectionScale) into scene units.
+  // Passed through unchanged when units already match or either side is unknown,
+  // which also preserves object identity for the echo checks in the renderer.
+  const sceneCameraSnapshot = useMemo(() => {
+    if (!spatialCameraSnapshot) return null;
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (!sceneMetersPerUnit || !inMpu || inMpu === sceneMetersPerUnit) {
+      return spatialCameraSnapshot;
+    }
+    const k = inMpu / sceneMetersPerUnit;
+    return {
+      ...spatialCameraSnapshot,
+      position: spatialCameraSnapshot.position.map(p => p * k),
+      projectionScale: spatialCameraSnapshot.projectionScale * k,
+      metersPerUnit: sceneMetersPerUnit,
+    };
+  }, [spatialCameraSnapshot, sceneMetersPerUnit]);
+
+  const setSceneCameraSnapshot = useCallback((snapshot) => {
+    setSpatialCameraSnapshot({ ...snapshot, metersPerUnit: sceneMetersPerUnit });
+  }, [setSpatialCameraSnapshot, sceneMetersPerUnit]);
+
   useEffect(() => {
     // If it has not already been set, set the initial view state using
     // the auto-computed values from the useMemo above.
@@ -1185,8 +1216,8 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
-            spatialCameraSnapshot={hasSpatialCameraSnapshot ? spatialCameraSnapshot : null}
-            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSpatialCameraSnapshot : null}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? sceneCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSceneCameraSnapshot : null}
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}

@@ -343,7 +343,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (!this.use3d()) return; // only for the RawView/3D path
     const canvas = deckRef?.current?.deck?.canvas;
     if (!canvas || !spatialCameraSnapshot) return;
-    const camera = new PerspectiveCamera(spatialCameraSnapshot.fovDegrees, 1, 0.1, 100000);
+    const { fovDegrees, projectionScale } = spatialCameraSnapshot;
+    const camera = new PerspectiveCamera(
+      fovDegrees,
+      1,
+      Math.max(projectionScale * 1e-4, 1e-3),
+      Math.max(projectionScale * 100, 1e5),
+    );
     camera.updateProjectionMatrix();
 
     // Attaching to the parent instead of te canvas due to the overlay which intercepts
@@ -537,8 +543,8 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
         viewState: {
           viewMatrix: rawViewMatrix,
           fovy: fovDegrees,
-          near: 0.1,
-          far: 100000,
+          near: Math.max(projectionScale * 1e-4, 1e-3),
+          far: Math.max(projectionScale * 100, 1e5),
         },
       });
     } else if (use3d) {
