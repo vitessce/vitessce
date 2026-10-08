@@ -132,11 +132,11 @@ function generateNeuroglancerTissueClassesDetailed() {
 
   config.layout(hconcat(neuroglancerView, neuroglancerDetailView, vconcat(lcView, obsSets)));
   config.linkViews(
-   [neuroglancerView, neuroglancerDetailView, obsSets],
-  ['obsHighlight'],
+    [neuroglancerView, neuroglancerDetailView, obsSets],
+    ['obsHighlight'],
     [[], null],
-    );
-     
+  );
+
   const configJSON = config.toJSON();
   return configJSON;
 }
