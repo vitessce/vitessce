@@ -82,7 +82,7 @@ function generateNeuroglancerTissueClassesDetailed() {
       projectionScale: 40000000,
       projectionOrientation: [0, 0, 0, 1],
     },
-    title: 'Mesh View (Neuroglancer)',
+    title: 'Meshes Overview (Neuroglancer)',
   });
 
   const neuroglancerDetailView = config.addView(dataset, 'neuroglancer').setProps({
