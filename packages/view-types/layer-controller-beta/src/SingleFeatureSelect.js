@@ -4,33 +4,53 @@ import {
   Paper,
   NativeSelect,
 } from '@vitessce/styles';
-import { resolveFeatureAggregationStrategy } from '@vitessce/utils';
+import {
+  resolveFeatureAggregationStrategy,
+  RESERVED_FEATURE_AGGREGATION_STRATEGIES,
+} from '@vitessce/utils';
 import {
   useControllerSectionStyles,
   useSelectStyles,
 } from './styles.js';
 
-// Get the name of the single feature selected by a featureAggregationStrategy value.
-// Returns null for strategies that combine multiple features (sum, mean, etc.).
-function getSelectedFeatureName(featureAggregationStrategy, featureSelection) {
+const FEATURE_INDEX_OPTION_PREFIX = 'feature-index-';
+
+// Get the <option> value for a feature.
+// Features are referred to by name, unless the name collides with
+// a reserved featureAggregationStrategy value (e.g., a feature named "mean"),
+// in which case they are referred to by index.
+function getFeatureOptionValue(featureName, featureIndex) {
+  return RESERVED_FEATURE_AGGREGATION_STRATEGIES.includes(featureName)
+    ? `${FEATURE_INDEX_OPTION_PREFIX}${featureIndex}`
+    : featureName;
+}
+
+// Get the <option> value corresponding to a featureAggregationStrategy value.
+function getSelectedOptionValue(featureAggregationStrategy, featureSelection) {
   // The spatial view falls back to 'first' when the strategy is null.
   const resolvedStrategy = resolveFeatureAggregationStrategy(
     featureAggregationStrategy, featureSelection,
   ) ?? 'first';
-  if (resolvedStrategy === 'first') {
-    return featureSelection[0];
+  if (resolvedStrategy === 'mean' || resolvedStrategy === 'sum') {
+    return resolvedStrategy;
   }
+  if (resolvedStrategy === 'difference' && featureSelection.length === 2) {
+    return resolvedStrategy;
+  }
+  let featureIndex = 0;
   if (resolvedStrategy === 'last') {
-    return featureSelection.at(-1);
+    featureIndex = featureSelection.length - 1;
+  } else if (typeof resolvedStrategy === 'number') {
+    featureIndex = resolvedStrategy;
   }
-  if (typeof resolvedStrategy === 'number') {
-    return featureSelection[resolvedStrategy];
-  }
-  return null;
+  // Remaining cases ('first', or 'difference' with a number of features
+  // other than two) render the first feature.
+  return getFeatureOptionValue(featureSelection[featureIndex], featureIndex);
 }
 
 // Sub-row for selecting which of the selected features
-// is used for colormap-based coloring of a layer or channel.
+// (or which combination of them) is used for colormap-based coloring
+// of a layer or channel.
 export function SingleFeatureSelect(props) {
   const {
     featureSelection,
@@ -41,31 +61,49 @@ export function SingleFeatureSelect(props) {
   const { classes: lcClasses } = useControllerSectionStyles();
   const { classes: selectClasses } = useSelectStyles();
 
-  const selectedFeatureName = getSelectedFeatureName(
+  const selectedOptionValue = getSelectedOptionValue(
     featureAggregationStrategy, featureSelection,
   );
 
   // Store the feature name rather than its index, so that the selection
   // remains valid when features are added to or removed from the featureSelection.
-  const handleFeatureChange = useCallback((e) => {
-    setFeatureAggregationStrategy(e.target.value);
+  const handleChange = useCallback((e) => {
+    const { value } = e.target;
+    if (value.startsWith(FEATURE_INDEX_OPTION_PREFIX)) {
+      setFeatureAggregationStrategy(
+        Number(value.substring(FEATURE_INDEX_OPTION_PREFIX.length)),
+      );
+    } else {
+      setFeatureAggregationStrategy(value);
+    }
   }, [setFeatureAggregationStrategy]);
 
   return (
     <Grid className={lcClasses.layerControllerGrid}>
       <Paper elevation={2} className={lcClasses.layerControllerSubRow}>
         <NativeSelect
-          onChange={handleFeatureChange}
-          value={selectedFeatureName ?? ''}
+          onChange={handleChange}
+          value={selectedOptionValue}
           inputProps={{ 'aria-label': 'Select the feature used for colormap-based coloring' }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          {selectedFeatureName === null ? (
-            <option value="" disabled>Select a feature</option>
-          ) : null}
-          {featureSelection.map(featureName => (
-            <option key={featureName} value={featureName}>{featureName}</option>
-          ))}
+          <optgroup label="Single feature">
+            {featureSelection.map((featureName, featureIndex) => {
+              const optionValue = getFeatureOptionValue(featureName, featureIndex);
+              return (
+                <option key={optionValue} value={optionValue}>{featureName}</option>
+              );
+            })}
+          </optgroup>
+          <optgroup label="Combine features">
+            <option value="mean">Mean</option>
+            <option value="sum">Sum</option>
+            {featureSelection.length === 2 ? (
+              <option value="difference">
+                {`Difference (${featureSelection[0]} − ${featureSelection[1]})`}
+              </option>
+            ) : null}
+          </optgroup>
         </NativeSelect>
       </Paper>
     </Grid>

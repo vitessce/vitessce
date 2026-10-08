@@ -36,9 +36,13 @@ function getSingleFeatureIndex(strategy, numFeatures) {
 }
 
 /**
- * Aggregate the (normalized) expression arrays for a single
+ * Aggregate the expression arrays for a single
  * layer or channel according to its featureAggregationStrategy.
- * @param {(null|Uint8Array)[]} normData Per-feature normalized arrays.
+ * @param {(null|number[]|Float32Array)[]} data Per-feature raw arrays.
+ * Strategies that combine features (sum, mean, difference) operate on these,
+ * so that the result (and its extent) is in the units of the raw values.
+ * @param {(null|Uint8Array)[]} normData Per-feature normalized arrays,
+ * used directly for strategies that select a single feature.
  * @param {([number, number]|null)[]} extents Per-feature extents.
  * @param {string|number|null} strategy The featureAggregationStrategy value.
  * @param {string[]|null} featureSelection The featureSelection value,
@@ -47,7 +51,7 @@ function getSingleFeatureIndex(strategy, numFeatures) {
  * Single-element arrays to use in place of the per-feature arrays,
  * or null if no aggregation is necessary.
  */
-export function aggregateExpressionForScope(normData, extents, strategy, featureSelection) {
+export function aggregateExpressionForScope(data, normData, extents, strategy, featureSelection) {
   if (!Array.isArray(normData) || normData.length <= 1) {
     return null;
   }
@@ -71,11 +75,14 @@ export function aggregateExpressionForScope(normData, extents, strategy, feature
     };
   }
 
-  const validExpressionArrays = filterValidExpressionArrays(normData);
-  if (validExpressionArrays.length <= 1) {
+  // Combine the raw values rather than the normalized values,
+  // since each feature was normalized relative to its own extent.
+  if (!Array.isArray(data) || !data.every(isValidExpressionArray)) {
+    // Wait for all features to finish loading, so that we do not
+    // combine a subset of the features (e.g., the wrong pair for difference).
     return null;
   }
-  const aggregated = aggregateFeatureArrays(validExpressionArrays, strategyToUse);
+  const aggregated = aggregateFeatureArrays(data, strategyToUse);
   const normalized = normalizeAggregatedFeatureArray(aggregated);
   if (!normalized) {
     return null;
@@ -88,17 +95,18 @@ export function aggregateExpressionForScope(normData, extents, strategy, feature
 
 export function useAggregatedNormalizedExpressionDataForLayers({
   multiExpressionData: spotMultiExpressionData,
+  multiExpressionNormData: spotMultiExpressionNormData,
   multiExpressionExtents: spotMultiExpressionExtents,
   layerScopes: spotLayerScopes,
   layerCoordination: spotLayerCoordination,
 }) {
   return useMemo(() => {
-    if (!spotMultiExpressionData || !spotLayerScopes?.length || !spotLayerCoordination?.[0]) {
-      return [spotMultiExpressionData, spotMultiExpressionExtents];
+    if (!spotMultiExpressionNormData || !spotLayerScopes?.length || !spotLayerCoordination?.[0]) {
+      return [spotMultiExpressionNormData, spotMultiExpressionExtents];
     }
     // Start from the non-aggregated values so that layers
     // which do not require aggregation retain their data.
-    const normDataByLayer = { ...spotMultiExpressionData };
+    const normDataByLayer = { ...spotMultiExpressionNormData };
     const extentsByLayer = { ...spotMultiExpressionExtents };
 
     spotLayerScopes.forEach((layerScope) => {
@@ -107,7 +115,8 @@ export function useAggregatedNormalizedExpressionDataForLayers({
         featureSelection,
       } = spotLayerCoordination[0][layerScope] || {};
       const result = aggregateExpressionForScope(
-        spotMultiExpressionData[layerScope],
+        spotMultiExpressionData?.[layerScope],
+        spotMultiExpressionNormData[layerScope],
         spotMultiExpressionExtents?.[layerScope],
         featureAggregationStrategy,
         featureSelection,
@@ -119,28 +128,29 @@ export function useAggregatedNormalizedExpressionDataForLayers({
     });
 
     return [normDataByLayer, extentsByLayer];
-  }, [spotMultiExpressionData, spotMultiExpressionExtents,
+  }, [spotMultiExpressionData, spotMultiExpressionNormData, spotMultiExpressionExtents,
     spotLayerScopes, spotLayerCoordination,
   ]);
 }
 
 export function useAggregatedNormalizedExpressionDataForChannels({
   multiExpressionData: segmentationMultiExpressionData,
+  multiExpressionNormData: segmentationMultiExpressionNormData,
   multiExpressionExtents: segmentationMultiExpressionExtents,
   layerScopes: segmentationLayerScopes,
   channelScopesByLayer: segmentationChannelScopesByLayer,
   channelCoordination: segmentationChannelCoordination,
 }) {
   return useMemo(() => {
-    if (!segmentationMultiExpressionData
+    if (!segmentationMultiExpressionNormData
       || !segmentationLayerScopes?.length
       || !segmentationChannelScopesByLayer
       || !segmentationChannelCoordination?.[0]) {
-      return [segmentationMultiExpressionData, segmentationMultiExpressionExtents];
+      return [segmentationMultiExpressionNormData, segmentationMultiExpressionExtents];
     }
     // Start from the non-aggregated values so that channels
     // which do not require aggregation retain their data.
-    const normDataByLayer = { ...segmentationMultiExpressionData };
+    const normDataByLayer = { ...segmentationMultiExpressionNormData };
     const extentsByLayer = { ...segmentationMultiExpressionExtents };
 
     segmentationLayerScopes.forEach((layerScope) => {
@@ -151,7 +161,8 @@ export function useAggregatedNormalizedExpressionDataForChannels({
           featureSelection,
         } = segmentationChannelCoordination[0][layerScope]?.[channelScope] || {};
         const result = aggregateExpressionForScope(
-          segmentationMultiExpressionData[layerScope]?.[channelScope],
+          segmentationMultiExpressionData?.[layerScope]?.[channelScope],
+          segmentationMultiExpressionNormData[layerScope]?.[channelScope],
           segmentationMultiExpressionExtents?.[layerScope]?.[channelScope],
           featureAggregationStrategy,
           featureSelection,
@@ -170,7 +181,8 @@ export function useAggregatedNormalizedExpressionDataForChannels({
     });
 
     return [normDataByLayer, extentsByLayer];
-  }, [segmentationMultiExpressionData, segmentationMultiExpressionExtents,
+  }, [segmentationMultiExpressionData, segmentationMultiExpressionNormData,
+    segmentationMultiExpressionExtents,
     segmentationLayerScopes, segmentationChannelScopesByLayer,
     segmentationChannelCoordination,
   ]);

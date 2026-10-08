@@ -601,7 +601,11 @@ export function EmbeddingScatterplotSubscriber(props) {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
           ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
-        }, featureAggregationStrategyToUse,
+        },
+        // The featureAggregationStrategy has already been applied above
+        // (uint8ExpressionData contains a single, aggregated array),
+        // so we must not apply it again here.
+        'first',
         // Raw codes let the strata come from typed arrays when the indices match.
         { obsSetsColumns },
       );
@@ -610,8 +614,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     return [null, null];
   }, [isStratifiedDataNeeded, alignedEmbeddingIndex, alignedEmbeddingData,
     uint8ExpressionData, sampleEdges, sampleSets, deferredSampleSetSelection,
-    deferredCellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
-    obsSetsColumns,
+    deferredCellSetSelection, mergedCellSets, obsSetsColumns,
   ]);
 
   // Animate the 2D zoom/target when they change due to the current annotation frame.
