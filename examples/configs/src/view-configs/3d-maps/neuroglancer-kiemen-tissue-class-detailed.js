@@ -94,6 +94,8 @@ function generateNeuroglancerTissueClassesDetailed() {
     detailMode: true,
     title: 'Selected meshes',
     showAxisLines: false,
+    // Also show the obsSets selection in the detail view (off = hover only).
+    detailUseSelection: false,
   });
 
   config.linkViewsByObject([lcView, neuroglancerView], {
@@ -120,7 +122,7 @@ function generateNeuroglancerTissueClassesDetailed() {
           {
             obsType: 'cell',
             spatialChannelVisible: true,
-            obsColorEncoding: 'obsColors',
+            // obsColorEncoding: 'obsColors',
           },
         ]),
       },
@@ -131,7 +133,7 @@ function generateNeuroglancerTissueClassesDetailed() {
   config.layout(hconcat(neuroglancerView, neuroglancerDetailView, vconcat(lcView, obsSets)));
   config.linkViews(
    [neuroglancerView, neuroglancerDetailView, obsSets],
-  ['obsSetSelection', 'obsHighlight'],
+  ['obsHighlight'],
     [[], null],
     );
      

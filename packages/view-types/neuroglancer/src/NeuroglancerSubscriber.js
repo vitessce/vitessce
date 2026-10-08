@@ -97,6 +97,7 @@ export function NeuroglancerSubscriber(props) {
     // Detail mode: render only the meshes selected (obsSets) or hovered
     // (obsHighlight) elsewhere, with an independent camera.
     detailMode = false,
+    detailUseSelection = false,
   } = props;
 
   const loaders = useLoaders();
@@ -1117,7 +1118,7 @@ export function NeuroglancerSubscriber(props) {
     };
 
     const ids = new Set();
-    if (selection?.length && (layerSets || extraSets)) {
+    if (detailUseSelection && selection?.length && (layerSets || extraSets)) {
       const merged = mergeObsSets(layerSets, extraSets);
       selection.forEach((setPath) => {
         // Walk the full path (supports nesting deeper than 2 levels).
@@ -1132,7 +1133,7 @@ export function NeuroglancerSubscriber(props) {
       ids.add(toMeshId(lastHoveredIdRef.current));
     }
     return [...ids].sort();
-  }, [detailMode, segmentationLayerScopes, segmentationChannelScopesByLayer,
+  }, [detailMode, detailUseSelection, segmentationLayerScopes, segmentationChannelScopesByLayer,
     segmentationChannelCoordination, cellSetSelection, additionalCellSets,
     obsSegmentationsSetsData, cellHighlight, csvLoaded]);
 
