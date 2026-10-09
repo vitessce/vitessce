@@ -19,13 +19,18 @@ import {
   useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { pluralize as plur, capitalize, commaNumber, cleanFeatureId } from '@vitessce/utils';
-import { mergeObsSets, findLongestCommonPath, getCellColors } from '@vitessce/sets-utils';
+import {
+  mergeObsSets, findLongestCommonPath, getCellColors, nodeToSet, treeFindNodeByNamePath,
+} from '@vitessce/sets-utils';
 import { COMPONENT_COORDINATION_TYPES, ViewType, ViewHelpMapping } from '@vitessce/constants-internal';
 import { Legend } from '@vitessce/legend';
 import Heatmap from './Heatmap.js';
 import HeatmapTooltipSubscriber from './HeatmapTooltipSubscriber.js';
 import HeatmapOptions from './HeatmapOptions.js';
+import { getFeatureOrderByTotal } from './utils.js';
 
+// Natural ordering, e.g., "Cluster 2" before "Cluster 10".
+const { compare } = new Intl.Collator(undefined, { numeric: true });
 
 /**
  * @param {object} props
@@ -76,6 +81,9 @@ export function HeatmapSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    heatmapFeatureSortOrder: featureSortOrder,
+    heatmapFeatureSortKey: featureSortKey,
+    heatmapObsSetSortOrder: obsSetSortOrder,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -90,6 +98,9 @@ export function HeatmapSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setFeatureValueColormap: setGeneExpressionColormap,
     setTooltipsVisible,
+    setHeatmapFeatureSortOrder: setFeatureSortOrder,
+    setHeatmapFeatureSortKey: setFeatureSortKey,
+    setHeatmapObsSetSortOrder: setObsSetSortOrder,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.HEATMAP], coordinationScopes);
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -171,14 +182,55 @@ export function HeatmapSubscriber(props) {
     cellSets, additionalCellSets,
   ), [cellSets, additionalCellSets]);
 
+  // The order of the selected sets determines the order of the obs axis.
+  const sortedCellSetSelection = useMemo(() => {
+    if (!cellSetSelection || !mergedCellSets || obsSetSortOrder === 'original') {
+      return cellSetSelection;
+    }
+    if (obsSetSortOrder === 'size') {
+      const sizes = new Map(cellSetSelection.map(path => ([
+        path, nodeToSet(treeFindNodeByNamePath(mergedCellSets, path)).length,
+      ])));
+      return [...cellSetSelection].sort((a, b) => sizes.get(b) - sizes.get(a));
+    }
+    return [...cellSetSelection].sort((a, b) => compare(a.at(-1), b.at(-1)));
+  }, [cellSetSelection, mergedCellSets, obsSetSortOrder]);
+
   const cellColors = useMemo(() => getCellColors({
     cellSets: mergedCellSets,
-    cellSetSelection,
+    cellSetSelection: sortedCellSetSelection,
     cellSetColor,
     obsIndex,
     theme,
   }), [mergedCellSets, theme,
-    cellSetColor, cellSetSelection, obsIndex]);
+    cellSetColor, sortedCellSetSelection, obsIndex]);
+
+  const hasFeatureLabels = Boolean(featureLabelsMap);
+  const resolvedFeatureSortKey = featureSortKey
+    || (hasFeatureLabels ? 'featureLabels' : 'featureIndex');
+
+  // Display order of the matrix columns. Null keeps the original order.
+  const featureOrder = useMemo(() => {
+    if (!featureIndex || featureSortOrder === 'original') {
+      return null;
+    }
+    if (featureSortOrder === 'expression') {
+      return obsFeatureMatrix?.data
+        ? getFeatureOrderByTotal(obsFeatureMatrix.data, featureIndex.length)
+        : null;
+    }
+    const sortValues = (resolvedFeatureSortKey === 'featureLabels'
+      ? featureIndex.map(id => (
+        featureLabelsMap?.get(id)
+        || featureLabelsMap?.get(cleanFeatureId(id))
+        || id
+      ))
+      : featureIndex
+    );
+    return Int32Array.from(featureIndex.keys())
+      .sort((a, b) => compare(sortValues[a], sortValues[b]));
+  }, [featureIndex, featureSortOrder, resolvedFeatureSortKey, featureLabelsMap,
+    obsFeatureMatrix]);
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
@@ -248,6 +300,14 @@ export function HeatmapSubscriber(props) {
           setGeneExpressionColormapRange={setGeneExpressionColormapRange}
           tooltipsVisible={tooltipsVisible}
           setTooltipsVisible={setTooltipsVisible}
+          featureSortOrder={featureSortOrder}
+          setFeatureSortOrder={setFeatureSortOrder}
+          featureSortKey={resolvedFeatureSortKey}
+          setFeatureSortKey={setFeatureSortKey}
+          obsSetSortOrder={obsSetSortOrder}
+          setObsSetSortOrder={setObsSetSortOrder}
+          hasFeatureLabels={hasFeatureLabels}
+          primaryColumnName={`${capitalize(variablesLabel)} ID`}
         />
       )}
     >
@@ -276,6 +336,7 @@ export function HeatmapSubscriber(props) {
         featureLabelsMap={featureLabelsMap}
         obsIndex={obsIndex}
         featureIndex={featureIndex}
+        featureOrder={featureOrder}
         setTrackHighlight={setTrackHighlight}
         setComponentHover={() => {
           setComponentHover(uuid);

@@ -13,6 +13,14 @@ export default function HeatmapOptions(props) {
     setGeneExpressionColormapRange,
     tooltipsVisible,
     setTooltipsVisible,
+    featureSortOrder,
+    setFeatureSortOrder,
+    featureSortKey,
+    setFeatureSortKey,
+    obsSetSortOrder,
+    setObsSetSortOrder,
+    hasFeatureLabels,
+    primaryColumnName,
   } = props;
 
   const { classes } = usePlotOptionsStyles();
@@ -24,6 +32,18 @@ export default function HeatmapOptions(props) {
 
   function handleTooltipsVisibilityChange(event) {
     setTooltipsVisible(event.target.checked);
+  }
+
+  function handleFeatureSortOrderChange(event) {
+    setFeatureSortOrder(event.target.value);
+  }
+
+  function handleFeatureSortKeyChange(event) {
+    setFeatureSortKey(event.target.value);
+  }
+
+  function handleObsSetSortOrderChange(event) {
+    setObsSetSortOrder(event.target.value);
   }
 
   function handleColormapRangeChange(event, value) {
@@ -106,6 +126,66 @@ export default function HeatmapOptions(props) {
             min={0.0}
             max={1.0}
           />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label htmlFor={`heatmap-feature-sort-order-${heatmapOptionsId}`}>Feature Sort Ordering</label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <OptionSelect
+            className={classes.select}
+            value={featureSortOrder}
+            onChange={handleFeatureSortOrderChange}
+            inputProps={{
+              id: `heatmap-feature-sort-order-${heatmapOptionsId}`,
+            }}
+          >
+            <option value="original">Original</option>
+            <option value="alphabetical">Alphabetical</option>
+            <option value="expression">Total expression (highest first)</option>
+          </OptionSelect>
+        </TableCell>
+      </TableRow>
+      {hasFeatureLabels ? (
+        <TableRow>
+          <TableCell className={classes.labelCell} variant="head" scope="row">
+            <label htmlFor={`heatmap-feature-sort-key-${heatmapOptionsId}`}>Feature Sort Key</label>
+          </TableCell>
+          <TableCell className={classes.inputCell} variant="body">
+            <OptionSelect
+              className={classes.select}
+              disabled={featureSortOrder !== 'alphabetical'}
+              value={featureSortKey}
+              onChange={handleFeatureSortKeyChange}
+              inputProps={{
+                'aria-label': 'Select the feature sort key',
+                id: `heatmap-feature-sort-key-${heatmapOptionsId}`,
+              }}
+            >
+              <option value="featureLabels">{primaryColumnName}</option>
+              <option value="featureIndex">Alternate ID</option>
+            </OptionSelect>
+          </TableCell>
+        </TableRow>
+      ) : null}
+      <TableRow>
+        <TableCell className={classes.labelCell} variant="head" scope="row">
+          <label htmlFor={`heatmap-obs-set-sort-order-${heatmapOptionsId}`}>Obs Set Sort Ordering</label>
+        </TableCell>
+        <TableCell className={classes.inputCell} variant="body">
+          <OptionSelect
+            className={classes.select}
+            value={obsSetSortOrder}
+            onChange={handleObsSetSortOrderChange}
+            inputProps={{
+              id: `heatmap-obs-set-sort-order-${heatmapOptionsId}`,
+            }}
+          >
+            <option value="original">Original</option>
+            <option value="alphabetical">Alphabetical</option>
+            <option value="size">Size (largest first)</option>
+          </OptionSelect>
         </TableCell>
       </TableRow>
     </OptionsContainer>

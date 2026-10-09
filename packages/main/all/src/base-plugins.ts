@@ -484,6 +484,13 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.HEATMAP_ZOOM_Y, 0, z.number()),
   new PluginCoordinationType(CoordinationType.HEATMAP_TARGET_X, 0, z.number()),
   new PluginCoordinationType(CoordinationType.HEATMAP_TARGET_Y, 0, z.number()),
+  new PluginCoordinationType(CoordinationType.HEATMAP_FEATURE_SORT_ORDER, 'original', z.enum(['original', 'alphabetical', 'expression'])),
+  new PluginCoordinationType(
+    CoordinationType.HEATMAP_FEATURE_SORT_KEY,
+    null,
+    z.enum(['featureIndex', 'featureLabels']).nullable(),
+  ),
+  new PluginCoordinationType(CoordinationType.HEATMAP_OBS_SET_SORT_ORDER, 'original', z.enum(['original', 'alphabetical', 'size'])),
   new PluginCoordinationType(CoordinationType.OBS_FILTER, null, z.array(z.string()).nullable()),
   new PluginCoordinationType(CoordinationType.OBS_HIGHLIGHT, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.OBS_SELECTION, null, z.array(z.string()).nullable()),
