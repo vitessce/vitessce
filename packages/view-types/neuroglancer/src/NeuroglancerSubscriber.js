@@ -98,6 +98,9 @@ export function NeuroglancerSubscriber(props) {
     // (obsHighlight) elsewhere, with an independent camera.
     detailMode = false,
     detailUseSelection = false,
+    // >1: this view shows the shared camera N× more zoomed in.
+    // Pan/rotation are shared via spatialCameraSnapshot; zoom keeps a fixed ratio.
+    cameraZoomFactor = 1,
   } = props;
 
   const loaders = useLoaders();
@@ -463,10 +466,12 @@ export function NeuroglancerSubscriber(props) {
       ...latestViewerStateRef.current,
       position,
       projectionOrientation: unflipped,
-      projectionScale,
+      projectionScale: Number.isFinite(projectionScale)
+        ? projectionScale / cameraZoomFactor
+        : latestViewerStateRef.current.projectionScale,
     };
     incrementLatestViewerStateIteration();
-  }, [spatialCameraSnapshot]);
+  }, [spatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -1025,7 +1030,9 @@ export function NeuroglancerSubscriber(props) {
       const snapshot = {
         position: Array.from(position),
         quaternion: Array.from(flippedQuaternion),
-        projectionScale,
+        projectionScale: Number.isFinite(projectionScale)
+          ? projectionScale * cameraZoomFactor
+          : latestViewerStateRef.current?.projectionScale,
         fovDegrees: 45,
       };
       lastSeenCameraSnapshotRef.current = snapshot;
@@ -1039,7 +1046,7 @@ export function NeuroglancerSubscriber(props) {
       position,
     };
     if (!detailMode) updateVisibleSegmentsThrottledRef.current?.();
-  }, [setSpatialCameraSnapshot, detailMode]);
+  }, [setSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
