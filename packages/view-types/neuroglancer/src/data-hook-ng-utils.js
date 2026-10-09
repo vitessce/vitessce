@@ -1,5 +1,5 @@
 import { DataType } from '@vitessce/constants-internal';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { getPointsShader } from './shader-utils.js';
@@ -29,6 +29,54 @@ export const DEFAULT_NG_PROPS = {
   dimensions: DEFAULT_NG_DIMENSIONS,
   layers: [],
 };
+
+/**
+ * Validate an NG coordinate-space dimensions object:
+ * { x: [scale, unit], y: [scale, unit], z: [scale, unit] }.
+ */
+export function isValidNgDimensions(dims) {
+  return !!dims && typeof dims === 'object'
+    && ['x', 'y', 'z'].every(axis => Array.isArray(dims[axis])
+      && dims[axis].length === 2
+      && Number.isFinite(dims[axis][0]) && dims[axis][0] > 0
+      && typeof dims[axis][1] === 'string');
+}
+
+/**
+ * Resolve the viewer's global `dimensions` once, independent of layer order.
+ * A point layer's `transform.outputDimensions` describes that layer's own
+ * output space; NG maps it into the global space per layer, so it must not
+ * overwrite the viewer dimensions.
+ * Precedence:
+ *   1. explicit `viewerDimensions` (Neuroglancer view prop),
+ *   2. the first point layer (in scope order) that declares outputDimensions,
+ *   3. DEFAULT_NG_DIMENSIONS.
+ */
+export function resolveViewerDimensions(
+  pointLayerScopes, obsPointsData, viewerDimensionsOverride = null,
+) {
+  if (viewerDimensionsOverride != null) {
+    if (isValidNgDimensions(viewerDimensionsOverride)) return viewerDimensionsOverride;
+    console.warn('Ignoring invalid viewerDimensions prop; expected { x: [scale, unit], y: [scale, unit], z: [scale, unit] }.');
+  }
+  const declared = (pointLayerScopes ?? [])
+    .map(scope => ({
+      scope,
+      dims: obsPointsData?.[scope]?.neuroglancerOptions?.transform?.outputDimensions,
+    }))
+    .filter(({ dims }) => dims);
+  if (!declared.length) return DEFAULT_NG_DIMENSIONS;
+  const [{ dims: viewerDims }] = declared;
+  const mismatched = declared.filter(({ dims }) => !isEqual(dims, viewerDims));
+  if (mismatched.length) {
+    console.warn(
+      `Point layers declare different outputDimensions; using those of "${declared[0].scope}" `
+      + `for the viewer. Layers ${mismatched.map(({ scope }) => `"${scope}"`).join(', ')} `
+      + 'keep their own outputDimensions in their source transform.',
+    );
+  }
+  return viewerDims;
+}
 
 function toPrecomputedSource(url) {
   if (!url) {
@@ -94,29 +142,79 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
   throw new Error(`Unsupported data type: ${dataType}`);
 }
 
-export function pointsHaveMatchingSegmentation({
+/**
+ * Return the segmentation layer scopes that have at least one channel whose
+ * obsType matches the given point layer obsType. A non-empty result means
+ * the point layer is interpreted as the centroids of those segmentations;
+ * an empty result means it is a standalone point layer (e.g., transcripts).
+ */
+export function getMatchingSegmentationLayerScopes({
   pointObsType,
   segmentationLayerScopes,
   segmentationChannelScopesByLayer,
   segmentationChannelCoordination,
 }) {
-  // Check if there are segmentations with the same obsType.
-  // If so, infer that the points represent centroids of the segmentations.
-  // We pass this down to the getPointsShader, to determine whether to
-  // interpret `obsColorEncoding === 'geneSelection'` as a quantitative
-  // color encoding or a categorical color encoding.
-  return segmentationLayerScopes.some((segmentationLayerScope) => {
+  if (!pointObsType) return [];
+  return (segmentationLayerScopes ?? []).filter((segmentationLayerScope) => {
     const segmentationChannelScopes = segmentationChannelScopesByLayer?.
       [segmentationLayerScope] || [];
     return segmentationChannelScopes.some((segmentationChannelScope) => {
       const segmentationObsType = segmentationChannelCoordination?.[0]
         ?.[segmentationLayerScope]?.[segmentationChannelScope]?.obsType;
-      return (
-        segmentationObsType && pointObsType
-        && segmentationObsType === pointObsType
-      );
+      return segmentationObsType === pointObsType;
     });
   });
+}
+
+export function pointsHaveMatchingSegmentation(args) {
+  // Check if there are segmentations with the same obsType.
+  // If so, infer that the points represent centroids of the segmentations.
+  // We pass this down to the getPointsShader, to determine whether to
+  // interpret `obsColorEncoding === 'geneSelection'` as a quantitative
+  // color encoding or a categorical color encoding.
+  return getMatchingSegmentationLayerScopes(args).length > 0;
+}
+
+/**
+ * Split point layer scopes into centroid layers (obsType matches a
+ * segmentation channel) and standalone layers (e.g., transcripts).
+ * @returns {{
+ *   centroidScopes: string[],
+ *   transcriptScopes: string[],
+ *   centroidToSegLayers: Record<string, string[]>,
+ *   culledSegLayerScopes: Set<string>,
+ * }}
+ */
+export function classifyPointLayers({
+  pointLayerScopes,
+  pointLayerCoordination,
+  segmentationLayerScopes,
+  segmentationChannelScopesByLayer,
+  segmentationChannelCoordination,
+}) {
+  const centroidScopes = [];
+  const transcriptScopes = [];
+  const centroidToSegLayers = {};
+  (pointLayerScopes ?? []).forEach((pointLayerScope) => {
+    const matches = getMatchingSegmentationLayerScopes({
+      pointObsType: pointLayerCoordination?.[0]?.[pointLayerScope]?.obsType,
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+      segmentationChannelCoordination,
+    });
+    if (matches.length > 0) {
+      centroidScopes.push(pointLayerScope);
+      centroidToSegLayers[pointLayerScope] = matches;
+    } else {
+      transcriptScopes.push(pointLayerScope);
+    }
+  });
+  return {
+    centroidScopes,
+    transcriptScopes,
+    centroidToSegLayers,
+    culledSegLayerScopes: new Set(Object.values(centroidToSegLayers).flat()),
+  };
 }
 
 export function segmentationsHaveMatchingPoints({
@@ -162,9 +260,15 @@ export function useNeuroglancerViewerState(
   obsPointsUrls,
   obsPointsData,
   pointMultiIndicesData,
+  viewerDimensionsOverride = null,
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
+    // Global viewer dimensions are decided once, up front
+    const viewerDimensions = resolveViewerDimensions(
+      pointLayerScopes, obsPointsData, viewerDimensionsOverride,
+    );
+    result = { ...result, dimensions: viewerDimensions };
 
     // ======= SEGMENTATIONS =======
 
@@ -231,12 +335,6 @@ export function useNeuroglancerViewerState(
       const layerData = obsPointsData[layerScope];
       const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
       const ngOptions = layerData?.neuroglancerOptions;
-      if (ngOptions?.transform?.matrix && ngOptions?.transform?.outputDimensions) {
-        result = {
-          ...result,
-          dimensions: ngOptions.transform.outputDimensions ?? DEFAULT_NG_DIMENSIONS,
-        };
-      }
 
       // Check if there are segmentations with the same obsType.
       // If so, we infer that the points represent the centroids of the segmentations.
@@ -312,7 +410,9 @@ export function useNeuroglancerViewerState(
                   ? {
                     transform: {
                       matrix: ngOptions.transform.matrix,
-                      outputDimensions: ngOptions.transform?.outputDimensions ?? result.dimensions,
+                      // Layer-local output space; falls back to the viewer's
+                      // dimensions (order-independent), never another layer's.
+                      outputDimensions: ngOptions.transform?.outputDimensions ?? viewerDimensions,
                     },
                   }
                   : {}),
@@ -352,6 +452,7 @@ export function useNeuroglancerViewerState(
     obsPointsUrls,
     obsPointsData,
     pointMultiIndicesData,
+    viewerDimensionsOverride,
   }, customIsEqualForInitialViewerState);
 
   return viewerState;

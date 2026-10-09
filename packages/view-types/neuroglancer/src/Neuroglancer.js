@@ -10,6 +10,31 @@ function createWorker() {
   worker.AsyncComputationWorker = AsyncComputationWorker;
   return worker;
 }
+
+/**
+ * Resolve the NG managed-layer name of the currently picked annotation.
+ * mouseState.pickedAnnotationLayer is the AnnotationLayerState set by the
+ * annotation render layer (this.base.state), which is one of the user layer's
+ * annotationStates.states; fall back to matching pickedRenderLayer.
+ */
+function getPickedAnnotationLayerName(viewer, mouseState) {
+  const { pickedAnnotationLayer, pickedRenderLayer } = mouseState;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const managedLayer of viewer.layerManager.managedLayers) {
+    const userLayer = managedLayer.layer;
+    if (userLayer) {
+      if (pickedAnnotationLayer
+        && userLayer.annotationStates?.states?.includes(pickedAnnotationLayer)) {
+        return managedLayer.name;
+      }
+      if (pickedRenderLayer && userLayer.renderLayers?.includes(pickedRenderLayer)) {
+        return managedLayer.name;
+      }
+    }
+  }
+  return null;
+}
+
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
@@ -62,23 +87,37 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
-      const { getMeshIdToCellId, onViewerReady, cellsUrl } = this.props;
+      const { onViewerReady } = this.props;
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
-        // For point hover: pickedAnnotationId is a by_id lookup key (not MeshID).
-        // Fetch by_id record to get actual MeshID (at offset 12),
-        // then convert MeshID to CellID for scatterplot highlight.
+        // Read props at hover time (not at mount) so URLs that resolve later are used.
+        const { getMeshIdToCellId, centroidAnnotationUrlsByLayerName } = this.props;
         if (ms.pickedAnnotationId != null) {
+          // Resolve which annotation layer was picked. Only centroid layers
+          // (obsType matches a segmentation) carry a MeshID in their by_id records;
+          // transcript/standalone point layers must not be mapped to cell meshes.
+          const layerName = getPickedAnnotationLayerName(viewer, ms);
+          const annotationUrl = layerName
+            ? centroidAnnotationUrlsByLayerName?.[layerName]
+            : null;
+          if (!annotationUrl) {
+            this.latestOnSelectHoveredCoords?.(null);
+            return;
+          }
+          // For centroid hover: pickedAnnotationId is a by_id lookup key (not MeshID).
+          // Fetch by_id record to get actual MeshID (at offset 12),
+          // then convert MeshID to CellID for scatterplot highlight.
           const byIdKey = String(ms.pickedAnnotationId);
-          fetch(`${cellsUrl}/by_id/${byIdKey}`)
+          fetch(`${annotationUrl}/by_id/${byIdKey}`)
             .then(r => r.arrayBuffer())
             .then((buf) => {
               const dv = new DataView(buf);
               const actualMeshId = String(dv.getInt32(12, true));
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
               this.latestOnSelectHoveredCoords?.(cellId);
-            });
+            })
+            .catch(() => {});
           return;
         }
         // TODO: Undo if meshes and cells have same id
@@ -136,7 +175,7 @@ export class NeuroglancerComp extends PureComponent {
       onLayerLoadingChange,
       onAnnotationSourceReady,
       onViewerReady,
-      meshOpacity,
+      meshOpacityByLayer,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -155,7 +194,7 @@ export class NeuroglancerComp extends PureComponent {
                 ref={this.onRef}
                 onAnnotationSourceReady={onAnnotationSourceReady}
                 onViewerReady={onViewerReady}
-                meshOpacity={meshOpacity}
+                meshOpacityByLayer={meshOpacityByLayer}
               />
             )}
           </Suspense>

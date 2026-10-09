@@ -314,3 +314,26 @@ export function autoColorForId(id) {
   }
   return color;
 }
+
+
+export function rgbToHex(rgb) {
+  return (typeof rgb === 'string'
+    ? rgb
+    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
+}
+
+/**
+ * Return the cached object if `next` has the same keys with identical (===) values;
+ * otherwise cache and return `next`.
+ */
+export function reuseIfShallowEqual(cacheRef, next) {
+  const prev = cacheRef.current;
+  const prevKeys = Object.keys(prev);
+  const nextKeys = Object.keys(next);
+  if (prevKeys.length === nextKeys.length && nextKeys.every(k => prev[k] === next[k])) {
+    return prev;
+  }
+  // eslint-disable-next-line no-param-reassign
+  cacheRef.current = next;
+  return next;
+}

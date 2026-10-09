@@ -709,9 +709,35 @@ export default class Neuroglancer extends React.Component {
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
+    // Annotation layers whose source transform has already been reported.
+    // Each annotation layer (centroids, transcripts, ...) reports once, independently
+    // of the first-chunk-loaded signal, so multiple point layers all get a transform.
+    const reportedAnnotationLayers = new Set();
 
+    const reportAnnotationSources = () => {
+      if (!this.viewer) return;
+      for (const layer of this.viewer.layerManager.managedLayers) {
+        if (layer.layer instanceof AnnotationUserLayer && !reportedAnnotationLayers.has(layer.name)) {
+          const annotState = layer.layer.annotationStates?.states[0];
+          const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+          const serializers = annotState?.source?.annotationPropertySerializers;
+          if (t && serializers) {
+            reportedAnnotationLayers.add(layer.name);
+            this.props.onAnnotationSourceReady?.({
+              layerName: layer.name,
+              x: t[0],
+              y: t[5],
+              z: t[10],
+              serializers, // pass all serializers
+              serializer: serializers[0], // keep default for backward compat
+            });
+          }
+        }
+      }
+    };
 
     const checkAndMarkLoaded = () => {
+      reportAnnotationSources();
       if (firstChunkLoaded || !this.viewer) return false;
 
       for (const layer of this.viewer.layerManager.managedLayers) {
@@ -741,18 +767,6 @@ export default class Neuroglancer extends React.Component {
             requestAnimationFrame(() => requestAnimationFrame(() => {
               this.props.onLayerLoadingChange?.(true);
             }));
-            const annotState = layer.layer.annotationStates?.states[0];
-            const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
-            const serializers = annotState?.source?.annotationPropertySerializers;
-            if (t && serializers) {
-              this.props.onAnnotationSourceReady?.({
-                x: t[0],
-                y: t[5],
-                z: t[10],
-                serializers, // pass all serializers
-                serializer: serializers[0], // keep default for backward compat
-              });
-            }
             return true;
           }
         }
@@ -765,12 +779,8 @@ export default class Neuroglancer extends React.Component {
 
     // To fix infinite loading loop on subsequent page refresh due to cache
     // Also check immediately in case chunks already loaded (cached)
-    const timeoutId1 = setTimeout(() => {
-      if (!firstChunkLoaded) checkAndMarkLoaded();
-    }, 100);
-    const timeoutId2 = setTimeout(() => {
-      if (!firstChunkLoaded) checkAndMarkLoaded();
-    }, 1000);
+    const timeoutId1 = setTimeout(checkAndMarkLoaded, 100);
+    const timeoutId2 = setTimeout(checkAndMarkLoaded, 1000);
     this.disposers.push(() => clearTimeout(timeoutId1));
     this.disposers.push(() => clearTimeout(timeoutId2));
 
@@ -850,10 +860,11 @@ export default class Neuroglancer extends React.Component {
           scope => layer.name?.includes(scope),
         );
         if (layerScope) {
-          // meshOpacity prop takes precedence over coordination opacity
-          // when on-demand mesh loading is active
-          const opacity = this.props.meshOpacity !== undefined
-            ? this.props.meshOpacity
+          // meshOpacityByLayer takes precedence over coordination opacity
+          // for segmentation layers with on-demand mesh loading (centroid layers present)
+          const meshOpacityOverride = this.props.meshOpacityByLayer?.[layerScope];
+          const opacity = meshOpacityOverride !== undefined
+            ? meshOpacityOverride
             : (cellColorMappingByLayer[layerScope]?.opacity ?? 1.0);
           layer.layer.displayState.objectAlpha.value = opacity;
         }

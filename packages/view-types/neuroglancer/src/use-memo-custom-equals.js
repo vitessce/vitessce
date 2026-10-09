@@ -93,7 +93,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
   const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
 
-  if (['theme', 'showAxisLines'].some(curriedShallowDiff)) {
+  if (['theme', 'showAxisLines', 'viewerDimensionsOverride'].some(curriedShallowDiff)) {
     forceUpdate = true;
   }
 

@@ -15,6 +15,12 @@ function generateNeuroglancerMisTwoLayersConfig() {
   const dataset = config.addDataset('My dataset');
 
   dataset.addFile({
+    fileType: 'obsSegmentations.ng-precomputed',
+    url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_precomputed',
+    coordinationValues: { fileUid: 'mis-meshes' },
+  });
+
+  dataset.addFile({
     fileType: 'obsSets.csv',
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_metadata_V2.csv',
     coordinationValues: {
@@ -36,10 +42,11 @@ function generateNeuroglancerMisTwoLayersConfig() {
       projectionAnnotationSpacing: 2.4544585683772735,
       featureIndexProp: 'protein',
       transform: {
+        // Bounds-fit: proteins (voxel indices) -> cells space (µm values, labeled nm).
         matrix: [
-          [0.499832, 0, 0, 0.577010],
-          [0, 0.501191, 0, -0.561067],
-          [0, 0, 0.538790, -7.041469],
+          [0.141721, 0, 0, -8.493161],
+          [0, 0.141733, 0, -0.580656],
+          [0, 0, 0.301723, -7.041469],
         ],
         outputDimensions: {
           x: [1e-9, 'm'],
@@ -49,7 +56,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
       },
     },
     coordinationValues: {
-      fileUid: 'mis-points',
+      fileUid: 'mis-proteins',
       obsType: 'point',
       featureType: 'gene',
     },
@@ -60,30 +67,18 @@ function generateNeuroglancerMisTwoLayersConfig() {
     fileType: 'obsPoints.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_annotations_corrected_precomputed/cells',
     options: {
-      projectionAnnotationSpacing: 1,
-      transform: {
-        matrix: [
-          [7148.09960682, 0, 0, 0],
-          [0, 7148.09960682, 0, 0],
-          [0, 0, 3803.92156863, 0],
-        ],
-        outputDimensions: {
-          x: [0.000001, 'm'],
-          y: [0.000001, 'm'],
-          z: [0.000001, 'm'],
-        },
-      },
+      projectionAnnotationSpacing: 0.5,
     },
     coordinationValues: {
-      fileUid: 'sorger-cells',
+      fileUid: 'mis-centroids',
       obsType: 'cell',
     },
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
-      position: [2870.94, 929.11, 117.25],
-      projectionScale: 1331.4,
+      position: [381.9, 193.3, 26.0],
+      projectionScale: 1000,
       projectionOrientation: [
         -0.6668370366096497, 0.5911841988563538,
         -0.1955600529909134, 0.4093725383281708,
@@ -109,9 +104,18 @@ function generateNeuroglancerMisTwoLayersConfig() {
   }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
+    segmentationLayer: CL([{
+      fileUid: 'mis-meshes',
+      spatialLayerOpacity: 1,
+      spatialLayerVisible: true,
+      segmentationChannel: CL([{ obsType: 'cell', spatialChannelVisible: true }]),
+    }]),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
+
+  config.linkViewsByObject([neuroglancerView, layerController], {
     pointLayer: CL([
       {
-        fileUid: 'mis-points',
+        fileUid: 'mis-proteins',
         obsType: 'point',
         featureType: 'gene',
         spatialLayerOpacity: 1,
@@ -124,7 +128,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
         featureFilterMode: 'featureSelection',
       },
       {
-        fileUid: 'sorger-cells',
+        fileUid: 'mis-centroids',
         obsType: 'cell',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
