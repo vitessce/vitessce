@@ -17,6 +17,8 @@ import { getGeneByCellTile, getCellByGeneTile } from './heatmap.js';
  * @param {boolean} params.transpose Is the heatmap transposed?
  * @param {boolean} params.expressionRowLookUp A lookup table for the array index of a given cell.
  * This is needed for performance reasons instead of calling `indexOf` repeatedly.
+ * @param {Int32Array|null} params.featureOrder The matrix column index of each displayed gene,
+ * in display order. If null, the original column order is used.
  * @returns {array} [message, transfers]
  */
 function getTile({
@@ -29,6 +31,7 @@ function getTile({
   data,
   transpose,
   expressionRowLookUp,
+  featureOrder,
 }) {
   const view = new Uint8Array(data);
 
@@ -47,6 +50,7 @@ function getTile({
       numGenes,
       cellOrdering,
       expressionRowLookUp,
+      featureOrder,
     },
   );
   return [{ tile: result, buffer: data, curr }, [data]];

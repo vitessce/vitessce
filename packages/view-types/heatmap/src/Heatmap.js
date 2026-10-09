@@ -95,6 +95,8 @@ function shouldUsePaddedImplementation(dataLength) {
  * @param {string[]} props.obsIndex The cell ID list.
  * @param {string[]} props.featureIndex The gene ID list.
  * @param {null|Map<string,string>} props.featureLabelsMap A map of featureIndex to featureLabel.
+ * @param {null|Int32Array} props.featureOrder The featureIndex position of each displayed gene,
+ * in display order. If null, genes are displayed in featureIndex order.
  */
 const Heatmap = forwardRef((props, deckRef) => {
   const {
@@ -128,6 +130,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     obsIndex,
     featureIndex,
     featureLabelsMap,
+    featureOrder = null,
   } = props;
 
   const viewState = {
@@ -199,12 +202,16 @@ const Heatmap = forwardRef((props, deckRef) => {
     if (!featureIndex) {
       return;
     }
+    const featureOrdering = (featureOrder
+      ? Array.from(featureOrder, i => featureIndex[i])
+      : featureIndex
+    );
     if (transpose) {
-      setAxisLeftLabels(featureIndex);
+      setAxisLeftLabels(featureOrdering);
     } else {
-      setAxisTopLabels(featureIndex);
+      setAxisTopLabels(featureOrdering);
     }
-  }, [featureIndex, transpose]);
+  }, [featureIndex, featureOrder, transpose]);
 
   const [longestCellLabel, longestGeneLabel] = useMemo(() => {
     if (!obsIndex || !featureIndex) {
@@ -358,6 +365,7 @@ const Heatmap = forwardRef((props, deckRef) => {
         transpose,
         data: uint8ObsFeatureMatrix.buffer.slice(),
         expressionRowLookUp,
+        featureOrder,
       })));
       const process = async () => {
         const tiles = await Promise.all(promises.flat());
@@ -373,7 +381,7 @@ const Heatmap = forwardRef((props, deckRef) => {
       process();
     }
   }, [axisLeftLabels, axisTopLabels, backlog, uint8ObsFeatureMatrix, transpose,
-    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex]);
+    xTiles, yTiles, workerPool, expressionRowLookUp, featureIndex, featureOrder]);
 
   useEffect(() => {
     setIsRendering(backlog.length > 0);
@@ -398,7 +406,8 @@ const Heatmap = forwardRef((props, deckRef) => {
           geneIndex < featureIndex.length;
           geneIndex += 1
         ) {
-          const index = cellIndex * featureIndex.length + geneIndex;
+          const index = cellIndex * featureIndex.length
+            + (featureOrder ? featureOrder[geneIndex] : geneIndex);
           paddedExpressionContainer[
             newIndex % (DATA_TEXTURE_SIZE * DATA_TEXTURE_SIZE)
           ] = uint8ObsFeatureMatrix[index];
@@ -426,6 +435,7 @@ const Heatmap = forwardRef((props, deckRef) => {
     uint8ObsFeatureMatrix,
     expressionRowLookUp,
     featureIndex,
+    featureOrder,
     gl,
   ]);
 
