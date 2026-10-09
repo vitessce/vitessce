@@ -143,6 +143,7 @@ The `spatialBeta` and `layerControllerBeta` views support multi-level coordinati
         - `obsHighlight`
         - `tooltipsVisible`
         - `tooltipCrosshairsVisible`
+        - `tooltipObsSetsMode`
         - `legendVisible`
 - `spotLayer`
     - `obsType`
@@ -235,6 +236,7 @@ The `neuroglancer` view also supports the `segmentationLayer` and `pointLayer` h
 | `obsHighlight` | ID of the currently hovered observation. Set on hover; not usually configured. |
 | `tooltipsVisible` | Whether hover tooltips are shown. |
 | `tooltipCrosshairsVisible` | Whether crosshairs are drawn at the hovered position. |
+| `tooltipObsSetsMode` | Which obs sets are listed in hover tooltips: `all` (default) lists every set that contains the observation, `selected` lists only sets within the groups of the current `obsSetSelection`. Also supported at the view level by `scatterplot`, `spatial` and `heatmap`. |
 | `legendVisible` | Whether the layer's color legend is shown. |
 | `spatialChannelsSortOrder` | Order of channels in the layer controller: `original` (as in the file) or `alphabetical`. |
 | `spatialRenderingMode` | Whether the spatial view renders in `2D` or `3D`. View-level; not set per layer. |

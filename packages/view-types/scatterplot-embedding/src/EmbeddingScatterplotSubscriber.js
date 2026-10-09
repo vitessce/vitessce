@@ -130,6 +130,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
     sampleSetSelection: sampleSetSelectionFromCoordination,
     sampleSetColor,
     embeddingPointsVisible,
@@ -459,6 +460,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
   // With no set selection every observation counts as selected, matching the
