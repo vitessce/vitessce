@@ -110,8 +110,10 @@ import { neuroglancerSorger } from './view-configs/3d-maps/neuroglancer-sorger.j
 import { neuroglancerInvasive } from './view-configs/3d-maps/neuroglancer-invasive.js';
 import { neuroglancerMisCellOnly } from './view-configs/3d-maps/neuroglancer-mis-cell-only.js';
 import { neuroglancerInterscellar } from './view-configs/3d-maps/neuroglancer-mis-interscellar.js';
+import { neuroglancerInterscellarDetail } from './view-configs/3d-maps/neuroglancer-mis-interscellar-detail.js';
 import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
+import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -248,8 +250,10 @@ export const configs = {
   'neuroglancer-invasive': neuroglancerInvasive,
   'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
   'neuroglancer-interscellar': neuroglancerInterscellar,
+  'neuroglancer-interscellar-detail': neuroglancerInterscellarDetail,
   'neuroglancer-macosko': neuroglancerMacosko,
   'neuroglancer-cube': testCubeNeuroglancer,
+  'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,
