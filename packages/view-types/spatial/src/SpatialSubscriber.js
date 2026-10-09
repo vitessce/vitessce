@@ -119,6 +119,7 @@ export function SpatialSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
     photometricInterpretation: photometricInterpretationFromCoordination,
     featureAggregationStrategy,
     annotationStory,
@@ -456,6 +457,7 @@ export function SpatialSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
   const getTooltipObsInfo = useCallback((tooltipObsId, tooltipObsType) => {

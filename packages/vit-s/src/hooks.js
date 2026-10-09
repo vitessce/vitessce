@@ -5,7 +5,7 @@ import { debounce, every } from 'lodash-es';
 import { extent } from 'd3-array';
 import { useQuery } from '@tanstack/react-query';
 import { capitalize } from '@vitessce/utils';
-import { getObsIndexMap } from '@vitessce/sets-utils';
+import { getObsIndexMap, filterObsMembershipForTooltip } from '@vitessce/sets-utils';
 import { STATUS, AsyncFunctionType } from '@vitessce/constants-internal';
 import { VITESSCE_CONTAINER } from './classNames.js';
 import { useGridResize, useEmitGridResize } from './state/hooks.js';
@@ -347,14 +347,17 @@ export function useGetObsMembership(obsSetsMembership) {
   }, [obsSetsMembership]);
 }
 
-export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership) {
+export function useGetObsInfo(
+  obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+  obsSetSelection, tooltipObsSetsMode,
+) {
   return useCallback((obsId) => {
     if (obsId) {
       const obsMembership = obsSetsMembership?.get(obsId) || [];
       return {
         [`${capitalize(obsType)} ID`]: obsId,
         ...Object.fromEntries(
-          obsMembership
+          filterObsMembershipForTooltip(obsMembership, obsSetSelection, tooltipObsSetsMode)
             .flatMap(path => path.slice(1).map((pathEl, elLevel) => ([
               `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
               pathEl,
@@ -374,7 +377,10 @@ export function useGetObsInfo(obsType, obsLabelsTypes, obsLabelsData, obsSetsMem
       };
     }
     return null;
-  }, [obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership]);
+  }, [
+    obsType, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    obsSetSelection, tooltipObsSetsMode,
+  ]);
 }
 
 /**

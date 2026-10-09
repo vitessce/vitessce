@@ -362,6 +362,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
   TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  TOOLTIP_OBS_SETS_MODE: 'tooltipObsSetsMode',
   LEGEND_VISIBLE: 'legendVisible',
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
