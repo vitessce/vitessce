@@ -78,14 +78,14 @@ function generateNeuroglancerMisTwoLayersConfig() {
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
       position: [381.9, 193.3, 26.0],
-      projectionScale: 1000,
+      projectionScale: 380,
       projectionOrientation: [
         -0.6668370366096497, 0.5911841988563538,
         -0.1955600529909134, 0.4093725383281708,
       ],
     },
     showAxisLines: false,
-    meshLoadProjectionScaleThreshold: 1200,
+    meshLoadProjectionScaleThreshold: 340,
   });
   const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
@@ -120,12 +120,13 @@ function generateNeuroglancerMisTwoLayersConfig() {
         featureType: 'gene',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Protein',
         spatialPointStrokeWidth: 0.2,
-        obsColorEncoding: 'geneSelection',
-        featureValueColormap: 'plasma',
-        featureSelection: ['MX1_SPOTS'],
-        featureValueColormapRange: [0.0, 1.0],
-        featureFilterMode: 'featureSelection',
+        obsColorEncoding: 'spatialLayerColor',
+        // featureValueColormap: 'plasma',
+        // featureSelection: ['MX1_SPOTS'],
+        // featureValueColormapRange: [0.0, 1.0],
+        // featureFilterMode: 'featureSelection',
       },
       {
         fileUid: 'mis-centroids',
@@ -133,6 +134,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
         spatialPointStrokeWidth: 0.2,
+        spatialLayerLabel: 'Centroids',
         obsColorEncoding: 'spatialLayerColor',
         spatialLayerColor: [0, 255, 0],
       },
