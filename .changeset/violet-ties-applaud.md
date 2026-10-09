@@ -3,4 +3,4 @@
 "@vitessce/example-configs": patch
 ---
 
-Added a detail Neuroglancer view to show a selected mesh on the primary view
+Add two types of detail Neuroglancer views: one to show only a selected/hovered mesh from the primary view, and another to show a zoomed-in view with the camera synced between the two.
