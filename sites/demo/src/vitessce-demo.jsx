@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React, {
   useEffect, useRef, useState, useMemo,
+  useCallback,
 } from 'react';
 import { Vitessce } from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
@@ -111,6 +112,39 @@ function validateLogLevel(logLevel) {
   return DEFAULT_LOG_LEVEL;
 }
 
+function AnnotatableVitessce(props) {
+  const {
+    config: initialConfig,
+  } = props;
+
+  const [config, setConfig] = useState(initialConfig);
+  const [areAnnotationsEditable, setAreAnnotationsEditable] = useState(false);
+
+  const handleAnnotating = useCallback(() => {
+    // TODO: use cvh-utils to addAnnotationControllerView to the config if it does not yet exist, then enableAnnotationEditing and call setAreAnnotationsEditable with true.
+    // Set a new config uid in the config if needed to cause Vitessce to detect the updates.
+  }, [config]);
+
+  const handleEditing = useCallback(() => {
+    // TODO: use cvh-utils to disableAnnotationEditing. If there is not any story, remove the annotation controller view. Disable annotation editing and call setAreAnnotationsEditable with false.
+    // Set a new config uid in the config if needed to cause Vitessce to detect the updates.
+  }, [config]);
+
+  return (
+    <>
+      <Vitessce
+        {...props}
+        config={config}
+        onConfigChange={setConfig}
+        remountOnUidChange={false}
+        areAnnotationsEditable={areAnnotationsEditable}
+      />
+      <button onClick={handleAnnotating}>Annotating</button>
+      <button onClick={handleEditing}>Editing</button>
+    </>
+  );
+}
+
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};
@@ -128,6 +162,10 @@ export function VitessceDemo() {
     const pageMode = urlParams.get('pageMode') === 'true';
     const debugMode = urlParams.get('debugMode')?.toLowerCase() === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
+    // When isAnnotating is true, we "simulate" the usage of the cvh-utils
+    // functions by rendering a toggle between "Editing" and "Annotating" modes,
+    // which use the functions in cvh-utils.
+    const isAnnotating = urlParams.get('isAnnotating') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -172,22 +210,35 @@ export function VitessceDemo() {
             `}
             </style>
           ) : null}
-          <Vitessce
-            config={config}
-            rowHeight={rowHeight}
-            theme={theme}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            validateOnConfigChange={debug}
-            isBounded={isBounded}
-            stores={stores}
-            {...pluginProps}
-            pageMode={pageMode}
-            debugMode={debugMode}
-            logLevel={logLevel}
-          >
-            {pageMode ? <PageComponent /> : null}
-          </Vitessce>
+          {isAnnotating ? (
+            <AnnotatableVitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            />
+          ) : (
+            <Vitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              onConfigChange={debug ? console.log : undefined}
+              onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+              validateOnConfigChange={debug}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              pageMode={pageMode}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            >
+              {pageMode ? <PageComponent /> : null}
+            </Vitessce>
+          )}
         </ContainerComponent>
       );
     }
