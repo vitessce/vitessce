@@ -3,7 +3,15 @@ import React, {
   useEffect, useRef, useState, useMemo,
   useCallback,
 } from 'react';
-import { Vitessce } from 'vitessce';
+import {
+  Vitessce,
+  hasAnnotationControllerView,
+  addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
+  enableAnnotationEditing,
+  disableAnnotationEditing,
+} from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
 import { fetchConfigFromGist } from '@vitessce/config';
@@ -121,13 +129,28 @@ function AnnotatableVitessce(props) {
   const [areAnnotationsEditable, setAreAnnotationsEditable] = useState(false);
 
   const handleAnnotating = useCallback(() => {
-    // TODO: use cvh-utils to addAnnotationControllerView to the config if it does not yet exist, then enableAnnotationEditing and call setAreAnnotationsEditable with true.
-    // Set a new config uid in the config if needed to cause Vitessce to detect the updates.
+    const configWithController = hasAnnotationControllerView(config)
+      ? config
+      : addAnnotationControllerView(config, { closeButtonVisible: false });
+    const nextConfig = enableAnnotationEditing(configWithController);
+    // Set a new uid so that Vitessce detects the updated config.
+    setConfig({ ...nextConfig, uid: `annotating-${Date.now()}` });
+    setAreAnnotationsEditable(true);
   }, [config]);
 
   const handleEditing = useCallback(() => {
-    // TODO: use cvh-utils to disableAnnotationEditing. If there is not any story, remove the annotation controller view. Disable annotation editing and call setAreAnnotationsEditable with false.
-    // Set a new config uid in the config if needed to cause Vitessce to detect the updates.
+    let nextConfig = config;
+    if (hasAnnotationControllerView(nextConfig)) {
+      nextConfig = disableAnnotationEditing(nextConfig);
+      if (!hasAnyAnnotationStory(nextConfig)) {
+        nextConfig = removeAnnotationControllerView(nextConfig);
+      }
+    }
+    if (nextConfig !== config) {
+      // Set a new uid so that Vitessce detects the updated config.
+      setConfig({ ...nextConfig, uid: `editing-${Date.now()}` });
+    }
+    setAreAnnotationsEditable(false);
   }, [config]);
 
   return (
@@ -139,8 +162,8 @@ function AnnotatableVitessce(props) {
         remountOnUidChange={false}
         areAnnotationsEditable={areAnnotationsEditable}
       />
-      <button onClick={handleAnnotating}>Annotating</button>
-      <button onClick={handleEditing}>Editing</button>
+      <button type="button" onClick={handleAnnotating}>Annotating</button>
+      <button type="button" onClick={handleEditing}>Editing</button>
     </>
   );
 }
