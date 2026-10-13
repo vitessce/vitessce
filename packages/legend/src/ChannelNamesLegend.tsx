@@ -11,6 +11,9 @@ const useStyles = makeStyles()(() => ({
     left: '0px',
     paddingLeft: '10px',
     paddingBottom: '10px',
+    // Keep long channel names within the view so they can be truncated.
+    maxWidth: '90%',
+    boxSizing: 'border-box',
   },
   channelNamesLegendLayer: {
     display: 'flex',
@@ -106,6 +109,8 @@ export default function ChannelNamesLegend(props: ChannelNamesLegendProps) {
                   variant="h6"
                   key={`${layerScope}-${cScope}-${channelIndex}-${rgbColor}`}
                   className={classes.channelNameText}
+                  noWrap
+                  title={channelName}
                   style={{
                     color: rgbColor,
                     fontSize: `${spatialChannelLabelSize}px`,
