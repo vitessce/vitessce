@@ -30,7 +30,7 @@ const UNIT_TO_METERS: Record<string, number> = {
   mm: 1e-3,
   millimeter: 1e-3,
   um: 1e-6,
-  'μm': 1e-6,
+  μm: 1e-6,
   micrometer: 1e-6,
   micron: 1e-6,
   nm: 1e-9,
