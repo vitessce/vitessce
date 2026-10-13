@@ -145,7 +145,7 @@ export function NeuroglancerSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
-  console.log('[camera in]', JSON.stringify(initialNgCameraState));
+
   const [{
     dataset,
     obsType,
