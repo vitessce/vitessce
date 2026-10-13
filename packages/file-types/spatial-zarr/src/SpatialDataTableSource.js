@@ -526,14 +526,16 @@ export default class SpatialDataTableSource extends AnnDataSource {
    * Load point data using a tiled approach.
    * @param {string} parquetPath A path to a parquet file (or directory).
    * @param {{ left: number, top: number, right: number, bottom: number }} tileBbox
-   * @param {{ x_min: number, y_min: number, x_max: number, y_max: number }} allPointsBbox
-   * @param {string[]|undefined} columns An optional list of column names to load.
+   * @param {AbortSignal|undefined} signal An optional signal to abort loading,
+   * for example when the tile is no longer visible.
+   * Requests that are shared with other (non-aborted) callers continue.
+   * @param {string} featureIndexColumnName
+   * @param {string|undefined} mortonCodeColumn
    * @returns
    */
   async loadParquetTableInRect(
     parquetPath,
     tileBbox,
-    // eslint-disable-next-line no-unused-vars
     signal,
     featureIndexColumnName,
     mortonCodeColumn,
@@ -573,14 +575,12 @@ export default class SpatialDataTableSource extends AnnDataSource {
       tileBboxes = [tileBbox];
     }
 
-    // TODO: pass signal to react-query functions to allow aborting requests.
-
     // Load the first four rows to determine the full data extent/bounding box.
     // To do so, we can load the first row group,
     // which should be small if the parquet file is properly tiled,
     // and will be cached for subsequent requests if this row group is needed again.
     const firstRowGroupTable = await _loadParquetRowGroupByGroupIndex(
-      { queryClient, store },
+      { queryClient, store, signal },
       parquetPath,
       0,
     );
@@ -611,7 +611,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const rowGroupIndicesPerTile = await Promise.all(
       tileBboxes
         .map(async subTileBbox => _rectToRowGroupIndices(
-          { queryClient, store },
+          { queryClient, store, signal },
           parquetPath,
           subTileBbox,
           allPointsBbox,
@@ -623,7 +623,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
       .toSorted((a, b) => a - b);
 
     const allMetadata = await _loadParquetMetadataByPart(
-      { queryClient, store },
+      { queryClient, store, signal },
       parquetPath,
     );
 
@@ -661,7 +661,7 @@ export default class SpatialDataTableSource extends AnnDataSource {
     const rowGroupTables = await Promise.all(
       uniqueCoveredRowGroupIndices
         .map(async rowGroupIndex => _loadParquetRowGroupByGroupIndex(
-          { queryClient, store },
+          { queryClient, store, signal },
           parquetPath,
           rowGroupIndex,
         )),

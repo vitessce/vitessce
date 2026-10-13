@@ -35,6 +35,7 @@
     "@vitessce/globals": "workspace:*"
   },
   "devDependencies": {
+    "@tanstack/react-query": "catalog:",
     "unzipit": "^2.0.1"
   }
 }

@@ -4,6 +4,9 @@ import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
 import { withGetRange } from './base-getrange.js';
+import { fetchQueryWithSignal, type QueryClientLike } from './query-signal.js';
+
+export type { QueryClientLike };
 
 
 // This allows returning `undefined` for 403 responses,
@@ -20,18 +23,6 @@ export async function relaxedFetch(...args: Parameters<typeof fetch>) {
   }
   return response;
 }
-
-// The subset of a TanStack Query QueryClient that the store cache uses. Typed
-// structurally so this package does not need a dependency on @tanstack/query-core;
-// the instance is created by vit-s and threaded through the DataSource constructor.
-export type QueryClientLike = {
-  fetchQuery: (options: {
-    queryKey: unknown[],
-    queryFn: () => Promise<unknown>,
-    staleTime?: number,
-    gcTime?: number,
-  }) => Promise<unknown>,
-};
 
 type ZarrOpenRootOptions = {
   requestInit?: RequestInit,
@@ -51,7 +42,10 @@ const UNDEFINED_SENTINEL = null;
 
 type CacheFetchFn = (
   cacheKey: unknown[],
-  fn: () => Promise<Uint8Array | undefined>,
+  // The signal passed to fn is shared by all concurrent readers of the cache key,
+  // and is distinct from the signal of any individual reader.
+  fn: (signal?: AbortSignal) => Promise<Uint8Array | undefined>,
+  signal?: AbortSignal,
 ) => Promise<Uint8Array | undefined>;
 
 /**
@@ -65,6 +59,9 @@ type CacheFetchFn = (
 export const UNCACHED_READ = 'vitessceUncachedRead';
 
 type ReadOptions = RequestInit & { [UNCACHED_READ]?: boolean };
+
+// The request options accepted by zarrita store get/getRange methods.
+type StoreReadOptions = Parameters<AsyncReadable['get']>[1];
 
 /**
  * Separate the UNCACHED_READ marker from the options passed to the wrapped store.
@@ -81,6 +78,55 @@ function splitReadOptions(opts?: ReadOptions): [boolean, any] {
 }
 
 /**
+ * Separate the abort signal from the request options.
+ * @param opts Request options.
+ * @returns The signal, and the options without the signal.
+ */
+function splitSignal(opts?: StoreReadOptions): [AbortSignal | undefined, StoreReadOptions] {
+  if (!opts?.signal) {
+    return [undefined, opts];
+  }
+  const { signal, ...rest } = opts;
+  return [signal, rest];
+}
+
+/**
+ * Add an abort signal to request options.
+ * @param opts Request options without a signal.
+ * @param signal The signal, if any.
+ * @returns The request options with the signal.
+ */
+function withSignal(opts?: StoreReadOptions, signal?: AbortSignal): StoreReadOptions {
+  if (!signal) {
+    return opts;
+  }
+  return { ...opts, signal };
+}
+
+/**
+ * Reject early if the signal is aborted before the promise settles.
+ * @param promise The promise.
+ * @param signal The signal, if any.
+ * @returns A promise that settles like the input promise,
+ * or rejects with signal.reason upon abort.
+ */
+function rejectOnAbort<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) {
+    return promise;
+  }
+  if (signal.aborted) {
+    return Promise.reject(signal.reason);
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(resolve, reject).finally(() => {
+      signal.removeEventListener('abort', onAbort);
+    });
+  });
+}
+
+/**
  * Build the function through which all cached store reads flow.
  * @param queryClient A QueryClient, when available.
  * @returns With a queryClient: reads go through fetchQuery, which coalesces
@@ -91,18 +137,20 @@ function splitReadOptions(opts?: ReadOptions): [boolean, any] {
  */
 function makeCacheFetch(queryClient?: QueryClientLike): CacheFetchFn {
   if (queryClient) {
-    return async (cacheKey, fn) => {
-      const result = await queryClient.fetchQuery({
+    return async (cacheKey, fn, signal) => {
+      // The request is shared by concurrent readers, so it is aborted via the
+      // query's own signal, which fires only once every reader has aborted.
+      const result = await fetchQueryWithSignal(queryClient, {
         queryKey: cacheKey,
-        queryFn: async () => (await fn()) ?? UNDEFINED_SENTINEL,
+        queryFn: async ctx => (await fn(ctx?.signal)) ?? UNDEFINED_SENTINEL,
         staleTime: Infinity,
         gcTime: CHUNK_GC_TIME,
-      });
+      }, signal);
       return (result === UNDEFINED_SENTINEL ? undefined : result) as Uint8Array | undefined;
     };
   }
   const inflight = new Map<string, Promise<Uint8Array | undefined>>();
-  return (cacheKey, fn) => {
+  return (cacheKey, fn, signal) => {
     const key = JSON.stringify(cacheKey);
     let promise = inflight.get(key);
     if (!promise) {
@@ -114,7 +162,9 @@ function makeCacheFetch(queryClient?: QueryClientLike): CacheFetchFn {
       });
       inflight.set(key, promise);
     }
-    return promise;
+    // The request is shared by concurrent readers, so it is not aborted;
+    // only this reader stops waiting on it.
+    return rejectOnAbort(promise, signal);
   };
 }
 
@@ -138,9 +188,11 @@ export const withQueryClientCache = defineStoreExtension(
         if (uncached) {
           return innerStore.get(key, rest);
         }
+        const [signal, restWithoutSignal] = splitSignal(rest);
         return cacheFetch(
           ['zarrStore', cacheKeyPrefix, key],
-          () => innerStore.get(key, rest),
+          sharedSignal => innerStore.get(key, withSignal(restWithoutSignal, sharedSignal)),
+          signal,
         );
       },
       async getRange(...args: Parameters<NonNullable<typeof innerStore['getRange']>>): Promise<Uint8Array | undefined> {
@@ -155,14 +207,16 @@ export const withQueryClientCache = defineStoreExtension(
         if (uncached) {
           return innerStore.getRange(key, range, rest);
         }
+        const [signal, restWithoutSignal] = splitSignal(rest);
         return cacheFetch(
           ['zarrStore', cacheKeyPrefix, key, range],
-          () => {
+          (sharedSignal) => {
             if (typeof innerStore.getRange !== 'function') {
               throw new Error('innerStore does not implement getRange');
             }
-            return innerStore.getRange(key, range, rest);
+            return innerStore.getRange(key, range, withSignal(restWithoutSignal, sharedSignal));
           },
+          signal,
         );
       },
     };
