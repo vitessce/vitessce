@@ -759,8 +759,6 @@ export function NeuroglancerSubscriber(props) {
   //   window.__chunkCache = chunkCacheRef.current;
   // }, []);
 
-  window.__ng = { visible: visibleSegmentIdsBySegLayerRef, info: annotationInfoByScopeRef, transform: annotationTransformByScopeRef };
-
   useEffect(() => {
     if (!csvUrl) return;
     fetch(csvUrl)

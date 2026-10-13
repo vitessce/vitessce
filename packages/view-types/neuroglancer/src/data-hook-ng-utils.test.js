@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { classifyPointLayers,
-   DEFAULT_NG_PROPS,
-   sanitizeNgCameraState,
-  } from './data-hook-ng-utils.js';
+  DEFAULT_NG_PROPS,
+  sanitizeNgCameraState,
+} from './data-hook-ng-utils.js';
 
 describe('classifyPointLayers', () => {
   const segmentationLayerScopes = ['segA', 'segB'];

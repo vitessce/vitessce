@@ -54,7 +54,6 @@ export function sanitizeNgCameraState(cameraState, fallbacks = {}) {
     if (validate(value)) {
       result[key] = value;
     } else if (key in defaults) {
-      console.log("key, value", key, value)
       console.warn(`Invalid initialNgCameraState.${key}:`, value, '— using default', defaults[key]);
       result[key] = defaults[key];
     } else {
