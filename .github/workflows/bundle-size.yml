@@ -3,22 +3,38 @@ name: Bundle size
 
 on: [ pull_request ]
 
+# Supersede in-flight runs for the same pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
+    timeout-minutes: 45
+
+    permissions:
+      # Needed for the action to leave the size comparison comment.
+      contents: read
+      pull-requests: write
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - uses: preactjs/compressed-size-action@2.6.0
+      - uses: preactjs/compressed-size-action@2.10.0
         with:
           minimum-change-threshold: 1000
           compression: "none"

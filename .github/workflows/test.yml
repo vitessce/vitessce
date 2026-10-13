@@ -8,34 +8,82 @@ on:
     - '**/*.md'
   pull_request:
 
+# Supersede in-flight runs for the same ref, so rapid pushes to a pull request
+# do not leave a queue of obsolete runs occupying runners.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  # Builds the workspace once and shares the output with the end-to-end jobs,
+  # which previously each repeated the same serialized `build:ci`.
+  build:
+    name: Build (shared)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
+        id: pnpm-install
+        with:
+          run_install: true
+          cache: true
+      - id: get-options
+        run: . ./scripts/set-node-options.sh --action
+        shell: bash
+      - run: pnpm run build:ci
+        env:
+          NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
+      # The build output is ~3200 files across ~60 packages, which uploads much
+      # faster as a single entry. The tar is left uncompressed so that
+      # upload-artifact's own zip is the only compression pass.
+      - name: Pack build output
+        run: >
+          find packages examples -name node_modules -prune -o
+          \( -name dist -o -name dist-tsc \) -type d -print0 -prune
+          | tar -cf dist.tar --null -T -
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build-dist
+          path: dist.tar
+          retention-days: 1
+
   test-unit:
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022]
-    
+        os: [ubuntu-latest, windows-latest]
+
     name: Test on ${{ matrix.os }}
+
+    timeout-minutes: 45
 
     permissions:
       # Permissions required for the vitest-coverage-report action
       # to be able to leave a comment on the pull request
       contents: read
       pull-requests: write
-    
+
+    # Deliberately builds its own copy rather than reusing the shared artifact:
+    # this job exists to prove the build itself works on each OS.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Reference: https://github.com/changesets/changesets/issues/517#issuecomment-1182094769
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
       - run: pnpm run changeset-status
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
@@ -45,6 +93,10 @@ jobs:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./scripts/test.sh --action
         shell: bash
+        env:
+          # ESLint results do not vary by OS, so only lint on one matrix leg
+          # (Windows runner minutes bill at a higher rate than Linux).
+          SKIP_LINT: ${{ matrix.os == 'ubuntu-latest' && '' || '1' }}
       - run: pnpm run bundle:ci
       - run: pnpm run publint
       - name: Report coverage
@@ -54,31 +106,34 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && always() }}
         uses: davelosert/vitest-coverage-report-action@v2
 
-  
   test-e2e-demo:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-dist
+      - run: tar -xf dist.tar
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - run: |
-          pnpm run build:ci
-          cd ./sites/demo
-          pnpm run build-demo
+      - run: pnpm -C ./sites/demo run build-demo
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
 
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/demo/package-lock.json
-      
+
       - name: Cypress
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v7
         env:
           DEBUG: '@cypress/github-action'
         with:
@@ -89,29 +144,36 @@ jobs:
           wait-on-timeout: 240
           browser: chrome
           headed: false
-  
+
   test-e2e-html:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-dist
+      - run: tar -xf dist.tar
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - run: pnpm run build:ci && pnpm run bundle:ci
+      - run: pnpm run bundle:ci
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - run: ./scripts/consumer-install.sh
         shell: bash
       - name: Cypress PNPM Patch
         run: cp pnpm-lock.yaml ./sites/html/package-lock.json
-      
+
       - name: Cypress
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v7
         env:
           DEBUG: '@cypress/github-action'
         with:
@@ -125,23 +187,39 @@ jobs:
 
   test-e2e-playwright:
     # because we take the golden screenshots on macOS locally
+    # (the snapshots in auto-init-coordination/ are *-chromium-darwin.png)
     runs-on: macos-latest
+    timeout-minutes: 30
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
+      - uses: actions/cache@v6
+        id: playwright-cache
+        with:
+          path: ${{ runner.os == 'macOS' && '~/Library/Caches/ms-playwright' || '~/.cache/ms-playwright' }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system dependencies
+        # The browser binaries are cached, but the OS-level libraries they link
+        # against are not part of that cache and must be installed every run.
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-dist
+      - run: tar -xf dist.tar
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - run: |
-          pnpm run build:ci
-          cd ./sites/demo
-          pnpm run build-demo
+      - run: pnpm -C ./sites/demo run build-demo
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Playwright
@@ -152,39 +230,66 @@ jobs:
   # (non-3D views, 3D spatial views, graceful degradation).
   test-e2e-playwright-react-19:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
+      - uses: actions/cache@v6
+        id: playwright-cache
+        with:
+          path: ${{ runner.os == 'macOS' && '~/Library/Caches/ms-playwright' || '~/.cache/ms-playwright' }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-dist
+      - run: tar -xf dist.tar
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
-      - run: |
-          pnpm run build:ci
-          cd ./sites/demo
-          pnpm run build-demo
+      - run: pnpm -C ./sites/demo run build-demo
         env:
           NODE_OPTIONS: ${{ steps.get-options.outputs.node-options }}
       - name: Playwright (React 19)
         run: pnpm exec playwright test react-19/
 
   test-e2e-playwright-for-create-view-cli:
-    # because we take the golden screenshots on macOS locally
-    runs-on: macos-latest
+    # Runs on Linux: the create-view specs make no screenshot comparisons, so
+    # unlike auto-init-coordination they do not need the macOS golden images.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # No `needs: build` — the create-view CLI scaffolds a new package first, so
+    # this job has to build the modified workspace rather than the shared output.
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         name: Install pnpm
         id: pnpm-install
         with:
           run_install: true
+          cache: true
+      - uses: actions/cache@v6
+        id: playwright-cache
+        with:
+          path: ${{ runner.os == 'macOS' && '~/Library/Caches/ms-playwright' || '~/.cache/ms-playwright' }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm exec playwright install --with-deps
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps
       - id: get-options
         run: . ./scripts/set-node-options.sh --action
         shell: bash
