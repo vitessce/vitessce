@@ -9,24 +9,160 @@ The `vitessce` package exports utility functions for adding annotation features 
 
 Each of these functions takes a view config object (JSON). Functions that return a config return a new object; the input config is not modified.
 
-- `hasAnnotationControllerView(config)`: Returns `true` if the layout contains an `annotationController` view.
-- `addAnnotationControllerView(config, options?)`: Adds an `annotationController` view in a new column on the right side of the grid, and scales the existing views to fit in the remaining columns. Options: `width` (grid columns, default `3`), `uid` (default `'annotation-controller'`), `closeButtonVisible`.
-- `removeAnnotationControllerView(config)`: Removes all `annotationController` views, and stretches the remaining views to fill the width of the grid.
-- `hasAnyAnnotationStory(config)`: Returns `true` if any `annotationStory` coordination value contains at least one frame.
-- `isAnyAnnotationEditing(config)`: Returns `true` if any `annotationEditable` coordination value is `true`.
-- `enableAnnotationEditing(config)`: Sets all `annotationEditable` coordination values to `true`. Views that support `annotationEditable` but are not yet mapped to a scope for it are mapped to a shared scope. The config must contain an `annotationController` view.
-- `disableAnnotationEditing(config)`: Same as `enableAnnotationEditing`, but sets the values to `false`.
+In the examples below, `config` is a view config object (e.g., the result of [`VitessceConfig.toJSON()`](/docs/view-config-js/#tojson)).
 
-```js
-import {
-  hasAnnotationControllerView,
-  addAnnotationControllerView,
-  removeAnnotationControllerView,
-  hasAnyAnnotationStory,
-  isAnyAnnotationEditing,
-  enableAnnotationEditing,
-  disableAnnotationEditing,
-} from 'vitessce';
+
+### `hasAnnotationControllerView(config)`
+
+Detect whether an `annotationController` view already exists in a view config.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON).
+
+#### Returns:
+- Type: `boolean`
+
+Returns `true` if the layout contains an `annotationController` view.
+
+```js {3}
+import { hasAnnotationControllerView } from 'vitessce';
+
+const hasController = hasAnnotationControllerView(config);
+```
+
+
+### `addAnnotationControllerView(config, options)`
+
+Append an `annotationController` view to a view config.
+The `annotationController` is placed in a column on the right side of the grid, with a height equal to that of the tallest column of existing views.
+The existing views are scaled horizontally to fit into the remaining columns.
+The left and right edges of each view are rounded to whole columns, so that views which were adjacent remain adjacent.
+If existing views are mapped to `annotationStory`, `annotationFrameIndex`, or `annotationOverlayVisible` coordination scopes, the `annotationController` is mapped to the same scopes.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON).
+- `options` (`object`) - An optional object with extra parameters.
+    - `width` (`number`) - The width of the `annotationController` view, in grid columns. Must be an integer between 1 and 11. By default, `3`. Optional.
+    - `uid` (`string`) - The preferred `uid` for the `annotationController` view. If this `uid` is already used by another view, a numeric suffix is appended (e.g., `'annotation-controller-1'`). By default, `'annotation-controller'`. Optional.
+    - `closeButtonVisible` (`boolean`) - The value of the `closeButtonVisible` prop of the new view. If not provided, the view's default is used. Optional.
+
+#### Returns:
+- Type: `object`
+
+Returns the new view config.
+Throws an error if `options.width` is not an integer between 1 and 11.
+
+```js {3-6}
+import { addAnnotationControllerView } from 'vitessce';
+
+const nextConfig = addAnnotationControllerView(config, {
+    width: 4,
+    closeButtonVisible: false,
+});
+```
+
+
+### `removeAnnotationControllerView(config)`
+
+Remove all `annotationController` views from a view config.
+Grid columns that are no longer occupied by any view (e.g., the column previously occupied by the `annotationController`) are removed, and the remaining views are stretched horizontally to fill the full width of the grid.
+Coordination scopes and values are not modified.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON).
+
+#### Returns:
+- Type: `object`
+
+Returns the new view config.
+
+```js {3}
+import { removeAnnotationControllerView } from 'vitessce';
+
+const nextConfig = removeAnnotationControllerView(config);
+```
+
+
+### `hasAnyAnnotationStory(config)`
+
+Detect whether a view config contains a non-empty annotation story, i.e., whether any `annotationStory` coordination value (in any coordination scope, or defined directly by any view) contains at least one frame.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON).
+
+#### Returns:
+- Type: `boolean`
+
+Returns `true` if any `annotationStory` value is non-empty.
+
+```js {3}
+import { hasAnyAnnotationStory } from 'vitessce';
+
+const hasStory = hasAnyAnnotationStory(config);
+```
+
+
+### `isAnyAnnotationEditing(config)`
+
+Detect whether annotation editing is enabled anywhere in a view config, i.e., whether any `annotationEditable` coordination value (in any coordination scope, or defined directly by any view) is `true`.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON).
+
+#### Returns:
+- Type: `boolean`
+
+Returns `true` if any `annotationEditable` value is `true`.
+
+```js {3}
+import { isAnyAnnotationEditing } from 'vitessce';
+
+const isEditing = isAnyAnnotationEditing(config);
+```
+
+
+### `enableAnnotationEditing(config)`
+
+Enable annotation editing, by setting all `annotationEditable` coordination values in the view config to `true` (in all coordination scopes, and in values defined directly by views).
+Views which support `annotationEditable` (including the `annotationController`) but are not yet mapped to a scope for it are mapped to a shared `annotationEditable` scope.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON). Must contain an `annotationController` view.
+
+#### Returns:
+- Type: `object`
+
+Returns the new view config.
+Throws an error if the config does not contain an `annotationController` view.
+
+```js {6}
+import { hasAnnotationControllerView, addAnnotationControllerView, enableAnnotationEditing } from 'vitessce';
+
+const configWithController = hasAnnotationControllerView(config)
+    ? config
+    : addAnnotationControllerView(config);
+const nextConfig = enableAnnotationEditing(configWithController);
+```
+
+
+### `disableAnnotationEditing(config)`
+
+Disable annotation editing, by setting all `annotationEditable` coordination values in the view config to `false` (in all coordination scopes, and in values defined directly by views).
+Views which support `annotationEditable` (including the `annotationController`) but are not yet mapped to a scope for it are mapped to a shared `annotationEditable` scope.
+
+#### Parameters:
+- `config` (`object`) - A view config object (JSON). Must contain an `annotationController` view.
+
+#### Returns:
+- Type: `object`
+
+Returns the new view config.
+Throws an error if the config does not contain an `annotationController` view.
+
+```js {3}
+import { disableAnnotationEditing } from 'vitessce';
+
+const nextConfig = disableAnnotationEditing(config);
 ```
 
 ## The `areAnnotationsEditable` prop
