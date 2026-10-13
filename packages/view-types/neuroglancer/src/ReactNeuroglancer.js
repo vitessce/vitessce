@@ -958,9 +958,9 @@ export default class Neuroglancer extends React.Component {
     const segIdsChangedForLayer = (name) => {
       const prevIds = prevSegLayers.find(l => l.name === name)?.segments ?? [];
       const nextIds = nextSegLayers.find(l => l.name === name)?.segments ?? [];
-      return prevIds.length !== nextIds.length
-        || prevIds[0] !== nextIds[0]
-        || prevIds[prevIds.length - 1] !== nextIds[nextIds.length - 1];
+      if (prevIds.length !== nextIds.length) return true;
+      // Full comparison: the detail view can swap a middle id at equal length.
+      return prevIds.some((id, i) => String(id) !== String(nextIds[i]));
     };
     const allSegLayerNames = new Set([
       ...prevSegLayers.map(l => l.name),
@@ -970,7 +970,8 @@ export default class Neuroglancer extends React.Component {
     const segmentsChanged = [...allSegLayerNames].some(segIdsChangedForLayer);
     const nextSegIds = nextSegLayers.flatMap(l => l.segments ?? []);
 
-    if (segmentsChanged && nextSegIds.length > 0) {
+    // allowEmptySegments: the detail view must be able to clear to zero meshes.
+    if (segmentsChanged && (nextSegIds.length > 0 || this.props.allowEmptySegments)) {
       this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
