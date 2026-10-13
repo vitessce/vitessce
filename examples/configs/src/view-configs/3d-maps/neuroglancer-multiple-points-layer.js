@@ -17,7 +17,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_precomputed',
-    coordinationValues: { fileUid: 'mis-meshes' },
+    coordinationValues: { fileUid: 'mis-meshes', obsType: 'cell' },
   });
 
   dataset.addFile({
@@ -42,24 +42,15 @@ function generateNeuroglancerMisTwoLayersConfig() {
       projectionAnnotationSpacing: 2.4544585683772735,
       featureIndexProp: 'protein',
       transform: {
-        // Bounds-fit: proteins (voxel indices) -> cells space (µm values, labeled nm).
         matrix: [
-          [0.141721, 0, 0, -8.493161],
-          [0, 0.141733, 0, -0.580656],
-          [0, 0, 0.301723, -7.041469],
+          [1000, 0, 0, 0],
+          [0, 1000, 0, 0],
+          [0, 0, 1000, 0],
         ],
-        outputDimensions: {
-          x: [1e-9, 'm'],
-          y: [1e-9, 'm'],
-          z: [1e-9, 'm'],
-        },
+        outputDimensions: { x: [1e-9, 'm'], y: [1e-9, 'm'], z: [1e-9, 'm'] },
       },
     },
-    coordinationValues: {
-      fileUid: 'mis-proteins',
-      obsType: 'point',
-      featureType: 'gene',
-    },
+    coordinationValues: { fileUid: 'mis-proteins', obsType: 'point', featureType: 'gene' },
   });
 
   // Layer 2: cell centroids, static/obsSet color, no feature axis
@@ -68,24 +59,25 @@ function generateNeuroglancerMisTwoLayersConfig() {
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_annotations_corrected_precomputed/cells',
     options: {
       projectionAnnotationSpacing: 0.5,
+      transform: {
+        matrix: [
+          [7148.09960682, 0, 0, 0],
+          [0, 7148.09960682, 0, 0],
+          [0, 0, 3803.92156863, 0],
+        ],
+        outputDimensions: { x: [1e-9, 'm'], y: [1e-9, 'm'], z: [1e-9, 'm'] },
+      },
     },
-    coordinationValues: {
-      fileUid: 'mis-centroids',
-      obsType: 'cell',
-    },
+    coordinationValues: { fileUid: 'mis-centroids', obsType: 'cell' },
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
-      position: [381.9, 193.3, 26.0],
-      projectionScale: 380,
-      projectionOrientation: [
-        -0.6668370366096497, 0.5911841988563538,
-        -0.1955600529909134, 0.4093725383281708,
-      ],
+      position: [2727000, 1377000, 97000], // centre of the segmentation volume
+      projectionScale: 2700000,
     },
+    meshLoadProjectionScaleThreshold: 300000,
     showAxisLines: false,
-    meshLoadProjectionScaleThreshold: 340,
   });
   const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
@@ -135,7 +127,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
         spatialLayerVisible: true,
         spatialPointStrokeWidth: 0.2,
         spatialLayerLabel: 'Centroids',
-        obsColorEncoding: 'spatialLayerColor',
+        obsColorEncoding: 'cellSetSelection',
         spatialLayerColor: [0, 255, 0],
       },
     ]),
