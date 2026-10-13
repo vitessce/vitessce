@@ -40,6 +40,7 @@ import {
   useNeuroglancerViewerState,
   classifyPointLayers,
   toNgLayerName,
+  sanitizeNgCameraState,
 } from './data-hook-ng-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import { useStyles } from './styles.js';
@@ -144,7 +145,7 @@ export function NeuroglancerSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
-
+  console.log('[camera in]', JSON.stringify(initialNgCameraState));
   const [{
     dataset,
     obsType,
@@ -340,11 +341,21 @@ export function NeuroglancerSubscriber(props) {
     viewerDimensionsOverride,
   );
 
-  const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(!!initialNgCameraState);
+  // Validate the initial camera once. Invalid orientation falls back to Q_Y_UP,
+  // the orientation the rotation sync produces for spatialRotation* = 0. Invalid scales fall back to
+  // DEFAULT_NG_PROPS; an invalid position is dropped (derived from data instead).
+  const validInitialNgCamera = useMemo(() => sanitizeNgCameraState(
+    initialNgCameraState, { projectionOrientation: Q_Y_UP },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), []);
+  // Only a valid position suppresses the data-derived center.
+  const hasInitialNgPosition = 'position' in validInitialNgCamera;
+
+  const [hasResolvedInitialCamera, setHasResolvedInitialCamera] = useState(hasInitialNgPosition);
 
   const latestViewerStateRef = useRef({
     ...initialViewerState,
-    ...(initialNgCameraState ?? {}),
+    ...validInitialNgCamera,
   });
 
   const segmentationUrl = useMemo(() => {
@@ -446,7 +457,7 @@ export function NeuroglancerSubscriber(props) {
   }, [segmentationInfo, annotationInfoByScope, pointLayerRoles]);
 
   useEffect(() => {
-    if (initialNgCameraState || !segmentationUrl) {
+    if (hasInitialNgPosition || !segmentationUrl) {
       setHasResolvedInitialCamera(true);
       return;
     }
@@ -458,7 +469,7 @@ export function NeuroglancerSubscriber(props) {
       incrementLatestViewerStateIteration();
     }
     setHasResolvedInitialCamera(true);
-  }, [segmentationUrl, derivedCenter, initialNgCameraState]);
+  }, [segmentationUrl, derivedCenter, hasInitialNgPosition]);
 
   const errors = [
     ...obsPointsErrors,
@@ -747,6 +758,8 @@ export function NeuroglancerSubscriber(props) {
   //   // eslint-disable-next-line no-underscore-dangle
   //   window.__chunkCache = chunkCacheRef.current;
   // }, []);
+
+  window.__ng = { visible: visibleSegmentIdsBySegLayerRef, info: annotationInfoByScopeRef, transform: annotationTransformByScopeRef };
 
   useEffect(() => {
     if (!csvUrl) return;
@@ -1101,7 +1114,7 @@ export function NeuroglancerSubscriber(props) {
       [scope]: transform,
     };
     markScopeReadyIfComplete(scope);
-    }, [pointScopeByNgLayerName, markScopeReadyIfComplete]);
+  }, [pointScopeByNgLayerName, markScopeReadyIfComplete]);
 
 
   /*

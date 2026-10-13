@@ -3,7 +3,7 @@ import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { getPointsShader } from './shader-utils.js';
-
+import { NG_CAMERA_VALIDATORS } from './utils.js';
 
 export const DEFAULT_NG_DIMENSIONS = {
   x: [1, 'nm'],
@@ -29,6 +29,40 @@ export const DEFAULT_NG_PROPS = {
   dimensions: DEFAULT_NG_DIMENSIONS,
   layers: [],
 };
+
+/**
+ * Validate initialNgCameraState field by field. Invalid values fall back to a
+ * default where one is meaningful; `position` is left out instead, so the
+ * subscriber can derive it from the data bounds.
+ * @param {object} cameraState
+ * @param {object} [fallbacks] Defaults for invalid fields.
+ */
+export function sanitizeNgCameraState(cameraState, fallbacks = {}) {
+  const defaults = {
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: DEFAULT_NG_PROPS.projectionScale,
+    crossSectionScale: DEFAULT_NG_PROPS.crossSectionScale,
+    ...fallbacks,
+  };
+  const result = {};
+  Object.entries(cameraState ?? {}).forEach(([key, value]) => {
+    const validate = NG_CAMERA_VALIDATORS[key];
+    if (!validate) {
+      if (value !== undefined) result[key] = value;
+      return;
+    }
+    if (validate(value)) {
+      result[key] = value;
+    } else if (key in defaults) {
+      console.log("key, value", key, value)
+      console.warn(`Invalid initialNgCameraState.${key}:`, value, '— using default', defaults[key]);
+      result[key] = defaults[key];
+    } else {
+      console.warn(`Invalid initialNgCameraState.${key}:`, value, '— ignored');
+    }
+  });
+  return result;
+}
 
 /**
  * Validate an NG coordinate-space dimensions object:

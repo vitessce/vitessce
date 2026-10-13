@@ -128,6 +128,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
         spatialPointStrokeWidth: 0.2,
         spatialLayerLabel: 'Centroids',
         obsColorEncoding: 'cellSetSelection',
+        featureFilterMode: 'featureSelection',
         spatialLayerColor: [0, 255, 0],
       },
     ]),

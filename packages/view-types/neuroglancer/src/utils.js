@@ -47,6 +47,34 @@ export const quatdotAbs = (a, b) => Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * 
 export const rad2deg = r => r * 180 / Math.PI;
 export const deg2rad = d => d * Math.PI / 180;
 
+
+const isFiniteNumberArray = (value, length) => Array.isArray(value)
+  && value.length === length
+  && value.every(Number.isFinite);
+
+/** NG position: [x, y, z] in viewer units. */
+export function isValidNgPosition(position) {
+  return isFiniteNumberArray(position, 3);
+}
+
+/** NG projectionOrientation: unit-ish quaternion [x, y, z, w] (must not be all zeros). */
+export function isValidNgOrientation(orientation) {
+  return isFiniteNumberArray(orientation, 4)
+    && orientation.some(v => v !== 0);
+}
+
+/** NG projectionScale / crossSectionScale: finite positive number. */
+export function isValidNgScale(scale) {
+  return Number.isFinite(scale) && scale > 0;
+}
+
+export const NG_CAMERA_VALIDATORS = {
+  position: isValidNgPosition,
+  projectionOrientation: isValidNgOrientation,
+  projectionScale: isValidNgScale,
+  crossSectionScale: isValidNgScale,
+};
+
 // export const toVitUnits = rad => VIT_UNITS === 'degrees' ? (rad * 180 / Math.PI) : rad;
 // export const fromVitUnits = val => VIT_UNITS === 'degrees' ? (val * Math.PI / 180) : val;
 
