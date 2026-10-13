@@ -6,7 +6,7 @@ import { Matrix4 } from 'math.gl';
 import {
   deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
 } from '@vitessce/gl';
-import { filterSelection, getClampedZIndex } from '@vitessce/spatial-utils';
+import { filterSelection } from '@vitessce/spatial-utils';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
 import {
   setObsSelection as setObsSelectionHelper,
@@ -1099,7 +1099,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     let selections;
 
     const hasChannelDimension = image?.obsSegmentations?.instance?.hasDimC();
-    const zIndex = getClampedZIndex(data, targetZ);
+    const zIndex = image?.image?.instance?.getClampedZIndex(targetZ) ?? 0;
     const nextLoaderSelection = channelScopes
       .map(cScope => filterSelection(data, {
         z: zIndex,
@@ -1274,7 +1274,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       layerDefModelMatrix = new Matrix4(rawModelMatrix).multiplyRight(yMirror);
     }
 
-    const zIndex = getClampedZIndex(data, targetZ);
+    const zIndex = image?.image?.instance?.getClampedZIndex(targetZ) ?? 0;
     // We need to keep the same selections array reference,
     // otherwise the Viv layer will not be re-used as we want it to,
     // since selections is one of its `updateTriggers`.

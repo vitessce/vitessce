@@ -4,7 +4,7 @@ import {
 } from '@vitessce/styles';
 import { useQuery } from '@tanstack/react-query';
 import {
-  getMultiSelectionStats, getClampedZIndex,
+  getMultiSelectionStats,
 } from '@vitessce/spatial-utils';
 import {
   useRemoveImageChannelInMetaCoordinationScopes,
@@ -74,7 +74,7 @@ export default function ImageChannelController(props) {
       const selection = {
         t: ctx.queryKey[2],
         c: ctx.queryKey[3],
-        z: getClampedZIndex(loader, ctx.queryKey[4]),
+        z: ctx.meta.image?.getClampedZIndex(ctx.queryKey[4]) ?? 0,
       };
       const stats = await getMultiSelectionStats({
         loader,

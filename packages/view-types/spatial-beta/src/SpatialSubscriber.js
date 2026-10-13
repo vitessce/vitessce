@@ -46,7 +46,7 @@ import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
 import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
-import { getInitialSpatialTargets, getSceneMetersPerUnit } from './utils.js';
+import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -684,7 +684,7 @@ export function SpatialSubscriber(props) {
 
   const sceneMetersPerUnit = useMemo(() => {
     const firstLayer = Object.values(imageData ?? {})[0];
-    return getSceneMetersPerUnit(firstLayer?.image?.instance);
+    return firstLayer?.image?.instance?.getSceneMetersPerUnit() ?? null;
   }, [imageData]);
 
   // Rescale an incoming snapshot (position, projectionScale) into scene units.
