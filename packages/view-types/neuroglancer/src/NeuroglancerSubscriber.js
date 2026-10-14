@@ -820,7 +820,7 @@ export function NeuroglancerSubscriber(props) {
         // window.__meshIdToCellId = meshIdToCellIdRef.current;
         // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
       });
-  }, [csvUrl]);
+  }, [csvUrl, meshIdColumn, cellIdColumn]);
 
   // clear cache when annotation source changes
   useEffect(() => {
