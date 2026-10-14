@@ -1679,38 +1679,77 @@ options={`{
 
 ## `obsSegmentations.ng-precomputed`
 
-The URL should point to "precomputed" **multi-resolution chunked meshes**.
+Points to "precomputed" **multi-resolution chunked meshes**.
 See the Neuroglancer documentation to learn about the [precomputed multi-resolution mesh format](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/meshes.md#multi-resolution-mesh-format).
 This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer).
 
-The fileType `options` value is used to construct the internal `viewerState` for the Neuroglancer view.
-The complete `viewerState` schema is available in the [Neuroglancer documentation](https://neuroglancer-docs.web.app/json/api/index.html).
+`subsources` and `enableDefaultSubsources` configure the layer's data source.
+Any other keys in `options` are passed through unchanged to the Neuroglancer
+[segmentation layer state](https://neuroglancer-docs.web.app/json/api/index.html).
 
-Note: Neuroglancer expects coordinates in the precomputed mesh format to be in **nanometers** (XYZ).
-See [discussion on GitHub](https://github.com/google/neuroglancer/issues/442#issuecomment-1440550158) for more details.
+Camera and coordinate-space settings are **not** file options: set the initial camera with the view's
+`initialNgCameraState` prop and the global coordinate space with the `viewerDimensions` prop
+(see the [`neuroglancer` view](../components/#neuroglancer)). If `viewerDimensions` is not set,
+the coordinate space is taken from the first `obsPoints.ng-annotations` layer's `transform.outputDimensions`,
+falling back to nanometers.
+
+Note: the precomputed format stores mesh coordinates in **nanometers** (via the `info` file's `resolution`).
 
 <FileDefTabs
   fileName="my_meshes"
   fileType="obsSegmentations.ng-precomputed"
   fileConst="OBS_SEGMENTATIONS_NG_PRECOMPUTED"
   options={`{
-    // Dimensions map voxel steps to physical units along each axis.
-    // Precomputed format expects nanometer (nm) units.
-    // If your data are in meters, convert (e.g., 1e-9 m = 1 nm) before setting these.
-    "dimensionX": 1,      // 1 nm
-    "dimensionY": 1,      // 1 nm
-    "dimensionZ": 1,      // 1 nm
-    "dimensionUnit": 'nm',
+    // Optional: explicitly enable/disable subsources (e.g. meshes, skeletons)
+    // defined in the precomputed info. Setting this makes
+    // enableDefaultSubsources default to false.
+    "subsources": {
+      "default": true,
+      "mesh": true
+    },
+    // Optional: when true, load all subsources defined in the info file.
+    "enableDefaultSubsources": false
+  }`}
+/>
 
-    // Optional camera settings; defaults are used if omitted.
-    "position": [49.5, 1000.5, 5209.5],
-    "projectionScale": 1024,
-    "projectionOrientation": [
-      -0.636204183101654,
-      -0.5028395652770996,
-      0.5443811416625977,
-      0.2145828753709793
-    ],
+
+## `obsPoints.ng-annotations`
+
+Points to a Neuroglancer **precomputed annotations** directory of `POINT` annotations (containing an `info` file).
+See the Neuroglancer documentation for the [precomputed annotation format](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/annotations.md).
+This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer), for example as cell centroids that drive on-demand mesh loading.
+
+Note on `transform`: Neuroglancer first converts the annotation source units (from the `info` file's `dimensions`) into the `outputDimensions` units, then applies `matrix`.
+The matrix should therefore contain only the scale ratio between the two spaces, not a unit conversion factor.
+For example, nm annotations mapped into a µm space where the meshes are 7.148× larger use `7.148`, not `7148`.
+
+<FileDefTabs
+  fileName="my_centroids"
+  fileType="obsPoints.ng-annotations"
+  fileConst="OBS_POINTS_NG_ANNOTATIONS"
+  options={`{
+    // Spacing used when rendering annotations in the 3D projection view.
+    "projectionAnnotationSpacing": 1,
+    // AnnotationProperty holding the mesh segment ID for each point.
+    // Required for on-demand mesh loading unless the info file declares a property named 'id'.
+    "segmentIdProp": "mesh_id",
+    // Optional: map annotation coordinates into the global coordinate space.
+    // Rows are output dims (x, y, z); the last column is translation.
+    "transform": {
+      "matrix": [
+        [7.148, 0, 0, 0],
+        [0, 7.148, 0, 0],
+        [0, 0, 3.804, 0]
+      ],
+      "outputDimensions": {
+        "x": [0.000001, "m"],
+        "y": [0.000001, "m"],
+        "z": [0.000001, "m"]
+      }
+    },
+    // Optional: AnnotationProperty names exposed to the shader as prop_<name>().
+    "featureIndexProp": "gene",
+    "pointIndexProp": "point_id"
   }`}
 />
 

@@ -105,3 +105,28 @@ This view wraps [Neuroglancer](https://github.com/google/neuroglancer), a high-p
 
 This view is intended to be used with meshes provided via the `obsSegmentations.ng-precomputed` [file type](../data-file-types/#obssegmentationsng-precomputed).
 This [guide](../ng-guide/) provides more information about how to navigate in this view.
+
+#### Props
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `initialNgCameraState` | `object` | derived from data | Initial camera: `{ position, projectionScale, projectionOrientation }`, in the global coordinate space's units. An invalid orientation falls back to the default top-down orientation. If `position` is omitted, it is derived from the point annotation bounds (or the segmentation volume), without applying point-layer `transform`s; when point layers use a `transform`, provide `position` explicitly. |
+| `meshLoadProjectionScaleThreshold` | `number` | `100` | Meshes are loaded on demand only when `projectionScale` is below this value (same units as `projectionScale`). Higher values load meshes when zoomed further out, at the cost of loading more meshes at once. Requires a centroid point layer (`obsPoints.ng-annotations` with `segmentIdProp`) to determine which meshes are in view. |
+| `viewerDimensions` | `object` | inferred | Global Neuroglancer coordinate space, e.g. `{ x: [1e-6, 'm'], y: [1e-6, 'm'], z: [1e-6, 'm'] }`. Overrides the dimensions inferred from point layer transforms. |
+| `showAxisLines` | `boolean` | `true` | Show the x/y/z axis lines at the camera position. |
+| `meshIdColumn` | `string` | `'MeshID'` | Column in the first `obsSets` CSV holding mesh segment IDs. Used with `cellIdColumn` to map between mesh IDs and cell IDs when they differ. If either column is missing, IDs are assumed identical. |
+| `cellIdColumn` | `string` | `'CellID'` | Column in the first `obsSets` CSV holding cell IDs (see `meshIdColumn`). |
+| `detailMode` | `boolean` | `false` | Render only the meshes that are selected (`obsSetSelection`) or hovered (`obsHighlight`) in other views, with an independent camera. |
+| `detailUseSelection` | `boolean` | `false` | In detail mode, show meshes from the current obs set selection (not only the hovered one). |
+| `cameraZoomFactor` | `number` | `1` | Values greater than 1 make this view show the shared camera N× more zoomed in. Pan and rotation are shared; zoom keeps a fixed ratio. |
+
+```js
+const ngView = config.addView(dataset, 'neuroglancer').setProps({
+  initialNgCameraState: {
+    position: [2722.3, 2398.6, 104.1],
+    projectionScale: 1000,
+  },
+  meshLoadProjectionScaleThreshold: 1800,
+  showAxisLines: true,
+});
+```

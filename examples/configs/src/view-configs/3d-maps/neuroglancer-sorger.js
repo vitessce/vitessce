@@ -21,13 +21,6 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       fileUid: 'sorger-meshes',
       obsType: 'cell',
     },
-    options: {
-      dimensions: {
-        x: [0.000001, 'm'],
-        y: [0.000001, 'm'],
-        z: [0.000001, 'm'],
-      },
-    },
   });
 
   dataset.addFile({
