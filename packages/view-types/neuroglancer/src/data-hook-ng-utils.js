@@ -27,9 +27,6 @@ export const DEFAULT_NG_PROPS = {
   projectionScale: 1024,
   crossSectionScale: 1,
   dimensions: DEFAULT_NG_DIMENSIONS,
-  // Far clip ≈ camDist + projectionDepth/2 (canonical units = nm), roughly zoom-independent.
-  // NG default is -50 (relative), which puts far at ~21.7×camDist and shrinks it on zoom-in.
-  projectionDepth: 1e7, // far ≈ 5 mm beyond camera at any zoom
   layers: [],
 };
 

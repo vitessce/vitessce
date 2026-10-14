@@ -24,10 +24,11 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState, GREY_HEX, MIN_PROJECTION_SCALE } from './utils.js';
+import { diffCameraState, GREY_HEX } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
+const MIN_PROJECTION_SCALE_M = 1e-9;
 
 /**
  * @typedef {Object} NgProps
@@ -645,6 +646,7 @@ export default class Neuroglancer extends React.Component {
       );
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
+    console.log(this.viewer)
 
     /* ** Vitessce Integration update start ** */
     const emit = this.scheduleEmit();
@@ -652,14 +654,15 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
-    // Prevent zooming in past MIN_PROJECTION_SCALE: at large absolute coords (~1e6 nm),
-    // float32 GPU matrices can't resolve sub-nm offsets, so axis lines/meshes jitter.
+    // // Prevent zooming in past MIN_PROJECTION_SCALE: at large absolute coords (~1e6 nm),
+    // // float32 GPU matrices can't resolve sub-nm offsets, so axis lines/meshes jitter.
     this.disposers.push(this.viewer.projectionScale.changed.add(() => {
       const ps = this.viewer.projectionScale;
-      if (ps.value < MIN_PROJECTION_SCALE) {
+      const minScale = MIN_PROJECTION_SCALE_M / ps.canonicalVoxelPhysicalSize; // meters per canonical unit
+      if (Number.isFinite(minScale) && ps.value < minScale) {
         // eslint-disable-next-line no-console
-        console.debug('[NG] clamp projectionScale', ps.value, '→', MIN_PROJECTION_SCALE);
-        ps.value = MIN_PROJECTION_SCALE;
+        console.debug('[NG] clamp projectionScale', ps.value, '→', minScale);
+        ps.value = minScale;
       }
     }));
 
@@ -670,6 +673,13 @@ export default class Neuroglancer extends React.Component {
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
       });
+
+      // Absolute far-clip depth (~1 cm physical), converted to this dataset's canonical units.
+      const depthM = 1e-2;
+      const cvps = this.viewer.projectionScale.canonicalVoxelPhysicalSize;
+      if (Number.isFinite(cvps) && cvps > 0) {
+        this.viewer.projectionDepthRange.value = depthM / cvps;
+      }
     }
     /* ** Vitessce Integration update end ** */
 

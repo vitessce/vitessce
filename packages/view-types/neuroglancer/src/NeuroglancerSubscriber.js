@@ -54,7 +54,6 @@ import {
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
-  MIN_PROJECTION_SCALE,
   remapCellColors,
   autoColorForId,
   rgbToHex,
@@ -1402,8 +1401,7 @@ export function NeuroglancerSubscriber(props) {
         && zoomChangedNow) {
       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
       if (Number.isFinite(s) && s > 0) {
-        // Clamp max zoom-in to avoid float32 precision jitter at large coordinates
-        nextProjectionScale = Math.max(s, MIN_PROJECTION_SCALE);
+        nextProjectionScale = s;
       }
     }
 
