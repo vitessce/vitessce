@@ -8,6 +8,9 @@ import {
   diffCameraState,
   valueGreaterThanEpsilon,
   EPSILON_KEYS_MAPPING_NG,
+  getAnnotationPropertyIndices,
+  parseAnnotationChunkSegmentsWithPositions,
+  parseAnnotationById,
 } from './utils.js';
 
 //  To normalize/map the angels between [-π, π]
@@ -144,5 +147,81 @@ describe('valueGreaterThanEpsilon', () => {
     // when a and b were of different shapes/types.
     expect(valueGreaterThanEpsilon(undefined, [0, 0, 0, 1], 0.01)).toBeUndefined();
     expect(valueGreaterThanEpsilon(5, [0, 0, 0], 0.01)).toBeUndefined();
+  });
+});
+
+// Minimal stand-in for NG's AnnotationPropertySerializer: one property group,
+// geometry (3 x float32) first, values returned in info declaration order.
+function makeFakeSerializer(rowsValues) {
+  return {
+    serializedBytes: 16,
+    propertyGroupBytes: [16],
+    deserialize: (dv, offset, i, count, le, out) => {
+      rowsValues[i].forEach((v, k) => { out[k] = v; }); // eslint-disable-line no-param-reassign
+    },
+  };
+}
+function makeChunk(positions) {
+  const buf = new ArrayBuffer(8 + 16 * positions.length);
+  const dv = new DataView(buf);
+  dv.setUint32(0, positions.length, true);
+  positions.forEach(([x, y, z], i) => {
+    const base = 8 + 16 * i;
+    dv.setFloat32(base, x, true);
+    dv.setFloat32(base + 4, y, true);
+    dv.setFloat32(base + 8, z, true);
+  });
+  return buf;
+}
+
+describe('getAnnotationPropertyIndices', () => {
+  it('looks up the segment ID property by name', () => {
+    const info = { properties: [{ id: 'phenotype' }, { id: 'cell_id' }] };
+    expect(getAnnotationPropertyIndices(info, { segmentIdProp: 'cell_id' })).toEqual({
+      propertyIds: ['phenotype', 'cell_id'], segmentIdProp: 'cell_id', segmentIdIndex: 1,
+    });
+  });
+  it('defaults to "id" when declared, and -1 when not', () => {
+    expect(getAnnotationPropertyIndices({ properties: [{ id: 'volume_norm' }, { id: 'id' }] })
+      .segmentIdIndex).toBe(1);
+    expect(getAnnotationPropertyIndices({ properties: [{ id: 'phenotype' }] })
+      .segmentIdIndex).toBe(-1);
+  });
+});
+
+describe('parseAnnotationChunkSegmentsWithPositions', () => {
+  it('reads the segment ID and all properties by info order', () => {
+    // Declaration order: [id, phenotype] (reversed vs. older datasets).
+    const info = { properties: [{ id: 'id' }, { id: 'phenotype' }] };
+    const ser = makeFakeSerializer([[1001, 5], [1002, 7]]);
+    expect(parseAnnotationChunkSegmentsWithPositions(
+      makeChunk([[1, 2, 3], [4, 5, 6]]), ser, getAnnotationPropertyIndices(info),
+    )).toEqual([
+      { id: '1001', x: 1, y: 2, z: 3, properties: { id: 1001, phenotype: 5 } },
+      { id: '1002', x: 4, y: 5, z: 6, properties: { id: 1002, phenotype: 7 } },
+    ]);
+  });
+  it('returns [] without a resolvable segment ID property', () => {
+    const ser = makeFakeSerializer([[5]]);
+    expect(parseAnnotationChunkSegmentsWithPositions(
+      makeChunk([[1, 2, 3]]), ser,
+      getAnnotationPropertyIndices({ properties: [{ id: 'phenotype' }] }),
+    )).toEqual([]);
+  });
+});
+
+describe('parseAnnotationById', () => {
+  it('decodes the segment ID and properties by name', () => {
+    const info = { properties: [{ id: 'volume_norm' }, { id: 'id' }] };
+    const ser = makeFakeSerializer([[0.5, 4242]]);
+    expect(parseAnnotationById(new ArrayBuffer(16), ser, getAnnotationPropertyIndices(info)))
+      .toEqual({ id: '4242', properties: { volume_norm: 0.5, id: 4242 } });
+  });
+  it('returns null when the property is missing or the buffer is short', () => {
+    const ser = makeFakeSerializer([[1]]);
+    expect(parseAnnotationById(new ArrayBuffer(16), ser,
+      getAnnotationPropertyIndices({ properties: [{ id: 'phenotype' }] }))).toBeNull();
+    expect(parseAnnotationById(new ArrayBuffer(4), ser,
+      getAnnotationPropertyIndices({ properties: [{ id: 'id' }] }))).toBeNull();
   });
 });
