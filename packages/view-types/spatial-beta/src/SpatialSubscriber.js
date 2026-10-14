@@ -245,7 +245,7 @@ export function SpatialSubscriber(props) {
 
   // A non-null camera snapshot in the coordination space indicates
   // that a neuroglancer view is present and is publishing its camera state.
-  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot);
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -753,6 +753,13 @@ export function SpatialSubscriber(props) {
     if (prevIs3dMode.current === is3dMode) {
       return;
     }
+    if (hasSpatialCameraSnapshot) {
+      // Entering 3D while synced with Neuroglancer: the camera comes from the
+      // snapshot, so resetting the shared camera values would only cause the
+      // Neuroglancer view to jump back to the default camera.
+      prevIs3dMode.current = is3dMode;
+      return;
+    }
     if (typeof defaultTargetX !== 'number' || typeof defaultTargetY !== 'number') {
       // Not computable yet. Leave the camera alone and re-run once the data for
       // the new mode is ready, rather than resetting the target to null.
@@ -769,7 +776,8 @@ export function SpatialSubscriber(props) {
     // Deliberate dependency omissions: the setters, which are not referentially
     // stable across renders and would re-run this on every one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
+  }, [is3dMode, hasSpatialCameraSnapshot,
+    defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
 
 
   // Animate the 2D zoom/target when they change due to the current annotation frame.

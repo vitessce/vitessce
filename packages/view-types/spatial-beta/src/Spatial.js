@@ -1099,7 +1099,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     let selections;
 
     const hasChannelDimension = image?.obsSegmentations?.instance?.hasDimC();
-    const zIndex = image?.image?.instance?.getClampedZIndex(targetZ) ?? 0;
+    const zIndex = image?.obsSegmentations?.instance?.getClampedZIndex(targetZ) ?? 0;
     const nextLoaderSelection = channelScopes
       .map(cScope => filterSelection(data, {
         z: zIndex,

@@ -4,16 +4,13 @@ import {
   interpolateJet,
   interpolateGreys,
 } from '@vitessce/sets-utils';
-import { PALETTE } from '@vitessce/utils';
+import { PALETTE, UNIT_TO_METERS } from '@vitessce/utils';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
 
 // Used by NG source code for decoding annotation chunks
 export const ANNOTATION_HEADER_OFFSET = 8;
-
-// 'µm' can be either of these: U+00B5, U+03BC
-export const UNIT_TO_METERS = { m: 1, mm: 1e-3, um: 1e-6, µm: 1e-6, μm: 1e-6, nm: 1e-9 };
 
 export function ngMetersPerUnit(dimensions) {
   if (!dimensions?.x) return null;

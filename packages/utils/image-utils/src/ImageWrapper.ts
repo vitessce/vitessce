@@ -21,21 +21,8 @@ import {
   getStatsForResolution,
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
-import { VIEWER_PALETTE } from '@vitessce/utils';
+import { VIEWER_PALETTE, UNIT_TO_METERS } from '@vitessce/utils';
 import { log } from '@vitessce/globals';
-
-const UNIT_TO_METERS: Record<string, number> = {
-  m: 1,
-  meter: 1,
-  mm: 1e-3,
-  millimeter: 1e-3,
-  um: 1e-6,
-  μm: 1e-6,
-  micrometer: 1e-6,
-  micron: 1e-6,
-  nm: 1e-9,
-  nanometer: 1e-9,
-};
 
 /**
  * A wrapper around the Viv loader, to provide a common interface for

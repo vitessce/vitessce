@@ -45,8 +45,9 @@ function generateCubeCameraSyncConfiguration() {
   const obsSetsView = config.addView(dataset, 'obsSets');
 
 
+  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
+
   config.linkViewsByObject([spatialView, lcView], {
-    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'cube',
