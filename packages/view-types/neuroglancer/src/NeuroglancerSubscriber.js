@@ -58,6 +58,8 @@ import {
   autoColorForId,
   rgbToHex,
   reuseIfShallowEqual,
+  getAnnotationPropertyIndices,
+  parseAnnotationById,
 } from './utils.js';
 
 
@@ -116,7 +118,7 @@ export function NeuroglancerSubscriber(props) {
 
   const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
-  const obsIdToMeshIdRef = useRef({});
+  // const obsIdToMeshIdRef = useRef({});
   const meshIdToCellIdRef = useRef({});
   // TODO: maynot be needed for other dataset
   const cellIdToMeshIdRef = useRef({});
@@ -427,6 +429,17 @@ export function NeuroglancerSubscriber(props) {
     return reuseIfShallowEqual(annotationInfoByScopeCacheRef, next);
   }, [pointLayerScopes, obsPointsData]);
 
+  // Per point layer: which annotation property holds the mesh segment ID
+  // (options.segmentIdProp; undefined -> 'id' if declared in the info).
+  const segmentIdPropSignature = (pointLayerScopes ?? [])
+    .map(scope => `${scope}:${obsPointsData?.[scope]?.neuroglancerOptions?.segmentIdProp ?? ''}`)
+    .join('|');
+  const segmentIdPropByScope = useMemo(() => Object.fromEntries(
+    (pointLayerScopes ?? []).map(scope => [
+      scope, obsPointsData?.[scope]?.neuroglancerOptions?.segmentIdProp,
+    ]),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [segmentIdPropSignature]);
 
   const derivedCenter = useMemo(() => {
     // Prefer the annotation layer's real content bounds when available --
@@ -907,19 +920,20 @@ export function NeuroglancerSubscriber(props) {
     const { width, height } = viewportSizeRef.current;
     if (!width || !height) return;
 
-    const fetchChunkWithPositions = async (cellsInfoUrl, serializer, { level, cx, cy, cz }) => {
-      const cacheKey = `${cellsInfoUrl}/${level}/${cx}_${cy}_${cz}`;
+    const fetchChunkWithPositions = async (cellsInfoUrl, serializer, layout, { level, cx, cy, cz }) => {
+      const chunkUrl = `${cellsInfoUrl}/${level}/${cx}_${cy}_${cz}`;
+      const cacheKey = `${chunkUrl}#${layout.segmentIdProp}`;
       if (chunkCacheRef.current.has(cacheKey)) {
         return chunkCacheRef.current.get(cacheKey);
       }
       try {
-        const res = await fetch(cacheKey);
+        const res = await fetch(chunkUrl);
         if (!res.ok) {
           chunkCacheRef.current.set(cacheKey, []);
           return [];
         }
         const buffer = await res.arrayBuffer();
-        const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer);
+        const entries = parseAnnotationChunkSegmentsWithPositions(buffer, serializer, layout);
         chunkCacheRef.current.set(cacheKey, entries);
         return entries;
       } catch (e) {
@@ -933,12 +947,20 @@ export function NeuroglancerSubscriber(props) {
     const collectEntriesForScope = async (scope) => {
       const info = infoByScope[scope];
       const { serializers, serializer: defaultSerializer } = transformByScope[scope];
-      // TODO: confirm for all datasets
-      // All spatial levels use serializer[0] (32-byte property block).
-      // Although serializer[1] (44 bytes) exists for rank-3 spatial levels spatial1/2/3,
-      // the actual chunk data was generated with 32-byte properties regardless of level.
+      // serializers is indexed by NG AnnotationType (makeAnnotationPropertySerializers
+      // in neuroglancer/annotation/index.js); POINT === 0.
       const serializer = serializers?.[0] ?? defaultSerializer;
       if (!serializer || !Array.isArray(info.spatial)) return [];
+      // Property names/positions come from the annotation info, not hardcoded indices.
+      const layout = getAnnotationPropertyIndices(info, { segmentIdProp: info.segmentIdProp });
+      if (layout.segmentIdIndex < 0) {
+        console.warn(
+          `[updateVisibleSegments] No segment ID property found for point layer "${scope}" `
+          + `(properties: ${layout.propertyIds.join(', ') || 'none'}). `
+          + 'Set options.segmentIdProp on the obsPoints.ng-annotations file.',
+        );
+        return [];
+      }
       const allLevelCoords = info.spatial.flatMap((level) => {
         const [gx, gy, gz] = level.grid_shape;
         const coords = [];
@@ -952,7 +974,7 @@ export function NeuroglancerSubscriber(props) {
         return coords;
       });
       const results = await Promise.all(
-        allLevelCoords.map(c => fetchChunkWithPositions(info.url, serializer, c)),
+        allLevelCoords.map(c => fetchChunkWithPositions(info.url, serializer, layout, c)),
       );
       const seenIds = new Set();
       return results.flat().filter(({ id }) => {
@@ -975,7 +997,6 @@ export function NeuroglancerSubscriber(props) {
       const margin = Math.max(width, height) * 0.5;
 
       const nextBySegLayer = {};
-      const obsIdToMeshIdByScope = {};
       readyScopes.forEach((scope, i) => {
         const allEntries = entriesByScope[i];
         const transform = transformByScope[scope];
@@ -985,7 +1006,6 @@ export function NeuroglancerSubscriber(props) {
         allEntries.forEach(({ id, obsId }) => {
           obsIdToMeshId[obsId] = id;
         });
-        obsIdToMeshIdByScope[scope] = obsIdToMeshId;
 
         // Screen-space culling: project each centroid from annotation space
         // to screen pixels and keep only those within the viewport bounds.
@@ -1013,7 +1033,7 @@ export function NeuroglancerSubscriber(props) {
           nextBySegLayer[segLayer] = Array.from(merged);
         });
       });
-      obsIdToMeshIdRef.current = obsIdToMeshIdByScope;
+      // obsIdToMeshIdRef.current = obsIdToMeshIdByScope;
 
       const addedIdsCount = commitVisibleIds(nextBySegLayer);
       const totalVisible = Object.values(nextBySegLayer)
@@ -1087,15 +1107,20 @@ export function NeuroglancerSubscriber(props) {
     pointLayerRoles.centroidScopes.forEach((scope) => {
       const url = pointLayerUrls[scope];
       const info = annotationInfoByScope[scope];
-      if (url && info) next[scope] = { ...info, url };
+      if (url && info) {
+        next[scope] = { ...info, url, segmentIdProp: segmentIdPropByScope[scope] };
+      }
     });
-    // A scope whose source changed (or went away) must become ready again.
+    // A scope whose source or segment ID property changed (or went away) must become ready again.
     Object.keys(prev).forEach((scope) => {
-      if (prev[scope]?.url !== next[scope]?.url) readyCentroidScopesRef.current.delete(scope);
+      if (prev[scope]?.url !== next[scope]?.url
+       || prev[scope]?.segmentIdProp !== next[scope]?.segmentIdProp) {
+        readyCentroidScopesRef.current.delete(scope);
+      }
     });
     annotationInfoByScopeRef.current = next;
     Object.keys(next).forEach(markScopeReadyIfComplete);
-  }, [pointLayerRoles, pointLayerUrls, annotationInfoByScope, markScopeReadyIfComplete]);
+  }, [pointLayerRoles, pointLayerUrls, annotationInfoByScope, segmentIdPropByScope, markScopeReadyIfComplete]);
 
 
   // Whenever a centroid layer becomes ready (info + transform), mark loaded and
@@ -1125,6 +1150,17 @@ export function NeuroglancerSubscriber(props) {
     markScopeReadyIfComplete(scope);
   }, [pointScopeByNgLayerName, markScopeReadyIfComplete]);
 
+  // Decode a hovered centroid's by_id record into its mesh segment ID, using the
+  // same info-derived property layout and NG serializer as culling.
+  const decodeCentroidById = useCallback((layerName, buffer) => {
+    const scope = pointScopeByNgLayerName[layerName];
+    const info = scope ? annotationInfoByScopeRef.current[scope] : null;
+    const transform = scope ? annotationTransformByScopeRef.current[scope] : null;
+    const serializer = transform?.serializers?.[0] ?? transform?.serializer;
+    if (!info || !serializer) return null;
+    const layout = getAnnotationPropertyIndices(info, { segmentIdProp: info.segmentIdProp });
+    return parseAnnotationById(buffer, serializer, layout)?.id ?? null;
+  }, [pointScopeByNgLayerName]);
 
   /*
    * handleStateUpdate - Interactions from NG to Vitessce are pushed here
@@ -1594,6 +1630,7 @@ export function NeuroglancerSubscriber(props) {
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
             meshOpacityByLayer={meshOpacityByLayer}
+            decodeCentroidById={decodeCentroidById}
             allowEmptySegments={detailMode}
           />
         </div>

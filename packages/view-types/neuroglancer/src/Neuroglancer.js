@@ -92,7 +92,9 @@ export class NeuroglancerComp extends PureComponent {
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
         // Read props at hover time (not at mount) so URLs that resolve later are used.
-        const { getMeshIdToCellId, centroidAnnotationUrlsByLayerName } = this.props;
+        const {
+          getMeshIdToCellId, centroidAnnotationUrlsByLayerName, decodeCentroidById,
+        } = this.props;
         if (ms.pickedAnnotationId != null) {
           // Resolve which annotation layer was picked. Only centroid layers
           // (obsType matches a segmentation) carry a MeshID in their by_id records;
@@ -106,14 +108,17 @@ export class NeuroglancerComp extends PureComponent {
             return;
           }
           // For centroid hover: pickedAnnotationId is a by_id lookup key (not MeshID).
-          // Fetch by_id record to get actual MeshID (at offset 12),
-          // then convert MeshID to CellID for scatterplot highlight.
+          // Fetch by_id record and decode the mesh segment ID by property name
+          // (from the annotation info), then convert MeshID to CellID.
           const byIdKey = String(ms.pickedAnnotationId);
           fetch(`${annotationUrl}/by_id/${byIdKey}`)
             .then(r => r.arrayBuffer())
             .then((buf) => {
-              const dv = new DataView(buf);
-              const actualMeshId = String(dv.getInt32(12, true));
+              const actualMeshId = decodeCentroidById?.(layerName, buf);
+              if (!actualMeshId) {
+                this.latestOnSelectHoveredCoords?.(null);
+                return;
+              }
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
               this.latestOnSelectHoveredCoords?.(cellId);
             })
