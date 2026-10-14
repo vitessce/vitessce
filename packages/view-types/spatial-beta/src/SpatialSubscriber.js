@@ -245,7 +245,7 @@ export function SpatialSubscriber(props) {
 
   // A non-null camera snapshot in the coordination space indicates
   // that a neuroglancer view is present and is publishing its camera state.
-  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot);
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -678,6 +678,37 @@ export function SpatialSubscriber(props) {
     segmentationChannelScopesByLayer,
   ]);
 
+  // Physical size of one 3D scene unit (e.g. 1e-6 for µm), taken from the first
+  // image layer. Used to convert camera snapshots coming from other views
+  // (e.g. Neuroglancer in nm) into this view's coordinate space.
+
+  const sceneMetersPerUnit = useMemo(() => {
+    const firstLayer = Object.values(imageData ?? {})[0];
+    return firstLayer?.image?.instance?.getSceneMetersPerUnit() ?? null;
+  }, [imageData]);
+
+  // Rescale an incoming snapshot (position, projectionScale) into scene units.
+  // Passed through unchanged when units already match or either side is unknown,
+  // which also preserves object identity for the echo checks in the renderer.
+  const sceneCameraSnapshot = useMemo(() => {
+    if (!spatialCameraSnapshot) return null;
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (!sceneMetersPerUnit || !inMpu || inMpu === sceneMetersPerUnit) {
+      return spatialCameraSnapshot;
+    }
+    const k = inMpu / sceneMetersPerUnit;
+    return {
+      ...spatialCameraSnapshot,
+      position: spatialCameraSnapshot.position.map(p => p * k),
+      projectionScale: spatialCameraSnapshot.projectionScale * k,
+      metersPerUnit: sceneMetersPerUnit,
+    };
+  }, [spatialCameraSnapshot, sceneMetersPerUnit]);
+
+  const setSceneCameraSnapshot = useCallback((snapshot) => {
+    setSpatialCameraSnapshot({ ...snapshot, metersPerUnit: sceneMetersPerUnit });
+  }, [setSpatialCameraSnapshot, sceneMetersPerUnit]);
+
   useEffect(() => {
     // If it has not already been set, set the initial view state using
     // the auto-computed values from the useMemo above.
@@ -722,6 +753,13 @@ export function SpatialSubscriber(props) {
     if (prevIs3dMode.current === is3dMode) {
       return;
     }
+    if (hasSpatialCameraSnapshot) {
+      // Entering 3D while synced with Neuroglancer: the camera comes from the
+      // snapshot, so resetting the shared camera values would only cause the
+      // Neuroglancer view to jump back to the default camera.
+      prevIs3dMode.current = is3dMode;
+      return;
+    }
     if (typeof defaultTargetX !== 'number' || typeof defaultTargetY !== 'number') {
       // Not computable yet. Leave the camera alone and re-run once the data for
       // the new mode is ready, rather than resetting the target to null.
@@ -738,7 +776,8 @@ export function SpatialSubscriber(props) {
     // Deliberate dependency omissions: the setters, which are not referentially
     // stable across renders and would re-run this on every one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [is3dMode, defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
+  }, [is3dMode, hasSpatialCameraSnapshot,
+    defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
 
 
   // Animate the 2D zoom/target when they change due to the current annotation frame.
@@ -1185,8 +1224,8 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
-            spatialCameraSnapshot={hasSpatialCameraSnapshot ? spatialCameraSnapshot : null}
-            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSpatialCameraSnapshot : null}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? sceneCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSceneCameraSnapshot : null}
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
