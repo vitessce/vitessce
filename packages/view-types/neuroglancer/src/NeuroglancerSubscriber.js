@@ -109,6 +109,10 @@ export function NeuroglancerSubscriber(props) {
     // { x: [1e-9, 'm'], y: [1e-9, 'm'], z: [1e-9, 'm'] }.
     // Overrides dimensions inferred from point layer transforms.
     viewerDimensions,
+    // Column names in the obsSets CSV used to map mesh segment IDs <-> cell IDs.
+    // If either column is missing from the CSV, IDs are assumed identical.
+    meshIdColumn = 'MeshID',
+    cellIdColumn = 'CellID',
   } = props;
 
   const loaders = useLoaders();
@@ -787,16 +791,23 @@ export function NeuroglancerSubscriber(props) {
     fetch(csvUrl)
       .then(r => r.text())
       .then((text) => {
-        const lines = text.split('\n');
-        const header = lines[0].split(',');
-        const meshIdIdx = header.indexOf('MeshID');
-        const cellIdIdx = header.indexOf('CellID');
+        // Tolerate CRLF line endings and quoted fields.
+        const clean = v => v?.trim().replace(/^"(.*)"$/, '$1');
+        const lines = text.split(/\r?\n/);
+        const header = lines[0].split(',').map(clean);
+        const meshIdIdx = header.indexOf(meshIdColumn);
+        const cellIdIdx = header.indexOf(cellIdColumn);
+        if (meshIdIdx < 0 || cellIdIdx < 0) {
+          // No MeshID/CellID pair: mesh IDs and cell IDs are assumed identical.
+          setCsvLoaded(true);
+          return;
+        }
         const meshMap = {};
         const cellMap = {};
         lines.slice(1).forEach((l) => {
           const cols = l.split(',');
-          const meshId = cols[meshIdIdx]?.trim();
-          const cellId = cols[cellIdIdx]?.trim();
+          const meshId = clean(cols[meshIdIdx]);
+          const cellId = clean(cols[cellIdIdx]);
           if (meshId && cellId) {
             meshMap[meshId] = cellId;
             cellMap[cellId] = meshId; // ← add reverse map
