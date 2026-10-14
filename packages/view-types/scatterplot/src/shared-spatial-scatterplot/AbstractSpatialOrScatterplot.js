@@ -39,6 +39,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     this.lastApplied = null;
     // The viewState prop at the start of the current transition, if any.
     this.transitionEndViewState = null;
+    // The end viewState of the most recently ended or interrupted transition,
+    // until the viewState prop changes to different values.
+    this.finishedTransitionEndViewState = null;
     this.viewport = null;
     this.threeCamera = null;
     this.orbitControls = null;
@@ -133,6 +136,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * Called by DeckGL when a viewState transition ends.
    */
   onTransitionEnd() {
+    this.finishedTransitionEndViewState = this.transitionEndViewState;
     this.transitionEndViewState = null;
     this.setState({ transitionViewState: null });
   }
@@ -144,6 +148,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * Instead, the stale transitionViewState is ignored by getDeckViewState.
    */
   onTransitionInterrupt() {
+    this.finishedTransitionEndViewState = this.transitionEndViewState;
     this.transitionEndViewState = null;
   }
 
@@ -161,6 +166,22 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     ) {
       // Render the intermediate values of the in-progress transition.
       return transitionViewState.viewState;
+    }
+    if (!isSameZoomAndTarget(viewState, this.finishedTransitionEndViewState)) {
+      // The viewState prop has changed since the last transition ended,
+      // so a transition to the same values (e.g., re-applying the same
+      // annotation frame after panning) should be animated again.
+      this.finishedTransitionEndViewState = null;
+    }
+    if (this.finishedTransitionEndViewState) {
+      // The transition to these values has already ended (or been interrupted).
+      // DeckGL's last viewState was an intermediate value of that transition,
+      // so if the transition props were kept, DeckGL would start a new transition
+      // from that intermediate value, causing a jump at the end of the transition.
+      const {
+        transitionDuration, transitionInterpolator, ...viewStateWithoutTransition
+      } = viewState;
+      return viewStateWithoutTransition;
     }
     // Otherwise, the viewState prop has changed since the transition started,
     // which interrupts the transition (or starts a new one).
