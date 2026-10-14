@@ -4,7 +4,7 @@ import {
   interpolateJet,
   interpolateGreys,
 } from '@vitessce/sets-utils';
-import { PALETTE } from '@vitessce/utils';
+import { PALETTE, UNIT_TO_METERS } from '@vitessce/utils';
 
 // For now deckGl uses degrees, but if changes to radian can change here
 // const VIT_UNITS = 'degrees';
@@ -12,6 +12,12 @@ import { PALETTE } from '@vitessce/utils';
 // Used by NG source code for decoding annotation chunks
 export const ANNOTATION_HEADER_OFFSET = 8;
 
+export function ngMetersPerUnit(dimensions) {
+  if (!dimensions?.x) return null;
+  const [scale, unit] = dimensions.x;
+  const factor = UNIT_TO_METERS[unit];
+  return factor ? scale * factor : null;
+}
 // TODO: Grey color used by Vitessce - maybe set globally
 export const GREY_HEX = '#323232';
 export const EPSILON_KEYS_MAPPING_NG = {

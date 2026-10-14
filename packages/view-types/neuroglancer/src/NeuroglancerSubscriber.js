@@ -60,6 +60,7 @@ import {
   reuseIfShallowEqual,
   getAnnotationPropertyIndices,
   parseAnnotationById,
+  ngMetersPerUnit,
 } from './utils.js';
 
 
@@ -175,6 +176,7 @@ export function NeuroglancerSubscriber(props) {
     additionalObsSets: additionalCellSets,
     obsHighlight: cellHighlight,
     spatialCameraSnapshot,
+    spatialRenderingMode,
   }, {
     setSpatialCameraSnapshot,
     setAdditionalObsSets: setAdditionalCellSets,
@@ -546,14 +548,28 @@ export function NeuroglancerSubscriber(props) {
   // Sync in the reverse direction (spatialBeta -> NG), for direct dragging
   // inside spatialBeta's own panel. The snapshot is shared via the
   // spatialCameraSnapshot coordination type.
+  // Only respected when the linked spatialRenderingMode is '3D',
+  // matching the corresponding check in SpatialSubscriber.
+  const is3dMode = spatialRenderingMode === '3D';
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && is3dMode;
   useEffect(() => {
     if (detailMode) return;
-    if (!spatialCameraSnapshot) return;
+    if (!hasSpatialCameraSnapshot) return;
     if (spatialCameraSnapshot === lastSeenCameraSnapshotRef.current) return;
     lastSeenCameraSnapshotRef.current = spatialCameraSnapshot;
 
-    const { position, quaternion, projectionScale } = spatialCameraSnapshot;
+    const { quaternion } = spatialCameraSnapshot;
+    let { position, projectionScale } = spatialCameraSnapshot;
     if (!Array.isArray(position) || !Array.isArray(quaternion)) return;
+    // Convert an incoming snapshot (e.g. from spatialBeta, in µm scene units)
+    // into NG's coordinate units. Skipped if either side's unit is unknown.
+    const ownMpu = ngMetersPerUnit(latestViewerStateRef.current?.dimensions);
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (ownMpu && inMpu && ownMpu !== inMpu) {
+      const k = inMpu / ownMpu;
+      position = position.map(p => p * k);
+      projectionScale *= k;
+    }
     // The snapshot quaternion lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
     // in handleStateUpdate below). Q_Y_UP is self-inverse, so
@@ -571,7 +587,7 @@ export function NeuroglancerSubscriber(props) {
         : latestViewerStateRef.current.projectionScale,
     };
     incrementLatestViewerStateIteration();
-  }, [spatialCameraSnapshot, detailMode, cameraZoomFactor]);
+  }, [spatialCameraSnapshot, hasSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -1190,6 +1206,7 @@ export function NeuroglancerSubscriber(props) {
           ? projectionScale * cameraZoomFactor
           : latestViewerStateRef.current?.projectionScale,
         fovDegrees: 45,
+        metersPerUnit: ngMetersPerUnit(latestViewerStateRef.current?.dimensions),
       };
       lastSeenCameraSnapshotRef.current = snapshot;
       setSpatialCameraSnapshot(snapshot);
@@ -1373,15 +1390,24 @@ export function NeuroglancerSubscriber(props) {
     const { projectionScale, projectionOrientation, position } = current;
 
     // Did Vitessce coords change vs the *previous* render?
-    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx, ROTATION_EPS)
+    // Linked camera values are only respected in 3D mode. Outside of 3D,
+    // changes are ignored (but still recorded in prevCoordsRef below), so that
+    // e.g. the camera reset performed by spatialBeta when switching to 2D
+    // does not reset the Neuroglancer camera.
+    const rotChangedNow = is3dMode && (
+      !nearEq(spatialRotationX, prevCoordsRef.current.rx, ROTATION_EPS)
         || !nearEq(spatialRotationY, prevCoordsRef.current.ry, ROTATION_EPS)
         || !nearEq(spatialRotationZ, prevCoordsRef.current.rz, ROTATION_EPS)
-        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit, ROTATION_EPS);
+        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit, ROTATION_EPS)
+    );
 
-    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom, ROTATION_EPS);
+    const zoomChangedNow = is3dMode
+      && !nearEq(spatialZoom, prevCoordsRef.current.zoom, ROTATION_EPS);
 
-    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx, ROTATION_EPS)
-      || !nearEq(spatialTargetY, prevCoordsRef.current.ty, ROTATION_EPS);
+    const transChangedNow = is3dMode && (
+      !nearEq(spatialTargetX, prevCoordsRef.current.tx, ROTATION_EPS)
+        || !nearEq(spatialTargetY, prevCoordsRef.current.ty, ROTATION_EPS)
+    );
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
@@ -1445,7 +1471,8 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 
     // If NG quat != Vitessce quat on first render, push Vitessce once.
-    const shouldForceInitialVitPush = !initialRotationPushedRef.current
+    const shouldForceInitialVitPush = is3dMode
+      && !initialRotationPushedRef.current
       && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
     const changedNowOrIInitialVitPush = rotChangedNow
@@ -1558,6 +1585,8 @@ export function NeuroglancerSubscriber(props) {
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
     latestViewerStateIteration, pointLayerRoles, detailMode, detailSegmentIds]);
+    latestViewerStateIteration, hasMatchingAnnotationSource, detailMode, detailSegmentIds,
+    is3dMode]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     const next = obsId != null ? String(obsId) : null;
