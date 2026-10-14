@@ -75,6 +75,7 @@ export default class OmeTiffAsObsSegmentationsLoader extends OmeTiffLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureAggregationStrategy: null,
       ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 

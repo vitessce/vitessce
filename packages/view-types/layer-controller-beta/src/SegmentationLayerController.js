@@ -43,6 +43,7 @@ export default function SegmentationLayerController(props) {
           spatialSegmentationStrokeWidth: strokeWidth,
           obsColorEncoding,
           featureSelection,
+          featureAggregationStrategy,
           featureValueColormap,
           featureValueColormapRange,
           tooltipsVisible,
@@ -56,6 +57,7 @@ export default function SegmentationLayerController(props) {
           setSpatialSegmentationFilled: setFilled,
           setSpatialSegmentationStrokeWidth: setStrokeWidth,
           setObsColorEncoding,
+          setFeatureAggregationStrategy,
           setFeatureValueColormap,
           setFeatureValueColormapRange,
           setTooltipsVisible,
@@ -86,6 +88,8 @@ export default function SegmentationLayerController(props) {
             setStrokeWidth={setStrokeWidth}
             obsColorEncoding={obsColorEncoding}
             featureSelection={featureSelection}
+            featureAggregationStrategy={featureAggregationStrategy}
+            setFeatureAggregationStrategy={setFeatureAggregationStrategy}
             featureValueColormap={featureValueColormap}
             featureValueColormapRange={featureValueColormapRange}
             setObsColorEncoding={setObsColorEncoding}

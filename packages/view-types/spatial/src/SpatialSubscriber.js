@@ -28,7 +28,9 @@ import {
   useAnnotationFrameCoordination,
   useAnnotationEditingForView,
 } from '@vitessce/vit-s';
-import { aggregateFeatureArrays, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import {
+  aggregateFeatureArrays, getAnnotationFrameCoordinationValues, resolveFeatureAggregationStrategy,
+} from '@vitessce/utils';
 import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import {
   setObsSelection,
@@ -536,8 +538,10 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const featureAggregationStrategyToUse = featureAggregationStrategy
-  ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  // Convert a feature name into its index within the geneSelection.
+  const featureAggregationStrategyToUse = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const aggregatedExpressionData = useMemo(() => {
     if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {

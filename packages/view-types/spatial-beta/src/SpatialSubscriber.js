@@ -364,6 +364,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_SHAPE,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -544,7 +545,9 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionNormDataAggregated,
     spotMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForLayers({
-    multiExpressionData: spotMultiExpressionNormData,
+    multiExpressionData: spotMultiExpressionData,
+    multiExpressionNormData: spotMultiExpressionNormData,
+    multiExpressionExtents: spotMultiExpressionExtents,
     layerScopes: spotLayerScopes,
     layerCoordination: spotLayerCoordination,
   });
@@ -553,7 +556,9 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionNormDataAggregated,
     segmentationMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForChannels({
-    multiExpressionData: segmentationMultiExpressionNormData,
+    multiExpressionData: segmentationMultiExpressionData,
+    multiExpressionNormData: segmentationMultiExpressionNormData,
+    multiExpressionExtents: segmentationMultiExpressionExtents,
     layerScopes: segmentationLayerScopes,
     layerCoordination: segmentationLayerCoordination,
     channelScopesByLayer: segmentationChannelScopesByLayer,
