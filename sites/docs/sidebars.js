@@ -44,6 +44,7 @@ module.exports = {
         'constants',
         'js-react-vitessce',
         'dev-plugins',
+        'js-annotations',
         'troubleshooting',
         'upgrade-guide',
       ],
