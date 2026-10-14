@@ -14,7 +14,7 @@ export const ANNOTATION_HEADER_OFFSET = 8;
 
 // TODO: Grey color used by Vitessce - maybe set globally
 export const GREY_HEX = '#323232';
-
+export const MIN_PROJECTION_SCALE = 1;
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 5,
   projectionOrientation: 2e-2,

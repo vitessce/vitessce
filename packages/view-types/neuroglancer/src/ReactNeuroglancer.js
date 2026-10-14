@@ -24,7 +24,7 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState, GREY_HEX } from './utils.js';
+import { diffCameraState, GREY_HEX, MIN_PROJECTION_SCALE } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
@@ -652,6 +652,16 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
+    // Prevent zooming in past MIN_PROJECTION_SCALE: at large absolute coords (~1e6 nm),
+    // float32 GPU matrices can't resolve sub-nm offsets, so axis lines/meshes jitter.
+    this.disposers.push(this.viewer.projectionScale.changed.add(() => {
+      const ps = this.viewer.projectionScale;
+      if (ps.value < MIN_PROJECTION_SCALE) {
+        // eslint-disable-next-line no-console
+        console.debug('[NG] clamp projectionScale', ps.value, '→', MIN_PROJECTION_SCALE);
+        ps.value = MIN_PROJECTION_SCALE;
+      }
+    }));
 
     // Initial restore ONLY if provided
     if (viewerState) {

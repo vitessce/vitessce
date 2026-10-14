@@ -54,6 +54,7 @@ import {
   applyColormap,
   parseAnnotationChunkSegmentsWithPositions,
   GREY_HEX,
+  MIN_PROJECTION_SCALE,
   remapCellColors,
   autoColorForId,
   rgbToHex,
@@ -67,7 +68,6 @@ const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
 const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
-
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
 const MESH_OPACITY = 0.6;
@@ -1402,7 +1402,8 @@ export function NeuroglancerSubscriber(props) {
         && zoomChangedNow) {
       const s = initialRenderCalibratorRef.current.vitToNgZoom(spatialZoom);
       if (Number.isFinite(s) && s > 0) {
-        nextProjectionScale = s;
+        // Clamp max zoom-in to avoid float32 precision jitter at large coordinates
+        nextProjectionScale = Math.max(s, MIN_PROJECTION_SCALE);
       }
     }
 
