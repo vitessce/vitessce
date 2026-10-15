@@ -24,11 +24,14 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState, GREY_HEX } from './utils.js';
+import { diffCameraState, applyQuat, GREY_HEX } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
 const MIN_PROJECTION_SCALE_M = 1e-9;
+
+const FOV_F = 1 / Math.tan(Math.PI / 8); // NG perspective fovy = 45°
+const MIN_RELATIVE_DEPTH = 50; // NG default projectionDepth (-50)
 
 /**
  * @typedef {Object} NgProps
@@ -660,7 +663,8 @@ export default class Neuroglancer extends React.Component {
       const minScale = MIN_PROJECTION_SCALE_M / ps.canonicalVoxelPhysicalSize; // meters per canonical unit
       if (Number.isFinite(minScale) && ps.value < minScale) {
         // eslint-disable-next-line no-console
-        console.debug('[NG] clamp projectionScale', ps.value, '→', minScale);
+        console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
+        // console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
         ps.value = minScale;
       }
     }));
@@ -672,13 +676,41 @@ export default class Neuroglancer extends React.Component {
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
       });
+      this.withoutEmitting(() => {
+        this.viewer.state.restoreState(viewerState);
+      });
 
-      // Absolute far-clip depth (~1 cm physical), converted to this dataset's canonical units.
-      const depthM = 1e-2;
-      const cvps = this.viewer.projectionScale.canonicalVoxelPhysicalSize;
-      if (Number.isFinite(cvps) && cvps > 0) {
-        this.viewer.projectionDepthRange.value = depthM / cvps;
-      }
+      // Far clip plane fitted to the data bounds (relative depth, never below NG's default).
+      // An absolute far plane prevents clipping but fixes the frustum volume, which NG uses to pick
+      // annotation density -- so points stop increasing on zoom-in. Fitting keeps both behaviors.
+      let depthRaf = null;
+      const fitDepthToData = () => {
+        if (depthRaf !== null) return;
+        depthRaf = requestAnimationFrame(() => {
+          depthRaf = null;
+          const v = this.viewer;
+          const bounds = v?.coordinateSpace.value?.bounds;
+          const pos = v?.position.value;
+          const ps = v?.projectionScale.value;
+          if (!bounds || !pos || pos.length < 3 || !(ps > 0)) return;
+          const { lowerBounds: lo, upperBounds: hi } = bounds;
+          const axis = applyQuat(Array.from(v.projectionOrientation.orientation), [0, 0, 1]);
+          // Max distance of any bbox corner from the pivot along the view axis.
+          let reach = 0;
+          for (let i = 0; i < 3; i += 1) {
+            reach += Math.abs(axis[i]) * Math.max(Math.abs(lo[i] - pos[i]), Math.abs(hi[i] - pos[i]));
+          }
+          const d = (ps * FOV_F) / 2; // camera distance from pivot (canonical units)
+          const r = Number.isFinite(reach) ? FOV_F * (((d + reach) * 1.05) / d - 1) : 0;
+          v.projectionDepthRange.value = -Math.max(MIN_RELATIVE_DEPTH, r);
+        });
+      };
+      this.disposers.push(this.viewer.position.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.projectionScale.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.projectionOrientation.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.coordinateSpace.changed.add(fitDepthToData));
+      this.disposers.push(() => { if (depthRaf !== null) cancelAnimationFrame(depthRaf); });
+      fitDepthToData();
     }
     /* ** Vitessce Integration update end ** */
 
