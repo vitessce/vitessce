@@ -658,24 +658,30 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.position.changed.add(emit));
     // // Prevent zooming in past MIN_PROJECTION_SCALE: at large absolute coords (~1e6 nm),
     // // float32 GPU matrices can't resolve sub-nm offsets, so axis lines/meshes jitter.
-    this.disposers.push(this.viewer.projectionScale.changed.add(() => {
-      const ps = this.viewer.projectionScale;
-      const minScale = MIN_PROJECTION_SCALE_M / ps.canonicalVoxelPhysicalSize; // meters per canonical unit
-      if (Number.isFinite(minScale) && ps.value < minScale) {
-        // eslint-disable-next-line no-console
-        console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
-        // console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
-        ps.value = minScale;
-      }
-    }));
+    // Clamp after NG's linked-zoom dispatch completes; writing projectionScale re-entrantly
+    // (inside zoomBy → handleSelfUpdate → setPhysicalScale) desyncs panel vs viewer zoom → jitter.
+    let clampRaf = null;
+    const clampZoom = () => {
+      if (clampRaf !== null) return;
+      clampRaf = requestAnimationFrame(() => {
+        clampRaf = null;
+        const ps = this.viewer?.projectionScale;
+        if (!ps) return;
+        const minScale = MIN_PROJECTION_SCALE_M / ps.canonicalVoxelPhysicalSize; // meters per canonical unit
+        if (Number.isFinite(minScale) && ps.value < minScale) {
+          // eslint-disable-next-line no-console
+          console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
+          ps.value = minScale;
+        }
+      });
+    };
+    this.disposers.push(this.viewer.projectionScale.changed.add(clampZoom));
+    this.disposers.push(() => { if (clampRaf !== null) cancelAnimationFrame(clampRaf); });
 
     // Initial restore ONLY if provided
     if (viewerState) {
       // restore state only when all the changes are added -
       // avoids calling .changed() for each change and leads to smooth updates
-      this.withoutEmitting(() => {
-        this.viewer.state.restoreState(viewerState);
-      });
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
       });
