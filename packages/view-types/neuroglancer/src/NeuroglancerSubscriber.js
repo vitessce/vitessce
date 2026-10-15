@@ -1584,9 +1584,8 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
-    latestViewerStateIteration, pointLayerRoles, detailMode, detailSegmentIds]);
-    latestViewerStateIteration, hasMatchingAnnotationSource, detailMode, detailSegmentIds,
-    is3dMode]);
+    latestViewerStateIteration, detailMode, detailSegmentIds,
+    is3dMode, pointLayerRoles]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     const next = obsId != null ? String(obsId) : null;

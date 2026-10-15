@@ -646,7 +646,6 @@ export default class Neuroglancer extends React.Component {
       );
     }
     this.viewer.layerManager.layersChanged.add(this.layersChanged);
-    console.log(this.viewer)
 
     /* ** Vitessce Integration update start ** */
     const emit = this.scheduleEmit();
