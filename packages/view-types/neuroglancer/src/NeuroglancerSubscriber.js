@@ -551,7 +551,9 @@ export function NeuroglancerSubscriber(props) {
   // Only respected when the linked spatialRenderingMode is '3D',
   // matching the corresponding check in SpatialSubscriber.
   const is3dMode = spatialRenderingMode === '3D';
-  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && is3dMode;
+  // Allow the detail NG view to have synced camera
+  const fromNeuroglancer = spatialCameraSnapshot?.source === 'neuroglancer';
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && (fromNeuroglancer || is3dMode);
   useEffect(() => {
     if (detailMode) return;
     if (!hasSpatialCameraSnapshot) return;
@@ -1207,6 +1209,7 @@ export function NeuroglancerSubscriber(props) {
           : latestViewerStateRef.current?.projectionScale,
         fovDegrees: 45,
         metersPerUnit: ngMetersPerUnit(latestViewerStateRef.current?.dimensions),
+        source: 'neuroglancer',
       };
       lastSeenCameraSnapshotRef.current = snapshot;
       setSpatialCameraSnapshot(snapshot);

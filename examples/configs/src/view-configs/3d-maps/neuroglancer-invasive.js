@@ -107,6 +107,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         fileUid: 'sorger-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Meshes',
         segmentationChannel: CL([
           {
             obsType: 'cell',
@@ -129,6 +130,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         obsType: 'cell',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Centroids',
         spatialLayerColor: [0, 255, 0],
         spatialPointStrokeWidth: 0.2,
         obsColorEncoding: 'spatialChannelColor',
