@@ -32,6 +32,7 @@ Vitessce is being used in the following projects:
   * [Parse Biosciences \- Trailmaker platform](https://www.parsebiosciences.com/data-analysis/)  
   * [Aspect Analytics](https://www.aspect-analytics.com/)  
   * [Pluto Bio](https://pluto.bio/) ([linkedin post](https://www.linkedin.com/posts/rani-powers_bioinformatics-dataanalysis-activity-7381402826389958656-CqBa/))
+  * [Cirro](https://cirro.bio/) ([case study](https://cirro.bio/case-study/spatial-transcriptomics))
 * Publication-associated interactive figures
   * [Singh et al. 2025 bioRxiv](https://jef.works/vitessce-cold-ischemia/) ([preprint](https://doi.org/10.1101/2025.05.25.654911))
   * [De Jong et al. 2025 bioRxiv](https://www.gbmspace.org/) ([preprint](https://www.biorxiv.org/content/10.1101/2025.05.13.653495v1))
