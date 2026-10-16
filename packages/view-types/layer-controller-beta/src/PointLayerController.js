@@ -93,6 +93,8 @@ function PointLayerEllipsisMenu(props) {
     setTooltipCrosshairsVisible,
     legendVisible,
     setLegendVisible,
+    strokeWidth,
+    setStrokeWidth,
   } = props;
   const [open, setOpen] = useState(false);
   const { classes: selectClasses } = useSelectStyles();
@@ -105,6 +107,7 @@ function PointLayerEllipsisMenu(props) {
   const legendVisibleId = useId();
   const featureFilterModeId = useId();
   const colormapSelectorId = useId();
+  const strokeWidthId = useId();
 
   return (
     <PopperMenu
@@ -212,6 +215,25 @@ function PointLayerEllipsisMenu(props) {
           slotProps={{ input: { id: legendVisibleId, 'aria-label': 'Toggle legend visibility' } }}
         />
       </MenuItem>
+      {setStrokeWidth ? (
+        <MenuItem dense disableGutters>
+          <label className={menuClasses.imageLayerMenuLabel} htmlFor={strokeWidthId}>
+            Stroke Width:&nbsp;
+          </label>
+          <Slider
+            value={strokeWidth ?? 0.0}
+            min={0.0}
+            max={5.0}
+            step={0.1}
+            valueLabelDisplay="auto"
+            onChange={(e, v) => setStrokeWidth(v)}
+            className={menuClasses.menuItemSlider}
+            orientation="horizontal"
+            id={strokeWidthId}
+            aria-label="Point stroke width slider"
+          />
+        </MenuItem>
+      ) : null}
     </PopperMenu>
   );
 }
@@ -256,6 +278,7 @@ export default function PointLayerController(props) {
     tooltipsVisible,
     tooltipCrosshairsVisible,
     legendVisible,
+    spatialPointStrokeWidth,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -271,6 +294,7 @@ export default function PointLayerController(props) {
     setTooltipsVisible,
     setTooltipCrosshairsVisible,
     setLegendVisible,
+    setSpatialPointStrokeWidth,
   } = setLayerCoordination;
 
   const label = spatialLayerLabel ?? capitalize(obsType);
@@ -454,6 +478,8 @@ export default function PointLayerController(props) {
               setFeatureFilterMode={setFeatureFilterMode}
               featureValueColormap={featureValueColormap}
               setFeatureValueColormap={setFeatureValueColormap}
+              strokeWidth={spatialPointStrokeWidth}
+              setStrokeWidth={setSpatialPointStrokeWidth}
             />
           </Grid>
           <Grid size={1} container direction="row" sx={channelControlCellSx}>
