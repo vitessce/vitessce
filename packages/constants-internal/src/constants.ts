@@ -350,6 +350,8 @@ export const CoordinationType = {
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
   SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
   SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
+  SPATIAL_AXIS_LINES_VISIBLE: 'spatialAxisLinesVisible', // axisLines' visibility in  Neuroglancer View
+  SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',

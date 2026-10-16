@@ -176,6 +176,8 @@ export function NeuroglancerSubscriber(props) {
     obsHighlight: cellHighlight,
     spatialCameraSnapshot,
     spatialRenderingMode,
+    spatialAxisLinesVisible,
+    spatialBoundsVisible,
   }, {
     setSpatialCameraSnapshot,
     setAdditionalObsSets: setAdditionalCellSets,
@@ -1674,6 +1676,8 @@ export function NeuroglancerSubscriber(props) {
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
             decodeCentroidById={decodeCentroidById}
             allowEmptySegments={detailMode}
+            axisLinesVisible={spatialAxisLinesVisible ?? showAxisLines}
+            boundsVisible={spatialBoundsVisible ?? false}
           />
         </div>
       ) : null}

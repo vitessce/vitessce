@@ -34,7 +34,7 @@ function generateCubeCameraSyncConfiguration() {
   });
 
   const spatialView = config.addView(dataset, 'spatialBeta');
-  const lcView = config.addView(dataset, 'layerControllerBeta');
+  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ showViewerOptions: true });
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
   neuroglancerView.setProps({
     initialNgCameraState: {
@@ -45,7 +45,8 @@ function generateCubeCameraSyncConfiguration() {
   const obsSetsView = config.addView(dataset, 'obsSets');
 
 
-  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
+  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode', 'spatialAxisLinesVisible', 'spatialBoundsVisible'], 
+    ['3D', false, false]);
 
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL([

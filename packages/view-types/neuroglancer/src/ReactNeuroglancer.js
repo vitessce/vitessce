@@ -474,6 +474,22 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // Viewer-level toggles. Applied directly (not via restoreState) because updates
+  // after mount only re-apply camera and layers.
+  applyViewerToggles = () => {
+    const { viewer } = this;
+    if (!viewer) return;
+    const { axisLinesVisible, boundsVisible } = this.props;
+    this.withoutEmitting(() => {
+      if (typeof axisLinesVisible === 'boolean' && viewer.showAxisLines.value !== axisLinesVisible) {
+        viewer.showAxisLines.value = axisLinesVisible;
+      }
+      if (typeof boundsVisible === 'boolean' && viewer.showDefaultAnnotations.value !== boundsVisible) {
+        viewer.showDefaultAnnotations.value = boundsVisible;
+      }
+    });
+  };
+
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
@@ -717,6 +733,7 @@ export default class Neuroglancer extends React.Component {
       this.disposers.push(this.viewer.coordinateSpace.changed.add(fitDepthToData));
       this.disposers.push(() => { if (depthRaf !== null) cancelAnimationFrame(depthRaf); });
       fitDepthToData();
+      this.applyViewerToggles();
     }
     /* ** Vitessce Integration update end ** */
 
@@ -867,6 +884,12 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
+
+    if (prevProps.axisLinesVisible !== this.props.axisLinesVisible
+      || prevProps.boundsVisible !== this.props.boundsVisible) {
+      this.applyViewerToggles();
+    }
+
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore

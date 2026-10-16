@@ -391,7 +391,6 @@ export function useNeuroglancerViewerState(
           result = {
             ...result,
             showAxisLines,
-            showDefaultAnnotations: false, // this removes the yellow box around pointsLayer
             layers: [
               ...result.layers,
               {

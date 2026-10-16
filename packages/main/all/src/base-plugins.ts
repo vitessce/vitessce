@@ -631,6 +631,10 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
+  // null = fall back to the neuroglancer view's showAxisLines prop / NG default.
+  new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_LINES_VISIBLE, null, z.boolean().nullable()),
+  // Neuroglancer default annotations (data-source bounding boxes).
+  new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),

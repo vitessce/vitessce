@@ -63,6 +63,7 @@ export function LayerControllerSubscriber(props) {
     globalDisable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
+    showViewerOptions = false,
   } = props;
 
   const loaders = useLoaders();
@@ -78,6 +79,8 @@ export function LayerControllerSubscriber(props) {
       spatialTargetT: targetT,
       spatialTargetZ: targetZ,
       spatialRenderingMode,
+      spatialAxisLinesVisible,
+      spatialBoundsVisible,
     },
     {
       setSpatialTargetX: setTargetX,
@@ -88,6 +91,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
       setSpatialRenderingMode,
+      setSpatialAxisLinesVisible,
+      setSpatialBoundsVisible,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
