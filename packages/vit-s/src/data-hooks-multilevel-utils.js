@@ -444,8 +444,25 @@ export function useObsFeatureMatrixIndicesMultiLevel(
     matchOnObj, depth, dataset, DataType.OBS_FEATURE_MATRIX, isRequired,
   ), [matchOnObj, depth, dataset]);
 
+  // Several scopes can resolve to the same query key (e.g. two point layers
+  // that share a featureType). Query each distinct key once, then map the
+  // results back onto every scope, so react-query never sees duplicates.
+  const { uniqueQueryKeys, uniqueIndexByTuple } = useMemo(() => {
+    const keyToIndex = new Map();
+    const uniqueKeys = [];
+    const indexByTuple = queryKeyScopeTuples.map(([queryKey]) => {
+      const hash = JSON.stringify(queryKey);
+      if (!keyToIndex.has(hash)) {
+        keyToIndex.set(hash, uniqueKeys.length);
+        uniqueKeys.push(queryKey);
+      }
+      return keyToIndex.get(hash);
+    });
+    return { uniqueQueryKeys: uniqueKeys, uniqueIndexByTuple: indexByTuple };
+  }, [queryKeyScopeTuples]);
+
   const indicesQueries = useQueries({
-    queries: queryKeyScopeTuples.map(([queryKey]) => ({
+    queries: uniqueQueryKeys.map(queryKey => ({
       structuralSharing: false,
       placeholderData: null,
       queryKey,
@@ -459,7 +476,8 @@ export function useObsFeatureMatrixIndicesMultiLevel(
   const errors = anyError ? indicesQueries.filter(q => q.isError).map(q => q.error) : [];
   // eslint-disable-next-line no-nested-ternary
   const dataStatus = anyLoading ? STATUS.LOADING : (anyError ? STATUS.ERROR : STATUS.SUCCESS);
-  const flatIndicesData = indicesQueries.map(q => q.data?.data || null);
+  // One entry per scope tuple (duplicates share the same query result).
+  const flatIndicesData = uniqueIndexByTuple.map(i => indicesQueries[i]?.data?.data || null);
 
   // Need to re-nest the geneData and the loadedGeneName info.
   const indicesData = useMemo(() => {

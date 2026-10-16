@@ -335,6 +335,9 @@ export const ngPointAnnotationSchema = z.object({
   // - https://github.com/hms-dbmi/tissue-map-tools/issues/38
   quantitativeColorProp: z.string().optional(),
   quantitativeColorMax: z.number().optional(),
+  segmentIdProp: z.string()
+    .optional()
+    .describe('For centroid points with a matching segmentation: the name of the AnnotationProperty holding the mesh segment ID (e.g. \'cell_id\').'),
 }).partial().nullable();
 
 /**
