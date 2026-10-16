@@ -245,3 +245,21 @@ export function mouseToCellColorPosition(mouseX, mouseY, {
 
   return [cellI, trackI];
 }
+
+/**
+ * Order the features (columns) of a row-major obs-by-feature matrix
+ * by total value across all obs, highest first.
+ * Missing values (NaN, null, undefined) count as 0.
+ * @param {ArrayLike<number>} data The flattened matrix values.
+ * @param {number} numFeatures The number of features (columns).
+ * @returns {Int32Array} The column index of each feature, in sorted order.
+ */
+export function getFeatureOrderByTotal(data, numFeatures) {
+  const totals = new Float64Array(numFeatures);
+  for (let rowStart = 0; rowStart < data.length; rowStart += numFeatures) {
+    for (let j = 0; j < numFeatures; j += 1) {
+      totals[j] += data[rowStart + j] || 0;
+    }
+  }
+  return Int32Array.from(totals.keys()).sort((a, b) => totals[b] - totals[a]);
+}

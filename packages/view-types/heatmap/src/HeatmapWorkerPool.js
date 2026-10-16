@@ -30,6 +30,8 @@ export default class HeatmapPool extends Pool {
    * @param {ArrayBuffer} params.data The array buffer.
    * Need to transfer back to main thread when done.
    * @param {boolean} params.transpose Is the heatmap transposed?
+   * @param {Int32Array|null} params.featureOrder The matrix column index of each displayed gene,
+   * in display order. If null, the original column order is used.
    * @returns {array} [message, transfers]
    * @returns {Promise.<ArrayBuffer>} the decoded result as a `Promise`
    */

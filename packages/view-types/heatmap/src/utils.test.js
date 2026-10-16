@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { mouseToHeatmapPosition, heatmapToMousePosition } from './utils.js';
+import { mouseToHeatmapPosition, heatmapToMousePosition, getFeatureOrderByTotal } from './utils.js';
 
 describe('heatmap tooltip utils', () => {
   it('transforms mouse coordinates to row and column indices when zoomed out', () => {
@@ -72,5 +72,17 @@ describe('heatmap tooltip utils', () => {
     });
     expect(mouseX).toEqual(26);
     expect(mouseY).toEqual(104);
+  });
+});
+
+describe('heatmap feature sorting utils', () => {
+  it('orders features by total value, highest first, treating missing values as 0', () => {
+    // 3 obs x 4 features. Totals: [3, 9, 5 (NaN as 0), 0 (null/undefined as 0)].
+    const data = [
+      1, 2, NaN, null,
+      1, 3, 4, undefined,
+      1, 4, 1, 0,
+    ];
+    expect(Array.from(getFeatureOrderByTotal(data, 4))).toEqual([1, 2, 0, 3]);
   });
 });

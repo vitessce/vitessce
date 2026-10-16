@@ -2,6 +2,7 @@ import { range } from 'lodash-es';
 
 export function getGeneByCellTile(view, {
   tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, expressionRowLookUp,
+  featureOrder = null,
 }) {
   const tileData = new Uint8Array(tileSize * tileSize);
   let offset;
@@ -20,7 +21,7 @@ export function getGeneByCellTile(view, {
       if (sortedCellI >= -1) {
         tileSizeRange.forEach((i) => {
           geneI = (tileI * tileSize) + i;
-          value = view[sortedCellI * numGenes + geneI];
+          value = view[sortedCellI * numGenes + (featureOrder ? featureOrder[geneI] : geneI)];
           offset = ((tileSize - i - 1) * tileSize + j);
           tileData[offset] = value;
         });
@@ -32,6 +33,7 @@ export function getGeneByCellTile(view, {
 
 export function getCellByGeneTile(view, {
   tileSize, tileI, tileJ, numCells, numGenes, cellOrdering, expressionRowLookUp,
+  featureOrder = null,
 }) {
   const tileData = new Uint8Array(tileSize * tileSize);
   let offset;
@@ -51,7 +53,7 @@ export function getCellByGeneTile(view, {
         tileSizeRange.forEach((j) => {
           geneI = (tileJ * tileSize) + j;
           if (geneI < numGenes) {
-            value = view[sortedCellI * numGenes + geneI];
+            value = view[sortedCellI * numGenes + (featureOrder ? featureOrder[geneI] : geneI)];
           } else {
             value = 0;
           }

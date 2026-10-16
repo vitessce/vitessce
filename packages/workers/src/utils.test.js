@@ -110,4 +110,32 @@ describe('heatmap tiling utils', () => {
       0, 255, 255,
     ]);
   });
+
+  it('creates cell x gene tiles (transpose = false) with re-ordered genes', () => {
+    const arr = expressionMatrix.matrix;
+    const numGenes = expressionMatrix.cols.length;
+    const expressionRowLookUp = new Map();
+    // eslint-disable-next-line no-return-assign
+    expressionMatrix.rows.forEach((i, j) => expressionRowLookUp.set(i, j));
+    const cellOrdering = expressionMatrix.rows; // no re-ordering
+    const numCells = cellOrdering.length;
+    const featureOrder = Int32Array.from([3, 2, 1, 0]);
+    const tile00 = getCellByGeneTile(arr, {
+      tileSize: 4,
+      numCells,
+      numGenes,
+      tileI: 0,
+      tileJ: 0,
+      cellOrdering,
+      expressionRowLookUp,
+      featureOrder,
+    });
+    // Rows are cell-3 to cell-0 (top to bottom), columns are gene-3 to gene-0.
+    expect(Array.from(tile00)).toEqual([
+      0, 0, 255, 0,
+      0, 255, 255, 0,
+      0, 0, 255, 0,
+      0, 255, 255, 0,
+    ]);
+  });
 });
