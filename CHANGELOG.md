@@ -1,4 +1,25 @@
 
+## 4.1.1
+
+### Patch Changes
+
+- Fix crash in the dual scatterplot (`obsType` undefined) by passing the layout view uid to the child scatterplots for coordination lookups. (`@vitessce/scatterplot-embedding`) ([#2667](https://github.com/vitessce/vitessce/pull/2667))
+
+- Fix check-makestyles-keys JSON parse error in deploy action. (`vitessce`) ([#2662](https://github.com/vitessce/vitessce/pull/2662))
+
+- Add `hasAnyAnnotationStory` function, which detects whether a view config contains a non-empty annotation story. Add `removeAnnotationControllerView` function, which removes the annotationController view and stretches the remaining views to fill the full grid width. In `addAnnotationControllerView`, match the height of the new view to the tallest column of existing views. (`@vitessce/annotation-controller`, `@vitessce/all`) ([#2655](https://github.com/vitessce/vitessce/pull/2655))
+
+- Fix jumpy ending of annotation frame transitions by omitting the transition props from the DeckGL viewState once the transition has ended. (`@vitessce/scatterplot`) ([#2661](https://github.com/vitessce/vitessce/pull/2661))
+
+- Added heatmap, violin plot, and scatterplot to the neurogalncer-merfish config. Added configs for the H&E datasets (PanIN and Tissue-classes). (`@vitessce/example-configs`) ([#2646](https://github.com/vitessce/vitessce/pull/2646))
+
+- Truncate long channel names in the spatial view's channel names legend to a single line with an ellipsis. (`@vitessce/legend`) ([#2643](https://github.com/vitessce/vitessce/pull/2643))
+
+- Name lazy-loaded chunks of workspace packages after their package (e.g., `spatial-three-[hash].js`) instead of `index-[hash].js`, and strip hashes containing dashes in the bundle size workflow. (`vitessce`) ([#2665](https://github.com/vitessce/vitessce/pull/2665))
+
+- Add two types of detail Neuroglancer views: one to show only a selected/hovered mesh from the primary view, and another to show a zoomed-in view with the camera synced between the two. (`@vitessce/neuroglancer`, `@vitessce/example-configs`) ([#2649](https://github.com/vitessce/vitessce/pull/2649))
+
+
 ## 4.1.0
 
 ### Minor Changes
