@@ -427,6 +427,14 @@ float random() {
     return fract(sin(dot(gl_FragCoord.xy, vec2(12.9898,78.233)))* 43758.5453123);
 }
 
+// Apply the display window in normalized texture units. A collapsed or reversed
+// window is a threshold: values at/below its lower limit are dark, others full.
+float normalizeIntensity(float value, vec2 limits) {
+    if (isnan(value) || isinf(value)) return 0.0;
+    if (limits.y <= limits.x) return value > limits.x ? 1.0 : 0.0;
+    return clamp((value - limits.x) / (limits.y - limits.x), 0.0, 1.0);
+}
+
 // Convert from linear RGB to sRGB color space
 // Implements the standard sRGB transfer function for gamma correction
 //
@@ -1423,7 +1431,7 @@ void main(void) {
                     // Constant brick - uniform value.
                     // static value -- we set the value and do not need to query a voxel
                     float val = float(brickCacheInfo.x);
-                    c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
+                    c_val_current[c] = normalizeIntensity(val, getClim(c));
                     c_renderMode_current[c] = 1;
                     newVoxel = false;
                 } else if (brickCacheInfo.w >= 0) {
@@ -1722,7 +1730,7 @@ void main(void) {
                 
                 // Normalize value to 0-1 range using channel-specific contrast limits.
                 // we normalize the (accumulated) value to the range of the color channel
-                c_val_current[c] = max(0.0, (val - getClim(c).x) / (getClim(c).y - getClim(c).x));
+                c_val_current[c] = normalizeIntensity(val, getClim(c));
 
                 // Track min/max values for MIP/MinIP rendering.
                 // update the min and max values for the min/max projection
