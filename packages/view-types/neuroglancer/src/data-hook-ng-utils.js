@@ -30,6 +30,10 @@ export const DEFAULT_NG_PROPS = {
   layers: [],
 };
 
+// NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
+const MIN_ANNOTATION_SPACING = 0.0625;
+const MAX_ANNOTATION_SPACING = 65536;
+
 /**
  * Validate initialNgCameraState field by field. Invalid values fall back to a
  * default where one is meaningful; `position` is left out instead, so the
@@ -475,6 +479,7 @@ export function useNeuroglancerViewerState(
           featureFilterMode,
           featureColor,
           spatialPointStrokeWidth,
+          spatialPointProjectionSpacing,
           featureValueColormap,
           featureValueColormapRange,
         } = layerCoordination || {};
@@ -516,7 +521,11 @@ export function useNeuroglancerViewerState(
               visible: spatialLayerVisible,
               // Options from layerData.neuroglancerOptions
               // like projectionAnnotationSpacing:
-              projectionAnnotationSpacing: ngOptions?.projectionAnnotationSpacing ?? 1.0,
+              // Coordination value (layer controller) > file option > 1.0; clamped to NG's valid range.
+              projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
+                  MIN_ANNOTATION_SPACING,
+                  spatialPointProjectionSpacing ?? ngOptions?.projectionAnnotationSpacing ?? 1.0,
+              )),
             },
           ],
 

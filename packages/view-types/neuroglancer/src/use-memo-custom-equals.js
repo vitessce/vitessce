@@ -174,6 +174,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
         'obsSetColor',
         'obsSetSelection',
         'additionalObsSets',
+        'spatialPointProjectionSpacing',
       ]);
       const opacityChanged = Math.abs(
         (prevLayer?.spatialLayerOpacity ?? 1.0) - (nextLayer?.spatialLayerOpacity ?? 1.0),

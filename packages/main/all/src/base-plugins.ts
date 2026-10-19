@@ -636,6 +636,8 @@ export const baseCoordinationTypes = [
   // Neuroglancer default annotations (data-source bounding boxes).
   new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
+  // null = use the file's projectionAnnotationSpacing option. NG valid range [0.0625, 65536].
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),

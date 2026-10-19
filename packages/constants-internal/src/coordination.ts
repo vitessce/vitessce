@@ -97,6 +97,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     CoordinationType.SPATIAL_AXIS_LINES_VISIBLE,
     CoordinationType.SPATIAL_BOUNDS_VISIBLE,
+    CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -562,6 +563,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     CoordinationType.SPATIAL_AXIS_LINES_VISIBLE,
     CoordinationType.SPATIAL_BOUNDS_VISIBLE,
+    CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
   ],
   [ViewType.GENOMIC_PROFILES]: [
     CoordinationType.DATASET,

@@ -62,7 +62,7 @@ import {
   parseAnnotationById,
   ngMetersPerUnit,
 } from './utils.js';
-
+import NeuroglancerOptions from './NeuroglancerOptions.js';
 
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
@@ -180,6 +180,8 @@ export function NeuroglancerSubscriber(props) {
     spatialBoundsVisible,
   }, {
     setSpatialCameraSnapshot,
+    setSpatialAxisLinesVisible,
+    setSpatialBoundsVisible,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -282,6 +284,8 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_LAYER_LABEL,
+      CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
       CoordinationType.ADDITIONAL_OBS_SETS,
@@ -1618,6 +1622,26 @@ export function NeuroglancerSubscriber(props) {
     ? pointLayerScopes
     : undefined;
 
+
+  const axisLinesVisibleEffective = spatialAxisLinesVisible ?? showAxisLines;
+  const boundsVisibleEffective = spatialBoundsVisible ?? false;
+
+  // One options group per point layer (includes centroid layers).
+  // Spacing display = effective value NG received (coordination > file option > 1.0).
+  const pointLayersForOptions = useMemo(() => (pointLayerScopes || []).map((scope) => {
+    const values = pointLayerCoordination[0]?.[scope] ?? {};
+    const setters = pointLayerCoordination[1]?.[scope] ?? {};
+    const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
+    return {
+      scope,
+      label: values.spatialLayerLabel || `Points ${scope}`,
+      strokeWidth: values.spatialPointStrokeWidth,
+      setStrokeWidth: setters.setSpatialPointStrokeWidth,
+      spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+      setSpacing: setters.setSpatialPointProjectionSpacing,
+    };
+  }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
+
   return (
 
     <TitleInfo
@@ -1633,6 +1657,15 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
+      options={(
+        <NeuroglancerOptions
+          axisLinesVisible={axisLinesVisibleEffective}
+          setAxisLinesVisible={setSpatialAxisLinesVisible}
+          boundsVisible={boundsVisibleEffective}
+          setBoundsVisible={setSpatialBoundsVisible}
+          pointLayers={pointLayersForOptions}
+        />
+      )}
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
@@ -1676,8 +1709,8 @@ export function NeuroglancerSubscriber(props) {
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
             decodeCentroidById={decodeCentroidById}
             allowEmptySegments={detailMode}
-            axisLinesVisible={spatialAxisLinesVisible ?? showAxisLines}
-            boundsVisible={spatialBoundsVisible ?? false}
+            axisLinesVisible={axisLinesVisibleEffective}
+            boundsVisible={boundsVisibleEffective}
           />
         </div>
       ) : null}
