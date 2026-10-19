@@ -54,8 +54,11 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 /**
  * A subscriber component for the scatterplot.
  * @param {object} props
- * @param {number} props.uuid The unique identifier for this component, also used as its
- * view uid for looking up its coordination mapping via `useViewMapping`.
+ * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.viewUid The uid of the corresponding view in the view config layout,
+ * used for looking up its coordination mapping via `useViewMapping`.
+ * Optional, defaults to `uuid`. Differs from `uuid` when rendered by a parent
+ * (e.g., the dual scatterplot) that renders multiple child scatterplots for one view.
  * @param {string} props.theme The current theme name.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
@@ -66,6 +69,7 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
+    viewUid: viewUidFromProps,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -83,6 +87,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     areAnnotationsEditable,
   } = props;
 
+  const viewUid = viewUidFromProps ?? uuid;
   const loaders = useLoaders();
   // useViewMapping looks up this view's coordination mapping directly from the
   // view config (by uuid), after accounting for meta-coordination, so there is
@@ -92,14 +97,14 @@ export function EmbeddingScatterplotSubscriber(props) {
   const [
     // eslint-disable-next-line no-unused-vars
     coordinationScopes, _coordinationScopesBy, coordinationValues,
-  ] = useViewMapping(uuid);
+  ] = useViewMapping(viewUid);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
 
   // Merge the coordination values that the current annotation frame defines for this view
   // into the coordination space, whenever the frame changes. The story itself is read-only.
   // TODO: handle the rendering of alternative views/layouts (in vit-s?)
-  useAnnotationFrameCoordination(uuid, coordinationScopes, coordinationValues);
+  useAnnotationFrameCoordination(viewUid, coordinationScopes, coordinationValues);
 
   // Get "props" from the coordination space.
   const [{
@@ -130,6 +135,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
     sampleSetSelection: sampleSetSelectionFromCoordination,
     sampleSetColor,
     embeddingPointsVisible,
@@ -176,13 +182,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     setAnnotationStory,
   }] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
-    coordinationValues, uuid,
+    coordinationValues, viewUid,
   );
 
   // Props for drawing annotation shapes in this view (while authoring the story
   // via the annotation controller), and for highlighting the selected shape.
   const annotationEditingProps = useAnnotationEditingForView(
-    uuid,
+    viewUid,
     Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
   );
 
@@ -459,6 +465,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
   // With no set selection every observation counts as selected, matching the
@@ -613,7 +620,7 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   // Animate the 2D zoom/target when they change due to the current annotation frame.
   const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
-    annotationStory, annotationFrameIndex, uuid,
+    annotationStory, annotationFrameIndex, viewUid,
   );
   const annotationTransitionProps = useAnnotationFrameTransition(
     { zoom, targetX, targetY },

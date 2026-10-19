@@ -307,6 +307,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_HIGHLIGHT,
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.TOOLTIP_OBS_SETS_MODE,
       CoordinationType.LEGEND_VISIBLE,
     ],
     coordinationScopes,

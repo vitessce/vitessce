@@ -56,6 +56,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
         <EmbeddingScatterplotSubscriber
           {...props}
           uuid={`${uuid}-case`}
+          viewUid={uuid}
           title={(isCaseCtrl
             ? `Scatterplot (${embeddingType}), ${caseSampleSetSelection?.[0]?.at(-1)}`
             : null
@@ -68,6 +69,7 @@ export function DualEmbeddingScatterplotSubscriber(props) {
           <EmbeddingScatterplotSubscriber
             {...props}
             uuid={`${uuid}-ctrl`}
+            viewUid={uuid}
             title={`Scatterplot (${embeddingType}), ${ctrlSampleSetSelection?.[0]?.at(-1)}`}
             sampleSetSelection={ctrlSampleSetSelection}
           />
