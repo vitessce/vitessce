@@ -124,6 +124,8 @@ export function NeuroglancerSubscriber(props) {
 
   const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
+  // meshId -> [x, y, z] in viewer coordinates, filled from decoded centroid chunks.
+  const centroidPosByMeshIdRef = useRef(new Map());
   // const obsIdToMeshIdRef = useRef({});
   const meshIdToCellIdRef = useRef({});
   // TODO: maynot be needed for other dataset
@@ -1050,6 +1052,13 @@ export function NeuroglancerSubscriber(props) {
       readyScopes.forEach((scope, i) => {
         const allEntries = entriesByScope[i];
         const transform = transformByScope[scope];
+        // Positions for crosshairs when the highlight comes from another view.
+        allEntries.forEach(({ id, x, y, z }) => {
+            centroidPosByMeshIdRef.current.set(
+              String(id),
+              [x / transform.x, y / transform.y, (z || 0) / transform.z],
+            );
+          });
 
         // obsId → meshId lookup for hover, kept per centroid layer.
         const obsIdToMeshId = {};
@@ -1619,6 +1628,14 @@ export function NeuroglancerSubscriber(props) {
     setCellHighlight(next);
   }, [setCellHighlight, cellHighlight, setComponentHover, uuid]);
 
+    // obsId (cell id) -> centroid position in viewer coordinates, or null.
+    const getObsPosition = useCallback((obsId) => {
+      if (obsId == null) return null;
+      const stripped = String(obsId).replace(/^.*_/, '');
+      const meshId = String(cellIdToMeshIdRef.current?.[stripped] ?? stripped);
+      return centroidPosByMeshIdRef.current.get(meshId) ?? null;
+    }, []);
+
   const handleLayerLoadingChange = useCallback((isLoaded) => {
     if (!isLayersLoaded && isLoaded) {
       setIsLayersLoaded(true);
@@ -1756,6 +1773,7 @@ export function NeuroglancerSubscriber(props) {
                 height={viewportSizeRef.current.height || ngHeight}
                 getViewProjectionMat={() => getViewProjectionMatRef.current?.()}
                 obsHighlight={cellHighlight}
+                getObsPosition={getObsPosition}
                 segmentationLayerScopes={segmentationLayerScopes}
                 segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
                 segmentationChannelCoordination={segmentationChannelCoordination}

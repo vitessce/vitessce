@@ -46,6 +46,7 @@ export default function NeuroglancerTooltipSubscriber(props) {
     height,
     hoverCoord,
     getViewProjectionMat,
+    getObsPosition,
     obsHighlight: viewObsHighlight,
     featureType,
     featureLabelsMap,
@@ -58,9 +59,8 @@ export default function NeuroglancerTooltipSubscriber(props) {
   const sourceUuid = useComponentHover();
   // NG has no per-id positions, so tooltips
   // are anchored at the projected hover coordinate in the hovered view only.
-  if (sourceUuid !== parentUuid || !hoverCoord) return null;
-  const xy = projectToScreen(getViewProjectionMat?.(), hoverCoord, width, height);
-  if (!xy) return null;
+  const isSource = sourceUuid === parentUuid;
+  const mat = getViewProjectionMat?.();
   let yOffset = -30;
 
   return (
@@ -84,6 +84,11 @@ export default function NeuroglancerTooltipSubscriber(props) {
           const obsInfo = getObsInfo(
             obsSegmentationsSetsData?.[layerScope]?.[channelScope], obsType, String(obsHighlight),
           );
+          // Hovered view: cursor position. Other views: highlighted cell's centroid (crosshair),
+          // same split as spatialBeta's getXY (hover info vs obsLocations).
+          const coord = isSource ? hoverCoord : getObsPosition?.(obsHighlight);
+          const xy = coord ? projectToScreen(mat, coord, width, height) : null;
+          if (!xy) return null;
 
           /* eslint-disable no-return-assign */
           return (
@@ -97,7 +102,8 @@ export default function NeuroglancerTooltipSubscriber(props) {
               height={height}
               info={obsInfo}
               x={xy[0]}
-              y={xy[1] + (yOffset += (20 + 15 * Object.keys(obsInfo).length))}
+              // Stack offset only applies to tooltips; crosshairs must sit on the point.
+              y={isSource ? xy[1] + (yOffset += (20 + 15 * Object.keys(obsInfo).length)) : xy[1]}
               featureType={featureType}
               featureLabelsMap={featureLabelsMap}
             />
