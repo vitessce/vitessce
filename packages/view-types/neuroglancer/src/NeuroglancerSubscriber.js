@@ -50,6 +50,7 @@ import {
   GREY_HEX,
   remapCellColors,
   autoColorForId,
+  ngMetersPerUnit,
 } from './utils.js';
 
 
@@ -94,6 +95,13 @@ export function NeuroglancerSubscriber(props) {
     // and then NeuroglancerSubscriber should internally convert
     // to NG-compatible values, which would eliminate the need for this.
     initialNgCameraState,
+    // Detail mode: render only the meshes selected (obsSets) or hovered
+    // (obsHighlight) elsewhere, with an independent camera.
+    detailMode = false,
+    detailUseSelection = false,
+    // >1: this view shows the shared camera N× more zoomed in.
+    // Pan/rotation are shared via spatialCameraSnapshot; zoom keeps a fixed ratio.
+    cameraZoomFactor = 1,
   } = props;
 
   const loaders = useLoaders();
@@ -152,6 +160,7 @@ export function NeuroglancerSubscriber(props) {
     additionalObsSets: additionalCellSets,
     obsHighlight: cellHighlight,
     spatialCameraSnapshot,
+    spatialRenderingMode,
   }, {
     setSpatialCameraSnapshot,
     setAdditionalObsSets: setAdditionalCellSets,
@@ -439,13 +448,28 @@ export function NeuroglancerSubscriber(props) {
   // Sync in the reverse direction (spatialBeta -> NG), for direct dragging
   // inside spatialBeta's own panel. The snapshot is shared via the
   // spatialCameraSnapshot coordination type.
+  // Only respected when the linked spatialRenderingMode is '3D',
+  // matching the corresponding check in SpatialSubscriber.
+  const is3dMode = spatialRenderingMode === '3D';
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && is3dMode;
   useEffect(() => {
-    if (!spatialCameraSnapshot) return;
+    if (detailMode) return;
+    if (!hasSpatialCameraSnapshot) return;
     if (spatialCameraSnapshot === lastSeenCameraSnapshotRef.current) return;
     lastSeenCameraSnapshotRef.current = spatialCameraSnapshot;
 
-    const { position, quaternion, projectionScale } = spatialCameraSnapshot;
+    const { quaternion } = spatialCameraSnapshot;
+    let { position, projectionScale } = spatialCameraSnapshot;
     if (!Array.isArray(position) || !Array.isArray(quaternion)) return;
+    // Convert an incoming snapshot (e.g. from spatialBeta, in µm scene units)
+    // into NG's coordinate units. Skipped if either side's unit is unknown.
+    const ownMpu = ngMetersPerUnit(latestViewerStateRef.current?.dimensions);
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (ownMpu && inMpu && ownMpu !== inMpu) {
+      const k = inMpu / ownMpu;
+      position = position.map(p => p * k);
+      projectionScale *= k;
+    }
     // The snapshot quaternion lives in the Q_Y_UP-flipped frame (see the
     // matching multiplyQuat(..., Q_Y_UP) applied when publishing NG's state
     // in handleStateUpdate below). Q_Y_UP is self-inverse, so
@@ -458,10 +482,12 @@ export function NeuroglancerSubscriber(props) {
       ...latestViewerStateRef.current,
       position,
       projectionOrientation: unflipped,
-      projectionScale,
+      projectionScale: Number.isFinite(projectionScale)
+        ? projectionScale / cameraZoomFactor
+        : latestViewerStateRef.current.projectionScale,
     };
     incrementLatestViewerStateIteration();
-  }, [spatialCameraSnapshot]);
+  }, [spatialCameraSnapshot, hasSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
@@ -769,6 +795,7 @@ export function NeuroglancerSubscriber(props) {
   const updateVisibleSegments = useCallback(async () => {
     // TODO: For Debugging
     // if (window.__disableCulling) return;
+    if (detailMode) return;
     if (!annotationInfoRef.current) return;
     if (!annotationTransformRef.current) return;
     if (!segmentationLayerScopes?.length) return;
@@ -935,7 +962,7 @@ export function NeuroglancerSubscriber(props) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [segmentationLayerScopes, pointLayerScopes, meshLoadProjectionScaleThreshold]);
+  }, [segmentationLayerScopes, pointLayerScopes, meshLoadProjectionScaleThreshold, detailMode]);
 
   useEffect(() => {
     updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
@@ -961,7 +988,7 @@ export function NeuroglancerSubscriber(props) {
   // Check whether the (first) point layer's obsType matches any segmentation channel's obsType.
   // TODO: generalize to multiple point layers?
   const hasMatchingAnnotationSource = useMemo(() => {
-    if (!cellsUrl) return false;
+    if (detailMode || !cellsUrl) return false;
     const firstPointScope = pointLayerScopes?.[0];
     return pointsHaveMatchingSegmentation({
       pointObsType: pointLayerCoordination[0]?.[firstPointScope]?.obsType,
@@ -969,7 +996,7 @@ export function NeuroglancerSubscriber(props) {
       segmentationChannelScopesByLayer,
       segmentationChannelCoordination,
     });
-  }, [cellsUrl, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer]);
+  }, [cellsUrl, pointLayerScopes, segmentationLayerScopes, segmentationChannelScopesByLayer, detailMode]);
 
 
   // Annotation info (cells/info) for the points layer, along with its URL,
@@ -1014,13 +1041,16 @@ export function NeuroglancerSubscriber(props) {
     // Publish NG's raw camera state via the spatialCameraSnapshot
     // coordination type -- no Euler decomposition, position/quaternion pass
     // through unchanged. spatialBeta's RawView reads this directly.
-    if (Array.isArray(position) && Array.isArray(projectionOrientation)) {
+    if (!detailMode && Array.isArray(position) && Array.isArray(projectionOrientation)) {
       const flippedQuaternion = multiplyQuat(projectionOrientation, Q_Y_UP);
       const snapshot = {
         position: Array.from(position),
         quaternion: Array.from(flippedQuaternion),
-        projectionScale,
+        projectionScale: Number.isFinite(projectionScale)
+          ? projectionScale * cameraZoomFactor
+          : latestViewerStateRef.current?.projectionScale,
         fovDegrees: 45,
+        metersPerUnit: ngMetersPerUnit(latestViewerStateRef.current?.dimensions),
       };
       lastSeenCameraSnapshotRef.current = snapshot;
       setSpatialCameraSnapshot(snapshot);
@@ -1032,8 +1062,8 @@ export function NeuroglancerSubscriber(props) {
       projectionScale,
       position,
     };
-    updateVisibleSegmentsThrottledRef.current?.();
-  }, [setSpatialCameraSnapshot]);
+    if (!detailMode) updateVisibleSegmentsThrottledRef.current?.();
+  }, [setSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
   const onSegmentClick = useCallback((value) => {
     // Note: this callback is no longer called by the child component.
@@ -1086,6 +1116,51 @@ export function NeuroglancerSubscriber(props) {
     }
   }, [hasMatchingAnnotationSource, isReady, segmentationLayerScopes]);
 
+  // ---- Detail mode: which mesh IDs to show ----
+  // Sticky hover: keep the last hovered id so the detail view doesn't
+  // flicker to empty when the mouse leaves a mesh in the primary view.
+  const lastHoveredIdRef = useRef(null);
+  if (detailMode && cellHighlight != null) {
+    lastHoveredIdRef.current = String(cellHighlight);
+  }
+  const detailSegmentIds = useMemo(() => {
+    if (!detailMode) return null;
+    const layerScope = segmentationLayerScopes?.[0];
+    const channelScope = segmentationChannelScopesByLayer?.[layerScope]?.[0];
+    if (!layerScope || !channelScope) return [];
+    const channel = segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope] ?? {};
+    // Prefer per-channel selection (what the primary view colors by),
+    // fall back to the top-level one.
+    const selection = channel.obsSetSelection ?? cellSetSelection;
+    const extraSets = channel.additionalObsSets ?? additionalCellSets;
+    const layerSets = obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsSets;
+
+    // obsSets ids are cell ids; NG needs mesh ids.
+    const toMeshId = (id) => {
+      const stripped = String(id).replace(/^.*_/, '');
+      return String(cellIdToMeshIdRef.current?.[stripped] ?? stripped);
+    };
+
+    const ids = new Set();
+    if (detailUseSelection && selection?.length && (layerSets || extraSets)) {
+      const merged = mergeObsSets(layerSets, extraSets);
+      selection.forEach((setPath) => {
+        // Walk the full path (supports nesting deeper than 2 levels).
+        let node = { children: merged?.tree };
+        setPath.forEach((name) => {
+          node = node?.children?.find(n => n.name === name);
+        });
+        node?.set?.forEach(([id]) => ids.add(toMeshId(id)));
+      });
+    }
+    if (lastHoveredIdRef.current != null) {
+      ids.add(toMeshId(lastHoveredIdRef.current));
+    }
+    return [...ids].sort();
+  }, [detailMode, detailUseSelection, segmentationLayerScopes, segmentationChannelScopesByLayer,
+    segmentationChannelCoordination, cellSetSelection, additionalCellSets,
+    obsSegmentationsSetsData, cellHighlight, csvLoaded]);
+
   // For on-demand-mesh-loading use opacity to make the centroids obvious
   // TODO: may be this should be a prop?
   const meshOpacity = hasMatchingAnnotationSource ? MESH_OPACITY : undefined;
@@ -1125,18 +1200,55 @@ export function NeuroglancerSubscriber(props) {
       return current;
     }
 
+    if (detailMode) {
+      // Segmentation layers only, restricted to the detail ids.
+      // Camera is left entirely to the user / NG (no Vitessce sync).
+      const ids = detailSegmentIds ?? [];
+      const detailLayers = current.layers
+        .filter(layer => layer.type === 'segmentation')
+        .map((layer) => {
+          const layerScope = segmentationLayerScopes?.find(
+            scope => layer.name?.includes(scope),
+          );
+          const colors = cellColorMappingByLayer?.[layerScope]?.colors ?? {};
+          const fallback = cellColorMappingByLayer?.[layerScope]?.defaultColor ?? GREY_HEX;
+          const segmentColors = {};
+          ids.forEach((id) => { segmentColors[id] = colors[id] || fallback; });
+          return {
+            ...layer,
+            segments: ids,
+            segmentColors,
+            objectAlpha: 1.0,
+          };
+        });
+      const updated = isEqual(current.layers, detailLayers)
+        ? current
+        : { ...current, layers: detailLayers };
+      latestViewerStateRef.current = updated;
+      return updated;
+    }
+
     const { projectionScale, projectionOrientation, position } = current;
 
     // Did Vitessce coords change vs the *previous* render?
-    const rotChangedNow = !nearEq(spatialRotationX, prevCoordsRef.current.rx, ROTATION_EPS)
+    // Linked camera values are only respected in 3D mode. Outside of 3D,
+    // changes are ignored (but still recorded in prevCoordsRef below), so that
+    // e.g. the camera reset performed by spatialBeta when switching to 2D
+    // does not reset the Neuroglancer camera.
+    const rotChangedNow = is3dMode && (
+      !nearEq(spatialRotationX, prevCoordsRef.current.rx, ROTATION_EPS)
         || !nearEq(spatialRotationY, prevCoordsRef.current.ry, ROTATION_EPS)
         || !nearEq(spatialRotationZ, prevCoordsRef.current.rz, ROTATION_EPS)
-        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit, ROTATION_EPS);
+        || !nearEq(spatialRotationOrbit, prevCoordsRef.current.orbit, ROTATION_EPS)
+    );
 
-    const zoomChangedNow = !nearEq(spatialZoom, prevCoordsRef.current.zoom, ROTATION_EPS);
+    const zoomChangedNow = is3dMode
+      && !nearEq(spatialZoom, prevCoordsRef.current.zoom, ROTATION_EPS);
 
-    const transChangedNow = !nearEq(spatialTargetX, prevCoordsRef.current.tx, ROTATION_EPS)
-      || !nearEq(spatialTargetY, prevCoordsRef.current.ty, ROTATION_EPS);
+    const transChangedNow = is3dMode && (
+      !nearEq(spatialTargetX, prevCoordsRef.current.tx, ROTATION_EPS)
+        || !nearEq(spatialTargetY, prevCoordsRef.current.ty, ROTATION_EPS)
+    );
 
     let nextProjectionScale = projectionScale;
     let nextPosition = position;
@@ -1200,7 +1312,8 @@ export function NeuroglancerSubscriber(props) {
     // console.log('[CHK Vit→NG vs current NG] |dot| =', dotVsNg.toFixed(6));
 
     // If NG quat != Vitessce quat on first render, push Vitessce once.
-    const shouldForceInitialVitPush = !initialRotationPushedRef.current
+    const shouldForceInitialVitPush = is3dMode
+      && !initialRotationPushedRef.current
       && valueGreaterThanEpsilon(vitessceRotation, projectionOrientation, ROTATION_EPS);
 
     const changedNowOrIInitialVitPush = rotChangedNow
@@ -1308,7 +1421,8 @@ export function NeuroglancerSubscriber(props) {
     return updated;
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
-    latestViewerStateIteration, hasMatchingAnnotationSource]);
+    latestViewerStateIteration, hasMatchingAnnotationSource, detailMode, detailSegmentIds,
+    is3dMode]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     const next = obsId != null ? String(obsId) : null;
@@ -1378,7 +1492,7 @@ export function NeuroglancerSubscriber(props) {
           <NeuroglancerComp
             classes={classes}
             onSegmentClick={onSegmentClick}
-            onSelectHoveredCoords={onSegmentHighlight}
+            onSelectHoveredCoords={detailMode ? undefined : onSegmentHighlight}
             viewerState={derivedViewerState}
             cellColorMapping={cellColorMappingByLayer}
             setViewerState={handleStateUpdate}
@@ -1388,6 +1502,7 @@ export function NeuroglancerSubscriber(props) {
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             cellsUrl={cellsUrl}
             meshOpacity={meshOpacity}
+            allowEmptySegments={detailMode}
           />
         </div>
       ) : null}

@@ -121,6 +121,13 @@ Modify the verbosity of the log messages in the browser console.
 One of `'silent'`, `'info'`, `'warn'`, `'error'`, `'debug'`, or `'trace'`.
 By default, `'trace'`.
 
+### `areAnnotationsEditable`
+- Type: `boolean`
+
+Whether annotations can be edited in views that support annotation. By default, `true`.
+Editing also requires the `annotationEditable` coordination value to be `true`.
+See [annotation features](/docs/js-annotations) for more information.
+
 
 ## Lazy loading
 

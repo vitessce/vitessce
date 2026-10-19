@@ -61,6 +61,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_CAMERA_SNAPSHOT,
+    CoordinationType.SPATIAL_RENDERING_MODE,
     CoordinationType.OBS_FILTER,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.OBS_SET_SELECTION,

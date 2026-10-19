@@ -10,7 +10,6 @@ import {
   useRemoveImageChannelInMetaCoordinationScopes,
 } from '@vitessce/vit-s';
 import { VIEWER_PALETTE } from '@vitessce/utils';
-
 import ChannelOptions from './ChannelOptions.js';
 import ChannelSlider from './ChannelSlider.js';
 import ChannelVisibilityCheckbox from './ChannelVisibilityCheckbox.js';
@@ -75,7 +74,7 @@ export default function ImageChannelController(props) {
       const selection = {
         t: ctx.queryKey[2],
         c: ctx.queryKey[3],
-        z: Math.floor(ctx.queryKey[4]),
+        z: ctx.meta.image?.getClampedZIndex(ctx.queryKey[4]) ?? 0,
       };
       const stats = await getMultiSelectionStats({
         loader,

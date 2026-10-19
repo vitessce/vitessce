@@ -3,6 +3,8 @@ import { cloneDeep } from 'lodash-es';
 import {
   hasAnnotationControllerView,
   addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
   isAnyAnnotationEditing,
   enableAnnotationEditing,
   disableAnnotationEditing,
@@ -55,6 +57,21 @@ describe('addAnnotationControllerView', () => {
     });
   });
 
+  it('matches the height of the tallest column of views', () => {
+    const config = {
+      layout: [
+        { uid: 'a', component: 'spatial', x: 0, y: 0, w: 6, h: 4 },
+        { uid: 'b', component: 'obsSets', x: 6, y: 0, w: 6, h: 3 },
+        { uid: 'c', component: 'featureList', x: 6, y: 3, w: 6, h: 5 },
+      ],
+    };
+    expect(addAnnotationControllerView(config).layout.at(-1).h).toEqual(8);
+  });
+
+  it('uses the full grid height when the layout is empty', () => {
+    expect(addAnnotationControllerView({ layout: [] }).layout.at(-1).h).toEqual(12);
+  });
+
   it('fits all views into the grid without overlaps', () => {
     const { layout } = addAnnotationControllerView(makeConfig(), { width: 4 });
     layout.forEach(view => expect(isWholeNumberInGrid(view)).toBe(true));
@@ -93,6 +110,78 @@ describe('addAnnotationControllerView', () => {
     expect(() => addAnnotationControllerView(makeConfig(), { width: 0 })).toThrow();
     expect(() => addAnnotationControllerView(makeConfig(), { width: 12 })).toThrow();
     expect(() => addAnnotationControllerView(makeConfig(), { width: 2.5 })).toThrow();
+  });
+});
+
+describe('removeAnnotationControllerView', () => {
+  it('removes the annotationController and fills the full grid width', () => {
+    const withController = addAnnotationControllerView(makeConfig(), { width: 4 });
+    const { layout } = removeAnnotationControllerView(withController);
+    expect(hasAnnotationControllerView({ layout })).toBe(false);
+    expect(layout.map(v => v.uid)).toEqual(['spatial', 'layers', 'sets', 'genes']);
+    layout.forEach(view => expect(isWholeNumberInGrid(view)).toBe(true));
+    layout.forEach((a, i) => layout.slice(i + 1).forEach(b => expect(overlaps(a, b)).toBe(false)));
+    expect(Math.min(...layout.map(v => v.x))).toEqual(0);
+    expect(Math.max(...layout.map(v => v.x + v.w))).toEqual(12);
+    // Adjacent views remain adjacent.
+    const spatial = layout.find(v => v.uid === 'spatial');
+    const layers = layout.find(v => v.uid === 'layers');
+    expect(spatial.x + spatial.w).toEqual(layers.x);
+  });
+
+  it('fills the space of an annotationController that is not on the right side', () => {
+    const config = {
+      layout: [
+        { uid: 'ac', component: 'annotationController', x: 0, y: 0, w: 4, h: 12 },
+        { uid: 'a', component: 'spatial', x: 4, y: 0, w: 4, h: 12 },
+        { uid: 'b', component: 'obsSets', x: 8, y: 0, w: 4, h: 12 },
+      ],
+    };
+    const { layout } = removeAnnotationControllerView(config);
+    expect(layout).toEqual([
+      { uid: 'a', component: 'spatial', x: 0, y: 0, w: 6, h: 12 },
+      { uid: 'b', component: 'obsSets', x: 6, y: 0, w: 6, h: 12 },
+    ]);
+  });
+
+  it('does not modify the input config', () => {
+    const config = addAnnotationControllerView(makeConfig());
+    const before = cloneDeep(config);
+    removeAnnotationControllerView(config);
+    expect(config).toEqual(before);
+  });
+
+  it('handles configs without other views', () => {
+    const config = addAnnotationControllerView({ layout: [] });
+    expect(removeAnnotationControllerView(config).layout).toEqual([]);
+    expect(removeAnnotationControllerView({}).layout).toEqual([]);
+  });
+});
+
+describe('hasAnyAnnotationStory', () => {
+  const emptyStory = { uid: 'story', frames: [] };
+  const story = { uid: 'story', frames: [{ uid: 'frame', layout: [] }] };
+
+  it('is false when there are no non-empty stories', () => {
+    expect(hasAnyAnnotationStory({})).toBe(false);
+    expect(hasAnyAnnotationStory(makeConfig())).toBe(false);
+    expect(hasAnyAnnotationStory({
+      coordinationSpace: { annotationStory: { S: emptyStory } },
+      layout: [{ uid: 'v', component: 'spatial', coordinationValues: { annotationStory: emptyStory } }],
+    })).toBe(false);
+  });
+
+  it('detects a non-empty story in a coordination scope', () => {
+    expect(hasAnyAnnotationStory({
+      coordinationSpace: { annotationStory: { S: null, T: story } },
+      layout: [],
+    })).toBe(true);
+  });
+
+  it('detects a non-empty story defined directly by a view', () => {
+    expect(hasAnyAnnotationStory({
+      layout: [{ uid: 'v', component: 'spatial', coordinationValues: { annotationStory: story } }],
+    })).toBe(true);
   });
 });
 

@@ -36,16 +36,18 @@ function generateCubeCameraSyncConfiguration() {
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const neuroglancerView = config.addView(dataset, 'neuroglancer');
-  // neuroglancerView.setProps({
-  //   initialNgCameraState: {
-  //     position: [58, 83, 108],
-  //   },
-  // });
+  neuroglancerView.setProps({
+    initialNgCameraState: {
+      position: [58000, 83000, 108000],
+      projectionScale: 375672,
+    },
+  });
   const obsSetsView = config.addView(dataset, 'obsSets');
 
 
+  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
+
   config.linkViewsByObject([spatialView, lcView], {
-    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'cube',

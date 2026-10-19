@@ -98,8 +98,9 @@ function generateNeuroglancerMinimalConfiguration() {
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
   // Initialize the image properties
+  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
+
   config.linkViewsByObject([spatialView, lcView], {
-    spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         fileUid: 'melanoma',
