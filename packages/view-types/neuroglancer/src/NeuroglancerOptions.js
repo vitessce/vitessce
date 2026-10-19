@@ -8,7 +8,7 @@ const MIN_EXP = -4;
 const MAX_EXP = 4;
 const toExp = v => Math.min(MAX_EXP, Math.max(MIN_EXP, Math.log2(v)));
 
-function CheckboxRow({ label, checked, onChange, id }) {
+function CheckboxRow({ label, checked, onChange, id, disabled = false }) {
   const { classes } = usePlotOptionsStyles();
   return (
     <TableRow>
@@ -19,6 +19,7 @@ function CheckboxRow({ label, checked, onChange, id }) {
         <Checkbox
           className={classes.checkbox}
           checked={checked}
+          disabled={disabled}
           onChange={(e, v) => onChange(v)}
           color="default"
           slotProps={{ input: { id, 'aria-label': label } }}
@@ -105,6 +106,10 @@ export default function NeuroglancerOptions(props) {
     boundsVisible,
     setBoundsVisible,
     pointLayers = [],
+    orthographic,
+    setOrthographic,
+    scaleBarVisible,
+    setScaleBarVisible,
   } = props;
   const id = useId();
 
@@ -124,6 +129,24 @@ export default function NeuroglancerOptions(props) {
           id={`ng-bounds-${id}`}
           checked={Boolean(boundsVisible)}
           onChange={setBoundsVisible}
+        />
+      ) : null}
+       {setOrthographic ? (
+        <CheckboxRow
+          label="Orthographic"
+          id={`ng-ortho-${id}`}
+          checked={Boolean(orthographic)}
+          onChange={setOrthographic}
+        />
+      ) : null}
+      {setScaleBarVisible ? (
+        <CheckboxRow
+          // Neuroglancer only draws the scale bar in orthographic projection.
+          label="Scale bar"
+          id={`ng-scale-bar-${id}`}
+          checked={Boolean(scaleBarVisible) && Boolean(orthographic)}
+          disabled={!orthographic}
+          onChange={setScaleBarVisible}
         />
       ) : null}
       {pointLayers.map(layer => (

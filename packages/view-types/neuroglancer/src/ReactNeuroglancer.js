@@ -479,13 +479,25 @@ export default class Neuroglancer extends React.Component {
   applyViewerToggles = () => {
     const { viewer } = this;
     if (!viewer) return;
-    const { axisLinesVisible, boundsVisible } = this.props;
+     const {
+        axisLinesVisible, boundsVisible, orthographic, scaleBarVisible,
+      } = this.props;
     this.withoutEmitting(() => {
       if (typeof axisLinesVisible === 'boolean' && viewer.showAxisLines.value !== axisLinesVisible) {
         viewer.showAxisLines.value = axisLinesVisible;
       }
       if (typeof boundsVisible === 'boolean' && viewer.showDefaultAnnotations.value !== boundsVisible) {
         viewer.showDefaultAnnotations.value = boundsVisible;
+      }
+      // Orthographic lives on the layout spec, not the viewer:
+      // SingletonLayerGroupViewer -> LayerGroupViewer.layout (DataPanelLayoutContainer) -> specification.
+      const layoutSpec = viewer.layout?.container?.component?.layerGroupViewer?.layout?.specification;
+      if (typeof orthographic === 'boolean' && layoutSpec?.orthographicProjection
+        && layoutSpec.orthographicProjection.value !== orthographic) {
+        layoutSpec.orthographicProjection.value = orthographic;
+      }
+      if (typeof scaleBarVisible === 'boolean' && viewer.showScaleBar.value !== scaleBarVisible) {
+        viewer.showScaleBar.value = scaleBarVisible;
       }
     });
   };
@@ -886,7 +898,9 @@ export default class Neuroglancer extends React.Component {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
 
     if (prevProps.axisLinesVisible !== this.props.axisLinesVisible
-      || prevProps.boundsVisible !== this.props.boundsVisible) {
+      || prevProps.boundsVisible !== this.props.boundsVisible
+      || prevProps.orthographic !== this.props.orthographic
+      || prevProps.scaleBarVisible !== this.props.scaleBarVisible) {
       this.applyViewerToggles();
     }
 

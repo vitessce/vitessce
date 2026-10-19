@@ -181,10 +181,14 @@ export function NeuroglancerSubscriber(props) {
     spatialRenderingMode,
     spatialAxisLinesVisible,
     spatialBoundsVisible,
+    spatialOrthographic,
+    spatialScaleBarVisible,
   }, {
     setSpatialCameraSnapshot,
     setSpatialAxisLinesVisible,
     setSpatialBoundsVisible,
+    setSpatialOrthographic,
+    setSpatialScaleBarVisible,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -1636,6 +1640,8 @@ export function NeuroglancerSubscriber(props) {
 
   const axisLinesVisibleEffective = spatialAxisLinesVisible ?? showAxisLines;
   const boundsVisibleEffective = spatialBoundsVisible ?? false;
+  const orthographicEffective = spatialOrthographic ?? false;
+  const scaleBarVisibleEffective = spatialScaleBarVisible ?? true;
 
   // One options group per point layer (includes centroid layers).
   // Spacing display = effective value NG received (coordination > file option > 1.0).
@@ -1675,6 +1681,10 @@ export function NeuroglancerSubscriber(props) {
           boundsVisible={boundsVisibleEffective}
           setBoundsVisible={setSpatialBoundsVisible}
           pointLayers={pointLayersForOptions}
+          orthographic={orthographicEffective}
+          setOrthographic={setSpatialOrthographic}
+          scaleBarVisible={scaleBarVisibleEffective}
+          setScaleBarVisible={setSpatialScaleBarVisible}
         />
       )}
     >
@@ -1722,6 +1732,8 @@ export function NeuroglancerSubscriber(props) {
             allowEmptySegments={detailMode}
             axisLinesVisible={axisLinesVisibleEffective}
             boundsVisible={boundsVisibleEffective}
+            orthographic={orthographicEffective}
+            scaleBarVisible={scaleBarVisibleEffective}
           />
           {!disableTooltip && !detailMode ? (
           // Overlay pinned to the container's top-left so the tooltip anchor's (x, y)

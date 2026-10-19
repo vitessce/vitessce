@@ -353,6 +353,8 @@ export const CoordinationType = {
   SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
   SPATIAL_AXIS_LINES_VISIBLE: 'spatialAxisLinesVisible', // axisLines' visibility in  Neuroglancer View
   SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
+  SPATIAL_ORTHOGRAPHIC: 'spatialOrthographic',
+  SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',

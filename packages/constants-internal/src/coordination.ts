@@ -98,6 +98,8 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_AXIS_LINES_VISIBLE,
     CoordinationType.SPATIAL_BOUNDS_VISIBLE,
     CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
+    CoordinationType.SPATIAL_ORTHOGRAPHIC,
+    CoordinationType.SPATIAL_SCALE_BAR_VISIBLE,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,

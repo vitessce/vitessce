@@ -187,6 +187,8 @@ export class NeuroglancerComp extends PureComponent {
       allowEmptySegments,
       axisLinesVisible,
       boundsVisible,
+      orthographic,
+      scaleBarVisible,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -208,6 +210,8 @@ export class NeuroglancerComp extends PureComponent {
                 allowEmptySegments={allowEmptySegments}
                 axisLinesVisible={axisLinesVisible}
                 boundsVisible={boundsVisible}
+                orthographic={orthographic}
+                scaleBarVisible={scaleBarVisible}
               />
             )}
           </Suspense>
