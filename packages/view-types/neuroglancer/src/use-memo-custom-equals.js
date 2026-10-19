@@ -117,8 +117,33 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
           curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
             'spatialChannelVisible',
           ])
+          || curriedShallowDiffByChannel('obsSegmentationsLocationsData', layerScope, channelScope)
         ) {
           forceUpdate = true;
+        }
+        // The implicit centroids layer (if any) derives its shader from the
+        // segmentation layer/channel coordination values.
+        const hasCentroids = nextDeps.obsSegmentationsLocationsData
+          ?.[layerScope]?.[channelScope]?.obsLocationsTilingType === 'neuroglancer';
+        if (hasCentroids) {
+          const getOpacity = deps => (
+            (deps?.segmentationLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacity ?? 1.0)
+            * (deps?.segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]
+              ?.spatialChannelOpacity ?? 1.0)
+          );
+          const keysChanged = curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
+            'spatialChannelColor',
+            'obsColorEncoding',
+            'featureValueColormap',
+            'featureValueColormapRange',
+            'obsSetColor',
+            'obsSetSelection',
+            'additionalObsSets',
+          ]);
+          const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
+          if (keysChanged || opacityChanged) {
+            forceUpdate = true;
+          }
         }
       });
     });

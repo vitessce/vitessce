@@ -314,6 +314,12 @@ export const ngPrecomputedMeshSchema = z.object({
     .describe('When true (default), automatically loads all subsources (defined in mesh metadata), when false loads what is explicitly enabled in `subsources`.')
     .optional(),
 }).partial().nullable();
+const ngAnnotationTransformSchema = z.object({
+  matrix: z.array(z.array(z.number())),
+  outputDimensions: z.record(z.tuple([z.number(), z.string()])),
+}).optional()
+  .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.');
+
 // Annotation Layer
 export const ngPointAnnotationSchema = z.object({
   projectionAnnotationSpacing: z.number(),
@@ -323,11 +329,7 @@ export const ngPointAnnotationSchema = z.object({
   pointIndexProp: z.string()
     .optional()
     .describe('The name of the Neuroglancer AnnotationProperty containing point IDs. For example, specify \'point_id\' to use prop_point_id() in the Neuroglancer shader code.'),
-  transform: z.object({
-    matrix: z.array(z.array(z.number())),
-    outputDimensions: z.record(z.tuple([z.number(), z.string()])),
-  }).optional()
-    .describe('A coordinate transformation matrix to apply to the annotation layer source to map annotation coordinates to the global coordinate space.'),
+  transform: ngAnnotationTransformSchema,
   // Note: See comments in neuroglancer-sorger.js
   // We may remove these in the future, pending clarification
   // to questions in the tissue-map-tools repo
@@ -335,9 +337,20 @@ export const ngPointAnnotationSchema = z.object({
   // - https://github.com/hms-dbmi/tissue-map-tools/issues/38
   quantitativeColorProp: z.string().optional(),
   quantitativeColorMax: z.number().optional(),
+}).partial().nullable();
+
+// Annotation Layer containing the centroids of segmentations (e.g., meshes).
+// Rendered implicitly alongside the segmentation layer with a matching obsType,
+// using the visual properties of that segmentation layer/channel.
+export const ngLocationsAnnotationSchema = z.object({
+  projectionAnnotationSpacing: z.number(),
+  transform: ngAnnotationTransformSchema,
   segmentIdProp: z.string()
     .optional()
-    .describe('For centroid points with a matching segmentation: the name of the AnnotationProperty holding the mesh segment ID (e.g. \'cell_id\').'),
+    .describe('The name of the Neuroglancer AnnotationProperty holding the mesh segment ID (e.g. \'cell_id\'). Defaults to \'id\' when the annotation info declares it.'),
+  // Used when the corresponding segmentation channel uses obsColorEncoding 'geneSelection'.
+  quantitativeColorProp: z.string().optional(),
+  quantitativeColorMax: z.number().optional(),
 }).partial().nullable();
 
 /**

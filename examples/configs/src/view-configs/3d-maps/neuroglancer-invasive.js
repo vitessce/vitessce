@@ -59,8 +59,9 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   });
 
 
+  // Cell centroids: rendered implicitly with the segmentation layer of the same obsType.
   dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
+    fileType: 'obsLocations.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/INV_cells/points',
     options: {
       projectionAnnotationSpacing: 1,
@@ -79,9 +80,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       },
     },
     coordinationValues: {
-      fileUid: 'sorger-cells',
       obsType: 'cell',
-      featureType: 'gene',
     },
   });
 
@@ -122,23 +121,6 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
-
-  config.linkViewsByObject([neuroglancerView, layerController], {
-    pointLayer: CL([
-      {
-        fileUid: 'sorger-cells',
-        obsType: 'cell',
-        spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
-        spatialLayerLabel: 'Centroids',
-        spatialLayerColor: [0, 255, 0],
-        spatialPointStrokeWidth: 0.2,
-        obsColorEncoding: 'spatialChannelColor',
-        featureFilterMode: 'featureSelection',
-
-      },
-    ]),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
 
   config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets)));
   const configJSON = config.toJSON();

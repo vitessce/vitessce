@@ -381,12 +381,6 @@ export function autoColorForId(id) {
 }
 
 
-export function rgbToHex(rgb) {
-  return (typeof rgb === 'string'
-    ? rgb
-    : `#${rgb.map(c => c.toString(16).padStart(2, '0')).join('')}`);
-}
-
 /**
  * Return the cached object if `next` has the same keys with identical (===) values;
  * otherwise cache and return `next`.

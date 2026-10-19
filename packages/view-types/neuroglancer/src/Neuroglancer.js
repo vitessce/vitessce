@@ -97,7 +97,7 @@ export class NeuroglancerComp extends PureComponent {
         } = this.props;
         if (ms.pickedAnnotationId != null) {
           // Resolve which annotation layer was picked. Only centroid layers
-          // (obsType matches a segmentation) carry a MeshID in their by_id records;
+          // (from obsLocations.ng-annotations) carry a MeshID in their by_id records;
           // transcript/standalone point layers must not be mapped to cell meshes.
           const layerName = getPickedAnnotationLayerName(viewer, ms);
           const annotationUrl = layerName

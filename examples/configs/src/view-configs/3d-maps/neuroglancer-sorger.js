@@ -64,12 +64,12 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   });
 
 
+  // Cell centroids: rendered implicitly with the segmentation layer of the same obsType.
   dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
+    fileType: 'obsLocations.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      featureIndexProp: 'mx1spots',
       transform: {
         matrix: [
           [7148.09960682, 0, 0, 0],
@@ -95,9 +95,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       quantitativeColorMax: 58,
     },
     coordinationValues: {
-      fileUid: 'sorger-cells',
       obsType: 'cell',
-      featureType: 'gene',
     },
   });
 
@@ -163,25 +161,6 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
-
-  config.linkViewsByObject([neuroglancerView, layerController], {
-    pointLayer: CL([
-      {
-        fileUid: 'sorger-cells',
-        obsType: 'cell',
-        spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
-        spatialLayerColor: [0, 255, 0],
-        spatialPointStrokeWidth: 0.2,
-        obsColorEncoding: 'geneSelection',
-        featureValueColormap: 'plasma',
-        featureSelection: ['MX1_SPOTS'],
-        featureValueColormapRange: [0.0, 1.0],
-        spatialLayerLabel: 'Centroids',
-        featureFilterMode: 'featureSelection',
-      },
-    ]),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
 
   config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets, scatterView)));
   const configJSON = config.toJSON();
