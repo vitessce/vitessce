@@ -479,9 +479,9 @@ export default class Neuroglancer extends React.Component {
   applyViewerToggles = () => {
     const { viewer } = this;
     if (!viewer) return;
-     const {
-        axisLinesVisible, boundsVisible, orthographic, scaleBarVisible,
-      } = this.props;
+    const {
+      axisLinesVisible, boundsVisible, orthographic, scaleBarVisible,
+    } = this.props;
     this.withoutEmitting(() => {
       if (typeof axisLinesVisible === 'boolean' && viewer.showAxisLines.value !== axisLinesVisible) {
         viewer.showAxisLines.value = axisLinesVisible;

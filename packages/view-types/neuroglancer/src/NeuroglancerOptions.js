@@ -131,7 +131,7 @@ export default function NeuroglancerOptions(props) {
           onChange={setBoundsVisible}
         />
       ) : null}
-       {setOrthographic ? (
+      {setOrthographic ? (
         <CheckboxRow
           label="Orthographic"
           id={`ng-ortho-${id}`}
