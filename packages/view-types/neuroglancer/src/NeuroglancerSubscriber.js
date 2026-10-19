@@ -18,6 +18,7 @@ import {
   useMultiObsPoints,
   usePointMultiObsFeatureMatrixIndices,
   useMultiObsSegmentations,
+  useSetComponentHover,
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
@@ -44,6 +45,7 @@ import {
   sanitizeNgCameraState,
 } from './data-hook-ng-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
+import NeuroglancerTooltipSubscriber from './NeuroglancerTooltipSubscriber.js';
 import { useStyles } from './styles.js';
 import {
   eulerToQuaternion,
@@ -79,6 +81,7 @@ const LAST_INTERACTION_SOURCE = {
 export function NeuroglancerSubscriber(props) {
   const {
     uuid,
+    disableTooltip = false,
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
@@ -204,7 +207,8 @@ export function NeuroglancerSubscriber(props) {
   }, [loaders, dataset]);
 
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
-
+  const setComponentHover = useSetComponentHover();
+  const [hoverCoord, setHoverCoord] = useState(null);
   const [
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
@@ -1598,11 +1602,18 @@ export function NeuroglancerSubscriber(props) {
     latestViewerStateIteration, detailMode, detailSegmentIds,
     is3dMode, centroidLayerRoles]);
 
-  const onSegmentHighlight = useCallback((obsId) => {
+  // Same pattern as spatialBeta's delegateHover: highlight + hoverCoord + component hover.
+  const onSegmentHighlight = useCallback((obsId, coord = null) => {
+    // console.debug('[NG tip 2] highlight', obsId, 'coord', coord);
     const next = obsId != null ? String(obsId) : null;
-    if (next === cellHighlight) return;
+    if (next != null && coord) {
+      setHoverCoord(coord);
+      setComponentHover(uuid);
+    } else {
+      setHoverCoord(null);
+    }
     setCellHighlight(next);
-  }, [setCellHighlight, cellHighlight]);
+  }, [setCellHighlight, cellHighlight, setComponentHover, uuid]);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
     if (!isLayersLoaded && isLoaded) {
@@ -1712,9 +1723,36 @@ export function NeuroglancerSubscriber(props) {
             axisLinesVisible={axisLinesVisibleEffective}
             boundsVisible={boundsVisibleEffective}
           />
+          {!disableTooltip && !detailMode ? (
+          // Overlay pinned to the container's top-left so the tooltip anchor's (x, y)
+          // offsets are relative to the canvas, not to the end of the NG wrapper.
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 60,
+            }}
+            >
+              <NeuroglancerTooltipSubscriber
+                parentUuid={uuid}
+                hoverCoord={hoverCoord}
+              // useGridItemSize can report 0x0; viewportSizeRef holds the real container size.
+                width={viewportSizeRef.current.width || ngWidth}
+                height={viewportSizeRef.current.height || ngHeight}
+                getViewProjectionMat={() => getViewProjectionMatRef.current?.()}
+                obsHighlight={cellHighlight}
+                segmentationLayerScopes={segmentationLayerScopes}
+                segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+                segmentationChannelCoordination={segmentationChannelCoordination}
+                obsSegmentationsSetsData={obsSegmentationsSetsData}
+              />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </TitleInfo>
-
   );
 }

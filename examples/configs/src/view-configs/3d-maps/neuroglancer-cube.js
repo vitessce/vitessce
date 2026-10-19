@@ -45,7 +45,7 @@ function generateCubeCameraSyncConfiguration() {
   const obsSetsView = config.addView(dataset, 'obsSets');
 
 
-  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode', 'spatialAxisLinesVisible', 'spatialBoundsVisible'], 
+  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode', 'spatialAxisLinesVisible', 'spatialBoundsVisible'],
     ['3D', false, false]);
 
   config.linkViewsByObject([spatialView, lcView], {

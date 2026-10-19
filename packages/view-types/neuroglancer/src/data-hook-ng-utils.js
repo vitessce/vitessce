@@ -521,10 +521,10 @@ export function useNeuroglancerViewerState(
               visible: spatialLayerVisible,
               // Options from layerData.neuroglancerOptions
               // like projectionAnnotationSpacing:
-              // Coordination value (layer controller) > file option > 1.0; clamped to NG's valid range.
+              // Coordination value (LC) > file option > 1.0; clamped to NG's valid range.
               projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
-                  MIN_ANNOTATION_SPACING,
-                  spatialPointProjectionSpacing ?? ngOptions?.projectionAnnotationSpacing ?? 1.0,
+                MIN_ANNOTATION_SPACING,
+                spatialPointProjectionSpacing ?? ngOptions?.projectionAnnotationSpacing ?? 1.0,
               )),
             },
           ],

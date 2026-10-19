@@ -99,7 +99,7 @@ function generateNeuroglancerMerfish() {
 
   });
   const umap = config.addView(dataset, 'scatterplot', { mapping: 'UMAP', x: 5, y: 0, w: 4, h: 7 });
-  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 4 }).setProps({ layerPerFeatureForPoints: true});
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 4 }).setProps({ layerPerFeatureForPoints: true });
 
   const geneList = config.addView(dataset, 'featureList', { x: 9, y: 4, w: 3, h: 3 }).setProps({ enableMultiSelect: true });
   const heatmap = config.addView(dataset, 'heatmap', { x: 0, y: 7, w: 6, h: 5 });
