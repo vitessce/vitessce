@@ -34,7 +34,7 @@ import {
 } from '@vitessce/constants-internal';
 import { Chip } from '@vitessce/styles';
 import {
-  mergeObsSets, getCellColors, setObsSelection, colorArrayToString,
+  mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
@@ -648,7 +648,7 @@ export function NeuroglancerSubscriber(props) {
               if (knownIdSet.has(String(id))) {
                 const color = obsColorMap.get(id);
                 if (color) {
-                  ngCellColors[id] = colorArrayToString(color);
+                  ngCellColors[id] = rgbToHex(color);
                 } else {
                   // Not part of obsColors at all - use a default grey.
                   ngCellColors[id] = GREY_HEX;
@@ -670,7 +670,7 @@ export function NeuroglancerSubscriber(props) {
           }
         } else if (obsColorEncoding === 'spatialChannelColor') {
           // All segments get the same static channel color
-          const hex = spatialChannelColor ? colorArrayToString(spatialChannelColor) : autoColorForId(layerScope + channelScope);
+          const hex = spatialChannelColor ? rgbToHex(spatialChannelColor) : autoColorForId(layerScope + channelScope);
           if (spatialChannelColor) {
             const ngCellColors = {};
             if (layerIndex) {
@@ -735,7 +735,7 @@ export function NeuroglancerSubscriber(props) {
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           } else if (restrictedObsIndex) {
             // No expression data available — use default color for all segments
-            const fallbackColor = spatialChannelColor ? colorArrayToString(spatialChannelColor) : GREY_HEX;
+            const fallbackColor = spatialChannelColor ? rgbToHex(spatialChannelColor) : GREY_HEX;
             const ngCellColors = {};
             restrictedObsIndex.forEach((id) => {
               ngCellColors[id] = fallbackColor;
@@ -758,7 +758,7 @@ export function NeuroglancerSubscriber(props) {
             if (knownIdSet.has(String(id))) {
               const color = cellColors.get(String(id));
               if (color) {
-                ngCellColors[id] = colorArrayToString(color);
+                ngCellColors[id] = rgbToHex(color);
               } else {
                 // Not part of obsSets at all — auto-color deterministically.
                 ngCellColors[id] = GREY_HEX;
