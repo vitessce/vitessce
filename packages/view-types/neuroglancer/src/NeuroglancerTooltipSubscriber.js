@@ -76,8 +76,6 @@ export default function NeuroglancerTooltipSubscriber(props) {
           const showCrosshair = tooltipCrosshairsVisible ?? true;
           // NG drives the view-level obsHighlight
           const obsHighlight = channelObsHighlight ?? viewObsHighlight;
-          // eslint-disable-next-line no-console
-          console.debug('[NG tip 5]', layerScope, channelScope, { obsHighlight, spatialChannelVisible, tooltipsVisible, tooltipCrosshairsVisible });
           if (
             !obsHighlight
                         || spatialChannelVisible === false
