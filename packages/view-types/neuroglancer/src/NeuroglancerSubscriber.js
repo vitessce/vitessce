@@ -143,7 +143,7 @@ export function NeuroglancerSubscriber(props) {
   // For overlay when meshes are loaded on demand
   const [isMeshLoading, setIsMeshLoading] = useState(false);
 
-  // Incremented whenever a centroid layer has both its info JSON and
+  // Incremented whenever a centroid point layer has both its info JSON and
   // its NG chunk transform available (one bump per newly-ready layer).
   const [annotationReadyIteration, bumpAnnotationReady] = useReducer(x => x + 1, 0);
   const [csvLoaded, setCsvLoaded] = useState(false);
@@ -421,14 +421,14 @@ export function NeuroglancerSubscriber(props) {
   const segmentationInfo = obsSegmentationsData?.[segmentationLayerScopes?.[0]]
     ?.neuroglancerInfo ?? null;
 
-  const pointAnnotationInfosCacheRef = useRef({});
-  const pointAnnotationInfoByScope = useMemo(() => {
+  const annotationInfoByScopeCacheRef = useRef({});
+  const annotationInfoByScope = useMemo(() => {
     const next = Object.fromEntries(
       (pointLayerScopes ?? [])
         .map(scope => [scope, obsPointsData?.[scope]?.neuroglancerInfo ?? null])
         .filter(([, info]) => info),
     );
-    return reuseIfShallowEqual(pointAnnotationInfosCacheRef, next);
+    return reuseIfShallowEqual(annotationInfoByScopeCacheRef, next);
   }, [pointLayerScopes, obsPointsData]);
 
   const derivedCenter = useMemo(() => {
@@ -440,16 +440,16 @@ export function NeuroglancerSubscriber(props) {
     // annotation bounds > raw volume bounds), minus the mesh-vertex tier,
     // which would need fetching actual mesh geometry rather than a single
     // info JSON.
-    // With multiple annotation layers, take the union of bounds -- centroid layers
+    // With multiple point layers, take the union of bounds -- centroid layers
     // first, falling back to all point layers (e.g. transcripts-only).
-    // Assumes all annotation layers share one annotation coordinate space.
+    // Assumes all point layers share one annotation coordinate space.
     const validBounds = infos => infos
       .map(info => [info?.lower_bound, info?.upper_bound])
       .filter(([lo, up]) => Array.isArray(lo) && Array.isArray(up)
         && lo.length === 3 && up.length === 3
         && lo.every(Number.isFinite) && up.every(Number.isFinite));
     let bounds = validBounds(centroidSources.map(({ neuroglancerInfo }) => neuroglancerInfo));
-    if (!bounds.length) bounds = validBounds(Object.values(pointAnnotationInfoByScope));
+    if (!bounds.length) bounds = validBounds(Object.values(annotationInfoByScope));
     if (bounds.length) {
       const lower = [0, 1, 2].map(i => Math.min(...bounds.map(([lo]) => lo[i])));
       const upper = [0, 1, 2].map(i => Math.max(...bounds.map(([, up]) => up[i])));
@@ -463,7 +463,7 @@ export function NeuroglancerSubscriber(props) {
       return size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
     }
     return null;
-  }, [segmentationInfo, pointAnnotationInfoByScope, centroidSources]);
+  }, [segmentationInfo, annotationInfoByScope, centroidSources]);
 
   useEffect(() => {
     if (hasInitialNgPosition || !segmentationUrl) {
@@ -1089,8 +1089,9 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [initialViewerState]);
 
-  // True when at least one segmentation channel has centroids -- i.e., on-demand
-  // mesh culling is active for at least one segmentation layer.
+  // True when at least one centroid layer (from an obsLocations.ng-annotations file)
+  // has a source URL -- i.e., on-demand mesh culling is active for
+  // at least one segmentation layer. Transcript-only point layers never set this.
   const hasCentroidLayers = centroidSources.length > 0;
 
   // Annotation info (<url>/info) for each centroid layer, along with its URL,

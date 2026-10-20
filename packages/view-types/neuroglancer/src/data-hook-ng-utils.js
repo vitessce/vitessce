@@ -77,12 +77,12 @@ export function isValidNgDimensions(dims) {
 
 /**
  * Resolve the viewer's global `dimensions` once, independent of layer order.
- * An annotation layer's `transform.outputDimensions` describes that layer's own
+ * A point layer's `transform.outputDimensions` describes that layer's own
  * output space; NG maps it into the global space per layer, so it must not
  * overwrite the viewer dimensions.
  * Precedence:
  *   1. explicit `viewerDimensions` (Neuroglancer view prop),
- *   2. the first annotation source (in the given order) that declares outputDimensions,
+ *   2. the first point layer (in the given order) that declares outputDimensions,
  *   3. DEFAULT_NG_DIMENSIONS.
  * @param {Array<{ name: string, neuroglancerOptions: object }>} annotationSources
  * Point layers and segmentation centroid layers.
@@ -106,7 +106,7 @@ export function resolveViewerDimensions(
   const mismatched = declared.filter(({ dims }) => !isEqual(dims, viewerDims));
   if (mismatched.length) {
     console.warn(
-      `Annotation layers declare different outputDimensions; using those of "${declared[0].name}" `
+      `Point layers declare different outputDimensions; using those of "${declared[0].name}" `
       + `for the viewer. Layers ${mismatched.map(({ name }) => `"${name}"`).join(', ')} `
       + 'keep their own outputDimensions in their source transform.',
     );
@@ -269,8 +269,10 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     // Only show the centroids of the selected obsSets.
     featureFilterMode: 'featureSelection',
     pointMarkerBorderWidth: CENTROID_POINT_STROKE_WIDTH,
-    // Interpret obsColorEncoding 'geneSelection' as a quantitative
-    // color encoding of the per-centroid values.
+    // The points represent the centroids of the segmentations.
+    // We pass this down to the getPointsShader, to determine whether to interpret
+    // `obsColorEncoding === 'geneSelection'` as a
+    // quantitative color encoding or a categorical color encoding.
     pointsAreSegmentationCentroids: true,
   };
 }
@@ -477,6 +479,7 @@ export function useNeuroglancerViewerState(
           featureValueColormap,
           featureValueColormapRange,
         } = layerCoordination || {};
+        const quantitativeColorMaxSelected = getQuantitativeColorMax(ngOptions, obsColorEncoding);
         // Dynamically construct the shader based on the color encoding
         // and other coordination values.
         const shader = getPointsShader({
@@ -499,7 +502,7 @@ export function useNeuroglancerViewerState(
           obsSetColor: layerCoordination.obsSetColor,
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
-          quantitativeColorMax: getQuantitativeColorMax(ngOptions, obsColorEncoding),
+          quantitativeColorMax: quantitativeColorMaxSelected,
         });
         result = {
           ...result,
