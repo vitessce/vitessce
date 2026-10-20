@@ -33,7 +33,7 @@ import {
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import { Chip } from '@vitessce/styles';
+import { Chip, IconButton, CenterFocusStrong } from '@vitessce/styles';
 import {
   mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
@@ -185,12 +185,14 @@ export function NeuroglancerSubscriber(props) {
     spatialBoundsVisible,
     spatialOrthographic,
     spatialScaleBarVisible,
+    spatialCameraResetRequest,
   }, {
     setSpatialCameraSnapshot,
     setSpatialAxisLinesVisible,
     setSpatialBoundsVisible,
     setSpatialOrthographic,
     setSpatialScaleBarVisible,
+    setSpatialCameraResetRequest,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -1676,6 +1678,11 @@ export function NeuroglancerSubscriber(props) {
     };
   }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
 
+
+  const onRecenter = useCallback(() => {
+    setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
+  }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
+
   return (
 
     <TitleInfo
@@ -1707,6 +1714,17 @@ export function NeuroglancerSubscriber(props) {
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
+          <div style={{ position: 'absolute', top: 4, left: 4, zIndex: 50 }}>
+            <IconButton
+              size="small"
+              onClick={onRecenter}
+              aria-label="Recenter view"
+              title="Recenter"
+              sx={{ color: 'white', opacity: 0.65, '&:hover': { opacity: 0.9 } }}
+            >
+              <CenterFocusStrong fontSize="small" />
+            </IconButton>
+          </div>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
               theme="dark"
@@ -1732,7 +1750,6 @@ export function NeuroglancerSubscriber(props) {
               className={classes.meshLoadingIndicator}
             />
           ) : null}
-
           <NeuroglancerComp
             classes={classes}
             onSegmentClick={onSegmentClick}
@@ -1751,6 +1768,7 @@ export function NeuroglancerSubscriber(props) {
             boundsVisible={boundsVisibleEffective}
             orthographic={orthographicEffective}
             scaleBarVisible={scaleBarVisibleEffective}
+            cameraResetRequest={spatialCameraResetRequest}
           />
           {!disableTooltip && !detailMode ? (
           // Overlay pinned to the container's top-left so the tooltip anchor's (x, y)

@@ -640,6 +640,8 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
   // Neuroglancer only draws its scale bar in orthographic projection.
   new PluginCoordinationType(CoordinationType.SPATIAL_ORTHOGRAPHIC, false, z.boolean().nullable()),
+  // Incremented by any synced view's recenter button; Neuroglancer restores its home camera.
+  new PluginCoordinationType(CoordinationType.SPATIAL_CAMERA_RESET_REQUEST, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),

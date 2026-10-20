@@ -714,6 +714,14 @@ export default class Neuroglancer extends React.Component {
         this.viewer.state.restoreState(viewerState);
       });
 
+      // Home camera for recenter: the camera as initially loaded.
+      const s = this.viewer.state.toJSON();
+      this.homeCamera = {
+        position: s.position,
+        projectionScale: s.projectionScale,
+        projectionOrientation: s.projectionOrientation,
+      };
+
       // Far clip plane fitted to the data bounds (relative depth, never below NG's default).
       // An absolute far plane prevents clipping but fixes the frustum volume, which NG uses to pick
       // annotation density -- so points stop increasing on zoom-in. Fitting keeps both behaviors.
@@ -1079,6 +1087,12 @@ export default class Neuroglancer extends React.Component {
       // Re-apply colors immediately after restoreState clears segmentStatedColors
       // this is useful when culling is activated to avoid randomcolor assignment by NG
       this.applyColorsAndVisibility(cellColorMappingByLayer);
+    }
+
+    // Recenter: camera-only restore (no `layers`, so zoom isn't corrupted). Emitting on purpose,
+    // so the snapshot sync moves linked views (spatialBeta, zoom view) to the same home.
+    if (prevProps.cameraResetRequest !== this.props.cameraResetRequest && this.homeCamera) {
+      this.viewer.state.restoreState(this.homeCamera);
     }
 
     /* ** Vitessce Integration update end ** */
