@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useId } from 'react-aria';
+import React, { useEffect, useState, useId } from 'react';
 import { Checkbox, Slider, TableCell, TableRow } from '@vitessce/styles';
 import { usePlotOptionsStyles, OptionsContainer } from '@vitessce/vit-s';
 
