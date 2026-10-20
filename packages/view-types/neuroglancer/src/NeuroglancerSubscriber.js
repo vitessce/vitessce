@@ -33,7 +33,8 @@ import {
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
-import { Chip, IconButton, CenterFocusStrong } from '@vitessce/styles';
+import { Chip } from '@vitessce/styles';
+import { ToolMenu } from '@vitessce/gl';
 import {
   mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
@@ -1714,17 +1715,10 @@ export function NeuroglancerSubscriber(props) {
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
-          <div style={{ position: 'absolute', top: 4, left: 4, zIndex: 50 }}>
-            <IconButton
-              size="small"
-              onClick={onRecenter}
-              aria-label="Recenter view"
-              title="Recenter"
-              sx={{ color: 'white', opacity: 0.65, '&:hover': { opacity: 0.9 } }}
-            >
-              <CenterFocusStrong fontSize="small" />
-            </IconButton>
-          </div>
+          <ToolMenu
+            visibleTools={{ pan: false, selectLasso: false, recenter: true }}
+            recenterOnClick={onRecenter}
+          />
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
               theme="dark"

@@ -46,34 +46,15 @@ function SliderRow({ label, id, children }) {
 function PointLayerRows({ layer, baseId }) {
   const { classes } = usePlotOptionsStyles();
   const {
-    label, strokeWidth, setStrokeWidth, spacing, setSpacing,
+    label, spacing, setSpacing,
   } = layer;
   // Local state so dragging is smooth; spacing commits on release (may load finer chunks).
   const [exp, setExp] = useState(toExp(spacing ?? 1.0));
   useEffect(() => { setExp(toExp(spacing ?? 1.0)); }, [spacing]);
-  const strokeId = `${baseId}-stroke`;
   const spacingId = `${baseId}-spacing`;
 
   return (
     <>
-      {setStrokeWidth ? (
-        <SliderRow label={`${label} stroke width`} id={strokeId}>
-          <Slider
-            slotProps={{
-              root: { className: classes.slider },
-              valueLabel: { className: classes.sliderValueLabel },
-            }}
-            value={strokeWidth ?? 0.0}
-            min={0.0}
-            max={5.0}
-            step={0.1}
-            valueLabelDisplay="auto"
-            onChange={(e, v) => setStrokeWidth(v)}
-            id={strokeId}
-            aria-label={`${label} point stroke width`}
-          />
-        </SliderRow>
-      ) : null}
       {setSpacing ? (
         <SliderRow label={`${label} spacing (3D)`} id={spacingId}>
           <Slider
