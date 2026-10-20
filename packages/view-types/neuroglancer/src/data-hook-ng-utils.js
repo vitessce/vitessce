@@ -82,7 +82,7 @@ export function isValidNgDimensions(dims) {
  * overwrite the viewer dimensions.
  * Precedence:
  *   1. explicit `viewerDimensions` (Neuroglancer view prop),
- *   2. the first point layer (in the given order) that declares outputDimensions,
+ *   2. the first point layer (in scope order) that declares outputDimensions,
  *   3. DEFAULT_NG_DIMENSIONS.
  * @param {Array<{ name: string, neuroglancerOptions: object }>} annotationSources
  * Point layers and segmentation centroid layers.
@@ -96,8 +96,8 @@ export function resolveViewerDimensions(
     console.warn('Ignoring invalid viewerDimensions prop; expected { x: [scale, unit], y: [scale, unit], z: [scale, unit] }.');
   }
   const declared = (annotationSources ?? [])
-    .map(({ name, neuroglancerOptions }) => ({
-      name,
+    .map(({ name: scope, neuroglancerOptions }) => ({
+      scope,
       dims: neuroglancerOptions?.transform?.outputDimensions,
     }))
     .filter(({ dims }) => dims);
@@ -106,8 +106,8 @@ export function resolveViewerDimensions(
   const mismatched = declared.filter(({ dims }) => !isEqual(dims, viewerDims));
   if (mismatched.length) {
     console.warn(
-      `Point layers declare different outputDimensions; using those of "${declared[0].name}" `
-      + `for the viewer. Layers ${mismatched.map(({ name }) => `"${name}"`).join(', ')} `
+      `Point layers declare different outputDimensions; using those of "${declared[0].scope}" `
+      + `for the viewer. Layers ${mismatched.map(({ scope }) => `"${scope}"`).join(', ')} `
       + 'keep their own outputDimensions in their source transform.',
     );
   }
