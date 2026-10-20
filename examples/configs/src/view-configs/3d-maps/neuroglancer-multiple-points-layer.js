@@ -104,6 +104,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
       segmentationChannel: CL([{
         obsType: 'cell',
         spatialChannelVisible: true,
+        spatialChannelOpacity: 0.6,
         obsColorEncoding: 'cellSetSelection',
       }]),
     }]),

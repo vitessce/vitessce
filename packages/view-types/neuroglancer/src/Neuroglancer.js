@@ -180,7 +180,6 @@ export class NeuroglancerComp extends PureComponent {
       onLayerLoadingChange,
       onAnnotationSourceReady,
       onViewerReady,
-      meshOpacityByLayer,
       allowEmptySegments,
     } = this.props;
     const { bundleRootReady } = this.state;
@@ -200,7 +199,6 @@ export class NeuroglancerComp extends PureComponent {
                 ref={this.onRef}
                 onAnnotationSourceReady={onAnnotationSourceReady}
                 onViewerReady={onViewerReady}
-                meshOpacityByLayer={meshOpacityByLayer}
                 allowEmptySegments={allowEmptySegments}
               />
             )}

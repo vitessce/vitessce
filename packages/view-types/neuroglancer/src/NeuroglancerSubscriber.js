@@ -70,7 +70,6 @@ const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
-const MESH_OPACITY = 0.6;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -1300,12 +1299,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination, cellSetSelection, additionalCellSets,
     obsSegmentationsSetsData, cellHighlight, csvLoaded]);
 
-  // For on-demand-mesh-loading use opacity to make the centroids obvious.
-  // Applied only to segmentation layers that have centroids.
-  // TODO: may be this should be a prop?
-  const meshOpacityByLayer = useMemo(() => Object.fromEntries(
-    [...culledSegLayerScopes].map(segLayer => [segLayer, MESH_OPACITY]),
-  ), [culledSegLayerScopes]);
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -1644,7 +1637,6 @@ export function NeuroglancerSubscriber(props) {
             onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
-            meshOpacityByLayer={meshOpacityByLayer}
             decodeCentroidById={decodeCentroidById}
             allowEmptySegments={detailMode}
           />

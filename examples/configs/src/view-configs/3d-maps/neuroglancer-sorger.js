@@ -147,6 +147,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,
+            spatialChannelOpacity: 0.6,
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',

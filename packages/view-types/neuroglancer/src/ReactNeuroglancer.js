@@ -917,13 +917,8 @@ export default class Neuroglancer extends React.Component {
           scope => layer.name?.includes(scope),
         );
         if (layerScope) {
-          // meshOpacityByLayer takes precedence over coordination opacity
-          // for segmentation layers with on-demand mesh loading (centroid layers present)
-          const meshOpacityOverride = this.props.meshOpacityByLayer?.[layerScope];
-          const opacity = meshOpacityOverride !== undefined
-            ? meshOpacityOverride
-            : (cellColorMappingByLayer[layerScope]?.opacity ?? 1.0);
-          layer.layer.displayState.objectAlpha.value = opacity;
+          layer.layer.displayState.objectAlpha.value = cellColorMappingByLayer[layerScope]
+            ?.opacity ?? 1.0;
         }
       }
       // Update annotation layer shaders from viewerState config,
