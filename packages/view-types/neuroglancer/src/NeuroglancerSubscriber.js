@@ -1715,10 +1715,12 @@ export function NeuroglancerSubscriber(props) {
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
-          <ToolMenu
-            visibleTools={{ pan: false, selectLasso: false, recenter: true }}
-            recenterOnClick={onRecenter}
-          />
+          <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1000 }}>
+            <ToolMenu
+              visibleTools={{ pan: false, selectLasso: false, recenter: true }}
+              recenterOnClick={onRecenter}
+            />
+          </div>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
               theme="dark"

@@ -1,8 +1,8 @@
 import React from 'react';
 import clsx from 'clsx';
-import { SELECTION_TYPE } from './constants.js';
 import { PointerIconSVG, SelectLassoIconSVG } from '@vitessce/icons';
 import { makeStyles, CenterFocusStrong } from '@vitessce/styles';
+import { SELECTION_TYPE } from './constants.js';
 
 const useStyles = makeStyles()(() => ({
   toolButton: {
