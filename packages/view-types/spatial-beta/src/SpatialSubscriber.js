@@ -191,6 +191,7 @@ export function SpatialSubscriber(props) {
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
     spatialCameraSnapshot,
+    spatialCameraResetRequest,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
@@ -217,6 +218,7 @@ export function SpatialSubscriber(props) {
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
     setSpatialCameraSnapshot,
+    setSpatialCameraResetRequest,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -246,6 +248,9 @@ export function SpatialSubscriber(props) {
   // A non-null camera snapshot in the coordination space indicates
   // that a neuroglancer view is present and is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
+  const requestCameraReset = useCallback(() => {
+    setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
+  }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -1230,7 +1235,8 @@ export function SpatialSubscriber(props) {
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            hideRecenter={hasSpatialCameraSnapshot}
+            // Synced to Neuroglancer: recenter asks NG to restore its home camera (snapshot follows).
+            onRequestCameraReset={hasSpatialCameraSnapshot ? requestCameraReset : undefined}
             {...annotationEditingProps}
           />
         )
