@@ -728,8 +728,8 @@ export function NeuroglancerSubscriber(props) {
               // Apply colormapRange scaling
               const tScaled = (t - low) / Math.max(high - low, 0.0001);
               const tClamped = Math.max(0, Math.min(1, tScaled));
-              // applyColormap returns a CSS color string (from d3-scale-chromatic).
-              ngCellColors[id] = applyColormap(featureValueColormap ?? 'viridis', tClamped);
+              const color = applyColormap(featureValueColormap ?? 'viridis', tClamped);
+              ngCellColors[id] = rgbToHex(color);
             });
             finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           } else if (restrictedObsIndex) {
