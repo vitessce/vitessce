@@ -73,6 +73,7 @@ const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
+const DEFAULT_UNSELECTED_OPACITY = 0.25;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -271,6 +272,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -793,12 +795,14 @@ export function NeuroglancerSubscriber(props) {
             theme,
           });
           const ngCellColors = {};
+          const selectedCellIds = [];
           // cellColors is a Map keyed by segment ID
           idsToColor.forEach((id) => {
             if (knownIdSet.has(String(id))) {
               const color = cellColors.get(String(id));
               if (color) {
                 ngCellColors[id] = rgbToHex(color);
+                selectedCellIds.push(id);
               } else {
                 // Not part of obsSets at all — auto-color deterministically.
                 ngCellColors[id] = GREY_HEX;
@@ -806,6 +810,14 @@ export function NeuroglancerSubscriber(props) {
             }
           });
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
+          // Hide unselected meshes when unselected opacity is 0 (NG can't fade individual segments).
+          const { spatialLayerOpacityUnselected } = segmentationChannelCoordination[0][layerScope][channelScope];
+          if (spatialLayerOpacityUnselected === 0 && obsSetSelection?.length > 0) {
+            // Same cell -> mesh id remap as remapCellColors.
+            result[layerScope].visibleMeshIds = new Set(
+              selectedCellIds.map(id => String(cellIdToMeshIdRef.current?.[String(id)] ?? id)),
+            );
+          }
         }
       });
     });
@@ -1296,6 +1308,8 @@ export function NeuroglancerSubscriber(props) {
         colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
         opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
         defaultColor: segmentationColorMapping?.[layerScope]?.defaultColor ?? null,
+        // Set only when "hide unselected" is active (unselected opacity 0 + a set selection).
+        visibleMeshIds: segmentationColorMapping?.[layerScope]?.visibleMeshIds ?? null,
       };
     });
     return result;
@@ -1574,6 +1588,11 @@ export function NeuroglancerSubscriber(props) {
         // No culling — show all segments from color mapping
         segments = Object.keys(layerColorMapping);
       }
+      // Hide unselected obsSet members (set when spatialLayerOpacityUnselected === 0).
+      const visibleMeshIds = cellColorMappingByLayer?.[layerScope]?.visibleMeshIds;
+      if (visibleMeshIds) {
+        segments = segments.filter(id => visibleMeshIds.has(String(id)));
+      }
       // only include colors for visible segments
       let derivedSegmentColors = {};
       if (isCulled && segments.length > 0) {
@@ -1679,7 +1698,29 @@ export function NeuroglancerSubscriber(props) {
     };
   }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
 
+  // "Hide unselected" = unselected opacity 0 on all segmentation channels (+ their centroid layers).
+  // Meshes can only hide (NG has no per-segment alpha); centroids fade via the same value.
+  const hideUnselected = useMemo(() => (segmentationLayerScopes ?? []).some(layerScope => (
+    (segmentationChannelScopesByLayer?.[layerScope] ?? []).some(channelScope => (
+      segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]
+        ?.spatialLayerOpacityUnselected === 0
+    ))
+  )), [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination]);
 
+  const setHideUnselected = useCallback((hide) => {
+    const value = hide ? 0 : DEFAULT_UNSELECTED_OPACITY;
+    (segmentationLayerScopes ?? []).forEach((layerScope) => {
+      (segmentationChannelScopesByLayer?.[layerScope] ?? []).forEach((channelScope) => {
+        segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope]
+          ?.setSpatialLayerOpacityUnselected?.(value);
+      });
+    });
+    // Centroid layers follow, so hidden cells don't leave their centroids behind.
+    (pointLayerRoles.centroidScopes ?? []).forEach((scope) => {
+      pointLayerCoordination?.[1]?.[scope]?.setSpatialLayerOpacityUnselected?.(value);
+    });
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
+    pointLayerRoles, pointLayerCoordination]);
   const onRecenter = useCallback(() => {
     setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
   }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
@@ -1710,6 +1751,8 @@ export function NeuroglancerSubscriber(props) {
           setOrthographic={setSpatialOrthographic}
           scaleBarVisible={scaleBarVisibleEffective}
           setScaleBarVisible={setSpatialScaleBarVisible}
+          hideUnselected={hideUnselected}
+          setHideUnselected={segmentationLayerScopes?.length ? setHideUnselected : undefined}
         />
       )}
     >

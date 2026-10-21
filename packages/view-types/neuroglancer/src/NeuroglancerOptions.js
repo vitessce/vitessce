@@ -90,6 +90,8 @@ export default function NeuroglancerOptions(props) {
     setOrthographic,
     scaleBarVisible,
     setScaleBarVisible,
+    hideUnselected,
+    setHideUnselected,
   } = props;
   const id = useId();
 
@@ -132,6 +134,15 @@ export default function NeuroglancerOptions(props) {
       {pointLayers.map(layer => (
         <PointLayerRows key={layer.scope} layer={layer} baseId={`ng-points-${id}-${layer.scope}`} />
       ))}
+      {setHideUnselected ? (
+        <CheckboxRow
+          // Applies when cells are colored by set selection and at least one set is selected.
+          label="Hide unselected cells"
+          id={`ng-hide-unselected-${id}`}
+          checked={Boolean(hideUnselected)}
+          onChange={setHideUnselected}
+        />
+      ) : null}
     </OptionsContainer>
   );
 }

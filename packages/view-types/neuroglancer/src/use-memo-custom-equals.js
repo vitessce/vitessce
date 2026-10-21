@@ -64,6 +64,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'featureValueColormap',
               'featureValueColormapRange',
               'featureSelection',
+              'spatialLayerOpacityUnselected',
             ])
             || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
             || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
