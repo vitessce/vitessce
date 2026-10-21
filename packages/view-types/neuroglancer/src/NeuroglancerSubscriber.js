@@ -1802,7 +1802,8 @@ export function NeuroglancerSubscriber(props) {
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
             decodeCentroidById={decodeCentroidById}
-            allowEmptySegments={detailMode}
+            // Hiding unselected (esp. with on-demand culling) can legitimately leave zero meshes in view.
+            allowEmptySegments={detailMode || hideUnselected}
             axisLinesVisible={axisLinesVisibleEffective}
             boundsVisible={boundsVisibleEffective}
             orthographic={orthographicEffective}
