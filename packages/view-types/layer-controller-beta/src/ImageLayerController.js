@@ -2,6 +2,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useId } from 'react-aria';
+import { CHANNELS_SORT_ORDER_OPTIONS } from '@vitessce/layer-controller';
 import {
   makeStyles,
   Grid,
@@ -400,8 +401,9 @@ function ImageLayerEllipsisMenu(props) {
           inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
-          <option aria-label="Original" value="original">Original</option>
-          <option aria-label="Alphabetical" value="alphabetical">Alphabetical</option>
+        {CHANNELS_SORT_ORDER_OPTIONS.map(({ value, label }) => (
+            <option key={value} aria-label={label} value={value}>{label}</option>
+         ))}
         </NativeSelect>
       </MenuItem>
     </PopperMenu>

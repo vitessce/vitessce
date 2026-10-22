@@ -10,3 +10,4 @@ export {
   useOverflowEllipsisGridStyles,
   useSelectionSliderStyles,
 } from './styles.js';
+export { CHANNELS_SORT_ORDER_OPTIONS, getSortedChannelOptions } from './channel-sort-utils.js';

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { Checkbox, NativeSelect } from '@vitessce/styles';
 import { useSelectStyles } from './styles.js';
+import { getSortedChannelOptions } from './channel-sort-utils.js';
 
 /**
  * Dropdown for selecting a channel.
@@ -9,14 +10,20 @@ import { useSelectStyles } from './styles.js';
  * @prop {array} channelOptions List of available selections, like ['DAPI', 'FITC', ...].
  * @prop {boolean} disabled Whether or not the component is disabled.
  * @prop {number} selectionIndex Current numeric index of a selection.
+ * @prop {string} channelsSortOrder Either 'original' or 'alphabetical'.
  */
 export function ChannelSelectionDropdown({
   handleChange,
   disabled,
   channelOptions,
   selectionIndex,
+  channelsSortOrder,
 }) {
   const { classes } = useSelectStyles();
+  const sortedOptions = useMemo(
+      () => getSortedChannelOptions(channelOptions, channelsSortOrder),
+      [channelOptions, channelsSortOrder],
+    );
   return (
     <NativeSelect
       classes={{ root: classes.selectRoot }}
@@ -24,9 +31,9 @@ export function ChannelSelectionDropdown({
       onChange={e => handleChange(Number(e.target.value))}
       inputProps={{ 'aria-label': 'Select a channel' }}
     >
-      {channelOptions.map((opt, i) => (
-        <option disabled={disabled} key={opt} value={i}>
-          {opt}
+    {sortedOptions.map(({ channelName, channelIndex }) => (
+  <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
+    {channelName}
         </option>
       ))}
     </NativeSelect>
