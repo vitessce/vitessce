@@ -48,3 +48,44 @@ describe('customIsEqualForInitialViewerState point opacity', () => {
     )).toBe(true);
   });
 });
+
+describe('customIsEqualForInitialViewerState segmentation centroids', () => {
+  const ngLocations = { obsLocationsTilingType: 'neuroglancer', neuroglancerUrl: 'https://example.com/cells' };
+  const segDeps = {
+    theme: 'dark',
+    showAxisLines: false,
+    segmentationLayerScopes: ['S'],
+    segmentationChannelScopesByLayer: { S: ['C'] },
+    segmentationLayerCoordination: [{ S: { spatialLayerVisible: true } }],
+    obsSegmentationsData: {},
+    pointLayerScopes: [],
+    obsPointsData: {},
+    pointMultiIndicesData: {},
+  };
+  const makeSegDeps = (channel, locationsData) => ({
+    ...segDeps,
+    segmentationChannelCoordination: [{ S: { C: channel } }],
+    obsSegmentationsLocationsData: { S: { C: locationsData } },
+  });
+
+  it('is not equal when the color encoding of a channel with centroids changes', () => {
+    expect(customIsEqualForInitialViewerState(
+      makeSegDeps({ obsColorEncoding: 'cellSetSelection' }, ngLocations),
+      makeSegDeps({ obsColorEncoding: 'spatialChannelColor' }, ngLocations),
+    )).toBe(false);
+  });
+
+  it('is equal when the color encoding of a channel without centroids changes', () => {
+    expect(customIsEqualForInitialViewerState(
+      makeSegDeps({ obsColorEncoding: 'cellSetSelection' }, null),
+      makeSegDeps({ obsColorEncoding: 'spatialChannelColor' }, null),
+    )).toBe(true);
+  });
+
+  it('is equal for small channel opacity changes', () => {
+    expect(customIsEqualForInitialViewerState(
+      makeSegDeps({ spatialChannelOpacity: 1.0 }, ngLocations),
+      makeSegDeps({ spatialChannelOpacity: 0.98 }, ngLocations),
+    )).toBe(true);
+  });
+});

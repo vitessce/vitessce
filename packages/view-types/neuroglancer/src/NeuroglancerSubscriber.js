@@ -22,24 +22,25 @@ import {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
   useSegmentationMultiObsColors,
+  useSegmentationMultiObsLocations,
   useGridItemSize,
   useMemoCustomComparison,
 } from '@vitessce/vit-s';
 import {
   ViewHelpMapping,
   ViewType,
-  DataType,
   CoordinationType,
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { Chip } from '@vitessce/styles';
-import { mergeObsSets, getCellColors, setObsSelection } from '@vitessce/sets-utils';
+import {
+  mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
+} from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import {
   useNeuroglancerViewerState,
-  classifyPointLayers,
-  toNgLayerName,
+  getSegmentationCentroidSources,
   sanitizeNgCameraState,
 } from './data-hook-ng-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
@@ -56,7 +57,6 @@ import {
   GREY_HEX,
   remapCellColors,
   autoColorForId,
-  rgbToHex,
   reuseIfShallowEqual,
   getAnnotationPropertyIndices,
   parseAnnotationById,
@@ -70,7 +70,6 @@ const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
-const MESH_OPACITY = 0.6;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -132,7 +131,7 @@ export function NeuroglancerSubscriber(props) {
   const translationOffsetRef = useRef([0, 0, 0]);
   // Keyed by (centroid) point layer scope: { ...info JSON, url }.
   const annotationInfoByScopeRef = useRef({});
-  // Keyed by point layer scope: { x, y, z, serializers, serializer }.
+  // Keyed by centroid layer scope: { x, y, z, serializers, serializer }.
   const annotationTransformByScopeRef = useRef({});
   // Keyed by segmentation layer scope: mesh IDs currently in view.
   const visibleSegmentIdsBySegLayerRef = useRef({});
@@ -316,6 +315,11 @@ export function NeuroglancerSubscriber(props) {
     coordinationScopes, coordinationScopesBy, loaders, dataset,
   );
 
+  // Optional: segmentation centroids, if an obsLocations.ng-annotations file is present.
+  const [obsSegmentationsLocationsData, obsSegmentationsLocationsDataStatus, obsSegmentationsLocationsDataErrors] = useSegmentationMultiObsLocations(
+    coordinationScopes, coordinationScopesBy, loaders, dataset,
+  );
+
   const [
     segmentationMultiExpressionData,
     segmentationMultiLoadedFeatureSelection,
@@ -347,6 +351,7 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination,
     obsSegmentationsUrls,
     obsSegmentationsData,
+    obsSegmentationsLocationsData,
     pointLayerScopes,
     pointLayerCoordination,
     obsPointsUrls,
@@ -377,47 +382,52 @@ export function NeuroglancerSubscriber(props) {
     return obsSegmentationsUrls?.[firstScope]?.[0]?.url ?? null;
   }, [segmentationLayerScopes, obsSegmentationsUrls]);
 
-  // Split point layers into centroids (obsType matches a segmentation channel,
-  // drive on-demand mesh culling + hover-to-cell) vs. standalone points such as
-  // transcripts (rendered + shown in the legend only). Keyed on an obsType
-  // signature so the classification stays referentially stable across renders.
-  const pointObsTypeSignature = (pointLayerScopes ?? [])
-    .map(scope => `${scope}:${pointLayerCoordination[0]?.[scope]?.obsType}`).join('|');
-  const segObsTypeSignature = (segmentationLayerScopes ?? [])
-    .map(layerScope => (segmentationChannelScopesByLayer?.[layerScope] ?? [])
-      .map(ch => `${layerScope}/${ch}:${segmentationChannelCoordination[0]?.[layerScope]?.[ch]?.obsType}`).join(','))
-    .join('|');
-  const pointLayerRoles = useMemo(() => classifyPointLayers({
-    pointLayerScopes,
-    pointLayerCoordination,
-    segmentationLayerScopes,
-    segmentationChannelScopesByLayer,
-    segmentationChannelCoordination,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [pointObsTypeSignature, segObsTypeSignature]);
+  // Centroids of segmentation layers/channels (from obsLocations.ng-annotations files),
+  // which drive on-demand mesh culling + hover-to-cell. Kept referentially
+  // stable by value, so loader results that are new containers each render
+  // don't re-trigger effects downstream.
+  const centroidSourcesCacheRef = useRef([]);
+  const centroidSources = useMemo(() => {
+    const next = getSegmentationCentroidSources({
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+      obsSegmentationsLocationsData,
+    });
+    if (!isEqual(next, centroidSourcesCacheRef.current)) {
+      centroidSourcesCacheRef.current = next;
+    }
+    return centroidSourcesCacheRef.current;
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, obsSegmentationsLocationsData]);
 
-  // Keep the previous object when every value is identical, so loader results
-  // that are new containers each render don't re-trigger effects downstream.
-  const pointLayerUrlsCacheRef = useRef({});
-  const pointLayerUrls = useMemo(() => {
-    const next = Object.fromEntries(
-      (pointLayerScopes ?? []).map(scope => [scope, obsPointsUrls?.[scope]?.[0]?.url ?? null]),
+  // Centroid layer scopes (for centroids, the NG layer name is used as the scope),
+  // and the segmentation layers whose meshes they cull (loaded on demand).
+  const centroidLayerRoles = useMemo(() => {
+    const centroidToSegLayers = Object.fromEntries(
+      centroidSources.map(({ name, layerScope }) => [name, [layerScope]]),
     );
-    return reuseIfShallowEqual(pointLayerUrlsCacheRef, next);
-  }, [pointLayerScopes, obsPointsUrls]);
+    return {
+      centroidScopes: centroidSources.map(({ name }) => name),
+      centroidToSegLayers,
+      culledSegLayerScopes: new Set(Object.values(centroidToSegLayers).flat()),
+    };
+  }, [centroidSources]);
 
-  // NG annotation layer name -> point layer scope.
+  const centroidLayerUrls = useMemo(() => Object.fromEntries(
+    centroidSources.map(({ name, url }) => [name, url]),
+  ), [centroidSources]);
+
+  // NG annotation layer name -> centroid layer scope.
   const pointScopeByNgLayerName = useMemo(() => Object.fromEntries(
-    (pointLayerScopes ?? []).map(scope => [toNgLayerName(DataType.OBS_POINTS, scope), scope]),
-  ), [pointLayerScopes]);
+    centroidLayerRoles.centroidScopes.map(scope => [scope, scope]),
+  ), [centroidLayerRoles]);
 
   // NG annotation layer name -> annotation source URL, centroid layers only.
   // Used by the hover handler to resolve a picked centroid back to its mesh ID.
   const centroidAnnotationUrlsByLayerName = useMemo(() => Object.fromEntries(
-    pointLayerRoles.centroidScopes
-      .filter(scope => pointLayerUrls[scope])
-      .map(scope => [toNgLayerName(DataType.OBS_POINTS, scope), pointLayerUrls[scope]]),
-  ), [pointLayerRoles, pointLayerUrls]);
+    centroidLayerRoles.centroidScopes
+      .filter(scope => centroidLayerUrls[scope])
+      .map(scope => [scope, centroidLayerUrls[scope]]),
+  ), [centroidLayerRoles, centroidLayerUrls]);
 
   // Contents of the precomputed `info` JSON files, fetched by the data loaders.
   const segmentationInfo = obsSegmentationsData?.[segmentationLayerScopes?.[0]]
@@ -426,25 +436,21 @@ export function NeuroglancerSubscriber(props) {
 
   const annotationInfoByScopeCacheRef = useRef({});
   const annotationInfoByScope = useMemo(() => {
-    const next = Object.fromEntries(
-      (pointLayerScopes ?? [])
-        .map(scope => [scope, obsPointsData?.[scope]?.neuroglancerInfo ?? null])
-        .filter(([, info]) => info),
-    );
+    const next = Object.fromEntries([
+      ...(pointLayerScopes ?? [])
+        .map(scope => [scope, obsPointsData?.[scope]?.neuroglancerInfo ?? null]),
+      ...centroidSources.map(({ name, neuroglancerInfo }) => [name, neuroglancerInfo]),
+    ].filter(([, info]) => info));
     return reuseIfShallowEqual(annotationInfoByScopeCacheRef, next);
-  }, [pointLayerScopes, obsPointsData]);
+  }, [pointLayerScopes, obsPointsData, centroidSources]);
 
-  // Per point layer: which annotation property holds the mesh segment ID
+  // Per centroid layer: which annotation property holds the mesh segment ID
   // (options.segmentIdProp; undefined -> 'id' if declared in the info).
-  const segmentIdPropSignature = (pointLayerScopes ?? [])
-    .map(scope => `${scope}:${obsPointsData?.[scope]?.neuroglancerOptions?.segmentIdProp ?? ''}`)
-    .join('|');
   const segmentIdPropByScope = useMemo(() => Object.fromEntries(
-    (pointLayerScopes ?? []).map(scope => [
-      scope, obsPointsData?.[scope]?.neuroglancerOptions?.segmentIdProp,
+    centroidSources.map(({ name, neuroglancerOptions }) => [
+      name, neuroglancerOptions.segmentIdProp,
     ]),
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [segmentIdPropSignature]);
+  ), [centroidSources]);
 
   const derivedCenter = useMemo(() => {
     // Prefer the annotation layer's real content bounds when available --
@@ -464,7 +470,7 @@ export function NeuroglancerSubscriber(props) {
       .filter(([lo, up]) => Array.isArray(lo) && Array.isArray(up)
         && lo.length === 3 && up.length === 3
         && lo.every(Number.isFinite) && up.every(Number.isFinite));
-    let bounds = validBounds(pointLayerRoles.centroidScopes);
+    let bounds = validBounds(centroidLayerRoles.centroidScopes);
     if (!bounds.length) bounds = validBounds(Object.keys(annotationInfoByScope));
     if (bounds.length) {
       const lower = [0, 1, 2].map(i => Math.min(...bounds.map(([lo]) => lo[i])));
@@ -479,7 +485,7 @@ export function NeuroglancerSubscriber(props) {
       return size.map((s, i) => ((voxelOffset[i] ?? 0) + s / 2) * (resolution[i] ?? 1));
     }
     return null;
-  }, [segmentationInfo, annotationInfoByScope, pointLayerRoles]);
+  }, [segmentationInfo, annotationInfoByScope, centroidLayerRoles]);
 
   useEffect(() => {
     if (hasInitialNgPosition || !segmentationUrl) {
@@ -501,6 +507,7 @@ export function NeuroglancerSubscriber(props) {
     ...obsSegmentationsDataErrors,
     ...obsSegmentationsSetsDataErrors,
     ...obsSegmentationsColorsDataErrors,
+    ...obsSegmentationsLocationsDataErrors,
     ...pointMultiIndicesDataErrors,
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
@@ -514,6 +521,7 @@ export function NeuroglancerSubscriber(props) {
     obsSegmentationsDataStatus,
     obsSegmentationsSetsDataStatus,
     obsSegmentationsColorsDataStatus,
+    obsSegmentationsLocationsDataStatus,
     segmentationMultiFeatureSelectionStatus,
     segmentationMultiIndicesDataStatus,
   ]);
@@ -842,7 +850,7 @@ export function NeuroglancerSubscriber(props) {
   // clear cache when annotation source changes
   useEffect(() => {
     chunkCacheRef.current.clear();
-  }, [obsPointsData]);
+  }, [centroidSources]);
 
   // Keep ref in sync with latest dimensions
   useEffect(() => {
@@ -906,7 +914,7 @@ export function NeuroglancerSubscriber(props) {
     // if (window.__disableCulling) return;
     if (detailMode) return;
     if (!segmentationLayerScopes?.length) return;
-    const { centroidToSegLayers } = pointLayerRoles;
+    const { centroidToSegLayers } = centroidLayerRoles;
     const infoByScope = annotationInfoByScopeRef.current;
     const transformByScope = annotationTransformByScopeRef.current;
     // Only centroid layers that have both info JSON and NG chunk transform.
@@ -983,9 +991,9 @@ export function NeuroglancerSubscriber(props) {
       const layout = getAnnotationPropertyIndices(info, { segmentIdProp: info.segmentIdProp });
       if (layout.segmentIdIndex < 0) {
         console.warn(
-          `[updateVisibleSegments] No segment ID property found for point layer "${scope}" `
+          `[updateVisibleSegments] No segment ID property found for centroid layer "${scope}" `
           + `(properties: ${layout.propertyIds.join(', ') || 'none'}). `
-          + 'Set options.segmentIdProp on the obsPoints.ng-annotations file.',
+          + 'Set options.segmentIdProp on the obsLocations.ng-annotations file.',
         );
         return [];
       }
@@ -1083,7 +1091,7 @@ export function NeuroglancerSubscriber(props) {
       console.warn('[updateVisibleSegments] error:', e);
       setIsMeshLoading(false);
     }
-  }, [segmentationLayerScopes, pointLayerRoles, meshLoadProjectionScaleThreshold, detailMode]);
+  }, [segmentationLayerScopes, centroidLayerRoles, meshLoadProjectionScaleThreshold, detailMode]);
 
   useEffect(() => {
     updateVisibleSegmentsThrottledRef.current = throttle(updateVisibleSegments, 500);
@@ -1106,15 +1114,15 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [initialViewerState]);
 
-  // True when at least one centroid point layer (obsType matches a segmentation
+  // True when at least one centroid layer (obsType matches a segmentation
   // channel) has a source URL -- i.e., on-demand mesh culling is active for
   // at least one segmentation layer. Transcript-only point layers never set this.
   const hasCentroidLayers = useMemo(
-    () => pointLayerRoles.centroidScopes.some(scope => pointLayerUrls[scope]),
-    [pointLayerRoles, pointLayerUrls],
+    () => centroidLayerRoles.centroidScopes.some(scope => centroidLayerUrls[scope]),
+    [centroidLayerRoles, centroidLayerUrls],
   );
 
-  // Annotation info (<url>/info) for each centroid point layer, along with its URL,
+  // Annotation info (<url>/info) for each centroid layer, along with its URL,
   // used to fetch spatial chunk files for viewport culling.
 
   // Scopes that have already been signalled as ready (info + transform).
@@ -1132,8 +1140,8 @@ export function NeuroglancerSubscriber(props) {
   useEffect(() => {
     const prev = annotationInfoByScopeRef.current;
     const next = {};
-    pointLayerRoles.centroidScopes.forEach((scope) => {
-      const url = pointLayerUrls[scope];
+    centroidLayerRoles.centroidScopes.forEach((scope) => {
+      const url = centroidLayerUrls[scope];
       const info = annotationInfoByScope[scope];
       if (url && info) {
         next[scope] = { ...info, url, segmentIdProp: segmentIdPropByScope[scope] };
@@ -1148,7 +1156,7 @@ export function NeuroglancerSubscriber(props) {
     });
     annotationInfoByScopeRef.current = next;
     Object.keys(next).forEach(markScopeReadyIfComplete);
-  }, [pointLayerRoles, pointLayerUrls, annotationInfoByScope, segmentIdPropByScope, markScopeReadyIfComplete]);
+  }, [centroidLayerRoles, centroidLayerUrls, annotationInfoByScope, segmentIdPropByScope, markScopeReadyIfComplete]);
 
 
   // Whenever a centroid layer becomes ready (info + transform), mark loaded and
@@ -1320,12 +1328,6 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination, cellSetSelection, additionalCellSets,
     obsSegmentationsSetsData, cellHighlight, csvLoaded]);
 
-  // For on-demand-mesh-loading use opacity to make the centroids obvious.
-  // Applied only to segmentation layers that have a centroid point layer.
-  // TODO: may be this should be a prop?
-  const meshOpacityByLayer = useMemo(() => Object.fromEntries(
-    [...pointLayerRoles.culledSegLayerScopes].map(segLayer => [segLayer, MESH_OPACITY]),
-  ), [pointLayerRoles]);
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -1535,7 +1537,7 @@ export function NeuroglancerSubscriber(props) {
 
       // Culling is per segmentation layer: only layers with a matching
       // centroid point layer are culled; others show all colored segments.
-      const isCulled = pointLayerRoles.culledSegLayerScopes.has(layerScope);
+      const isCulled = centroidLayerRoles.culledSegLayerScopes.has(layerScope);
 
       // Determine which segment IDs to pass to NG:
       let segments = [];
@@ -1588,7 +1590,7 @@ export function NeuroglancerSubscriber(props) {
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
     latestViewerStateIteration, detailMode, detailSegmentIds,
-    is3dMode, pointLayerRoles]);
+    is3dMode, centroidLayerRoles]);
 
   const onSegmentHighlight = useCallback((obsId) => {
     const next = obsId != null ? String(obsId) : null;
@@ -1610,8 +1612,8 @@ export function NeuroglancerSubscriber(props) {
 
   // Legend shows standalone point layers (e.g. transcripts) only;
   // centroid layers are represented by their segmentation's legend entry.
-  const legendPointLayerScopes = pointLayerRoles.transcriptScopes.length > 0
-    ? pointLayerRoles.transcriptScopes
+  const legendPointLayerScopes = pointLayerScopes?.length > 0
+    ? pointLayerScopes
     : undefined;
 
   return (
@@ -1670,7 +1672,6 @@ export function NeuroglancerSubscriber(props) {
             onViewerReady={(getFn) => { getViewProjectionMatRef.current = getFn; }}
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
-            meshOpacityByLayer={meshOpacityByLayer}
             decodeCentroidById={decodeCentroidById}
             allowEmptySegments={detailMode}
           />

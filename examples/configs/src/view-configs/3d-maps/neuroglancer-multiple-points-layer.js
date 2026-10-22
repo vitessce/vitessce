@@ -53,9 +53,10 @@ function generateNeuroglancerMisTwoLayersConfig() {
     coordinationValues: { fileUid: 'mis-proteins', obsType: 'point', featureType: 'gene' },
   });
 
-  // Layer 2: cell centroids, static/obsSet color, no feature axis
+  // Cell centroids: rendered implicitly with the segmentation layer of the same obsType,
+  // using its visual properties (visibility, opacity, color encoding, etc.).
   dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
+    fileType: 'obsLocations.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/MIS_combined_annotations_corrected_precomputed/cells',
     options: {
       projectionAnnotationSpacing: 0.5,
@@ -68,7 +69,7 @@ function generateNeuroglancerMisTwoLayersConfig() {
         outputDimensions: { x: [1e-9, 'm'], y: [1e-9, 'm'], z: [1e-9, 'm'] },
       },
     },
-    coordinationValues: { fileUid: 'mis-centroids', obsType: 'cell' },
+    coordinationValues: { obsType: 'cell' },
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
@@ -100,7 +101,12 @@ function generateNeuroglancerMisTwoLayersConfig() {
       fileUid: 'mis-meshes',
       spatialLayerOpacity: 1,
       spatialLayerVisible: true,
-      segmentationChannel: CL([{ obsType: 'cell', spatialChannelVisible: true }]),
+      segmentationChannel: CL([{
+        obsType: 'cell',
+        spatialChannelVisible: true,
+        spatialChannelOpacity: 0.6,
+        obsColorEncoding: 'cellSetSelection',
+      }]),
     }]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
@@ -119,17 +125,6 @@ function generateNeuroglancerMisTwoLayersConfig() {
         // featureSelection: ['MX1_SPOTS'],
         // featureValueColormapRange: [0.0, 1.0],
         // featureFilterMode: 'featureSelection',
-      },
-      {
-        fileUid: 'mis-centroids',
-        obsType: 'cell',
-        spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
-        spatialPointStrokeWidth: 0.2,
-        spatialLayerLabel: 'Centroids',
-        obsColorEncoding: 'cellSetSelection',
-        featureFilterMode: 'featureSelection',
-        spatialLayerColor: [0, 255, 0],
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('B', 'obsPoints') });

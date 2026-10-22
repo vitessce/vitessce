@@ -47,6 +47,7 @@ export {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  ngLocationsAnnotationSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,

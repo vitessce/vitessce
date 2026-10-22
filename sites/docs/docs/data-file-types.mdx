@@ -1690,7 +1690,7 @@ Any other keys in `options` are passed through unchanged to the Neuroglancer
 Camera and coordinate-space settings are **not** file options: set the initial camera with the view's
 `initialNgCameraState` prop and the global coordinate space with the `viewerDimensions` prop
 (see the [`neuroglancer` view](../components/#neuroglancer)). If `viewerDimensions` is not set,
-the coordinate space is taken from the first `obsPoints.ng-annotations` layer's `transform.outputDimensions`,
+the coordinate space is taken from the first `obsPoints.ng-annotations` (or `obsLocations.ng-annotations`) file's `transform.outputDimensions`,
 falling back to nanometers.
 
 Note: the precomputed format stores mesh coordinates in **nanometers** (via the `info` file's `resolution`).
@@ -1717,16 +1717,58 @@ Note: the precomputed format stores mesh coordinates in **nanometers** (via the 
 
 Points to a Neuroglancer **precomputed annotations** directory of `POINT` annotations (containing an `info` file).
 See the Neuroglancer documentation for the [precomputed annotation format](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/annotations.md).
-This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer), for example as cell centroids that drive on-demand mesh loading.
+This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer), for standalone point layers such as transcripts.
+Each file is rendered as a point layer, listed in the `pointLayer` coordination of the view config.
+When there are multiple point layers, use a distinct `featureType` for each of them.
+For segmentation centroids, use [`obsLocations.ng-annotations`](#obslocationsng-annotations) instead.
 
 Note on `transform`: Neuroglancer first converts the annotation source units (from the `info` file's `dimensions`) into the `outputDimensions` units, then applies `matrix`.
 The matrix should therefore contain only the scale ratio between the two spaces, not a unit conversion factor.
 For example, nm annotations mapped into a µm space where the meshes are 7.148× larger use `7.148`, not `7148`.
 
 <FileDefTabs
-  fileName="my_centroids"
+  fileName="my_transcripts"
   fileType="obsPoints.ng-annotations"
   fileConst="OBS_POINTS_NG_ANNOTATIONS"
+  options={`{
+    // Spacing used when rendering annotations in the 3D projection view.
+    "projectionAnnotationSpacing": 1,
+    // Optional: map annotation coordinates into the global coordinate space.
+    // Rows are output dims (x, y, z); the last column is translation.
+    "transform": {
+      "matrix": [
+        [7.148, 0, 0, 0],
+        [0, 7.148, 0, 0],
+        [0, 0, 3.804, 0]
+      ],
+      "outputDimensions": {
+        "x": [0.000001, "m"],
+        "y": [0.000001, "m"],
+        "z": [0.000001, "m"]
+      }
+    },
+    // Optional: AnnotationProperty names exposed to the shader as prop_<name>().
+    "featureIndexProp": "gene",
+    "pointIndexProp": "point_id"
+  }`}
+/>
+
+
+## `obsLocations.ng-annotations`
+
+Points to a Neuroglancer **precomputed annotations** directory of `POINT` annotations (containing an `info` file) that represent the **centroids of segmentations** (e.g., of the meshes from an [`obsSegmentations.ng-precomputed`](#obssegmentationsng-precomputed) file).
+This fileType is intended to be used with the `neuroglancer` [view type](../components/#neuroglancer), where the centroids drive on-demand mesh loading and hovering.
+
+The centroids do not need to be listed in the `pointLayer` coordination of the view config.
+Instead, they are rendered implicitly for each segmentation channel whose `obsType` matches the `obsType` of this file,
+using the visual properties of that segmentation layer/channel (visibility, opacity, color, color encoding, etc.).
+
+The `transform` option behaves as for [`obsPoints.ng-annotations`](#obspointsng-annotations).
+
+<FileDefTabs
+  fileName="my_centroids"
+  fileType="obsLocations.ng-annotations"
+  fileConst="OBS_LOCATIONS_NG_ANNOTATIONS"
   options={`{
     // Spacing used when rendering annotations in the 3D projection view.
     "projectionAnnotationSpacing": 1,
@@ -1747,9 +1789,10 @@ For example, nm annotations mapped into a µm space where the meshes are 7.148×
         "z": [0.000001, "m"]
       }
     },
-    // Optional: AnnotationProperty names exposed to the shader as prop_<name>().
-    "featureIndexProp": "gene",
-    "pointIndexProp": "point_id"
+    // Optional: used when the segmentation channel uses obsColorEncoding 'geneSelection'.
+    // AnnotationProperty holding the quantitative value, and its maximum (for normalization).
+    "quantitativeColorProp": "mx1spots",
+    "quantitativeColorMax": 58
   }`}
 />
 
