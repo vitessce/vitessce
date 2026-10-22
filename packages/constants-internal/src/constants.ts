@@ -204,6 +204,7 @@ export const FileType = {
   // Precomputed (mesh) format
   OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
   OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
+  OBS_LOCATIONS_NG_ANNOTATIONS: 'obsLocations.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',

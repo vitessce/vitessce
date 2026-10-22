@@ -14,10 +14,7 @@ function generateNeuroglancerMinimalConfiguration() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
-    options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
-    },
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_mask.ome.tiff',
     coordinationValues: {
       fileUid: 'melanoma',
     },
@@ -25,7 +22,7 @@ function generateNeuroglancerMinimalConfiguration() {
 
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
+    url: 'https://data-2.vitessce.io/data/sorger/sorger_mis',
     coordinationValues: {
       fileUid: 'melanom-meshes',
       obsType: 'cell',
@@ -78,28 +75,21 @@ function generateNeuroglancerMinimalConfiguration() {
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // The mehses here are neuroglancer_multilod_draco format and does not have raster volume to comptue the camera state
     initialNgCameraState: {
-      position: [
-        -342.5,
-        1358.5,
-        2506.5,
-      ],
-      projectionScale: 1024,
-      projectionOrientation: [
-        -0.636204183101654,
-        -0.5028395652770996,
-        0.5443811416625977,
-        0.2145828753709793,
-      ],
+      position: [2727000, 1377000, 97000], // image center in nm (5454 × 2754 × 194 µm / 2)
+      projectionScale: 3500000,
     },
   });
 
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
   // Initialize the image properties
-  config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
+  // config.linkViews([spatialView, lcView, neuroglancerView], ['spatialRenderingMode'], ['3D']);
 
+  config.linkViewsByObject([spatialView, lcView, neuroglancerView], {
+    spatialRenderingMode: '3D',
+
+  }, { meta: false });
   config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL([
       {
