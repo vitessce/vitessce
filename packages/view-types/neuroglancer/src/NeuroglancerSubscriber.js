@@ -1715,12 +1715,7 @@ export function NeuroglancerSubscriber(props) {
           ?.setSpatialLayerOpacityUnselected?.(value);
       });
     });
-    // Centroid layers follow, so hidden cells don't leave their centroids behind.
-    (pointLayerRoles.centroidScopes ?? []).forEach((scope) => {
-      pointLayerCoordination?.[1]?.[scope]?.setSpatialLayerOpacityUnselected?.(value);
-    });
-  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
-    pointLayerRoles, pointLayerCoordination]);
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination]);
   const onRecenter = useCallback(() => {
     setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
   }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
