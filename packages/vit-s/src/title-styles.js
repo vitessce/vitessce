@@ -87,10 +87,10 @@ export const useTitleStyles = makeStyles()(theme => ({
     },
   },
   spatialCardLight: {
-      backgroundColor: theme.palette.white,
+    backgroundColor: theme.palette.white,
+    color: theme.palette.black,
+    '& a': {
       color: theme.palette.black,
-      '& a': {
-        color: theme.palette.black,
-      },
     },
+  },
 }));
