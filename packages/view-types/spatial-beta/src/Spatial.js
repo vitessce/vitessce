@@ -410,7 +410,14 @@ class Spatial extends AbstractSpatialOrScatterplot {
       featureFilterMode,
       featureColor,
       spatialLayerOpacityUnselected,
+      spatialPointSize,
+      spatialPointStrokeWidth,
     } = layerCoordination;
+
+    const pointRadius = spatialPointSize ?? 5;
+    const pointRadiusMaxPixels = pointRadius * 0.6;
+    const pointLineWidth = spatialPointStrokeWidth ?? 0.0;
+    const pointLineColor = [0, 0, 0];
 
     // Obtain the numeric indices of the selected features, to use for filtering.
     // Note: this assumes that the feature names have been mapped to indices,
@@ -752,6 +759,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         autoHighlight: true,
         onHover: info => delegateHover(info, 'point', layerScope),
         opacity: 1.0,
+        // deck.gl's TileLayer ignores changes to `renderSubLayers` itself (it's marked
+        // `compare: false` internally, since it's usually just a fresh inline function
+        // every render), so simply updating pointRadius/pointLineWidth inside this
+        // closure won't make the tiles re-render on their own. This key is a dummy
+        // value that changes whenever the point size or stroke width changes, just so
+        // TileLayer re-renders the tiles.
+        // It's separate from getTileData's updateTriggers on purpose, so we don't
+        // re-fetch tile data -- we only want the existing data to be redrawn.
+        pointStyleKey: `${pointRadius}_${pointRadiusMaxPixels}_${pointLineWidth}`,
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
         // it provides no benefit to request tiles at different zoom levels.
@@ -799,13 +815,16 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: (subLayerProps) => {
           const { bbox, content: tileData } = subLayerProps.tile;
           const { left, top, right, bottom } = bbox;
-
+          console.log('[point stroke/size debug]', { layerScope, pointRadius, pointRadiusMaxPixels, pointLineWidth, pointLineColor });
           // Render scatterplot layer as sublayer of the TileLayer.
           return new deck.ScatterplotLayer(subLayerProps, {
             bounds: [left, top, right, bottom],
             data: tileData,
-            getRadius: 5,
-            radiusMaxPixels: 3,
+            getRadius: pointRadius,
+            radiusMaxPixels: pointRadiusMaxPixels,
+            stroked: true,
+            getLineWidth: pointLineWidth,
+            getLineColor: pointLineColor,
             // getPosition: d => d,
             // getFillColor: [255, 0, 0],
             getPosition: (object, { data, index, target }) => {
@@ -881,8 +900,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
       modelMatrix,
-      getRadius: 5,
-      radiusMaxPixels: 3,
+      getRadius: pointRadius,
+      radiusMaxPixels: pointRadiusMaxPixels,
+      stroked: true,
+      getLineWidth: pointLineWidth,
+      getLineColor: pointLineColor,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsPoints.data[0][index];
