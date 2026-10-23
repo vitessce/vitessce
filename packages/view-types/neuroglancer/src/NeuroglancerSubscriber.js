@@ -188,6 +188,7 @@ export function NeuroglancerSubscriber(props) {
     spatialOrthographic,
     spatialScaleBarVisible,
     spatialCameraResetRequest,
+    spatialBackgroundTheme,
   }, {
     setSpatialCameraSnapshot,
     setSpatialAxisLinesVisible,
@@ -195,6 +196,7 @@ export function NeuroglancerSubscriber(props) {
     setSpatialOrthographic,
     setSpatialScaleBarVisible,
     setSpatialCameraResetRequest,
+    setSpatialBackgroundTheme,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -1721,6 +1723,7 @@ export function NeuroglancerSubscriber(props) {
     setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
   }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
 
+  const backgroundTheme = spatialBackgroundTheme ?? 'dark';
   return (
 
     <TitleInfo
@@ -1736,6 +1739,7 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
+      spatialBackgroundTheme={backgroundTheme}
       options={(
         <NeuroglancerOptions
           axisLinesVisible={axisLinesVisibleEffective}
@@ -1749,6 +1753,8 @@ export function NeuroglancerSubscriber(props) {
           setScaleBarVisible={setSpatialScaleBarVisible}
           hideUnselected={hideUnselected}
           setHideUnselected={segmentationLayerScopes?.length ? setHideUnselected : undefined}
+          backgroundTheme={backgroundTheme}
+          setBackgroundTheme={setSpatialBackgroundTheme}
         />
       )}
     >
@@ -1762,7 +1768,7 @@ export function NeuroglancerSubscriber(props) {
           </div>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
-              theme="dark"
+              theme={backgroundTheme}
               maxHeight={ngHeight}
 
               // Segmentations
@@ -1805,6 +1811,7 @@ export function NeuroglancerSubscriber(props) {
             orthographic={orthographicEffective}
             scaleBarVisible={scaleBarVisibleEffective}
             cameraResetRequest={spatialCameraResetRequest}
+            backgroundTheme={spatialBackgroundTheme ?? 'dark'}
           />
           {!disableTooltip && !detailMode ? (
           // Overlay pinned to the container's top-left so the tooltip anchor's (x, y)

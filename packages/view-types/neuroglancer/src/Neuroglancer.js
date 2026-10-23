@@ -190,6 +190,7 @@ export class NeuroglancerComp extends PureComponent {
       orthographic,
       scaleBarVisible,
       cameraResetRequest,
+      backgroundTheme,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -214,6 +215,7 @@ export class NeuroglancerComp extends PureComponent {
                 orthographic={orthographic}
                 scaleBarVisible={scaleBarVisible}
                 cameraResetRequest={cameraResetRequest}
+                backgroundTheme={backgroundTheme}
               />
             )}
           </Suspense>

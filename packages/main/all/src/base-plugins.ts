@@ -645,6 +645,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
   // Default matches Neuroglancer's own default point marker diameter
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_SIZE, 5.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),

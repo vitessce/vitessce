@@ -815,7 +815,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: (subLayerProps) => {
           const { bbox, content: tileData } = subLayerProps.tile;
           const { left, top, right, bottom } = bbox;
-          console.log('[point stroke/size debug]', { layerScope, pointRadius, pointRadiusMaxPixels, pointLineWidth, pointLineColor });
           // Render scatterplot layer as sublayer of the TileLayer.
           return new deck.ScatterplotLayer(subLayerProps, {
             bounds: [left, top, right, bottom],

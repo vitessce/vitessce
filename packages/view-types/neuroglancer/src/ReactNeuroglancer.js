@@ -533,6 +533,14 @@ export default class Neuroglancer extends React.Component {
     return b * 65536 + g * 256 + r; // BGR format
   };
 
+
+  // Neuroglancer paints its own 3D canvas; match it to the view's background.
+  applyBackgroundTheme = () => {
+    if (!this.viewer) return;
+    const hex = this.props.backgroundTheme === 'light' ? '#ffffff' : '#000000';
+    this.viewer.perspectiveViewBackgroundColor.restoreState(hex);
+  };
+
   /* To add colors to the segments, turning unselected to grey  */
   applyColorsAndVisibility = (cellColorMappingByLayer) => {
     if (!this.viewer) return;
@@ -897,6 +905,7 @@ export default class Neuroglancer extends React.Component {
         }
       }),
     );
+    this.applyBackgroundTheme();
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
@@ -904,6 +913,9 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
+    if (prevProps.backgroundTheme !== this.props.backgroundTheme) {
+      this.applyBackgroundTheme();
+    }
 
     if (prevProps.axisLinesVisible !== this.props.axisLinesVisible
       || prevProps.boundsVisible !== this.props.boundsVisible

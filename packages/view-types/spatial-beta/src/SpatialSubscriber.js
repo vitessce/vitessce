@@ -190,6 +190,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialBackgroundTheme,
     spatialCameraSnapshot,
     spatialCameraResetRequest,
 
@@ -217,6 +218,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialBackgroundTheme,
     setSpatialCameraSnapshot,
     setSpatialCameraResetRequest,
 
@@ -1060,11 +1062,14 @@ export function SpatialSubscriber(props) {
       isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
+      spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
       options={(
         <SpatialOptions
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
           use3d={is3dMode}
+          spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+          setSpatialBackgroundTheme={setSpatialBackgroundTheme}
         />
       )}
     >
@@ -1273,8 +1278,8 @@ export function SpatialSubscriber(props) {
         />
       )}
       <MultiLegend
-        // Fix to dark theme due to black background of spatial plot.
-        theme="dark"
+        // Match the plot background, which is configurable.
+        theme={spatialBackgroundTheme ?? 'dark'}
         maxHeight={height}
 
         // Segmentations

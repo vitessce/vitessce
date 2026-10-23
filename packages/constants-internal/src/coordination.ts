@@ -35,6 +35,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.FEATURE_AGGREGATION_STRATEGY,
   // Annotation shapes are specific to a view's coordinate system.
   CoordinationType.ANNOTATION_SHAPES,
+  CoordinationType.SPATIAL_BACKGROUND_THEME,
 ];
 
 /**
@@ -102,6 +103,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
     CoordinationType.SPATIAL_ORTHOGRAPHIC,
     CoordinationType.SPATIAL_SCALE_BAR_VISIBLE,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -370,6 +372,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
     CoordinationType.SPATIAL_POINT_SIZE,
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.ANNOTATION_CONTROLLER]: [
     CoordinationType.DATASET,

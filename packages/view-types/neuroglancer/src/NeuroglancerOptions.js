@@ -92,11 +92,21 @@ export default function NeuroglancerOptions(props) {
     setScaleBarVisible,
     hideUnselected,
     setHideUnselected,
+    backgroundTheme,
+    setBackgroundTheme,
   } = props;
   const id = useId();
 
   return (
     <OptionsContainer>
+      {setBackgroundTheme ? (
+        <CheckboxRow
+          label="Light background"
+          id={`ng-light-background-${id}`}
+          checked={backgroundTheme === 'light'}
+          onChange={v => setBackgroundTheme(v ? 'light' : 'dark')}
+        />
+      ) : null}
       {setAxisLinesVisible ? (
         <CheckboxRow
           label="Axis lines"

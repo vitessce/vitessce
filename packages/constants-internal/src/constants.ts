@@ -357,6 +357,7 @@ export const CoordinationType = {
   SPATIAL_ORTHOGRAPHIC: 'spatialOrthographic',
   SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
   SPATIAL_CAMERA_RESET_REQUEST: 'spatialCameraResetRequest',
+  SPATIAL_BACKGROUND_THEME: 'spatialBackgroundTheme',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
