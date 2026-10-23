@@ -2,8 +2,8 @@ import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
-import { getPointsShader } from './shader-utils.js';
 import { NG_CAMERA_VALIDATORS } from './utils.js';
+import { getPointsShader, DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
 
 export const DEFAULT_NG_DIMENSIONS = {
   x: [1, 'nm'],
@@ -483,6 +483,7 @@ export function useNeuroglancerViewerState(
           spatialPointProjectionSpacing,
           featureValueColormap,
           featureValueColormapRange,
+          spatialPointSize,
         } = layerCoordination || {};
         const quantitativeColorMaxSelected = getQuantitativeColorMax(ngOptions, obsColorEncoding);
         // Dynamically construct the shader based on the color encoding
@@ -508,6 +509,7 @@ export function useNeuroglancerViewerState(
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
           quantitativeColorMax: quantitativeColorMaxSelected,
+          pointMarkerSize: spatialPointSize ?? DEFAULT_POINT_MARKER_SIZE,
         });
         result = {
           ...result,

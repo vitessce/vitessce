@@ -339,6 +339,7 @@ export const CoordinationType = {
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
   SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
+  SPATIAL_POINT_SIZE: 'spatialPointSize',
   SPATIAL_POINT_PROJECTION_SPACING: 'spatialPointProjectionSpacing',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',

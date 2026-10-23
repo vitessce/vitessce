@@ -288,6 +288,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_SIZE,
     ],
     coordinationScopes,
     coordinationScopesBy,

@@ -299,6 +299,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_SIZE,
       CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.OBS_SET_COLOR,

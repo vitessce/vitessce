@@ -112,8 +112,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
-      position: [2870.94, 929.11, 117.25],
-      projectionScale: 1331.4,
+      position: [2825, 1731, 117.25],
+      projectionScale: 5200,
       projectionOrientation: [
         -0.6668370366096497,
         0.5911841988563538,
@@ -196,7 +196,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  config.layout(hconcat(neuroglancerView, spatialView,
+  config.layout(hconcat(vconcat(neuroglancerView, spatialView),
     vconcat(layerController, obsSets, scatterView)));
   const configJSON = config.toJSON();
   return configJSON;
