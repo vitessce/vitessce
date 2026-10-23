@@ -188,6 +188,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             // ends at cyan (#69fcea). Use 'plasma' colormap for consistent colors.
             featureValueColormap: 'plasma',
             featureValueColormapRange: [0.0, 1.0],
+            spatialSegmentationStrokeWidth: 1.0,
+            spatialSegmentationFilled: false,
           },
         ]),
       },

@@ -140,6 +140,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'obsSetColor',
             'obsSetSelection',
             'additionalObsSets',
+            'spatialSegmentationStrokeWidth',
           ]);
           const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
           if (keysChanged || opacityChanged) {

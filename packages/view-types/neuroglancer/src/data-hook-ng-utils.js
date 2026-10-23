@@ -256,6 +256,7 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetColor,
     obsSetSelection,
     additionalObsSets,
+    spatialSegmentationStrokeWidth,
   } = channelCoordination || {};
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
@@ -272,7 +273,7 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     additionalObsSets,
     // Only show the centroids of the selected obsSets.
     featureFilterMode: 'featureSelection',
-    pointMarkerBorderWidth: CENTROID_POINT_STROKE_WIDTH,
+    pointMarkerBorderWidth: spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
     // The points represent the centroids of the segmentations.
     // We pass this down to the getPointsShader, to determine whether to interpret
     // `obsColorEncoding === 'geneSelection'` as a
