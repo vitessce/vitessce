@@ -2,8 +2,8 @@ import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
-import { getPointsShader } from './shader-utils.js';
 import { NG_CAMERA_VALIDATORS } from './utils.js';
+import { getPointsShader, DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
 
 export const DEFAULT_NG_DIMENSIONS = {
   x: [1, 'nm'],
@@ -29,6 +29,10 @@ export const DEFAULT_NG_PROPS = {
   dimensions: DEFAULT_NG_DIMENSIONS,
   layers: [],
 };
+
+// NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
+const MIN_ANNOTATION_SPACING = 0.0625;
+const MAX_ANNOTATION_SPACING = 65536;
 
 /**
  * Validate initialNgCameraState field by field. Invalid values fall back to a
@@ -252,6 +256,7 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetColor,
     obsSetSelection,
     additionalObsSets,
+    spatialSegmentationStrokeWidth,
   } = channelCoordination || {};
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
@@ -268,7 +273,7 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     additionalObsSets,
     // Only show the centroids of the selected obsSets.
     featureFilterMode: 'featureSelection',
-    pointMarkerBorderWidth: CENTROID_POINT_STROKE_WIDTH,
+    pointMarkerBorderWidth: spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
     // The points represent the centroids of the segmentations.
     // We pass this down to the getPointsShader, to determine whether to interpret
     // `obsColorEncoding === 'geneSelection'` as a
@@ -391,7 +396,6 @@ export function useNeuroglancerViewerState(
           result = {
             ...result,
             showAxisLines,
-            showDefaultAnnotations: false, // this removes the yellow box around pointsLayer
             layers: [
               ...result.layers,
               {
@@ -476,8 +480,10 @@ export function useNeuroglancerViewerState(
           featureFilterMode,
           featureColor,
           spatialPointStrokeWidth,
+          spatialPointProjectionSpacing,
           featureValueColormap,
           featureValueColormapRange,
+          spatialPointSize,
         } = layerCoordination || {};
         const quantitativeColorMaxSelected = getQuantitativeColorMax(ngOptions, obsColorEncoding);
         // Dynamically construct the shader based on the color encoding
@@ -503,6 +509,7 @@ export function useNeuroglancerViewerState(
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
           quantitativeColorMax: quantitativeColorMaxSelected,
+          pointMarkerSize: spatialPointSize ?? DEFAULT_POINT_MARKER_SIZE,
         });
         result = {
           ...result,
@@ -517,7 +524,11 @@ export function useNeuroglancerViewerState(
               visible: spatialLayerVisible,
               // Options from layerData.neuroglancerOptions
               // like projectionAnnotationSpacing:
-              projectionAnnotationSpacing: ngOptions?.projectionAnnotationSpacing ?? 1.0,
+              // Coordination value (LC) > file option > 1.0; clamped to NG's valid range.
+              projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
+                MIN_ANNOTATION_SPACING,
+                spatialPointProjectionSpacing ?? ngOptions?.projectionAnnotationSpacing ?? 1.0,
+              )),
             },
           ],
 

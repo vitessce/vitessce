@@ -29,6 +29,19 @@ function borderWidthGlsl(borderWidth = 0.0) {
   return `setPointMarkerBorderWidth(${borderWidth.toFixed(1)});`;
 }
 
+// Neuroglancer's default point marker diameter
+export const DEFAULT_POINT_MARKER_SIZE = 5.0;
+
+/**
+ * GLSL call to set the point marker diameter.
+ * @param {number} size
+ * @returns {string}
+ */
+function pointMarkerSizeGlsl(size = DEFAULT_POINT_MARKER_SIZE) {
+  // must be decimal/float value
+  return `setPointMarkerSize(${size.toFixed(1)});`;
+}
+
 
 /**
  * Format a normalized color as a GLSL vec3 literal.
@@ -695,7 +708,16 @@ export function getObsSetSelectionShader(
   `;
 }
 
-export function getPointsShader(layerCoordination) {
+/**
+* Builds the GLSL shader for a Neuroglancer point annotation layer.
+* It dispatches to one of the case-specific shader generators above,
+* all of which accept a `borderWidth` param and emit `setPointMarkerBorderWidth(...)`.
+* The point *size* is not threaded through each of those generators
+* individually (there are ~15 of them) — instead,
+* `getPointsShader` below post-processes whatever string comes back and appends
+* a `setPointMarkerSize(...)` call right after every `setPointMarkerBorderWidth(...)`.
+*/
+function getPointsShaderInner(layerCoordination) {
   const {
     theme,
     featureIndex,
@@ -983,4 +1005,17 @@ export function getPointsShader(layerCoordination) {
   }
   // Fallback: static color.
   return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
+}
+
+export function getPointsShader(layerCoordination) {
+  const { pointMarkerSize = DEFAULT_POINT_MARKER_SIZE } = layerCoordination;
+  const shader = getPointsShaderInner(layerCoordination);
+  // Append a setPointMarkerSize(...) call right after every
+  // setPointMarkerBorderWidth(...) call, so every branch above picks up the
+  // point size without each one needing its own pointSize parameter.
+  // (A shader with no setPointMarkerBorderWidth call at all, renders nothing).
+  return shader.replace(
+    /setPointMarkerBorderWidth\([^)]*\);/g,
+    match => `${match}\n            ${pointMarkerSizeGlsl(pointMarkerSize)}`,
+  );
 }

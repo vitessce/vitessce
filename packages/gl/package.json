@@ -31,6 +31,9 @@
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
+    "@vitessce/styles": "workspace:*",
+    "@vitessce/icons": "workspace:*",
+    "clsx": "catalog:",
     "@deck.gl/aggregation-layers": "catalog:deck.gl",
     "@deck.gl/core": "catalog:deck.gl",
     "@deck.gl/extensions": "catalog:deck.gl",
@@ -74,6 +77,7 @@
     "math.gl": "catalog:",
     "mathjs": "catalog:",
     "nebula.gl": "catalog:nebula.gl"
+
   },
   "devDependencies": {
     "d3-quadtree": "catalog:",

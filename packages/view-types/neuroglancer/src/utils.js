@@ -396,3 +396,18 @@ export function reuseIfShallowEqual(cacheRef, next) {
   cacheRef.current = next;
   return next;
 }
+
+
+/**
+ * Project a viewer-space point to container pixels using NG's view-projection
+ * matrix (column-major). Same convention as the centroid viewport culling.
+ * @returns {[number, number]|null}
+ */
+export function projectToScreen(mat, [x, y, z], width, height) {
+  if (!mat) return null;
+  const cx = mat[0] * x + mat[4] * y + mat[8] * z + mat[12];
+  const cy = mat[1] * x + mat[5] * y + mat[9] * z + mat[13];
+  const cw = mat[3] * x + mat[7] * y + mat[11] * z + mat[15];
+  if (!(cw > 0)) return null; // behind the camera
+  return [((cx / cw) + 1) * 0.5 * width, (1 - (cy / cw)) * 0.5 * height];
+}

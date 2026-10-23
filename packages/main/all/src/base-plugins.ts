@@ -631,7 +631,21 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
+  // null = fall back to the neuroglancer view's showAxisLines prop / NG default.
+  new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_LINES_VISIBLE, null, z.boolean().nullable()),
+  // Neuroglancer default annotations (data-source bounding boxes).
+  new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
+  // null = use the file's projectionAnnotationSpacing option. NG valid range [0.0625, 65536].
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
+  // Neuroglancer only draws its scale bar in orthographic projection.
+  new PluginCoordinationType(CoordinationType.SPATIAL_ORTHOGRAPHIC, false, z.boolean().nullable()),
+  // Incremented by any synced view's recenter button; Neuroglancer restores its home camera.
+  new PluginCoordinationType(CoordinationType.SPATIAL_CAMERA_RESET_REQUEST, 0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
+  // Default matches Neuroglancer's own default point marker diameter
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_SIZE, 5.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),

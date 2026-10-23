@@ -64,6 +64,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'featureValueColormap',
               'featureValueColormapRange',
               'featureSelection',
+              'spatialLayerOpacityUnselected',
             ])
             || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
             || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
@@ -139,6 +140,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'obsSetColor',
             'obsSetSelection',
             'additionalObsSets',
+            'spatialSegmentationStrokeWidth',
           ]);
           const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
           if (keysChanged || opacityChanged) {
@@ -174,6 +176,8 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
         'obsSetColor',
         'obsSetSelection',
         'additionalObsSets',
+        'spatialPointProjectionSpacing',
+        'spatialPointSize',
       ]);
       const opacityChanged = Math.abs(
         (prevLayer?.spatialLayerOpacity ?? 1.0) - (nextLayer?.spatialLayerOpacity ?? 1.0),

@@ -18,6 +18,7 @@ import {
   useMultiObsPoints,
   usePointMultiObsFeatureMatrixIndices,
   useMultiObsSegmentations,
+  useSetComponentHover,
   useSegmentationMultiFeatureSelection,
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsSets,
@@ -33,6 +34,7 @@ import {
   COMPONENT_COORDINATION_TYPES,
 } from '@vitessce/constants-internal';
 import { Chip } from '@vitessce/styles';
+import { ToolMenu } from '@vitessce/gl';
 import {
   mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
@@ -44,6 +46,7 @@ import {
   sanitizeNgCameraState,
 } from './data-hook-ng-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
+import NeuroglancerTooltipSubscriber from './NeuroglancerTooltipSubscriber.js';
 import { useStyles } from './styles.js';
 import {
   eulerToQuaternion,
@@ -62,7 +65,7 @@ import {
   parseAnnotationById,
   ngMetersPerUnit,
 } from './utils.js';
-
+import NeuroglancerOptions from './NeuroglancerOptions.js';
 
 const ROTATION_EPS = 1e-3;
 const TARGET_EPS = 0.5;
@@ -70,6 +73,7 @@ const MESH_LOAD_THRESHOLD = 100;
 const MESH_LOADING_OVERLAY_TIMEOUT = 1500;
 
 const GUIDE_URL = 'https://vitessce.io/docs/ng-guide/';
+const DEFAULT_UNSELECTED_OPACITY = 0.25;
 
 const LAST_INTERACTION_SOURCE = {
   vitessce: 'vitessce',
@@ -79,6 +83,7 @@ const LAST_INTERACTION_SOURCE = {
 export function NeuroglancerSubscriber(props) {
   const {
     uuid,
+    disableTooltip = false,
     coordinationScopes: coordinationScopesRaw,
     coordinationScopesBy: coordinationScopesByRaw,
     closeButtonVisible,
@@ -121,6 +126,8 @@ export function NeuroglancerSubscriber(props) {
 
   const initialRotationPushedRef = useRef(false);
   const getViewProjectionMatRef = useRef(null);
+  // meshId -> [x, y, z] in viewer coordinates, filled from decoded centroid chunks.
+  const centroidPosByMeshIdRef = useRef(new Map());
   // const obsIdToMeshIdRef = useRef({});
   const meshIdToCellIdRef = useRef({});
   // TODO: maynot be needed for other dataset
@@ -176,8 +183,20 @@ export function NeuroglancerSubscriber(props) {
     obsHighlight: cellHighlight,
     spatialCameraSnapshot,
     spatialRenderingMode,
+    spatialAxisLinesVisible,
+    spatialBoundsVisible,
+    spatialOrthographic,
+    spatialScaleBarVisible,
+    spatialCameraResetRequest,
+    spatialBackgroundTheme,
   }, {
     setSpatialCameraSnapshot,
+    setSpatialAxisLinesVisible,
+    setSpatialBoundsVisible,
+    setSpatialOrthographic,
+    setSpatialScaleBarVisible,
+    setSpatialCameraResetRequest,
+    setSpatialBackgroundTheme,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
     setObsColorEncoding: setCellColorEncoding,
@@ -200,7 +219,8 @@ export function NeuroglancerSubscriber(props) {
   }, [loaders, dataset]);
 
   const [ngWidth, ngHeight, containerRef] = useGridItemSize();
-
+  const setComponentHover = useSetComponentHover();
+  const [hoverCoord, setHoverCoord] = useState(null);
   const [
     segmentationLayerScopes,
     segmentationChannelScopesByLayer,
@@ -254,6 +274,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -280,6 +301,9 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_SIZE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
+      CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.OBS_SET_COLOR,
       CoordinationType.OBS_SET_SELECTION,
       CoordinationType.ADDITIONAL_OBS_SETS,
@@ -774,12 +798,14 @@ export function NeuroglancerSubscriber(props) {
             theme,
           });
           const ngCellColors = {};
+          const selectedCellIds = [];
           // cellColors is a Map keyed by segment ID
           idsToColor.forEach((id) => {
             if (knownIdSet.has(String(id))) {
               const color = cellColors.get(String(id));
               if (color) {
                 ngCellColors[id] = rgbToHex(color);
+                selectedCellIds.push(id);
               } else {
                 // Not part of obsSets at all — auto-color deterministically.
                 ngCellColors[id] = GREY_HEX;
@@ -787,6 +813,14 @@ export function NeuroglancerSubscriber(props) {
             }
           });
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
+          // Hide unselected meshes when unselected opacity is 0 (NG can't fade individual segments).
+          const { spatialLayerOpacityUnselected } = segmentationChannelCoordination[0][layerScope][channelScope];
+          if (spatialLayerOpacityUnselected === 0 && obsSetSelection?.length > 0) {
+            // Same cell -> mesh id remap as remapCellColors.
+            result[layerScope].visibleMeshIds = new Set(
+              selectedCellIds.map(id => String(cellIdToMeshIdRef.current?.[String(id)] ?? id)),
+            );
+          }
         }
       });
     });
@@ -1036,6 +1070,13 @@ export function NeuroglancerSubscriber(props) {
       readyScopes.forEach((scope, i) => {
         const allEntries = entriesByScope[i];
         const transform = transformByScope[scope];
+        // Positions for crosshairs when the highlight comes from another view.
+        allEntries.forEach(({ id, x, y, z }) => {
+          centroidPosByMeshIdRef.current.set(
+            String(id),
+            [x / transform.x, y / transform.y, (z || 0) / transform.z],
+          );
+        });
 
         // obsId → meshId lookup for hover, kept per centroid layer.
         const obsIdToMeshId = {};
@@ -1270,6 +1311,8 @@ export function NeuroglancerSubscriber(props) {
         colors: segmentationColorMapping?.[layerScope]?.[channelScope] ?? {},
         opacity: segmentationColorMapping?.[layerScope]?.opacity ?? 1.0,
         defaultColor: segmentationColorMapping?.[layerScope]?.defaultColor ?? null,
+        // Set only when "hide unselected" is active (unselected opacity 0 + a set selection).
+        visibleMeshIds: segmentationColorMapping?.[layerScope]?.visibleMeshIds ?? null,
       };
     });
     return result;
@@ -1548,6 +1591,11 @@ export function NeuroglancerSubscriber(props) {
         // No culling — show all segments from color mapping
         segments = Object.keys(layerColorMapping);
       }
+      // Hide unselected obsSet members (set when spatialLayerOpacityUnselected === 0).
+      const visibleMeshIds = cellColorMappingByLayer?.[layerScope]?.visibleMeshIds;
+      if (visibleMeshIds) {
+        segments = segments.filter(id => visibleMeshIds.has(String(id)));
+      }
       // only include colors for visible segments
       let derivedSegmentColors = {};
       if (isCulled && segments.length > 0) {
@@ -1592,11 +1640,26 @@ export function NeuroglancerSubscriber(props) {
     latestViewerStateIteration, detailMode, detailSegmentIds,
     is3dMode, centroidLayerRoles]);
 
-  const onSegmentHighlight = useCallback((obsId) => {
+  // Same pattern as spatialBeta's delegateHover: highlight + hoverCoord + component hover.
+  const onSegmentHighlight = useCallback((obsId, coord = null) => {
+    // console.debug('[NG tip 2] highlight', obsId, 'coord', coord);
     const next = obsId != null ? String(obsId) : null;
-    if (next === cellHighlight) return;
+    if (next != null && coord) {
+      setHoverCoord(coord);
+      setComponentHover(uuid);
+    } else {
+      setHoverCoord(null);
+    }
     setCellHighlight(next);
-  }, [setCellHighlight, cellHighlight]);
+  }, [setCellHighlight, cellHighlight, setComponentHover, uuid]);
+
+  // obsId (cell id) -> centroid position in viewer coordinates, or null.
+  const getObsPosition = useCallback((obsId) => {
+    if (obsId == null) return null;
+    const stripped = String(obsId).replace(/^.*_/, '');
+    const meshId = String(cellIdToMeshIdRef.current?.[stripped] ?? stripped);
+    return centroidPosByMeshIdRef.current.get(meshId) ?? null;
+  }, []);
 
   const handleLayerLoadingChange = useCallback((isLoaded) => {
     if (!isLayersLoaded && isLoaded) {
@@ -1616,6 +1679,51 @@ export function NeuroglancerSubscriber(props) {
     ? pointLayerScopes
     : undefined;
 
+
+  const axisLinesVisibleEffective = spatialAxisLinesVisible ?? showAxisLines;
+  const boundsVisibleEffective = spatialBoundsVisible ?? false;
+  const orthographicEffective = spatialOrthographic ?? false;
+  const scaleBarVisibleEffective = spatialScaleBarVisible ?? true;
+
+  // One options group per point layer (includes centroid layers).
+  // Spacing display = effective value NG received (coordination > file option > 1.0).
+  const pointLayersForOptions = useMemo(() => (pointLayerScopes || []).map((scope) => {
+    const values = pointLayerCoordination[0]?.[scope] ?? {};
+    const setters = pointLayerCoordination[1]?.[scope] ?? {};
+    const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
+    return {
+      scope,
+      label: values.spatialLayerLabel || `Points ${scope}`,
+      strokeWidth: values.spatialPointStrokeWidth,
+      setStrokeWidth: setters.setSpatialPointStrokeWidth,
+      spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+      setSpacing: setters.setSpatialPointProjectionSpacing,
+    };
+  }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
+
+  // "Hide unselected" = unselected opacity 0 on all segmentation channels (+ their centroid layers).
+  // Meshes can only hide (NG has no per-segment alpha); centroids fade via the same value.
+  const hideUnselected = useMemo(() => (segmentationLayerScopes ?? []).some(layerScope => (
+    (segmentationChannelScopesByLayer?.[layerScope] ?? []).some(channelScope => (
+      segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]
+        ?.spatialLayerOpacityUnselected === 0
+    ))
+  )), [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination]);
+
+  const setHideUnselected = useCallback((hide) => {
+    const value = hide ? 0 : DEFAULT_UNSELECTED_OPACITY;
+    (segmentationLayerScopes ?? []).forEach((layerScope) => {
+      (segmentationChannelScopesByLayer?.[layerScope] ?? []).forEach((channelScope) => {
+        segmentationChannelCoordination?.[1]?.[layerScope]?.[channelScope]
+          ?.setSpatialLayerOpacityUnselected?.(value);
+      });
+    });
+  }, [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination]);
+  const onRecenter = useCallback(() => {
+    setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
+  }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
+
+  const backgroundTheme = spatialBackgroundTheme ?? 'dark';
   return (
 
     <TitleInfo
@@ -1631,12 +1739,36 @@ export function NeuroglancerSubscriber(props) {
       errors={errors}
       withPadding={false}
       guideUrl={GUIDE_URL}
+      spatialBackgroundTheme={backgroundTheme}
+      options={(
+        <NeuroglancerOptions
+          axisLinesVisible={axisLinesVisibleEffective}
+          setAxisLinesVisible={setSpatialAxisLinesVisible}
+          boundsVisible={boundsVisibleEffective}
+          setBoundsVisible={setSpatialBoundsVisible}
+          pointLayers={pointLayersForOptions}
+          orthographic={orthographicEffective}
+          setOrthographic={setSpatialOrthographic}
+          scaleBarVisible={scaleBarVisibleEffective}
+          setScaleBarVisible={setSpatialScaleBarVisible}
+          hideUnselected={hideUnselected}
+          setHideUnselected={segmentationLayerScopes?.length ? setHideUnselected : undefined}
+          backgroundTheme={backgroundTheme}
+          setBackgroundTheme={setSpatialBackgroundTheme}
+        />
+      )}
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>
+          <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1000 }}>
+            <ToolMenu
+              visibleTools={{ pan: false, selectLasso: false, recenter: true }}
+              recenterOnClick={onRecenter}
+            />
+          </div>
           <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 50 }}>
             <MultiLegend
-              theme="dark"
+              theme={backgroundTheme}
               maxHeight={ngHeight}
 
               // Segmentations
@@ -1659,7 +1791,6 @@ export function NeuroglancerSubscriber(props) {
               className={classes.meshLoadingIndicator}
             />
           ) : null}
-
           <NeuroglancerComp
             classes={classes}
             onSegmentClick={onSegmentClick}
@@ -1673,11 +1804,46 @@ export function NeuroglancerSubscriber(props) {
             getMeshIdToCellId={meshId => meshIdToCellIdRef.current[meshId]}
             centroidAnnotationUrlsByLayerName={centroidAnnotationUrlsByLayerName}
             decodeCentroidById={decodeCentroidById}
-            allowEmptySegments={detailMode}
+            // Hiding unselected (esp. with on-demand culling) can legitimately leave zero meshes in view.
+            allowEmptySegments={detailMode || hideUnselected}
+            axisLinesVisible={axisLinesVisibleEffective}
+            boundsVisible={boundsVisibleEffective}
+            orthographic={orthographicEffective}
+            scaleBarVisible={scaleBarVisibleEffective}
+            cameraResetRequest={spatialCameraResetRequest}
+            backgroundTheme={spatialBackgroundTheme ?? 'dark'}
           />
+          {!disableTooltip && !detailMode ? (
+          // Overlay pinned to the container's top-left so the tooltip anchor's (x, y)
+          // offsets are relative to the canvas, not to the end of the NG wrapper.
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'none',
+              zIndex: 60,
+            }}
+            >
+              <NeuroglancerTooltipSubscriber
+                parentUuid={uuid}
+                hoverCoord={hoverCoord}
+              // useGridItemSize can report 0x0; viewportSizeRef holds the real container size.
+                width={viewportSizeRef.current.width || ngWidth}
+                height={viewportSizeRef.current.height || ngHeight}
+                getViewProjectionMat={() => getViewProjectionMatRef.current?.()}
+                obsHighlight={cellHighlight}
+                getObsPosition={getObsPosition}
+                segmentationLayerScopes={segmentationLayerScopes}
+                segmentationChannelScopesByLayer={segmentationChannelScopesByLayer}
+                segmentationChannelCoordination={segmentationChannelCoordination}
+                obsSegmentationsSetsData={obsSegmentationsSetsData}
+              />
+            </div>
+          ) : null}
         </div>
       ) : null}
     </TitleInfo>
-
   );
 }
