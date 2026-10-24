@@ -202,6 +202,7 @@ export function VolumeView(props) {
     spatialRenderingMode,
     spatialRenderingModeChanging,
     onVolumeLoadingUpdate,
+    volumeZReduction = 'auto',
   } = props;
   const {
     gl,
@@ -367,7 +368,11 @@ export function VolumeView(props) {
       // TODO(mark): separate the initialization which depends on gl, from the initialization which depends on images, from the dm.init(firstImageLayer)
       dataManager.initImages(images, imageLayerScopes);
       // TODO: generalize to more than one image layer.
-      await dataManager.init(firstImageLayerChannelCoordination); // device limits, zarr meta
+      // volumeZReduction only applies on the first init; changing it requires a remount.
+      await dataManager.init( // device limits, zarr meta
+        firstImageLayerChannelCoordination,
+        { zReduction: volumeZReduction },
+      );
       if (hasRerun) {
         log.debug('Initialization useEffect has rerun, aborting remaining initialization');
         return;

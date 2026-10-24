@@ -99,7 +99,10 @@ import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-ne
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
-import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
+import {
+  saGloria, saKingsnake, saLsp1, saLsp2, saLsp3,
+  saIdr0062A, saIdr0101A, saIdr0048A, saIdr0048ANone, saIdr0048AMean, saIdr0106,
+} from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
@@ -264,6 +267,12 @@ export const configs = {
   's-a-lsp3': saLsp3,
   's-a-kingsnake': saKingsnake,
   's-a-gloria': saGloria,
+  's-a-idr0062A': saIdr0062A,
+  's-a-idr0101A': saIdr0101A,
+  's-a-idr0048A': saIdr0048A,
+  's-a-idr0048A-none': saIdr0048ANone,
+  's-a-idr0048A-mean': saIdr0048AMean,
+  's-a-idr0106': saIdr0106,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

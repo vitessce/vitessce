@@ -12,8 +12,12 @@ import {
   LinearFilter,
   NearestFilter,
 } from 'three';
-import { isEqual } from 'lodash-es';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
+import {
+  planVolumeLevels,
+  decodedBytesPerBrick,
+  createVolumeBrickSource,
+} from './volume-zarr.js';
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -41,6 +45,7 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
+const MAX_DECODED_BYTES_PER_BRICK = 32 * (2 ** 20); // starting value, not measured
 
 // const manualChannelSelection = 0;
 
@@ -60,6 +65,44 @@ function logWithColor(message) {
 
 
 /* Begin extracted functions */
+/**
+ * Level-0 voxel spacing, ZYX. Combines the column-major model matrix (dataset and
+ * multiscale transforms, plus any from the file options) with the non-standard
+ * root-level coordinateTransformations that the converter datasets (kingsnake,
+ * f8ii, melanoma) use for their physical spacing and that the model matrix ignores.
+ * @param {number[]} modelMatrix From ImageWrapper.getModelMatrix().
+ * @param {object} ngffMetadata The root .zattrs.
+ * @returns {[number, number, number]}
+ */
+export function _getVoxelSpacing(modelMatrix, ngffMetadata) {
+  const spacing = [8, 4, 0].map(i => Math.hypot(
+    modelMatrix[i], modelMatrix[i + 1], modelMatrix[i + 2],
+  ) || 1);
+  const rootScale = ngffMetadata?.coordinateTransformations
+    ?.find(t => t.type === 'scale')?.scale;
+  if (rootScale?.length >= 3) {
+    rootScale.slice(-3).forEach((value, axis) => {
+      if (Number.isFinite(value) && value > 0) spacing[axis] *= value;
+    });
+  }
+  return spacing;
+}
+
+/**
+ * Value range mapped to 0-255 when converting uint16 bricks to uint8.
+ * Prefers the OMERO display window (start/end) over the full data range
+ * (min/max), which is often the whole dtype range, e.g. 0-65535 in IDR files.
+ * @param {object} omero The omero metadata of the image.
+ * @param {number} channel The Zarr channel index.
+ * @returns {[number, number]}
+ */
+export function _getChannelWindow(omero, channel) {
+  const window = omero?.channels?.[channel]?.window;
+  const start = window?.start ?? window?.min ?? 0;
+  const end = window?.end ?? window?.max ?? 65535;
+  return end > start ? [start, end] : [0, 65535];
+}
+
 export function _resolutionStatsToShapes(multiResolutionStats) {
   return multiResolutionStats.map((stats) => {
     const { dims } = stats;
@@ -134,20 +177,29 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   PT.lowestDataRes = zarrStoreBrickLayout.length - 1;
   // log.debug('lowestDataRes', PT.lowestDataRes);
 
-  // Sum up the extents from all resolution levels excluding the l0
+  // Sum up the extents from all resolution levels excluding the l0.
+  // Channel copies of a level sit at 0 or at the anchor on each axis, so each
+  // anchor must be at least the level's own extent; otherwise copies overlap
+  // and _ptToZarr decodes the wrong channel. Halving pyramids ending in a single
+  // brick already satisfy this; logical levels (e.g. XY-only pyramids) may not.
   for (let i = zarrStoreBrickLayout.length - 1; i > 0; i--) {
-    PT.anchors.push([
-      PT.xExtent,
-      PT.yExtent,
-      PT.zExtent,
-    ]);
-    PT.xExtent += zarrStoreBrickLayout[i][2];
-    PT.yExtent += zarrStoreBrickLayout[i][1];
-    PT.zExtent += zarrStoreBrickLayout[i][0];
+    const [zBricks, yBricks, xBricks] = zarrStoreBrickLayout[i];
+    const anchor = [
+      Math.max(PT.xExtent, xBricks),
+      Math.max(PT.yExtent, yBricks),
+      Math.max(PT.zExtent, zBricks),
+    ];
+    PT.anchors.push(anchor);
+    PT.xExtent = anchor[0] + xBricks;
+    PT.yExtent = anchor[1] + yBricks;
+    PT.zExtent = anchor[2] + zBricks;
   }
 
   PT.anchors.push([0, 0, PT.zExtent]);
   PT.anchors.reverse();
+  // Level 0 channels are stacked along z from x = y = 0; the table must fit them.
+  PT.xExtent = Math.max(PT.xExtent, zarrStoreBrickLayout[0][2]);
+  PT.yExtent = Math.max(PT.yExtent, zarrStoreBrickLayout[0][1]);
 
   // log.debug('PT anchors', PT.anchors);
 
@@ -697,9 +749,12 @@ export class VolumeDataManager {
    * Initialize the VolumeDataManager with Zarr store details and device limits
    * This should be called ONCE at website initialization
    * TODO(mark): merge this with the constructor?
+   * @param {object} config Channel coordination of the first image layer.
+   * @param {object} loadingOptions Fixed for the loaded image, since they change the page table.
+   * @param {'auto'|'none'|'sample'|'mean'|'max'} loadingOptions.zReduction
    * @returns {Promise<Object>} Object with Zarr store details and device limits
    */
-  async init(config) {
+  async init(config, loadingOptions = {}) {
     logWithColor('INIT()');
     // Prevent multiple initializations
     if (this.initStatus !== INIT_STATUS.NOT_STARTED) {
@@ -749,35 +804,18 @@ export class VolumeDataManager {
         throw new Error('Invalid imageWrapper or not an OME-Zarr image');
       }
 
-      const multiResolutionStats = imageWrapper.getMultiResolutionStats();
-      const shapes = _resolutionStatsToShapes(multiResolutionStats);
-      const resolutions = multiResolutionStats.length;
-
-      this.zarrStore.resolutions = resolutions;
-
-      // TODO: The code here should not rely on vivData.meta.physicalSizes,
-      // but should instead use imageWrapper.getModelMatrix() which is more general.
-      // Then, stripPhysicalSizes can be set to true and possibly removed as a parameter,
-      // making stripPhysicalSizes the default behavior in ImageWrapper.getData().
-      const stripPhysicalSizes = false;
-
-      // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
-      const vivData = imageWrapper.getData(stripPhysicalSizes);
+      // Physical sizes come from the model matrix below, not from vivData meta.
+      const vivData = imageWrapper.getData();
 
       if (!Array.isArray(vivData) || vivData.length < 1) {
         throw new Error('Not a multiresolution loader');
-      }
-
-      if (!isEqual(vivData[0].labels, ['t', 'c', 'z', 'y', 'x'])) {
-        // TODO: relax this and remove the error.
-        throw new Error('Expected OME-Zarr data with dimensions [t, c, z, y, x]');
       }
 
       log.debug('vivData', vivData);
 
       // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
       const arrays = vivData.map(resolutionData => resolutionData._data);
-      const scales = new Array(resolutions).fill(null);
+      const { labels } = vivData[0];
 
       // Try to load each resolution level in order
       /*
@@ -805,22 +843,55 @@ export class VolumeDataManager {
       // Get the first array for metadata
       if (arrays.length > 0) {
         const array0 = arrays[0];
+        const { multiscales } = this.ngffMetadata;
 
-        // Update store information
+        if (!multiscales) {
+          throw new Error('Expected multiscales metadata in group.attrs');
+        }
+
+        const spacing = _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata);
+
+        // Render levels are logical: a source array plus a Z reduction factor.
+        // Bricks are 32^3 regions read independently of the source chunk shape.
+        const levels = planVolumeLevels({
+          arrays,
+          labels,
+          datasets: multiscales[0].datasets,
+          spacing,
+          mode: loadingOptions.zReduction,
+          maxLevels: MAX_RESOLUTION_LEVELS,
+        });
+        log.debug('volume levels [source, zFactor, zMode, shape ZYX]', levels.map(
+          level => [level.source, level.zFactor, level.zMode, level.shape],
+        ));
+
+        // Skip fine levels whose bricks decode too much source data,
+        // e.g. whole-plane chunks at full resolution. The dtype is a v2 string like '<u2'.
+        const bytesPerElement = Number(String(array0.dtype).slice(-1)) || 2;
+        const finestLevel = levels.findIndex(level => decodedBytesPerBrick(
+          level, arrays[level.source], labels, bytesPerElement,
+        ) <= MAX_DECODED_BYTES_PER_BRICK);
+
+        const axisSize = axis => (labels.includes(axis) ? array0.shape[labels.indexOf(axis)] : 1);
+        const shapes = levels.map(level => [axisSize('t'), axisSize('c'), ...level.shape]);
+
+        // Update store information. Shapes, brick layout, and scales describe logical levels.
         this.zarrStore = {
-          resolutions,
+          resolutions: levels.length,
+          levels,
           chunkSize: array0.chunks,
-          shapes,
+          shapes, // TCZYX
           arrays,
           dtype: array0.dtype,
-          physicalSizeTotal: [], // Will be populated if metadata exists
-          physicalSizeVoxel: [], // Will be populated if metadata exists
-          brickLayout: [], // Calculate from shapes and chunk sizes
-          // store: this.store,
-          // group: this.group,
+          physicalSizeTotal: levels[0].shape.map((size, axis) => size * spacing[axis]),
+          physicalSizeVoxel: spacing,
+          brickLayout: levels.map(level => level.shape.map(size => Math.ceil(size / BRICK_SIZE))),
           channelCount: shapes[0][1],
-          scales,
+          // XYZ ratios relative to level-0 voxels, as the shader expects (extent / scale).
+          scales: levels.map(level => [...level.ratio].reverse()),
+          finestLevel: finestLevel === -1 ? levels.length - 1 : finestLevel,
         };
+        this.brickSource = createVolumeBrickSource({ arrays, levels, labels });
 
         // initializing channel mappings and slots as empty
         this.channels.colorMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
@@ -831,112 +902,6 @@ export class VolumeDataManager {
         // log.debug('zarrMappings in init', this.channels.zarrMappings);
         // log.debug('downsampleMin in init', this.channels.downsampleMin);
         // log.debug('downsampleMax in init', this.channels.downsampleMax);
-
-        // Extract physical size information if available
-        if (array0.meta && array0.meta.physicalSizes) {
-          const { x, y, z } = array0.meta.physicalSizes;
-
-          // Get size data or use default value of 1
-          const zSize = z?.size || 1;
-          const ySize = y?.size || 1;
-          const xSize = x?.size || 1;
-
-          this.zarrStore.physicalSizeVoxel = [zSize, ySize, xSize];
-
-          // log.debug('avail physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
-
-          // Calculate total physical size
-          if (array0.shape && array0.shape.length >= 5) {
-            this.zarrStore.physicalSizeTotal = [
-              (array0.shape[2] || 1) * zSize,
-              (array0.shape[3] || 1) * ySize,
-              (array0.shape[4] || 1) * xSize,
-            ];
-          }
-        } else {
-          // log.debug('no physicalSizeVoxel');
-          this.zarrStore.physicalSizeVoxel = [1, 1, 1];
-          this.zarrStore.physicalSizeTotal = [
-            array0.shape[2] || 1,
-            array0.shape[3] || 1,
-            array0.shape[4] || 1,
-          ];
-          // log.debug('default physicalSizeVoxel', this.zarrStore.physicalSizeVoxel);
-          // log.debug('default physicalSizeTotal', this.zarrStore.physicalSizeTotal);
-        }
-
-        // log.debug('group.attrs', this.group.attrs);
-        const { multiscales } = this.ngffMetadata;
-
-        if (!multiscales) {
-          throw new Error('Expected multiscales metadata in group.attrs');
-        }
-
-        // Check the per-resolution coordinate transformations
-        if (multiscales?.[0]?.datasets?.[0]?.coordinateTransformations) {
-          for (let i = 0; i < resolutions; i++) {
-            if (multiscales?.[0]?.datasets?.[i]?.coordinateTransformations?.[0]?.scale) {
-              const { scale } = multiscales[0].datasets[i].coordinateTransformations[0];
-              scales[i] = [scale[4], scale[3], scale[2]];
-              // log.debug('scale', i, scales[i]);
-            }
-          }
-
-          // TODO: if the scales are not powers of two, throw an error?
-        } else {
-          log.error('no coordinateTransformations available, assuming downsampling ratio of 2 per dimension');
-          for (let i = 0; i < resolutions; i++) {
-            // 2 to the power of i
-            const scale = 2 ** i;
-            scales[i] = [scale, scale, scale];
-          }
-        }
-
-        // log.debug('scales', scales);
-        this.zarrStore.scales = scales;
-
-        // Use the top-level coordinateTransformations scale if available
-        const { coordinateTransformations } = this.ngffMetadata;
-        if (coordinateTransformations?.[0]?.scale) {
-          const { scale } = coordinateTransformations[0];
-          // Assuming scale is in format [..., zscale, yscale, xscale]
-          const scaleLength = scale.length;
-
-          if (scaleLength >= 3) {
-            const zScale = scale[scaleLength - 3];
-            const yScale = scale[scaleLength - 2];
-            const xScale = scale[scaleLength - 1];
-
-            // Update physicalScale
-            // this.physicalScale = [
-            //   { size: xScale },
-            //   { size: yScale },
-            //   { size: zScale },
-            // ];
-
-            // log.debug('physicalScale', this.physicalScale);
-
-            // Update zarrStore's physicalSizeVoxel
-            this.zarrStore.physicalSizeVoxel = [zScale, yScale, xScale];
-
-            // Calculate total physical size if shape exists
-            if (array0.shape && array0.shape.length >= 5) {
-              this.zarrStore.physicalSizeTotal = [
-                (array0.shape[2] || 1) * zScale,
-                (array0.shape[3] || 1) * yScale,
-                (array0.shape[4] || 1) * xScale,
-              ];
-            }
-
-            // log.debug('Using scale from coordinateTransformations:', this.physicalScale);
-          }
-        }
-
-
-        // Calculate brick layout for each resolution
-        this.zarrStore.brickLayout = _resolutionStatsToBrickLayout(
-          imageWrapper.getMultiResolutionStats(),
-        );
 
         // log.debug('zarrStore', this.zarrStore);
 
@@ -957,8 +922,9 @@ export class VolumeDataManager {
           const configChannel = config[key].spatialTargetC;
           this.channels.zarrMappings[i] = configChannel;
           this.channels.colorMappings[i] = i;
-          this.channels.downsampleMin[i] = omero?.channels?.[configChannel]?.window?.min || 0;
-          this.channels.downsampleMax[i] = omero?.channels?.[configChannel]?.window?.max || 65535;
+          [this.channels.downsampleMin[i], this.channels.downsampleMax[i]] = _getChannelWindow(
+            omero, configChannel,
+          );
         });
         log.debug('zarrMappings after init', this.channels.zarrMappings);
         log.debug('colorMappings after init', this.channels.colorMappings);
@@ -1101,8 +1067,7 @@ export class VolumeDataManager {
           log.debug('channelData', channelData);
           log.debug('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
           log.debug('targetZarrChannel', targetZarrChannel);
-          this.channels.downsampleMin[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
-          this.channels.downsampleMax[nextFreeSlot] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+          [this.channels.downsampleMin[nextFreeSlot], this.channels.downsampleMax[nextFreeSlot]] = _getChannelWindow(this.ngffMetadata?.omero, targetZarrChannel);
           log.debug(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
           log.debug('channels', this.channels);
         } else {
@@ -1124,8 +1089,7 @@ export class VolumeDataManager {
             if (slotToReuse !== -1) {
               const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
               this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
-              this.channels.downsampleMin[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.min || 0;
-              this.channels.downsampleMax[slotToReuse] = this.ngffMetadata?.omero?.channels?.[targetZarrChannel]?.window?.max || 65535;
+              [this.channels.downsampleMin[slotToReuse], this.channels.downsampleMax[slotToReuse]] = _getChannelWindow(this.ngffMetadata?.omero, targetZarrChannel);
               log.debug(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
 
               this._purgeChannel(slotToReuse);
@@ -1251,44 +1215,24 @@ export class VolumeDataManager {
   }
 
   /**
-   * Load a specific Zarr chunk based on [t,c,z,y,x] coordinates
+   * Load one logical 32^3 brick, for debugging. Coordinates are brick
+   * indices in the logical level, not source Zarr chunk indices.
    * @param {number} t - Time point (default 0)
    * @param {number} c - Channel (default 0)
-   * @param {number} z - Z coordinate
-   * @param {number} y - Y coordinate
-   * @param {number} x - X coordinate
-   * @param {number} resolution - Resolution level
-   * @returns {Promise<Uint8Array>} 32x32x32 chunk data
+   * @param {number} z - Brick Z coordinate
+   * @param {number} y - Brick Y coordinate
+   * @param {number} x - Brick X coordinate
+   * @param {number} resolution - Logical resolution level
+   * @returns {Promise<TypedArray>} 32x32x32 brick data in the source dtype
    */
   async loadZarrChunk(t = 0, c = 0, z, y, x, resolution) {
-    // logWithColor('loadZarrChunk');
-    if (!this.zarrStore || !this.zarrStore.arrays[resolution]) {
-      throw new Error('Zarr store or resolution not initialized');
+    if (!this.brickSource) {
+      throw new Error('Zarr store not initialized');
     }
-    log.debug('loadZarrChunk', { t, c, z, y, x, resolution });
-
-    const array = this.zarrStore.arrays[resolution];
-
-
-    // TODO: Use zarrita's get(arr, slice) method (rather than arr.getChunk),
-    // which will enable reading from arrays with other chunk shapes
-    // (i.e., not strictly 32x32x32 chunks).
-    // To do so, will need to determine the slice indices corresponding
-    // to each "assumed 32x32x32 chunk key".
-    // Reference: https://zarrita.dev/slicing.html
-
-    const chunkEntry = await array.getChunk([t, c, z, y, x]);
-
-    if (!chunkEntry) {
-      throw new Error(`No chunk found at coordinates [${t},${c},${z},${y},${x}]`);
-    }
-
-    // Ensure the chunk is the expected size
-    if (chunkEntry.data.length !== BRICK_SIZE * BRICK_SIZE * BRICK_SIZE) {
-      throw new Error(`Unexpected chunk size: ${chunkEntry.data.length}`);
-    }
-
-    return chunkEntry.data;
+    const { data } = await this.brickSource.readBrick({
+      level: resolution, t, c, bx: x, by: y, bz: z,
+    });
+    return data;
   }
 
   /**
@@ -1625,7 +1569,10 @@ export class VolumeDataManager {
     }
 
     log.debug('starting to load zarr chunk', { resolution, z, y, x, zarrChannel });
-    let chunk = await this.loadZarrChunk(0, zarrChannel, z, y, x, resolution);
+    // A logical brick: padded to 32^3 by edge replication, Z reduced per level.
+    let { data: chunk } = await this.brickSource.readBrick({
+      level: resolution, t: 0, c: zarrChannel, bx: x, by: y, bz: z,
+    });
     log.debug('chunk', chunk);
 
     // TODO(mark): is there a better way than iterating over all of the chunk values?
@@ -1636,15 +1583,14 @@ export class VolumeDataManager {
         const channelId = this.channels.zarrMappings[channel];
         log.debug('channelId was not found in this.channels.downsampleMin[channel]', channelId);
         // get the downsample min and max for the channel from omero
-        this.channels.downsampleMin[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.min || 0;
-        this.channels.downsampleMax[channel] = this.ngffMetadata?.omero?.channels?.[channelId]?.window?.max || 65535;
+        [this.channels.downsampleMin[channel], this.channels.downsampleMax[channel]] = _getChannelWindow(this.ngffMetadata?.omero, channelId);
 
         log.debug('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
         log.debug('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
       }
       // Use TypedArray view and bitwise operations to reduce memory allocations
       // Shift right by 8 to convert uint16 to uint8 range
-      const uint16View = new Uint16Array(chunk.buffer);
+      const uint16View = chunk;
       const uint8Chunk = new Uint8Array(chunk.length);
 
       const minVal = this.channels.downsampleMin[channel];

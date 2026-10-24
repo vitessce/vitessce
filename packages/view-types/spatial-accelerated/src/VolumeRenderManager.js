@@ -576,14 +576,17 @@ export class VolumeRenderManager {
     }
     log.debug('zarrStore.brickLayout', zarrStore.brickLayout);
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
+    // Level 0 stays excluded as before; finestLevel also excludes levels
+    // whose bricks would decode too much source data.
+    const finestRes = Math.max(1, zarrStore.finestLevel ?? 1);
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
         // TODO(mark) make this dependent on the per-channel maxResolution slider value.
-        1, zarrStore.brickLayout.length - 1,
+        finestRes, zarrStore.brickLayout.length - 1,
       );
     }
     this.uniforms.resGlobal.value.set(
-      1, zarrStore.brickLayout.length - 1,
+      finestRes, zarrStore.brickLayout.length - 1,
     );
     this.uniforms.voxelExtents.value.set(
       zarrStore.shapes[0][4],
