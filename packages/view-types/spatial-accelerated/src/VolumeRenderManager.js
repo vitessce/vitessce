@@ -55,6 +55,7 @@ export class VolumeRenderManager {
     this.originalScale = [1, 1, 1];
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
+    this.finestRes = 1; // finest renderable level, set in setZarrUniforms
 
     this.maxRange = 255;
     this.maxRangeSet = false;
@@ -520,8 +521,10 @@ export class VolumeRenderManager {
     );
     for (let i = 0; i < 7; i++) {
       if (typeof this.channelMaxResolutionIndex[i] === 'number') {
+        // Never finer than finestRes, which also excludes levels too costly to decode.
         this.uniforms[`res${i}`].value.set(
-          Math.max(1, this.channelMaxResolutionIndex[i]), this.zarrStoreNumResolutions - 1,
+          Math.max(this.finestRes, this.channelMaxResolutionIndex[i]),
+          this.zarrStoreNumResolutions - 1,
         );
       }
     }
@@ -578,15 +581,15 @@ export class VolumeRenderManager {
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
     // Level 0 stays excluded as before; finestLevel also excludes levels
     // whose bricks would decode too much source data.
-    const finestRes = Math.max(1, zarrStore.finestLevel ?? 1);
+    this.finestRes = Math.max(1, zarrStore.finestLevel ?? 1);
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
         // TODO(mark) make this dependent on the per-channel maxResolution slider value.
-        finestRes, zarrStore.brickLayout.length - 1,
+        this.finestRes, zarrStore.brickLayout.length - 1,
       );
     }
     this.uniforms.resGlobal.value.set(
-      finestRes, zarrStore.brickLayout.length - 1,
+      this.finestRes, zarrStore.brickLayout.length - 1,
     );
     this.uniforms.voxelExtents.value.set(
       zarrStore.shapes[0][4],

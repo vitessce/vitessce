@@ -49,10 +49,18 @@ export function planVolumeLevels({
     }
     ratio[0] *= zFactor;
     [previousRatioZ] = ratio;
+    // Readable voxels, with Z in bins of zFactor planes.
+    const dataShape = [Math.ceil(shape[0] / zFactor), shape[1], shape[2]];
     return {
       source,
       sourceDepth: shape[0],
-      shape: [Math.ceil(shape[0] / zFactor), shape[1], shape[2]],
+      dataShape,
+      // The shader addresses level-0 extent / ratio voxels. Rounded pyramid sizes
+      // (65 -> 32 at scale 2 gives 32.5) can exceed the data; voxels beyond it
+      // repeat the edge, so the page table covers every brick the shader requests.
+      shape: dataShape.map((size, axis) => Math.max(
+        size, Math.ceil(shapes[0][axis] / ratio[axis] - 1e-6),
+      )),
       ratio, // ZYX; reverse only when setting the shader's XYZ scales.
       zFactor,
       zMode,
@@ -67,8 +75,8 @@ export function decodedBytesPerBrick(level, array, labels, bytesPerElement) {
     const factor = axis === 'z' ? level.zFactor : 1;
     const sourceSize = array.shape[labels.indexOf(axis)];
     let maximum = 0;
-    for (let start = 0; start < level.shape[dimension]; start += BRICK_SIZE) {
-      const end = Math.min(start + BRICK_SIZE, level.shape[dimension]);
+    for (let start = 0; start < level.dataShape[dimension]; start += BRICK_SIZE) {
+      const end = Math.min(start + BRICK_SIZE, level.dataShape[dimension]);
       let count;
       if (axis === 'z' && level.zMode === 'sample') {
         const chunks = new Set();
@@ -137,12 +145,15 @@ export function createVolumeBrickSource({
   async function readBrick({ level: levelIndex, t = 0, c = 0, bx, by, bz }) {
     const level = levels[levelIndex];
     const origin = [bz, by, bx].map(value => value * BRICK_SIZE);
-    const valid = origin.map((start, axis) => Math.min(BRICK_SIZE, level.shape[axis] - start));
-    if (origin.some(value => !Number.isInteger(value) || value < 0)
-      || valid.some(size => size <= 0)) {
+    if (origin.some((start, axis) => !Number.isInteger(start) || start < 0
+      || start >= level.shape[axis])) {
       throw new Error(`Brick outside logical level ${levelIndex}: ${bz},${by},${bx}`);
     }
-    const [z0, y0, x0] = origin;
+    // Read only existing data. A brick starting beyond it (see shape vs dataShape)
+    // reads the last voxel, which padding then repeats.
+    const [z0, y0, x0] = origin.map((start, axis) => Math.min(start, level.dataShape[axis] - 1));
+    const valid = origin.map((start, axis) => Math.min(start + BRICK_SIZE, level.dataShape[axis])
+      - [z0, y0, x0][axis]);
     const [nz, ny, nx] = valid;
     const { zFactor, zMode, sourceDepth } = level;
     const isSample = zMode === 'sample';
@@ -151,26 +162,22 @@ export function createVolumeBrickSource({
     const values = new Float64Array(BRICK_SIZE ** 3);
     if (isMax) values.fill(-Infinity);
     const sourceEnd = Math.min(sourceDepth, (z0 + nz) * zFactor);
-    // Sample one plane per bin; stepped slices in zarrita also read skipped
-    // chunks. Filtered reads are bounded, even when one bin exceeds 256 planes.
-    const step = isSample ? zFactor : 256;
+    // Sample one plane per bin; stepped slices in zarrita also read skipped chunks.
+    // At most one brick depth of source planes is in flight: 32 single-plane
+    // samples, or one 32-plane slab at a time for native and filtered reads.
+    const step = isSample ? zFactor : BRICK_SIZE;
+    const concurrency = isSample ? BRICK_SIZE : 1;
     const ranges = [];
     for (let start = z0 * zFactor; start < sourceEnd; start += step) {
       const readStart = isSample
         ? Math.min(sourceDepth - 1, start + Math.floor(zFactor / 2)) : start;
       ranges.push([readStart, isSample ? readStart + 1 : Math.min(sourceEnd, start + step)]);
     }
-    // Reads run concurrently; the chunk cache deduplicates shared source chunks.
-    const results = await Promise.all(ranges.map(([readStart, readEnd]) => {
-      const selections = {
-        t, c, z: slice(readStart, readEnd), y: slice(y0, y0 + ny), x: slice(x0, x0 + nx),
-      };
-      return get(cachedArrays[level.source], labels.map(axis => selections[axis]));
-    }));
-    const data = new results[0].data.constructor(BRICK_SIZE ** 3);
     const spatialLabels = labels.filter(axis => SPATIAL_AXES.includes(axis));
-    results.forEach((result, read) => {
-      const [readStart, readEnd] = ranges[read];
+    let DataType = null;
+    // Fold each result into values as it arrives, so results are not retained.
+    const accumulate = (result, [readStart, readEnd]) => {
+      DataType = result.data.constructor;
       const [sz, sy, sx] = SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]);
       for (let z = 0; z < readEnd - readStart; z++) {
         const outputZ = Math.floor((readStart + z) / zFactor) - z0;
@@ -183,7 +190,22 @@ export function createVolumeBrickSource({
           }
         }
       }
-    });
+    };
+    let nextRead = 0;
+    const readNext = async () => {
+      while (nextRead < ranges.length) {
+        const range = ranges[nextRead];
+        nextRead += 1;
+        const selections = {
+          t, c, z: slice(...range), y: slice(y0, y0 + ny), x: slice(x0, x0 + nx),
+        };
+        // eslint-disable-next-line no-await-in-loop
+        const result = await get(cachedArrays[level.source], labels.map(axis => selections[axis]));
+        accumulate(result, range);
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, ranges.length) }, readNext));
+    const data = new DataType(BRICK_SIZE ** 3);
     const isInteger = !(data instanceof Float32Array || data instanceof Float64Array);
     for (let z = 0; z < nz; z++) {
       const count = isMean ? Math.min(zFactor, sourceDepth - (z0 + z) * zFactor) : 1;

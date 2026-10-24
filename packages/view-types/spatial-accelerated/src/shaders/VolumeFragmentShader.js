@@ -1376,7 +1376,9 @@ void main(void) {
             bool newBrick = false;
             bool newVoxel = false;
             // best possible resolution
-            int bestRes = clamp(targetRes, c_res_min[c], c_res_max[c]);
+            // Also clamp to resGlobal like getBrickLocation, so refinement requests
+            // never ask for levels excluded from rendering (e.g. too costly to decode).
+            int bestRes = clamp(clamp(targetRes, c_res_min[c], c_res_max[c]), resGlobal.x, resGlobal.y);
 
             // Check if we need to load a new brick at a better resolution.
             // check if any new better resolution could be available, if so, we need to re-query the brick

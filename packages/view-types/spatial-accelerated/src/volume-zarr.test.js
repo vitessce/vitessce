@@ -7,6 +7,8 @@ import {
 } from './volume-zarr.js';
 
 const TCZYX = ['t', 'c', 'z', 'y', 'x'];
+// Hand-built levels whose logical shape equals the readable data.
+const withDataShape = level => ({ ...level, dataShape: level.shape });
 
 // Shape-only stand-ins for planning, ZYX shapes with t = c = 1.
 function mockArrays(shapesZYX, chunksZYX) {
@@ -136,7 +138,7 @@ describe('volume-zarr', () => {
 
   describe('decodedBytesPerBrick', () => {
     it('counts the decoded source chunks one brick touches', () => {
-      const level = { zFactor: 1, zMode: 'native', shape: [1402, 5192, 2947] };
+      const level = withDataShape({ zFactor: 1, zMode: 'native', shape: [1402, 5192, 2947] });
       const tiled = { shape: [1, 3, 1402, 5192, 2947], chunks: [1, 1, 1, 1024, 1024] };
       expect(decodedBytesPerBrick(level, tiled, TCZYX, 2)).toBe(32 * 1024 * 1024 * 2);
       const bricked = { shape: [1, 3, 1402, 5192, 2947], chunks: [1, 1, 32, 32, 32] };
@@ -150,7 +152,7 @@ describe('volume-zarr', () => {
       [1, 1, 1, 45, 50], [1, 1, 16, 16, 16], [1, 1, 64, 64, 64], [1, 2, 7, 20, 9],
     ];
     const levels = [[1, 'native'], [2, 'sample'], [2, 'mean'], [3, 'sample'], [3, 'mean'], [3, 'max']]
-      .map(([zFactor, zMode]) => ({
+      .map(([zFactor, zMode]) => withDataShape({
         source: 0, sourceDepth: 70, zFactor, zMode, shape: [Math.ceil(70 / zFactor), 45, 50],
       }));
     // Interior and edge bricks of every level, for both channels.
@@ -199,7 +201,7 @@ describe('volume-zarr', () => {
       );
       const source = createVolumeBrickSource({
         arrays: [array],
-        levels: [{ source: 0, sourceDepth: 40, zFactor: 1, zMode: 'native', shape: [40, 33, 33] }],
+        levels: [withDataShape({ source: 0, sourceDepth: 40, zFactor: 1, zMode: 'native', shape: [40, 33, 33] })],
         labels: ['c', 'z', 'y', 'x'],
       });
       const { data } = await source.readBrick({ level: 0, c: 1, bx: 1, by: 0, bz: 1 });
@@ -213,7 +215,7 @@ describe('volume-zarr', () => {
       const array = await createTestArray(store, 'a', [1, 1, 256, 64, 64], [1, 1, 1, 64, 64]);
       const source = createVolumeBrickSource({
         arrays: [array],
-        levels: [{ source: 0, sourceDepth: 256, zFactor: 8, zMode: 'sample', shape: [32, 64, 64] }],
+        levels: [withDataShape({ source: 0, sourceDepth: 256, zFactor: 8, zMode: 'sample', shape: [32, 64, 64] })],
         labels: TCZYX,
       });
       store.reads = 0;
@@ -232,10 +234,58 @@ describe('volume-zarr', () => {
       );
       const source = createVolumeBrickSource({
         arrays: [array],
-        levels: [{ source: 0, sourceDepth: 40, zFactor: 2, zMode: 'mean', shape: [20, 33, 33] }],
+        levels: [withDataShape({
+          source: 0, sourceDepth: 40, zFactor: 2, zMode: 'mean', shape: [20, 33, 33],
+        })],
         labels: TCZYX,
       });
       await expect(source.readBrick({ level: 0, bx: 0, by: 0, bz: 1 })).rejects.toThrow();
+    });
+
+    it('covers the shader extent when a rounded level is smaller than scale implies', async () => {
+      // Width 65 -> 32 at metadata scale 2: the shader addresses 65 / 2 = 32.5 voxels.
+      const store = createCountingStore();
+      const arrays = [
+        await createTestArray(store, '0', [1, 1, 32, 32, 65], [1, 1, 32, 32, 32]),
+        await createTestArray(store, '1', [1, 1, 32, 32, 32], [1, 1, 32, 32, 32]),
+      ];
+      const datasets = [1, 2].map(s => ({
+        coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1, 1, s] }],
+      }));
+      const rounded = planVolumeLevels({ arrays, labels: TCZYX, datasets, mode: 'none' });
+      expect(rounded[1]).toMatchObject({ dataShape: [32, 32, 32], shape: [32, 32, 33] });
+      const source = createVolumeBrickSource({ arrays, levels: rounded, labels: TCZYX });
+      // Brick x = 1 exists only for the shader extent; it repeats the last column.
+      const { data } = await source.readBrick({ level: 1, bx: 1, by: 0, bz: 0 });
+      expect(data[(5 * 32 + 7) * 32 + 0]).toBe(value(0, 5, 7, 31));
+      expect(data[(5 * 32 + 7) * 32 + 31]).toBe(value(0, 5, 7, 31));
+    });
+
+    it('keeps at most one brick depth of source planes in flight', async () => {
+      const store = createCountingStore();
+      let inFlight = 0;
+      let maxInFlight = 0;
+      const { get } = store;
+      store.get = async (key) => {
+        if (!key.includes('/c/')) return get(key);
+        inFlight += 1;
+        maxInFlight = Math.max(maxInFlight, inFlight);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        inFlight -= 1;
+        return get(key);
+      };
+      const array = await createTestArray(store, 'a', [1, 1, 256, 32, 32], [1, 1, 1, 32, 32]);
+      const source = createVolumeBrickSource({
+        arrays: [array],
+        // 32 bins of 8 planes: 256 single-plane chunks for one brick.
+        levels: [withDataShape({
+          source: 0, sourceDepth: 256, zFactor: 8, zMode: 'mean', shape: [32, 32, 32],
+        })],
+        labels: TCZYX,
+      });
+      await source.readBrick({ level: 0, bx: 0, by: 0, bz: 0 });
+      expect(store.reads).toBe(256);
+      expect(maxInFlight).toBeLessThanOrEqual(32);
     });
   });
 });
