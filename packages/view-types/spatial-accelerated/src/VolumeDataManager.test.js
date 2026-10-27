@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { isEqual } from 'lodash-es';
+import { planVolumeLevels } from './volume-zarr.js';
 import {
   _initMRMCPT,
   _resolutionStatsToBrickLayout,
@@ -7,9 +8,39 @@ import {
   _ptToZarr,
   _requestBufferToRequestObjects,
   _getVoxelSpacing,
+  _getDataRange,
+  _toUint8,
   _zarrToPt,
   VolumeDataManager,
 } from './VolumeDataManager.js';
+
+// idr0062A logical levels: several bricks per level, and level 0 stacked along z.
+function createManager() {
+  const arrays = [[236, 275, 271], [236, 137, 135], [236, 68, 67]].map(s => ({
+    shape: [1, 2, ...s], chunks: [1, 1, 1, s[1], s[2]],
+  }));
+  const levels = planVolumeLevels({ arrays, labels: ['t', 'c', 'z', 'y', 'x'] });
+  const brickLayout = levels.map(l => l.shape.map(n => Math.ceil(n / 32)));
+  const { PT } = _initMRMCPT(brickLayout, 2);
+  const writes = [];
+  const gl = {
+    getParameter: () => 2048,
+    TEXTURE_3D: 1,
+    TEXTURE0: 0,
+    activeTexture() {},
+    bindTexture() {},
+    isContextLost: () => false,
+    texSubImage3D: (target, level, x, y, z, w, h, d) => writes.push({ x, y, z, w, h, d }),
+  };
+  const manager = new VolumeDataManager(gl);
+  manager.renderer = { properties: { get: () => ({}) } };
+  manager.ptTHREE = {};
+  manager.PT = PT;
+  manager.zarrStore.resolutions = brickLayout.length;
+  manager.zarrStore.brickLayout = brickLayout;
+  manager.channels.zarrMappings = [0, 1];
+  return { manager, writes, brickLayout, PT };
+}
 
 describe('spatial-accelerated data utils', () => {
   describe('_getVoxelSpacing', () => {
@@ -204,6 +235,92 @@ describe('spatial-accelerated data utils', () => {
       expect(overviewRequests()).toEqual([{ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 1 }]);
     });
   });
+  describe('switching the channel of a page table slot', () => {
+    it('_purgeChannel clears exactly the page table entries of its slot', () => {
+      const { manager, writes, brickLayout, PT } = createManager();
+      // eslint-disable-next-line no-underscore-dangle
+      manager._purgeChannel(1);
+      const cleared = new Set();
+      writes.forEach(({ x, y, z, w, h, d }) => {
+        for (let k = 0; k < d; k++) {
+          for (let j = 0; j < h; j++) {
+            for (let i = 0; i < w; i++) cleared.add(`${x + i},${y + j},${z + k}`);
+          }
+        }
+      });
+      const slotEntries = slot => brickLayout.flatMap(([zBricks, yBricks, xBricks], r) => {
+        const keys = [];
+        for (let z = 0; z < zBricks; z++) {
+          for (let y = 0; y < yBricks; y++) {
+            for (let x = 0; x < xBricks; x++) {
+              const pt = _zarrToPt(slot, r, x, y, z, PT);
+              keys.push(`${pt.x},${pt.y},${pt.z}`);
+            }
+          }
+        }
+        return keys;
+      });
+      expect(slotEntries(1).filter(key => !cleared.has(key))).toHaveLength(0); // none missed
+      expect(slotEntries(0).filter(key => cleared.has(key))).toHaveLength(0); // other slot intact
+      expect(writes.filter(({ x, y, z, w, h, d }) => x + w > PT.xExtent
+        || y + h > PT.yExtent || z + d > PT.zTotal)).toHaveLength(0);
+    });
+
+    it('maps the new channel when all slots are in use', () => {
+      const { manager } = createManager();
+      // Both slots are used; channel 5 replaces channel 1, which is no longer requested.
+      manager.updateChannels({ A: { spatialTargetC: 0 }, B: { spatialTargetC: 5 } });
+      expect(manager.channels.zarrMappings).toEqual([0, 5]);
+    });
+  });
+
+  describe('uint8 storage range of other dtypes', () => {
+    it('_toUint8 maps [min, max] to 0-255, clamping, with NaN as 0', () => {
+      expect(Array.from(_toUint8(new Uint16Array([0, 50, 800, 900]), 50, 800)))
+        .toEqual([0, 0, 255, 255]);
+      expect(Array.from(_toUint8(new Float32Array([0, 33, 66, NaN, -1]), 0, 66)))
+        .toEqual([0, 127, 255, 0, 0]);
+    });
+
+    it('_getDataRange ignores NaN and widens a constant range', () => {
+      expect(_getDataRange(new Float32Array([NaN, 2.5, 7, NaN]))).toEqual([2.5, 7]);
+      expect(_getDataRange(new Float32Array([3, 3]))).toEqual([3, 4]);
+      expect(_getDataRange(new Float32Array([NaN]))).toEqual([0, 1]);
+    });
+
+    it('_getStorageRange prefers the recorded sample range, then the OMERO window', () => {
+      // eslint-disable-next-line no-underscore-dangle
+      const storageRange = manager => VolumeDataManager.prototype._getStorageRange.call(manager, 1);
+      const omero = { channels: [{}, { window: { start: 50, end: 800, min: 0, max: 65535 } }] };
+      expect(storageRange({ sampleRange: [0, 66], ngffMetadata: { omero } })).toEqual([0, 66]);
+      expect(storageRange({ sampleRange: null, ngffMetadata: { omero } })).toEqual([50, 800]);
+      expect(storageRange({ sampleRange: null, ngffMetadata: { Pixels: {} } })).toBeUndefined();
+    });
+
+    it('takes a float channel range from its overview brick, before any other brick', async () => {
+      const { manager, brickLayout, PT } = createManager();
+      manager.ngffMetadata = { Pixels: {} }; // OME-TIFF without a recorded range
+      manager.sampleRange = null;
+      manager.channels.downsampleMin = [undefined, undefined];
+      manager.channels.downsampleMax = [undefined, undefined];
+      // Float values 0-66, as in LuCa-7color_3x3component_data.ome.tif.
+      const data = Float32Array.from({ length: 32 ** 3 }, (_, i) => (i % 67));
+      manager.brickSource = { readBrick: async () => ({ data }) };
+      const overview = brickLayout.length - 1;
+      // A finer brick of channel 1 waits for the channel's overview.
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).toBeNull();
+      // eslint-disable-next-line no-underscore-dangle
+      const brick = await manager._fetchBrick(_zarrToPt(1, overview, 0, 0, 0, PT));
+      expect(manager.channels.downsampleMin[1]).toBe(0);
+      expect(manager.channels.downsampleMax[1]).toBe(66);
+      expect(brick.chunk).toBeInstanceOf(Uint8Array);
+      expect([brick.min, brick.max]).toEqual([0, 255]);
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).not.toBeNull();
+    });
+  });
+
   describe('_packPT packs page table properties for a brick', () => {
     it('correctly packs the properties', () => {
       expect(_packPT(0, 80, 1, 0, 0)).toEqual(3223847936);

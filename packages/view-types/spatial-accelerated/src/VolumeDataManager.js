@@ -17,7 +17,14 @@ import {
   planVolumeLevels,
   decodedBytesPerBrick,
   createVolumeBrickSource,
+  createZarrRegionReader,
+  getBytesPerElement,
 } from './volume-zarr.js';
+import {
+  getTiffLevelArrays,
+  createTiffRegionReader,
+  getTiffSampleRange,
+} from './volume-tiff.js';
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -69,6 +76,47 @@ function logWithColor(message) {
 
 /* Begin extracted functions */
 /**
+ * The source resolution levels of an image, and how to read them, by image type.
+ * @param {object} imageWrapper ImageWrapper of an OME-Zarr or OME-TIFF image.
+ * @returns {{ labels: string[], arrays: object[], datasets: object[],
+ *   createRegionReader: function }} arrays have shape and chunks per level;
+ * datasets are the NGFF multiscale datasets (empty for OME-TIFF).
+ */
+export function _getVolumeSources(imageWrapper) {
+  const type = imageWrapper?.getType();
+  if (type === 'ome-tiff') {
+    // viv's TiffPixelSource per level; bricks are read tile by tile.
+    const { data } = imageWrapper.vivLoader;
+    const pixelSources = Array.isArray(data) ? data : [data];
+    return {
+      labels: pixelSources[0].labels,
+      arrays: getTiffLevelArrays(pixelSources),
+      datasets: [],
+      createRegionReader: createTiffRegionReader,
+    };
+  }
+  if (type === 'ome-zarr') {
+    const { multiscales } = imageWrapper.vivLoader.metadata;
+    if (!multiscales) {
+      throw new Error('Expected multiscales metadata in group.attrs');
+    }
+    // Physical sizes come from the model matrix, not from vivData meta.
+    const vivData = imageWrapper.getData();
+    if (!Array.isArray(vivData) || vivData.length < 1) {
+      throw new Error('Not a multiresolution loader');
+    }
+    return {
+      labels: vivData[0].labels,
+      // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
+      arrays: vivData.map(resolutionData => resolutionData._data),
+      datasets: multiscales[0].datasets,
+      createRegionReader: createZarrRegionReader,
+    };
+  }
+  throw new Error('Invalid imageWrapper or not an OME-Zarr or OME-TIFF image');
+}
+
+/**
  * Level-0 voxel spacing, ZYX. Combines the column-major model matrix (dataset and
  * multiscale transforms, plus any from the file options) with the non-standard
  * root-level coordinateTransformations that the converter datasets (kingsnake,
@@ -89,6 +137,42 @@ export function _getVoxelSpacing(modelMatrix, ngffMetadata) {
     });
   }
   return spacing;
+}
+
+/**
+ * Range of the finite values of a brick, as a uint8 storage range fallback.
+ * @param {TypedArray} data
+ * @returns {[number, number]} [min, max], with max > min.
+ */
+export function _getDataRange(data) {
+  let min = Infinity;
+  let max = -Infinity;
+  for (let i = 0; i < data.length; i++) {
+    const v = data[i];
+    if (v < min) min = v;
+    if (v > max) max = v;
+  }
+  if (!Number.isFinite(min) || !Number.isFinite(max)) return [0, 1];
+  return max > min ? [min, max] : [min, min + 1];
+}
+
+/**
+ * Map values to uint8: clamp to [min, max], then scale to 0-255.
+ * NaN maps to 0.
+ * @param {TypedArray} data
+ * @param {number} min
+ * @param {number} max
+ * @returns {Uint8Array}
+ */
+export function _toUint8(data, min, max) {
+  const out = new Uint8Array(data.length);
+  const range = (max - min) || 1;
+  for (let i = 0; i < data.length; i++) {
+    const clamped = Math.max(min, Math.min(max, data[i]));
+    // Same operation order as before for uint16, so max maps to exactly 255.
+    out[i] = ((clamped - min) * 255 / range) | 0; // NaN | 0 is 0
+  }
+  return out;
 }
 
 /**
@@ -828,26 +912,15 @@ export class VolumeDataManager {
       // Get all resolution levels
       const imageWrapper = this.images?.[this.imageLayerScopes?.[0]]?.image?.instance;
 
+      // OME-Zarr or OME-TIFF levels, plus the matching region reader.
+      const {
+        labels, arrays, datasets, createRegionReader,
+      } = _getVolumeSources(imageWrapper);
+
       // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
+      // For OME-TIFF this is the OME-XML metadata.
       this.ngffMetadata = imageWrapper.vivLoader.metadata;
       log.debug('ngffMetadata', this.ngffMetadata);
-
-      if (!imageWrapper || imageWrapper.getType() !== 'ome-zarr') {
-        throw new Error('Invalid imageWrapper or not an OME-Zarr image');
-      }
-
-      // Physical sizes come from the model matrix below, not from vivData meta.
-      const vivData = imageWrapper.getData();
-
-      if (!Array.isArray(vivData) || vivData.length < 1) {
-        throw new Error('Not a multiresolution loader');
-      }
-
-      log.debug('vivData', vivData);
-
-      // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
-      const arrays = vivData.map(resolutionData => resolutionData._data);
-      const { labels } = vivData[0];
 
       // Try to load each resolution level in order
       /*
@@ -875,12 +948,7 @@ export class VolumeDataManager {
       // Get the first array for metadata
       if (arrays.length > 0) {
         const array0 = arrays[0];
-        const { multiscales } = this.ngffMetadata;
-
-        if (!multiscales) {
-          throw new Error('Expected multiscales metadata in group.attrs');
-        }
-
+        // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
         const spacing = _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata);
 
         // Render levels are logical: a source array plus a Z reduction factor.
@@ -888,7 +956,7 @@ export class VolumeDataManager {
         const levels = planVolumeLevels({
           arrays,
           labels,
-          datasets: multiscales[0].datasets,
+          datasets,
           spacing,
           mode: loadingOptions.zReduction,
           maxLevels: MAX_RESOLUTION_LEVELS,
@@ -898,8 +966,8 @@ export class VolumeDataManager {
         ));
 
         // Skip fine levels whose bricks decode too much source data,
-        // e.g. whole-plane chunks at full resolution. The dtype is a v2 string like '<u2'.
-        const bytesPerElement = Number(String(array0.dtype).slice(-1)) || 2;
+        // e.g. whole-plane chunks at full resolution.
+        const bytesPerElement = getBytesPerElement(array0.dtype);
         const finestLevel = levels.findIndex(level => decodedBytesPerBrick(
           level, arrays[level.source], labels, bytesPerElement,
         ) <= MAX_DECODED_BYTES_PER_BRICK);
@@ -923,7 +991,9 @@ export class VolumeDataManager {
           scales: levels.map(level => [...level.ratio].reverse()),
           finestLevel: finestLevel === -1 ? levels.length - 1 : finestLevel,
         };
-        this.brickSource = createVolumeBrickSource({ arrays, levels, labels });
+        this.brickSource = createVolumeBrickSource({
+          arrays, levels, labels, createRegionReader,
+        });
 
         // initializing channel mappings and slots as empty
         this.channels.colorMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
@@ -941,22 +1011,18 @@ export class VolumeDataManager {
         // log.debug('initializing channel mappings');
         log.debug('config', config);
         // for each key in config, add to channel mappings
-        const { omero } = this.ngffMetadata || {};
-
-        if (!omero) {
-          // TODO(mark): do not use omero metadata directly, use the ImageWrapper channel methods.
-          throw new Error('Expected omero metadata in ngffMetadata');
-        }
-
-        log.debug('omero', omero);
+        // OME-TIFF has no OMERO block. Its sample range, if the writer recorded one.
+        this.sampleRange = arrays[0].pixelSource
+          ? await getTiffSampleRange(arrays[0].pixelSource) : null;
+        log.debug('omero', this.ngffMetadata?.omero, 'sampleRange', this.sampleRange);
 
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
           this.channels.zarrMappings[i] = configChannel;
           this.channels.colorMappings[i] = i;
-          [this.channels.downsampleMin[i], this.channels.downsampleMax[i]] = _getChannelWindow(
-            omero, configChannel,
-          );
+          // Undefined until the overview brick loads, when there is no range in the metadata.
+          [this.channels.downsampleMin[i], this.channels.downsampleMax[i]] = this
+            ._getStorageRange(configChannel) ?? [];
         });
         log.debug('zarrMappings after init', this.channels.zarrMappings);
         log.debug('colorMappings after init', this.channels.colorMappings);
@@ -1003,6 +1069,19 @@ export class VolumeDataManager {
         error: this.initError,
       };
     }
+  }
+
+  /**
+   * Value range of a channel mapped to 0-255 in the uint8 brick cache: the OMERO
+   * window (OME-Zarr), or the sample range recorded in an OME-TIFF.
+   * @param {number} zarrChannel
+   * @returns {[number, number]|undefined} Undefined when the metadata has no range;
+   * the channel's overview brick then provides it.
+   */
+  _getStorageRange(zarrChannel) {
+    if (this.sampleRange) return this.sampleRange;
+    if (this.ngffMetadata?.omero) return _getChannelWindow(this.ngffMetadata.omero, zarrChannel);
+    return undefined;
   }
 
   /**
@@ -1141,7 +1220,7 @@ export class VolumeDataManager {
           log.debug('channelData', channelData);
           log.debug('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
           log.debug('targetZarrChannel', targetZarrChannel);
-          [this.channels.downsampleMin[nextFreeSlot], this.channels.downsampleMax[nextFreeSlot]] = _getChannelWindow(this.ngffMetadata?.omero, targetZarrChannel);
+          [this.channels.downsampleMin[nextFreeSlot], this.channels.downsampleMax[nextFreeSlot]] = this._getStorageRange(targetZarrChannel) ?? [];
           log.debug(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);
           log.debug('channels', this.channels);
         } else {
@@ -1162,11 +1241,11 @@ export class VolumeDataManager {
 
             if (slotToReuse !== -1) {
               const oldZarrChannel = this.channels.zarrMappings[slotToReuse];
-              this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
-              [this.channels.downsampleMin[slotToReuse], this.channels.downsampleMax[slotToReuse]] = _getChannelWindow(this.ngffMetadata?.omero, targetZarrChannel);
-              log.debug(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
-
+              // Purge first: it resets the slot's mapping and window.
               this._purgeChannel(slotToReuse);
+              this.channels.zarrMappings[slotToReuse] = targetZarrChannel;
+              [this.channels.downsampleMin[slotToReuse], this.channels.downsampleMax[slotToReuse]] = this._getStorageRange(targetZarrChannel) ?? [];
+              log.debug(`Reused slot ${slotToReuse}: ${oldZarrChannel} -> ${targetZarrChannel}`);
             } else {
               log.error('Could not find slot to reuse - this should not happen');
             }
@@ -1480,35 +1559,22 @@ export class VolumeDataManager {
     this.channels.downsampleMax[ptChannelIndex] = undefined;
     this.channels.zarrMappings[ptChannelIndex] = undefined;
 
-    const channelMask = this.PT.channelOffsets[ptChannelIndex];
-
-    log.debug('channelMask', channelMask);
-    log.error('TODO: not tested yet');
-
     const { gl } = this;
     const texPT = this.renderer.properties.get(this.ptTHREE).__webglTexture;
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_3D, texPT);
 
+    // Each (slot, level) block is contiguous; _zarrToPt gives its origin (x, y, z),
+    // including level 0, where channels are stacked along z. brickLayout is [z, y, x].
     for (let r = 0; r < this.zarrStore.resolutions; r++) {
-      const anchor = [
-        this.PT.anchors[r][2] * channelMask[2],
-        this.PT.anchors[r][1] * channelMask[1],
-        this.PT.anchors[r][0] * channelMask[0],
-      ];
-      log.debug('anchor', anchor);
-      const extents = this.zarrStore.brickLayout[r];
-      const size = extents[0] * extents[1] * extents[2];
-      log.debug('extents', extents);
-      log.debug('size', size);
-      // texsub 3D
-      // replace with a block of zeros
+      const origin = _zarrToPt(ptChannelIndex, r, 0, 0, 0, this.PT);
+      const [zBricks, yBricks, xBricks] = this.zarrStore.brickLayout[r];
       gl.texSubImage3D(
         gl.TEXTURE_3D, 0,
-        anchor[0], anchor[1], anchor[2],
-        extents[0], extents[1], extents[2],
+        origin.x, origin.y, origin.z,
+        xBricks, yBricks, zBricks,
         gl.RED_INTEGER, gl.UNSIGNED_INT,
-        new Uint32Array(size),
+        new Uint32Array(xBricks * yBricks * zBricks),
       );
     }
     gl.bindTexture(gl.TEXTURE_3D, null);
@@ -1677,39 +1743,22 @@ export class VolumeDataManager {
     });
     log.debug('chunk', chunk);
 
-    // TODO(mark): is there a better way than iterating over all of the chunk values?
-    if (chunk instanceof Uint16Array) {
-      log.debug('chunk is Uint16Array, converting to Uint8Array');
-      if (this.channels.downsampleMin[channel] === undefined) {
-        // get the channel ID from this.channels.zarrMappings
-        const channelId = this.channels.zarrMappings[channel];
-        log.debug('channelId was not found in this.channels.downsampleMin[channel]', channelId);
-        // get the downsample min and max for the channel from omero
-        [this.channels.downsampleMin[channel], this.channels.downsampleMax[channel]] = _getChannelWindow(this.ngffMetadata?.omero, channelId);
-
-        log.debug('this.channels.downsampleMin[channel]', this.channels.downsampleMin[channel]);
-        log.debug('this.channels.downsampleMax[channel]', this.channels.downsampleMax[channel]);
-      }
-      // Use TypedArray view and bitwise operations to reduce memory allocations
-      // Shift right by 8 to convert uint16 to uint8 range
-      const uint16View = chunk;
-      const uint8Chunk = new Uint8Array(chunk.length);
-
-      const minVal = this.channels.downsampleMin[channel];
-      const maxVal = this.channels.downsampleMax[channel];
-      const range = maxVal - minVal;
-
-      for (let i = 0; i < uint16View.length; i++) {
-        // Clamp to min/max range, then scale to 0-255
-        const val = uint16View[i];
-        const clamped = Math.max(minVal, Math.min(maxVal, val));
-        uint8Chunk[i] = ((clamped - minVal) * 255 / range) | 0; // Use bitwise OR for fast floor
-      }
-      chunk = uint8Chunk;
-    }
-
+    // The brick cache is uint8: map other dtypes (uint16, float32, ...) from the
+    // channel's storage range to 0-255.
     if (!(chunk instanceof Uint8Array)) {
-      throw new Error(`Unsupported chunk type: ${chunk.constructor.name}. Expected Uint8Array.`);
+      if (this.channels.downsampleMin[channel] === undefined) {
+        // Without a range from the metadata, the channel's overview brick sets it.
+        const isOverview = resolution === this.zarrStore.resolutions - 1;
+        const range = this._getStorageRange(zarrChannel) ?? (isOverview ? _getDataRange(chunk) : null);
+        if (!range) {
+          log.debug('No storage range yet for channel slot; waiting for its overview', channel);
+          return null;
+        }
+        [this.channels.downsampleMin[channel], this.channels.downsampleMax[channel]] = range;
+      }
+      chunk = _toUint8(
+        chunk, this.channels.downsampleMin[channel], this.channels.downsampleMax[channel],
+      );
     }
 
     let min = 255;
@@ -1721,7 +1770,7 @@ export class VolumeDataManager {
       if (v > max) max = v;
     }
     return {
-      chunk, min, max, channel,
+      chunk, min, max, channel, zarrChannel,
     };
   }
 
@@ -1737,6 +1786,8 @@ export class VolumeDataManager {
     }
     const { chunk, channel } = brick;
     let { min, max } = brick;
+    // The slot was given to another channel while this brick was in flight.
+    if (this.channels.zarrMappings[channel] !== brick.zarrChannel) return false;
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;

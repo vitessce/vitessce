@@ -139,50 +139,106 @@ export function decodedBytesPerBrick(level, array, labels, bytesPerElement) {
     * array.chunks.reduce((product, size) => product * size, 1);
 }
 
-export function createVolumeBrickSource({
-  arrays, levels, labels, cacheBytes = 256 * (2 ** 20),
-}) {
-  // Zarrita assembles selections through getChunk. Cache decoded chunks, shared
-  // across neighboring bricks, including in-flight reads. Failures are retryable.
+// Bytes per element of a v2 Zarr dtype string ('<u2', '|u1') or a viv
+// TIFF dtype name ('Uint16', 'Float32').
+export function getBytesPerElement(dtype) {
+  const [, prefix, digits] = String(dtype).match(/^([<>|]?).*?(\d+)$/) ?? [];
+  if (!digits) return 2;
+  return prefix ? Number(digits) : Number(digits) / 8;
+}
+
+// Decoded-chunk LRU shared by all levels and neighboring bricks (Zarr chunks
+// or TIFF tiles). Entries hold promises, so concurrent reads of the same chunk
+// share one decode. Failures are retryable.
+export function createChunkCache(maxBytes = 256 * (2 ** 20)) {
   const cache = new Map();
   let bytes = 0;
+  function load(key, loader) {
+    if (cache.has(key)) {
+      const entry = cache.get(key);
+      cache.delete(key);
+      cache.set(key, entry);
+      return entry.promise;
+    }
+    const entry = { bytes: 0 };
+    entry.promise = loader().then((chunk) => {
+      if (cache.get(key) === entry) {
+        entry.bytes = chunk.data.byteLength;
+        bytes += entry.bytes;
+        // Evict least recently used decoded chunks; in-flight entries have 0 bytes.
+        // Oversized chunks are returned but not retained beyond the budget.
+        Array.from(cache.entries()).some(([oldKey, oldEntry]) => {
+          if (bytes <= maxBytes) return true;
+          if (oldEntry.bytes > 0) {
+            cache.delete(oldKey);
+            bytes -= oldEntry.bytes;
+          }
+          return false;
+        });
+      }
+      return chunk;
+    }, (error) => {
+      cache.delete(key);
+      throw error;
+    });
+    cache.set(key, entry);
+    return entry.promise;
+  }
+  return {
+    load,
+    stats: () => ({ entries: cache.size, bytes }),
+    clear: () => { cache.clear(); bytes = 0; },
+  };
+}
+
+/**
+ * Region reader for zarrita arrays (or the Vitessce adapter proxy).
+ * readRegion(source, { t, c, z, y, x }) takes [start, end) ranges for z, y, x
+ * and returns { data, stride } with strides in ZYX order.
+ */
+export function createZarrRegionReader({ arrays, labels, cache }) {
+  // Zarrita assembles selections through getChunk, so caching getChunk lets
+  // neighboring bricks reuse decoded chunks.
   const cachedArrays = arrays.map((array, source) => new Proxy(array, {
     get(target, property) {
       if (property !== 'getChunk') return Reflect.get(target, property);
-      return (coordinates, ...options) => {
-        const key = `${source}:${coordinates.join(',')}`;
-        if (cache.has(key)) {
-          const entry = cache.get(key);
-          cache.delete(key);
-          cache.set(key, entry);
-          return entry.promise;
-        }
-        const entry = { bytes: 0 };
-        entry.promise = target.getChunk(coordinates, ...options).then((chunk) => {
-          if (cache.get(key) === entry) {
-            entry.bytes = chunk.data.byteLength;
-            bytes += entry.bytes;
-            // Evict least recently used decoded chunks; in-flight entries have 0 bytes.
-            // Oversized chunks are returned but not retained beyond the budget.
-            Array.from(cache.entries()).some(([oldKey, oldEntry]) => {
-              if (bytes <= cacheBytes) return true;
-              if (oldEntry.bytes > 0) {
-                cache.delete(oldKey);
-                bytes -= oldEntry.bytes;
-              }
-              return false;
-            });
-          }
-          return chunk;
-        }, (error) => {
-          cache.delete(key);
-          throw error;
-        });
-        cache.set(key, entry);
-        return entry.promise;
-      };
+      return (coordinates, ...options) => cache.load(
+        `${source}:${coordinates.join(',')}`,
+        () => target.getChunk(coordinates, ...options),
+      );
     },
   }));
+  const spatialLabels = labels.filter(axis => SPATIAL_AXES.includes(axis));
+  return async function readRegion(source, {
+    t, c, z, y, x,
+  }) {
+    const selections = {
+      t, c, z: slice(...z), y: slice(...y), x: slice(...x),
+    };
+    const result = await get(cachedArrays[source], labels.map(axis => selections[axis]));
+    return {
+      data: result.data,
+      stride: SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]),
+    };
+  };
+}
+
+/**
+ * Reads logical 32^3 bricks of the planned levels.
+ * @param {object} options
+ * @param {object[]} options.arrays Per source level, anything with shape and chunks.
+ * @param {object[]} options.levels From planVolumeLevels.
+ * @param {string[]} options.labels Axis labels of the arrays.
+ * @param {number} options.cacheBytes Budget of the decoded-chunk cache.
+ * @param {function} options.createRegionReader Factory ({ arrays, labels, cache })
+ * => readRegion; defaults to reading zarrita arrays.
+ */
+export function createVolumeBrickSource({
+  arrays, levels, labels, cacheBytes = 256 * (2 ** 20),
+  createRegionReader = createZarrRegionReader,
+}) {
+  const cache = createChunkCache(cacheBytes);
+  const readRegion = createRegionReader({ arrays, labels, cache });
 
   async function readBrick({ level: levelIndex, t = 0, c = 0, bx, by, bz }) {
     const level = levels[levelIndex];
@@ -228,12 +284,11 @@ export function createVolumeBrickSource({
         ? Math.min(sourceDepth - 1, start + Math.floor(zFactor / 2)) : start;
       ranges.push([readStart, isSample ? readStart + 1 : Math.min(sourceEnd, start + step)]);
     }
-    const spatialLabels = labels.filter(axis => SPATIAL_AXES.includes(axis));
     let DataType = null;
     // Fold each result into values as it arrives, so results are not retained.
     const accumulate = (result, [readStart, readEnd]) => {
       DataType = result.data.constructor;
-      const [sz, sy, sx] = SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]);
+      const [sz, sy, sx] = result.stride;
       for (let z = 0; z < readEnd - readStart; z++) {
         const outputZ = Math.floor((readStart + z) / zFactor) - z0;
         for (let y = 0; y < yOut.length; y++) {
@@ -252,11 +307,10 @@ export function createVolumeBrickSource({
       while (nextRead < ranges.length) {
         const range = ranges[nextRead];
         nextRead += 1;
-        const selections = {
-          t, c, z: slice(...range), y: slice(...yRange), x: slice(...xRange),
-        };
         // eslint-disable-next-line no-await-in-loop
-        const result = await get(cachedArrays[level.source], labels.map(axis => selections[axis]));
+        const result = await readRegion(level.source, {
+          t, c, z: range, y: yRange, x: xRange,
+        });
         accumulate(result, range);
       }
     };
@@ -296,9 +350,6 @@ export function createVolumeBrickSource({
 
   return {
     readBrick,
-    cache: {
-      stats: () => ({ entries: cache.size, bytes }),
-      clear: () => { cache.clear(); bytes = 0; },
-    },
+    cache: { stats: cache.stats, clear: cache.clear },
   };
 }

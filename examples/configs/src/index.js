@@ -102,6 +102,7 @@ import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named
 import {
   saGloria, saKingsnake, saLsp1, saLsp2, saLsp3,
   saIdr0062A, saIdr0101A, saIdr0048A, saIdr0048ANone, saIdr0048AMean, saIdr0106,
+  saIdr0106Tiff, saBrainTiff, saLucaTiff,
 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
@@ -273,6 +274,9 @@ export const configs = {
   's-a-idr0048A-none': saIdr0048ANone,
   's-a-idr0048A-mean': saIdr0048AMean,
   's-a-idr0106': saIdr0106,
+  's-a-idr0106-tiff': saIdr0106Tiff,
+  's-a-brain-tiff': saBrainTiff,
+  's-a-luca-tiff': saLucaTiff,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

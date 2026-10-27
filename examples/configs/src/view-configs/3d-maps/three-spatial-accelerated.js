@@ -14,13 +14,26 @@ const idToUrl = {
   idr0101A: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457227.zarr',
   idr0048A: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0048A/9846151.zarr/0',
   idr0106: 'https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.1/12689244.zarr',
+  // Tiled OME-TIFF pyramids (read tile by tile). Physical sizes come from the OME-XML.
+  'idr0106-tiff': 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif',
+  'brain-tiff': 'https://viv-demo.storage.googleapis.com/brain.pyramid.ome.tif',
+  // 2D image (Z = 1), 8 channels, float32, 512 x 512 tiles.
+  'luca-tiff': 'https://viv-demo.storage.googleapis.com/LuCa-7color_3x3component_data.ome.tif',
 };
 
-// Physical voxel sizes missing from the Zarr metadata, as TCZYX scales.
+const idToFileType = {
+  'idr0106-tiff': 'image.ome-tiff',
+  'brain-tiff': 'image.ome-tiff',
+  'luca-tiff': 'image.ome-tiff',
+};
+
 const idToOptions = {
-  // NGFF 0.1 has no transforms. Sizes from the OME-XML of the same image,
-  // https://viv-demo.storage.googleapis.com/idr0106.pyramid.ome.tif (XY 3.22 µm, Z 10 µm).
+  // NGFF 0.1 has no transforms. Physical voxel sizes, as TCZYX scales, from the
+  // OME-XML of the same image in idr0106.pyramid.ome.tif (XY 3.22 µm, Z 10 µm).
   idr0106: { coordinateTransformations: [{ type: 'scale', scale: [1, 1, 10, 3.22, 3.22] }] },
+  // IFD offsets avoid walking thousands of IFDs (brain has 1955 planes x 2 channels).
+  'idr0106-tiff': { offsetsUrl: 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.offsets.json' },
+  'brain-tiff': { offsetsUrl: 'https://viv-demo.storage.googleapis.com/brain.pyramid.offsets.json' },
 };
 
 // volumeZReduction: 'auto' | 'none' | 'sample' | 'mean' | 'max'
@@ -30,7 +43,7 @@ function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'au
     name: 'Spatial Accelerated',
   });
   const dataset = config.addDataset('My dataset').addFile({
-    fileType: 'image.ome-zarr',
+    fileType: idToFileType[imageId] ?? 'image.ome-zarr',
     url: idToUrl[imageId],
     ...(idToOptions[imageId] ? { options: idToOptions[imageId] } : {}),
     // url: 'https://lsp-public-data.s3.amazonaws.com/yapp-2023-3d-melanoma/Dataset1-LSP13626-melanoma-in-situ/0',
@@ -101,3 +114,6 @@ export const saIdr0048A = generateSpatialAcceleratedConfiguration('idr0048A');
 export const saIdr0048ANone = generateSpatialAcceleratedConfiguration('idr0048A', 'none');
 export const saIdr0048AMean = generateSpatialAcceleratedConfiguration('idr0048A', 'mean');
 export const saIdr0106 = generateSpatialAcceleratedConfiguration('idr0106');
+export const saIdr0106Tiff = generateSpatialAcceleratedConfiguration('idr0106-tiff');
+export const saBrainTiff = generateSpatialAcceleratedConfiguration('brain-tiff');
+export const saLucaTiff = generateSpatialAcceleratedConfiguration('luca-tiff');
