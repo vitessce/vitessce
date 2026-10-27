@@ -78,11 +78,12 @@ describe('volume-zarr', () => {
     it('reduces Z of an XY-only pyramid down to at least 32 slices', () => {
       const shapes = xyOnlyShapes(194, 3181, 4045, 6);
       const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX });
-      expect(levels.map(l => l.shape[0])).toEqual([194, 97, 49, 33, 33, 33]);
-      expect(levels.map(l => l.zFactor)).toEqual([1, 2, 4, 6, 6, 6]);
-      expect(levels.map(l => l.zMode)).toEqual(['native', 'sample', 'sample', 'sample', 'sample', 'sample']);
+      // The last level is the one-brick overview (194 / 7 = 28 slices).
+      expect(levels.map(l => l.shape[0])).toEqual([194, 97, 49, 33, 33, 33, 28]);
+      expect(levels.map(l => l.zFactor)).toEqual([1, 2, 4, 6, 6, 6, 7]);
+      expect(levels.map(l => l.zMode)).toEqual(['native', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample']);
       // The shader scale includes the reduction factor; XY keeps shape ratios.
-      expect(levels.map(l => l.ratio[0])).toEqual([1, 2, 4, 6, 6, 6]);
+      expect(levels.map(l => l.ratio[0])).toEqual([1, 2, 4, 6, 6, 6, 7]);
       expect(levels[1].ratio[2]).toBeCloseTo(4045 / 2023);
     });
 
@@ -91,7 +92,7 @@ describe('volume-zarr', () => {
       const levels = planVolumeLevels({
         arrays: mockArrays(shapes), labels: TCZYX, spacing: [2, 0.36, 0.36],
       });
-      expect(levels.map(l => l.shape[0])).toEqual([194, 194, 194, 194, 97, 39]);
+      expect(levels.map(l => l.shape[0])).toEqual([194, 194, 194, 194, 97, 39, 28]);
     });
 
     it('keeps a pyramid that already downsamples Z under auto, and with none', () => {
@@ -115,9 +116,45 @@ describe('volume-zarr', () => {
       const levels = planVolumeLevels({
         arrays: mockArrays(shapes), labels: TCZYX, datasets, spacing: [0.4, 0.108335, 0.108335],
       });
-      // Fewer than 64 slices: no reduction possible above the 32-slice floor.
-      expect(levels.map(l => l.shape[0])).toEqual([35, 35, 35]);
+      // Fewer than 64 slices: no reduction above the 32-slice floor, except
+      // for the one-brick overview appended after the coarsest level.
+      expect(levels.map(l => l.shape[0])).toEqual([35, 35, 35, 18]);
       [1, 4, 4].forEach((ratio, axis) => expect(levels[2].ratio[axis]).toBeCloseTo(ratio));
+    });
+
+    it('appends a one-brick overview that covers the shader extent', () => {
+      const cases = [
+        { shapes: xyOnlyShapes(194, 3181, 4045, 6) },
+        { shapes: xyOnlyShapes(1402, 5192, 2947, 6) },
+        { shapes: [[401, 4255, 4992], [401, 66, 78]] },
+        // Rounded sizes with metadata scales: 130 / 4 = 32.5 exceeds the 32 stored voxels.
+        {
+          shapes: [[40, 130, 130], [40, 65, 65], [40, 32, 32]],
+          datasets: [1, 2, 4].map(s => ({
+            coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1, s, s] }],
+          })),
+        },
+      ];
+      cases.forEach(({ shapes, datasets }) => {
+        const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX, datasets });
+        const overview = levels[levels.length - 1];
+        expect(overview.isOverview).toBe(true);
+        expect(overview.shape.every(size => size <= 32)).toBe(true);
+        // Ratios stay monotone, and the brick spans the whole level-0 volume.
+        const previous = levels[levels.length - 2];
+        expect(overview.ratio.every((r, axis) => r >= previous.ratio[axis])).toBe(true);
+        overview.shape.forEach((size, axis) => {
+          expect(size * overview.ratio[axis]).toBeGreaterThanOrEqual(shapes[0][axis] - 1e-6);
+        });
+      });
+    });
+
+    it('adds no overview when the coarsest level is already one brick or levels are full', () => {
+      const shapes = xyOnlyShapes(30, 1024, 1024, 6); // coarsest 30 x 32 x 32
+      expect(planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX })).toHaveLength(6);
+      const many = xyOnlyShapes(194, 3181, 4045, 6);
+      expect(planVolumeLevels({ arrays: mockArrays(many), labels: TCZYX, maxLevels: 6 }))
+        .toHaveLength(6);
     });
 
     it('chooses mean when the source chunk already spans the Z bin', () => {
@@ -193,6 +230,32 @@ describe('volume-zarr', () => {
         expect({ ...reads[i], mismatch: findMismatch(brick, reads[i]) })
           .toEqual({ ...reads[i], mismatch: null });
       });
+    });
+
+    it.each(['sample', 'mean', 'max'])('reads XY-reduced overview bricks matching brute force (%s)', async (zMode) => {
+      const array = await createTestArray(createCountingStore(), 'a', shape, [1, 1, 1, 45, 50]);
+      // Factors 3 x 2 x 2 leave partial bins on every axis: 70 / 3, 45 / 2, 50 / 2.
+      const level = withDataShape({
+        source: 0, sourceDepth: 70, zFactor: 3, yFactor: 2, xFactor: 2, zMode, shape: [24, 23, 25],
+      });
+      const source = createVolumeBrickSource({ arrays: [array], levels: [level], labels: TCZYX });
+      const { data } = await source.readBrick({ level: 0, c: 1, bx: 0, by: 0, bz: 0 });
+      const mismatches = [];
+      for (let z = 0; z < 24; z++) {
+        for (let y = 0; y < 23; y++) {
+          for (let x = 0; x < 25; x++) {
+            const planes = zMode === 'sample' ? [Math.min(69, z * 3 + 1)]
+              : Array.from({ length: Math.min(3, 70 - z * 3) }, (_, i) => z * 3 + i);
+            const block = planes.flatMap(s => [y * 2, y * 2 + 1].filter(v => v < 45).flatMap(
+              v => [x * 2, x * 2 + 1].filter(u => u < 50).map(u => value(1, s, v, u)),
+            ));
+            const expected = zMode === 'max' ? Math.max(...block)
+              : Math.round(block.reduce((a, b) => a + b, 0) / block.length);
+            if (data[(z * 32 + y) * 32 + x] !== expected) mismatches.push([z, y, x]);
+          }
+        }
+      }
+      expect(mismatches.slice(0, 3)).toEqual([]);
     });
 
     it('reads czyx arrays', async () => {

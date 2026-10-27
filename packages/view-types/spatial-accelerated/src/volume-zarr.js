@@ -3,6 +3,40 @@ import { get, slice } from 'zarrita';
 const BRICK_SIZE = 32;
 const SPATIAL_AXES = ['z', 'y', 'x'];
 
+// A virtual level holding the whole volume in a single brick, appended when the
+// coarsest stored level spans several bricks. It is loaded first for every
+// channel, so something is on screen after one read per channel. XY is reduced
+// by block mean (whole chunks are decoded anyway); Z follows the zMode rules.
+function planOverviewLevel(coarsest, shape0, chunkZ, mode) {
+  const sourceShape = [coarsest.sourceDepth, coarsest.dataShape[1], coarsest.dataShape[2]];
+  const sourceRatio = [coarsest.ratio[0] / coarsest.zFactor, coarsest.ratio[1], coarsest.ratio[2]];
+  // Factors come from the shader extent (level-0 size / ratio), which can exceed
+  // the data, so that the level is exactly one brick.
+  const [zFactor, yFactor, xFactor] = sourceRatio.map((r, axis) => Math.max(
+    1, Math.ceil((shape0[axis] / r - 1e-6) / BRICK_SIZE),
+  ));
+  const factors = [zFactor, yFactor, xFactor];
+  const ratio = sourceRatio.map((r, axis) => r * factors[axis]);
+  const dataShape = sourceShape.map((size, axis) => Math.ceil(size / factors[axis]));
+  let zMode = ['auto', 'none'].includes(mode) ? 'sample' : mode;
+  if (zFactor === 1) zMode = 'native';
+  else if (zMode === 'sample' && chunkZ >= zFactor) zMode = 'mean';
+  return {
+    source: coarsest.source,
+    sourceDepth: coarsest.sourceDepth,
+    dataShape,
+    shape: dataShape.map((size, axis) => Math.max(
+      size, Math.ceil(shape0[axis] / ratio[axis] - 1e-6),
+    )),
+    ratio,
+    zFactor,
+    yFactor,
+    xFactor,
+    zMode,
+    isOverview: true,
+  };
+}
+
 // Logical voxels cover integer bins of source planes. In particular, the last
 // partial bin must not change the scale used by the shader (extent / scale).
 export function planVolumeLevels({
@@ -25,7 +59,7 @@ export function planVolumeLevels({
   ));
   const isXYOnly = shapes.every(shape => shape[0] === shapes[0][0]);
   let previousRatioZ = 1;
-  return shapes.slice(0, maxLevels).map((shape, source) => {
+  const levels = shapes.slice(0, maxLevels).map((shape, source) => {
     const ratio = shape.map((size, axis) => (hasScales
       ? scales[source][axis] / scales[0][axis] : shapes[0][axis] / size));
     let zFactor = 1;
@@ -63,16 +97,24 @@ export function planVolumeLevels({
       )),
       ratio, // ZYX; reverse only when setting the shader's XYZ scales.
       zFactor,
+      yFactor: 1,
+      xFactor: 1,
       zMode,
     };
   });
+  const coarsest = levels[levels.length - 1];
+  if (levels.length < maxLevels && coarsest.shape.some(size => size > BRICK_SIZE)) {
+    const chunkZ = arrays[coarsest.source].chunks[labels.indexOf('z')];
+    levels.push(planOverviewLevel(coarsest, shapes[0], chunkZ, mode));
+  }
+  return levels;
 }
 
 // Conservative maximum for any brick, including unaligned source chunks.
 export function decodedBytesPerBrick(level, array, labels, bytesPerElement) {
   const counts = SPATIAL_AXES.map((axis, dimension) => {
     const chunkSize = array.chunks[labels.indexOf(axis)];
-    const factor = axis === 'z' ? level.zFactor : 1;
+    const factor = [level.zFactor, level.yFactor ?? 1, level.xFactor ?? 1][dimension];
     const sourceSize = array.shape[labels.indexOf(axis)];
     let maximum = 0;
     for (let start = 0; start < level.dataShape[dimension]; start += BRICK_SIZE) {
@@ -156,12 +198,25 @@ export function createVolumeBrickSource({
       - [z0, y0, x0][axis]);
     const [nz, ny, nx] = valid;
     const { zFactor, zMode, sourceDepth } = level;
+    const { yFactor = 1, xFactor = 1 } = level;
     const isSample = zMode === 'sample';
     const isMean = zMode === 'mean';
     const isMax = zMode === 'max';
+    // Logical voxels average blocks of source voxels for mean Z and for XY factors.
+    const isSum = !isMax && (isMean || yFactor > 1 || xFactor > 1);
     const values = new Float64Array(BRICK_SIZE ** 3);
     if (isMax) values.fill(-Infinity);
     const sourceEnd = Math.min(sourceDepth, (z0 + nz) * zFactor);
+    const [sourceHeight, sourceWidth] = ['y', 'x'].map(
+      axis => arrays[level.source].shape[labels.indexOf(axis)],
+    );
+    const yRange = [y0 * yFactor, Math.min(sourceHeight, (y0 + ny) * yFactor)];
+    const xRange = [x0 * xFactor, Math.min(sourceWidth, (x0 + nx) * xFactor)];
+    // Output voxel of each source row and column in the read region.
+    const yOut = Array.from({ length: yRange[1] - yRange[0] },
+      (_, i) => Math.floor((yRange[0] + i) / yFactor) - y0);
+    const xOut = Array.from({ length: xRange[1] - xRange[0] },
+      (_, i) => Math.floor((xRange[0] + i) / xFactor) - x0);
     // Sample one plane per bin; stepped slices in zarrita also read skipped chunks.
     // At most one brick depth of source planes is in flight: 32 single-plane
     // samples, or one 32-plane slab at a time for native and filtered reads.
@@ -181,11 +236,12 @@ export function createVolumeBrickSource({
       const [sz, sy, sx] = SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]);
       for (let z = 0; z < readEnd - readStart; z++) {
         const outputZ = Math.floor((readStart + z) / zFactor) - z0;
-        for (let y = 0; y < ny; y++) {
-          for (let x = 0; x < nx; x++) {
+        for (let y = 0; y < yOut.length; y++) {
+          const row = (outputZ * BRICK_SIZE + yOut[y]) * BRICK_SIZE;
+          for (let x = 0; x < xOut.length; x++) {
             const value = result.data[z * sz + y * sy + x * sx];
-            const index = (outputZ * BRICK_SIZE + y) * BRICK_SIZE + x;
-            if (isMean) values[index] += value;
+            const index = row + xOut[x];
+            if (isSum) values[index] += value;
             else values[index] = isMax ? Math.max(values[index], value) : value;
           }
         }
@@ -197,7 +253,7 @@ export function createVolumeBrickSource({
         const range = ranges[nextRead];
         nextRead += 1;
         const selections = {
-          t, c, z: slice(...range), y: slice(y0, y0 + ny), x: slice(x0, x0 + nx),
+          t, c, z: slice(...range), y: slice(...yRange), x: slice(...xRange),
         };
         // eslint-disable-next-line no-await-in-loop
         const result = await get(cachedArrays[level.source], labels.map(axis => selections[axis]));
@@ -207,11 +263,15 @@ export function createVolumeBrickSource({
     await Promise.all(Array.from({ length: Math.min(concurrency, ranges.length) }, readNext));
     const data = new DataType(BRICK_SIZE ** 3);
     const isInteger = !(data instanceof Float32Array || data instanceof Float64Array);
+    // Source voxels per logical voxel; edge bins may be partial.
+    const binSize = (start, factor, size) => Math.min(factor, size - start * factor);
     for (let z = 0; z < nz; z++) {
-      const count = isMean ? Math.min(zFactor, sourceDepth - (z0 + z) * zFactor) : 1;
+      const zCount = isMean ? binSize(z0 + z, zFactor, sourceDepth) : 1;
       for (let y = 0; y < ny; y++) {
+        const zyCount = zCount * binSize(y0 + y, yFactor, sourceHeight);
         for (let x = 0; x < nx; x++) {
           const index = (z * BRICK_SIZE + y) * BRICK_SIZE + x;
+          const count = isSum ? zyCount * binSize(x0 + x, xFactor, sourceWidth) : 1;
           const value = values[index] / count;
           data[index] = isInteger ? Math.round(value) : value;
         }

@@ -12,6 +12,7 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
+import { CoordinationType } from '@vitessce/constants-internal';
 
 import {
   VolumeDataManager,
@@ -338,6 +339,21 @@ export function VolumeView(props) {
   const firstImage = images?.[firstImageLayerScope];
   const firstImageChannelScope = imageChannelScopesByLayer?.[firstImageLayerScope];
   const firstImageLayerChannelCoordination = imageChannelCoordination?.[0]?.[firstImageLayerScope];
+
+  // In 3D, the layer controller seeds a missing channel window from quartile
+  // stats that come out as NaN (getSingleSelectionStats3D in spatial-utils).
+  // Replace non-finite bounds with 0 so the controls and the shader contrast stay valid.
+  useEffect(() => {
+    const setters = imageChannelCoordination?.[1]?.[firstImageLayerScope];
+    Object.entries(firstImageLayerChannelCoordination || {}).forEach(([channelScope, values]) => {
+      const window = values?.[CoordinationType.SPATIAL_CHANNEL_WINDOW];
+      if (Array.isArray(window) && window.some(bound => !Number.isFinite(bound))) {
+        setters?.[channelScope]?.setSpatialChannelWindow?.(
+          window.map(bound => (Number.isFinite(bound) ? bound : 0)),
+        );
+      }
+    });
+  }, [imageChannelCoordination, firstImageLayerScope, firstImageLayerChannelCoordination]);
 
 
   useEffect(() => {

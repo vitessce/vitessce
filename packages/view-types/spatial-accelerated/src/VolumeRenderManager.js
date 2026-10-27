@@ -55,7 +55,7 @@ export class VolumeRenderManager {
     this.originalScale = [1, 1, 1];
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
-    this.finestRes = 1; // finest renderable level, set in setZarrUniforms
+    this.finestRes = 0; // finest renderable level, set in setZarrUniforms
 
     this.maxRange = 255;
     this.maxRangeSet = false;
@@ -579,9 +579,9 @@ export class VolumeRenderManager {
     }
     log.debug('zarrStore.brickLayout', zarrStore.brickLayout);
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
-    // Level 0 stays excluded as before; finestLevel also excludes levels
-    // whose bricks would decode too much source data.
-    this.finestRes = Math.max(1, zarrStore.finestLevel ?? 1);
+    // Level 0 (full resolution) is rendered unless its bricks would decode too
+    // much source data; finestLevel is the finest level within that budget.
+    this.finestRes = zarrStore.finestLevel ?? 0;
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
         // TODO(mark) make this dependent on the per-channel maxResolution slider value.

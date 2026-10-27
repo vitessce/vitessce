@@ -7,6 +7,8 @@ import {
   _ptToZarr,
   _requestBufferToRequestObjects,
   _getVoxelSpacing,
+  _zarrToPt,
+  VolumeDataManager,
 } from './VolumeDataManager.js';
 
 describe('spatial-accelerated data utils', () => {
@@ -164,14 +166,10 @@ describe('spatial-accelerated data utils', () => {
       const failures = [];
       layout.forEach(([zBricks, yBricks, xBricks], resolution) => {
         for (let channel = 0; channel < channelCount; channel++) {
-          // Same placement as getBrickLocation and setBrickRequest in the shader.
-          const offset = resolution === 0
-            ? [0, 0, PT.zExtent + PT.z0Extent * channel]
-            : PT.anchors[resolution].map((a, axis) => a * PT.channelOffsets[channel][axis]);
           for (let z = 0; z < zBricks; z++) {
             for (let y = 0; y < yBricks; y++) {
               for (let x = 0; x < xBricks; x++) {
-                const [ptx, pty, ptz] = [x + offset[0], y + offset[1], z + offset[2]];
+                const { x: ptx, y: pty, z: ptz } = _zarrToPt(channel, resolution, x, y, z, PT);
                 const key = ptx + PT.xExtent * (pty + PT.yExtent * ptz);
                 const decoded = _ptToZarr(ptx, pty, ptz, ptInfo);
                 if (ptx >= PT.xExtent || pty >= PT.yExtent || ptz >= PT.zTotal || seen.has(key)
@@ -185,6 +183,25 @@ describe('spatial-accelerated data utils', () => {
         }
       });
       expect(failures.slice(0, 3)).toEqual([]);
+    });
+
+    it('requests the one-brick overview of every mapped channel at its channel mask', () => {
+      // idr0062A logical levels plus the one-brick overview.
+      const brickLayout = [[8, 9, 9], [8, 5, 5], [4, 3, 3], [1, 1, 1]];
+      const { PT } = _initMRMCPT(brickLayout, 3);
+      const manager = {
+        zarrStore: { brickLayout },
+        channels: { zarrMappings: [0, undefined, 1] },
+        overviewBricks: new Map([[2, [5]]]), // slot 2 already has its overview
+        PT,
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      const overviewRequests = () => VolumeDataManager.prototype._overviewRequests.call(manager);
+      // The coarsest level is anchored at [1, 1, 1], so each slot sits at its channel mask.
+      expect(overviewRequests()).toEqual([{ x: 0, y: 0, z: 1 }]); // slot 0: 001
+      manager.overviewBricks.clear();
+      // slot 2: 011
+      expect(overviewRequests()).toEqual([{ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 1 }]);
     });
   });
   describe('_packPT packs page table properties for a brick', () => {

@@ -46,6 +46,9 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 const MAX_DECODED_BYTES_PER_BRICK = 32 * (2 ** 20); // starting value, not measured
+// Bricks fetched at once. Each keeps at most 32 source planes in flight, and each
+// is within MAX_DECODED_BYTES_PER_BRICK, so peak decoding stays bounded.
+const BRICK_FETCH_CONCURRENCY = 6;
 
 // const manualChannelSelection = 0;
 
@@ -306,6 +309,31 @@ export function _packPTNotResident(min, max, bcX, bcY, bcZ) {
   ) >>> 0; // keep unsigned
 }
 */
+
+/**
+ * Page table coordinate of a brick; the inverse of _ptToZarr. Matches the
+ * placement in the shader's getBrickLocation and setBrickRequest.
+ * @param {number} channel Page table channel slot.
+ * @param {number} resolution Logical resolution level.
+ * @param {number} x Brick x index within the level.
+ * @param {number} y Brick y index within the level.
+ * @param {number} z Brick z index within the level.
+ * @param {object} PT Page table info from _initMRMCPT.
+ * @returns {{ x: number, y: number, z: number }}
+ */
+export function _zarrToPt(channel, resolution, x, y, z, PT) {
+  if (resolution === 0) {
+    // Level 0 channels are stacked along z after the coarser levels.
+    return { x, y, z: PT.zExtent + PT.z0Extent * channel + z };
+  }
+  const anchor = PT.anchors[resolution];
+  const mask = PT.channelOffsets[channel];
+  return {
+    x: anchor[0] * mask[0] + x,
+    y: anchor[1] * mask[1] + y,
+    z: anchor[2] * mask[2] + z,
+  };
+}
 
 export function _ptToZarr(ptx, pty, ptz, ptInfo) {
   const { PT_zExtent, PT_z0Extent, PT_anchors } = ptInfo;
@@ -582,6 +610,10 @@ export class VolumeDataManager {
 
     // brick cache to page table mapping
     this.bc2pt = new Array(TOTAL_NUM_BRICKS).fill(null);
+
+    // Bricks of the coarsest level, per channel slot. They load first for every
+    // channel and are never evicted, so each channel always has something to show.
+    this.overviewBricks = new Map(); // slot -> brick cache indices
 
     // top k unused brick cache addresses
     this.LRUStack = [];
@@ -1004,11 +1036,53 @@ export class VolumeDataManager {
 
 
   async initTexture() {
-    const requests = [
-      { x: 0, y: 0, z: 1 },
-    ];
-    logWithColor('initTexture - loading first brick');
-    await this.handleBrickRequests(requests);
+    if (this.isBusy) return;
+    logWithColor('initTexture - loading the overview brick of each channel');
+    this.isBusy = true;
+    await this._loadOverviews();
+    this.isBusy = false;
+  }
+
+  /**
+   * Page table requests for all bricks of the coarsest level (one brick when it
+   * is the overview level), for each mapped channel slot without them yet.
+   */
+  _overviewRequests() {
+    const resolution = this.zarrStore.brickLayout.length - 1;
+    const [zBricks, yBricks, xBricks] = this.zarrStore.brickLayout[resolution];
+    return this.channels.zarrMappings.flatMap((zarrChannel, slot) => {
+      if (zarrChannel === undefined || this.overviewBricks.has(slot)) return [];
+      const requests = [];
+      for (let z = 0; z < zBricks; z++) {
+        for (let y = 0; y < yBricks; y++) {
+          for (let x = 0; x < xBricks; x++) {
+            requests.push(_zarrToPt(slot, resolution, x, y, z, this.PT));
+          }
+        }
+      }
+      return requests;
+    });
+  }
+
+  /**
+   * Load and pin the overview bricks of channels that do not have them yet.
+   * @returns {Promise<boolean>} Whether any overview requests were made.
+   */
+  async _loadOverviews() {
+    const requests = this._overviewRequests();
+    if (requests.length === 0) return false;
+    const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
+    // Mark slots as attempted even if a read fails; the regular requests retry those bricks.
+    requests.forEach(({ x, y, z }) => {
+      const { channel } = _ptToZarr(x, y, z, ptInfo);
+      if (!this.overviewBricks.has(channel)) this.overviewBricks.set(channel, []);
+    });
+    const uploaded = await this.handleBrickRequests(requests, { canBailOut: false });
+    uploaded.forEach(({ ptCoord, bcIndex }) => {
+      const { channel } = _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfo);
+      this.overviewBricks.get(channel)?.push(bcIndex);
+    });
+    return true;
   }
 
   updateChannels(channelProps) {
@@ -1116,6 +1190,11 @@ export class VolumeDataManager {
 
     log.debug('newColorMappings', newColorMappings);
     this.channels.colorMappings = newColorMappings;
+
+    // Resume requests so that newly mapped channels load their overview bricks.
+    if (this._overviewRequests().length > 0 && !this.manuallyStopped) {
+      this.noNewRequests = false;
+    }
 
     log.debug('updatedChannels', this.channels);
 
@@ -1273,6 +1352,13 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
+    // A channel without its overview loads that first, e.g. one added after init.
+    if (await this._loadOverviews()) {
+      this.triggerUsage = true;
+      this.isBusy = false;
+      return;
+    }
+
     const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
     if (requests.length === 0) {
@@ -1378,6 +1464,17 @@ export class VolumeDataManager {
       log.warn('WebGL context is lost, skipping channel purge');
       return;
     }
+
+    // Unpin the slot's overview and forget its resident bricks, so that evicting
+    // them later cannot clear page table entries of the next channel in this slot.
+    this.overviewBricks.delete(ptChannelIndex);
+    const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
+    this.bc2pt.forEach((pt, bcIndex) => {
+      if (pt && _ptToZarr(pt.x, pt.y, pt.z, ptInfo).channel === ptChannelIndex) {
+        this.bc2pt[bcIndex] = null;
+        this.BCTimeStamps[bcIndex] = 0;
+      }
+    });
 
     this.channels.downsampleMin[ptChannelIndex] = undefined;
     this.channels.downsampleMax[ptChannelIndex] = undefined;
@@ -1491,15 +1588,20 @@ export class VolumeDataManager {
   }
 
   /* ------------------------------------------------------------- *
- * 4. Upload one brick + PT entry                                *
+ * 4. Fetch one brick, then upload it + its PT entry             *
  * ------------------------------------------------------------- */
-  async _uploadBrick(ptCoord, bcSlot) {
-    log.debug('uploading brick', ptCoord, bcSlot);
+  /**
+   * Read and convert one brick. Safe to run concurrently.
+   * @returns {Promise<{ chunk: Uint8Array, min: number, max: number, channel: number }|null>}
+   * The brick, or null if it cannot be loaded.
+   */
+  async _fetchBrick(ptCoord) {
+    log.debug('fetching brick', ptCoord);
 
     // Check for context loss before proceeding
     if (this.isContextLost()) {
       log.warn('WebGL context is lost, skipping brick upload');
-      return;
+      return null;
     }
 
     if (ptCoord.x >= this.PT.xExtent
@@ -1511,7 +1613,7 @@ export class VolumeDataManager {
     ) {
       log.error('this.PT', this.PT);
       log.error('ptCoord out of bounds', ptCoord);
-      return;
+      return null;
     }
 
     // log.debug('ptCoord', ptCoord);
@@ -1527,12 +1629,12 @@ export class VolumeDataManager {
     // Check if channel mappings are valid
     if (!this.channels || !this.channels.zarrMappings || this.channels.zarrMappings.length === 0) {
       log.error('Channel mappings not initialized, skipping brick upload');
-      return;
+      return null;
     }
 
     if (channel < 0 || channel >= this.channels.zarrMappings.length) {
       log.error('Channel index out of bounds', { channel, mappingsLength: this.channels.zarrMappings.length });
-      return;
+      return null;
     }
 
     const zarrChannel = this.channels.zarrMappings[channel];
@@ -1560,11 +1662,11 @@ export class VolumeDataManager {
           log.debug('Successfully restored channel mapping, continuing with upload');
         } else {
           log.error('Could not restore valid channel mapping, aborting brick upload');
-          return;
+          return null;
         }
       } else {
         log.error('No fallback channel config available, aborting brick upload');
-        return;
+        return null;
       }
     }
 
@@ -1618,6 +1720,23 @@ export class VolumeDataManager {
       if (v < min) min = v;
       if (v > max) max = v;
     }
+    return {
+      chunk, min, max, channel,
+    };
+  }
+
+  /**
+   * Upload a fetched brick to its brick cache slot and point its PT entry at it.
+   * Synchronous, so uploads of concurrently fetched bricks never interleave.
+   * @returns {boolean} Whether the brick was uploaded.
+   */
+  _writeBrick(ptCoord, bcSlot, brick) {
+    if (this.isContextLost()) {
+      log.warn('WebGL context is lost, skipping brick upload');
+      return false;
+    }
+    const { chunk, channel } = brick;
+    let { min, max } = brick;
 
     /* 4.3 brick‑cache upload */
     const { gl } = this;
@@ -1684,14 +1803,21 @@ export class VolumeDataManager {
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
     this.bc2pt[bcSlot.bcIndex] = ptCoord;
     // log.debug('bookkeeping');
+    return true;
   }
 
   /* ------------------------------------------------------------- *
  * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
  * ------------------------------------------------------------- */
-  async handleBrickRequests(ptRequests) {
+  /**
+   * @param {{ x: number, y: number, z: number }[]} ptRequests Page table coordinates.
+   * @param {object} options
+   * @param {boolean} options.canBailOut Whether needsBailout may stop the batch early.
+   * @returns {Promise<{ ptCoord: object, bcIndex: number }[]>} The uploaded bricks.
+   */
+  async handleBrickRequests(ptRequests, { canBailOut = true } = {}) {
     // log.debug('handleBrickRequests');
-    if (ptRequests.length === 0) return;
+    if (ptRequests.length === 0) return [];
 
     // Track loading progress
     this.totalBricksRequested = ptRequests.length;
@@ -1709,31 +1835,48 @@ export class VolumeDataManager {
 
     log.debug('Handling brick requests:', { requestCount: ptRequests.length, slotCount: slots.length });
 
-    /* upload each (sequentially or Promise.all if you prefer IO overlap) */
-    log.debug('handleBrickRequests: starting for loop');
-    for (let i = 0; i < ptRequests.length; ++i) {
-      // eslint-disable-next-line no-await-in-loop
-      await this._uploadBrick(ptRequests[i], slots[i]);
+    // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once, in request order. Each
+    // brick is uploaded as soon as its fetch completes.
+    const uploaded = [];
+    let nextRequest = 0;
+    let isBailingOut = false;
+    const fetchNext = async () => {
+      while (nextRequest < ptRequests.length && !isBailingOut) {
+        const i = nextRequest;
+        nextRequest += 1;
+        let brick;
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          brick = await this._fetchBrick(ptRequests[i]);
+        } catch (error) {
+          log.error('Failed to fetch brick', ptRequests[i], error);
+        }
+        if (brick && this._writeBrick(ptRequests[i], slots[i], brick)) {
+          uploaded.push({ ptCoord: ptRequests[i], bcIndex: slots[i].bcIndex });
+        }
 
-      // Update progress
-      this.currentRequestCount = ptRequests.length - i - 1;
+        // Update progress
+        this.currentRequestCount -= 1;
 
-      // this.bricksAllocated++;
-      const rlength = this.bricksEverLoaded.size;
-      this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
-      if (rlength === this.bricksEverLoaded.size) {
-        log.debug('DUPLICATE BRICK LOADED', ptRequests[i]);
+        const rlength = this.bricksEverLoaded.size;
+        this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
+        if (rlength === this.bricksEverLoaded.size) {
+          log.debug('DUPLICATE BRICK LOADED', ptRequests[i]);
+        }
+
+        if (canBailOut && this.needsBailout) {
+          // Stop starting new fetches; those in flight still finish and upload.
+          log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
+          this.needsBailout = false; // Reset the flag
+          isBailingOut = true;
+          // TODO(mark): do something with the allocated slots that were not used?
+        }
       }
-
-      if (this.needsBailout) {
-        log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
-        this.needsBailout = false; // Reset the flag
-        this.currentRequestCount = 0; // Reset progress
-        break; // Exit the loop early
-
-        // TODO(mark): do something with the allocated slots that were not used?
-      }
-    }
+    };
+    await Promise.all(Array.from(
+      { length: Math.min(BRICK_FETCH_CONCURRENCY, ptRequests.length) },
+      fetchNext,
+    ));
 
     // Reset progress when complete
     this.currentRequestCount = 0;
@@ -1745,6 +1888,7 @@ export class VolumeDataManager {
     /* let Three.js know textures changed */
     // this.bcTHREE.needsUpdate = true;
     // this.ptTHREE.needsUpdate = true;
+    return uploaded;
   }
 
   /* --------------------------------------------------------- *
@@ -1755,8 +1899,11 @@ export class VolumeDataManager {
     // BCTimeStamps is updated during both initial brick upload and processUsageData.
     // However it is not until _buildLRU is called that the timestamps are sorted
     // to update this.LRUStack.
+    // Overview bricks are pinned: never candidates for eviction.
+    const pinned = new Set(Array.from(this.overviewBricks.values()).flat());
     const brickIndicesWithTimes = this.BCTimeStamps
-      .map((time, index) => ({ index, time }));
+      .map((time, index) => ({ index, time }))
+      .filter(({ index }) => !pinned.has(index));
     this.LRUStack = brickIndicesWithTimes
       .sort((a, b) => a.time - b.time)
       .slice(0, this.k)
