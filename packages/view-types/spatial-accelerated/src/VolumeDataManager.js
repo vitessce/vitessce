@@ -53,6 +53,9 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
 const MAX_DECODED_BYTES_PER_BRICK = 32 * (2 ** 20); // starting value, not measured
+// Page table extents (XYZ) that brick requests can address: the fragment shader
+// packs request coordinates into 32 bits as x:10 | y:10 | z:12 (packPTCoordToRGBA8).
+const PAGE_TABLE_MAX_EXTENT = [1024, 1024, 4096];
 // Bricks fetched at once. Each keeps at most 32 source planes in flight, and each
 // is within MAX_DECODED_BYTES_PER_BRICK, so peak decoding stays bounded.
 const BRICK_FETCH_CONCURRENCY = 6;
@@ -78,11 +81,11 @@ function logWithColor(message) {
 /**
  * The source resolution levels of an image, and how to read them, by image type.
  * @param {object} imageWrapper ImageWrapper of an OME-Zarr or OME-TIFF image.
- * @returns {{ labels: string[], arrays: object[], datasets: object[],
- *   createRegionReader: function }} arrays have shape and chunks per level;
+ * @returns {Promise<{ labels: string[], arrays: object[], datasets: object[],
+ *   createRegionReader: function }>} arrays have shape and chunks per level;
  * datasets are the NGFF multiscale datasets (empty for OME-TIFF).
  */
-export function _getVolumeSources(imageWrapper) {
+export async function _getVolumeSources(imageWrapper) {
   const type = imageWrapper?.getType();
   if (type === 'ome-tiff') {
     // viv's TiffPixelSource per level; bricks are read tile by tile.
@@ -90,7 +93,7 @@ export function _getVolumeSources(imageWrapper) {
     const pixelSources = Array.isArray(data) ? data : [data];
     return {
       labels: pixelSources[0].labels,
-      arrays: getTiffLevelArrays(pixelSources),
+      arrays: await getTiffLevelArrays(pixelSources),
       datasets: [],
       createRegionReader: createTiffRegionReader,
     };
@@ -226,6 +229,95 @@ export function _resolutionStatsToBrickLayout(multiResolutionStats) {
  * @param {[number, number, number][]} zarrStoreBrickLayout
  * @param {number} channelsZarrMappingsLength
  */
+/**
+ * Page table extents, in bricks, and the anchor of each level's channel copies.
+ * Coarser levels are packed next to each other; level 0 channels are stacked
+ * along z above them.
+ * @param {number[][]} brickLayout Bricks per level, ZYX.
+ * @param {number} channelCount Channel slots in the page table.
+ * @returns {{ anchors: number[][], xExtent: number, yExtent: number, zExtent: number,
+ *   z0Extent: number, zTotal: number, lowestDataRes: number }}
+ */
+export function _getPageTableLayout(brickLayout, channelCount) {
+  let xExtent = 1;
+  let yExtent = 1;
+  let zExtent = 1;
+  const anchors = [];
+  // Sum up the extents from all resolution levels excluding the l0.
+  // Channel copies of a level sit at 0 or at the anchor on each axis, so each
+  // anchor must be at least the level's own extent; otherwise copies overlap
+  // and _ptToZarr decodes the wrong channel. Halving pyramids ending in a single
+  // brick already satisfy this; logical levels (e.g. XY-only pyramids) may not.
+  for (let i = brickLayout.length - 1; i > 0; i--) {
+    const [zBricks, yBricks, xBricks] = brickLayout[i];
+    const anchor = [
+      Math.max(xExtent, xBricks),
+      Math.max(yExtent, yBricks),
+      Math.max(zExtent, zBricks),
+    ];
+    anchors.push(anchor);
+    xExtent = anchor[0] + xBricks;
+    yExtent = anchor[1] + yBricks;
+    zExtent = anchor[2] + zBricks;
+  }
+  anchors.push([0, 0, zExtent]);
+  anchors.reverse();
+  const [z0Extent, y0Bricks, x0Bricks] = brickLayout[0];
+  return {
+    anchors,
+    // Level 0 channels are stacked along z from x = y = 0; the table must fit them.
+    xExtent: Math.max(xExtent, x0Bricks),
+    yExtent: Math.max(yExtent, y0Bricks),
+    zExtent,
+    z0Extent,
+    zTotal: zExtent + channelCount * z0Extent,
+    lowestDataRes: brickLayout.length - 1,
+  };
+}
+
+/**
+ * Volume levels whose page table fits what brick requests can address and the
+ * GPU allows. When the full pyramid does not fit, the finest source levels are
+ * dropped and the levels are planned as if the pyramid started at the first
+ * source that fits, with its voxel spacing, so the physical size is unchanged.
+ * @param {object} options planVolumeLevels options, plus:
+ * @param {number} options.channelCount Channel slots in the page table.
+ * @param {number} [options.max3DTextureSize] GPU limit for the page table texture.
+ * @returns {{ levels: object[], arrays: object[], spacing: number[], firstSource: number }}
+ * arrays and level sources start at firstSource; spacing is its voxel size, ZYX.
+ */
+export function _planLevelsWithinPageTable({
+  arrays, labels, datasets = [], spacing = [1, 1, 1], mode, maxLevels,
+  channelCount, max3DTextureSize = Infinity,
+}) {
+  const maxExtent = PAGE_TABLE_MAX_EXTENT.map(extent => Math.min(extent, max3DTextureSize));
+  let sourceSpacing = spacing;
+  for (let firstSource = 0; firstSource < arrays.length; firstSource++) {
+    const sourceArrays = arrays.slice(firstSource);
+    const levels = planVolumeLevels({
+      arrays: sourceArrays,
+      labels,
+      datasets: datasets.slice(firstSource),
+      spacing: sourceSpacing,
+      mode,
+      maxLevels,
+    });
+    const brickLayout = levels.map(level => level.shape.map(size => Math.ceil(size / BRICK_SIZE)));
+    const { xExtent, yExtent, zTotal } = _getPageTableLayout(brickLayout, channelCount);
+    if ([xExtent, yExtent, zTotal].every((extent, axis) => extent <= maxExtent[axis])) {
+      return {
+        levels, arrays: sourceArrays, spacing: sourceSpacing, firstSource,
+      };
+    }
+    // The next source's voxels, relative to this one's, before any Z binning.
+    const next = levels.find(level => level.source === 1);
+    if (!next) break;
+    sourceSpacing = sourceSpacing.map((size, axis) => size
+      * (axis === 0 ? next.ratio[0] / next.zFactor : next.ratio[axis]));
+  }
+  throw new Error(`Even the coarsest level needs a page table larger than ${maxExtent.join(' x ')} bricks`);
+}
+
 export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
   log.debug('_initMRMCPT', zarrStoreBrickLayout, channelsZarrMappingsLength);
   // Page table
@@ -248,51 +340,7 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
     zTotal: 0, // original z extent plus the l0 z extent times the channel count
   };
 
-  // Calculate PT extents first
-  PT.xExtent = 1;
-  PT.yExtent = 1;
-  PT.zExtent = 1;
-  const l0z = zarrStoreBrickLayout[0][0]; // Get z extent from highest resolution
-  PT.z0Extent = l0z;
-
-  // log.debug('PT', PT);
-
-  // log.debug('PT anchors', PT.anchors);
-
-  // log.debug('PT anchors with 0', PT.anchors);
-
-  PT.lowestDataRes = zarrStoreBrickLayout.length - 1;
-  // log.debug('lowestDataRes', PT.lowestDataRes);
-
-  // Sum up the extents from all resolution levels excluding the l0.
-  // Channel copies of a level sit at 0 or at the anchor on each axis, so each
-  // anchor must be at least the level's own extent; otherwise copies overlap
-  // and _ptToZarr decodes the wrong channel. Halving pyramids ending in a single
-  // brick already satisfy this; logical levels (e.g. XY-only pyramids) may not.
-  for (let i = zarrStoreBrickLayout.length - 1; i > 0; i--) {
-    const [zBricks, yBricks, xBricks] = zarrStoreBrickLayout[i];
-    const anchor = [
-      Math.max(PT.xExtent, xBricks),
-      Math.max(PT.yExtent, yBricks),
-      Math.max(PT.zExtent, zBricks),
-    ];
-    PT.anchors.push(anchor);
-    PT.xExtent = anchor[0] + xBricks;
-    PT.yExtent = anchor[1] + yBricks;
-    PT.zExtent = anchor[2] + zBricks;
-  }
-
-  PT.anchors.push([0, 0, PT.zExtent]);
-  PT.anchors.reverse();
-  // Level 0 channels are stacked along z from x = y = 0; the table must fit them.
-  PT.xExtent = Math.max(PT.xExtent, zarrStoreBrickLayout[0][2]);
-  PT.yExtent = Math.max(PT.yExtent, zarrStoreBrickLayout[0][1]);
-
-  // log.debug('PT anchors', PT.anchors);
-
-  // Calculate total Z extent including channel offsets
-  // PT.zTotal = PT.zExtent + (this.zarrStore.channelCount * l0z);
-  PT.zTotal = PT.zExtent + channelsZarrMappingsLength * l0z;
+  Object.assign(PT, _getPageTableLayout(zarrStoreBrickLayout, channelsZarrMappingsLength));
   // log.debug('number of PT channels', channelsZarrMappingsLength);
 
   // log.debug('Page Table Extents:', {
@@ -914,8 +962,8 @@ export class VolumeDataManager {
 
       // OME-Zarr or OME-TIFF levels, plus the matching region reader.
       const {
-        labels, arrays, datasets, createRegionReader,
-      } = _getVolumeSources(imageWrapper);
+        labels, arrays: sourceArrays, datasets, createRegionReader,
+      } = await _getVolumeSources(imageWrapper);
 
       // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
       // For OME-TIFF this is the OME-XML metadata.
@@ -946,21 +994,31 @@ export class VolumeDataManager {
       // console.info('arrays', arrays);
 
       // Get the first array for metadata
-      if (arrays.length > 0) {
-        const array0 = arrays[0];
-        // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
-        const spacing = _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata);
+      if (sourceArrays.length > 0) {
+        const sourceAxisSize = axis => (labels.includes(axis)
+          ? sourceArrays[0].shape[labels.indexOf(axis)] : 1);
 
         // Render levels are logical: a source array plus a Z reduction factor.
         // Bricks are 32^3 regions read independently of the source chunk shape.
-        const levels = planVolumeLevels({
-          arrays,
+        // Source levels too large for the page table are dropped, so arrays and
+        // spacing start at the finest source that fits.
+        const {
+          levels, arrays, spacing, firstSource,
+        } = _planLevelsWithinPageTable({
+          arrays: sourceArrays,
           labels,
           datasets,
-          spacing,
+          // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
+          spacing: _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata),
           mode: loadingOptions.zReduction,
           maxLevels: MAX_RESOLUTION_LEVELS,
+          channelCount: Math.min(sourceAxisSize('c'), MAX_CHANNELS),
+          max3DTextureSize: this.deviceLimits?.max3DTextureSize || Infinity,
         });
+        if (firstSource > 0) {
+          log.warn(`Volume too large for the page table: rendering from source level ${firstSource}, skipping the ${firstSource} finest`);
+        }
+        const array0 = arrays[0];
         log.debug('volume levels [source, zFactor, zMode, shape ZYX]', levels.map(
           level => [level.source, level.zFactor, level.zMode, level.shape],
         ));
@@ -1012,8 +1070,8 @@ export class VolumeDataManager {
         log.debug('config', config);
         // for each key in config, add to channel mappings
         // OME-TIFF has no OMERO block. Its sample range, if the writer recorded one.
-        this.sampleRange = arrays[0].pixelSource
-          ? await getTiffSampleRange(arrays[0].pixelSource) : null;
+        this.sampleRange = sourceArrays[0].pixelSource
+          ? await getTiffSampleRange(sourceArrays[0].pixelSource) : null;
         log.debug('omero', this.ngffMetadata?.omero, 'sampleRange', this.sampleRange);
 
         Object.keys(config).forEach((key, i) => {

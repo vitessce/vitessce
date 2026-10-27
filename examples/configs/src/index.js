@@ -103,6 +103,9 @@ import {
   saGloria, saKingsnake, saLsp1, saLsp2, saLsp3,
   saIdr0062A, saIdr0101A, saIdr0048A, saIdr0048ANone, saIdr0048AMean, saIdr0106,
   saIdr0106Tiff, saBrainTiff, saLucaTiff,
+  saWashuKidneyTiff, saIdr0048A9846152, saHubmapLymphNodeTiff, saIdr0066, saIdr0044A,
+  saHubmapThymusTiff, saIdr0157, saHubmapSpleenTiff, saIdr0062A6001257, saIdr0077Angles,
+  saHubmapLymphNodeImcTiff, saRandom,
 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
@@ -277,6 +280,18 @@ export const configs = {
   's-a-idr0106-tiff': saIdr0106Tiff,
   's-a-brain-tiff': saBrainTiff,
   's-a-luca-tiff': saLucaTiff,
+  's-a-washu-kidney-tiff': saWashuKidneyTiff,
+  's-a-idr0048A-9846152': saIdr0048A9846152,
+  's-a-hubmap-lymph-node-tiff': saHubmapLymphNodeTiff,
+  's-a-idr0066': saIdr0066,
+  's-a-idr0044A': saIdr0044A,
+  's-a-hubmap-thymus-tiff': saHubmapThymusTiff,
+  's-a-idr0157': saIdr0157,
+  's-a-hubmap-spleen-tiff': saHubmapSpleenTiff,
+  's-a-idr0062A-6001257': saIdr0062A6001257,
+  ...saIdr0077Angles,
+  's-a-hubmap-lymph-node-imc-tiff': saHubmapLymphNodeImcTiff,
+  's-a-random': saRandom,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

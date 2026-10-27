@@ -3,6 +3,8 @@ import { isEqual } from 'lodash-es';
 import { planVolumeLevels } from './volume-zarr.js';
 import {
   _initMRMCPT,
+  _getPageTableLayout,
+  _planLevelsWithinPageTable,
   _resolutionStatsToBrickLayout,
   _packPT,
   _ptToZarr,
@@ -235,6 +237,66 @@ describe('spatial-accelerated data utils', () => {
       expect(overviewRequests()).toEqual([{ x: 0, y: 0, z: 1 }, { x: 0, y: 1, z: 1 }]);
     });
   });
+  describe('_planLevelsWithinPageTable', () => {
+    const labels = ['c', 'z', 'y', 'x'];
+    // XY-only halving pyramid with one-plane chunks, like idr0048A 9846152.
+    const pyramid = (depth, height, width, count) => Array.from({ length: count }, (_, i) => ({
+      shape: [3, depth, Math.ceil(height / (2 ** i)), Math.ceil(width / (2 ** i))],
+      chunks: [1, 1, 1024, 1024],
+    }));
+    const extentsOf = (levels) => {
+      const brickLayout = levels.map(l => l.shape.map(n => Math.ceil(n / 32)));
+      const { xExtent, yExtent, zTotal } = _getPageTableLayout(brickLayout, 3);
+      return [xExtent, yExtent, zTotal];
+    };
+
+    it('keeps every level when the page table fits (idr0048A 9846152)', () => {
+      const arrays = pyramid(91, 13350, 19120, 9);
+      const { levels, firstSource, spacing } = _planLevelsWithinPageTable({
+        arrays, labels, channelCount: 3,
+      });
+      expect(firstSource).toBe(0);
+      expect(spacing).toEqual([1, 1, 1]);
+      expect(levels).toEqual(planVolumeLevels({ arrays, labels }));
+      expect(extentsOf(levels)).toEqual([602, 423, 27]);
+    });
+
+    it('drops the finest levels of an image wider than requests can address', () => {
+      // 40000 voxels is 1250 bricks; request coordinates have 10 bits for x and y.
+      const arrays = pyramid(64, 30000, 40000, 6);
+      const {
+        levels, arrays: planned, firstSource, spacing,
+      } = _planLevelsWithinPageTable({
+        arrays, labels, spacing: [2, 0.5, 0.5], channelCount: 3,
+      });
+      expect(firstSource).toBe(1);
+      expect(planned).toEqual(arrays.slice(1));
+      expect(levels[0]).toMatchObject({ source: 0, zFactor: 1, shape: [64, 15000, 20000] });
+      // Level 0 is now source 1, with twice the XY voxel size: same physical extent.
+      expect(spacing).toEqual([2, 1, 1]);
+      expect(levels[0].shape.map((size, axis) => size * spacing[axis]))
+        .toEqual([128, 15000, 20000]);
+      extentsOf(levels).forEach((extent, axis) => {
+        expect(extent).toBeLessThanOrEqual([1024, 1024, 4096][axis]);
+      });
+    });
+
+    it('also respects the GPU 3D texture size', () => {
+      const arrays = pyramid(91, 13350, 19120, 9);
+      const { levels, firstSource } = _planLevelsWithinPageTable({
+        arrays, labels, channelCount: 3, max3DTextureSize: 256,
+      });
+      expect(firstSource).toBe(2);
+      expect(Math.max(...extentsOf(levels))).toBeLessThanOrEqual(256);
+    });
+
+    it('rejects an image whose coarsest level does not fit', () => {
+      expect(() => _planLevelsWithinPageTable({
+        arrays: pyramid(32, 40000, 40000, 1), labels, channelCount: 3,
+      })).toThrow(/page table/);
+    });
+  });
+
   describe('switching the channel of a page table slot', () => {
     it('_purgeChannel clears exactly the page table entries of its slot', () => {
       const { manager, writes, brickLayout, PT } = createManager();
