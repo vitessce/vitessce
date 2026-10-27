@@ -249,7 +249,7 @@ export function SpatialSubscriber(props) {
   // that a neuroglancer view is present and is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
   const requestCameraReset = useCallback(() => {
-       setSpatialCameraSnapshot(null);
+    setSpatialCameraSnapshot(null);
   }, [setSpatialCameraSnapshot]);
 
   const observationsLabel = observationsLabelOverride || obsType;
