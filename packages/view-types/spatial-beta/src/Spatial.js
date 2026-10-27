@@ -410,11 +410,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       featureFilterMode,
       featureColor,
       spatialLayerOpacityUnselected,
-      spatialPointSize,
+      spatialPointRadius,
       spatialPointStrokeWidth,
     } = layerCoordination;
 
-    const pointRadius = spatialPointSize ?? 5;
+    const pointRadius = spatialPointRadius ?? 2.5;
     const pointRadiusMaxPixels = pointRadius * 0.6;
     const pointLineWidth = spatialPointStrokeWidth ?? 0.0;
     const pointLineColor = [0, 0, 0];

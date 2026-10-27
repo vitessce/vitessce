@@ -48,10 +48,10 @@ describe('customIsEqualForInitialViewerState point opacity', () => {
     )).toBe(true);
   });
 
-  it('is not equal when spatialPointSize changes', () => {
+  it('is not equal when spatialPointRadius changes', () => {
     expect(customIsEqualForInitialViewerState(
-      makeDeps({ spatialPointSize: 5.0 }),
-      makeDeps({ spatialPointSize: 10.0 }),
+      makeDeps({ spatialPointRadius: 2.5 }),
+      makeDeps({ spatialPointRadius: 5 }),
     )).toBe(false);
   });
 });

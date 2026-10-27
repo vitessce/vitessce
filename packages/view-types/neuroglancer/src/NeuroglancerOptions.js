@@ -87,7 +87,6 @@ export default function NeuroglancerOptions(props) {
     setBoundsVisible,
     pointLayers = [],
     orthographic,
-    setOrthographic,
     scaleBarVisible,
     setScaleBarVisible,
     hideUnselected,
@@ -121,14 +120,6 @@ export default function NeuroglancerOptions(props) {
           id={`ng-bounds-${id}`}
           checked={Boolean(boundsVisible)}
           onChange={setBoundsVisible}
-        />
-      ) : null}
-      {setOrthographic ? (
-        <CheckboxRow
-          label="Orthographic"
-          id={`ng-ortho-${id}`}
-          checked={Boolean(orthographic)}
-          onChange={setOrthographic}
         />
       ) : null}
       {setScaleBarVisible ? (

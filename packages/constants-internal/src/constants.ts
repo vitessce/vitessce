@@ -339,7 +339,7 @@ export const CoordinationType = {
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
   SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
-  SPATIAL_POINT_SIZE: 'spatialPointSize',
+  SPATIAL_POINT_RADIUS: 'spatialPointRadius',
   SPATIAL_POINT_PROJECTION_SPACING: 'spatialPointProjectionSpacing',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
@@ -354,9 +354,7 @@ export const CoordinationType = {
   SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
   SPATIAL_AXIS_LINES_VISIBLE: 'spatialAxisLinesVisible', // axisLines' visibility in  Neuroglancer View
   SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
-  SPATIAL_ORTHOGRAPHIC: 'spatialOrthographic',
   SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
-  SPATIAL_CAMERA_RESET_REQUEST: 'spatialCameraResetRequest',
   SPATIAL_BACKGROUND_THEME: 'spatialBackgroundTheme',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',

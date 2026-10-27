@@ -162,7 +162,7 @@ function generateXeniumConfig() {
         {
           obsType: 'point',
           obsHighlight: null,
-          spatialPointSize: 5.0,
+          spatialPointRadius: 2.5,
           spatialPointStrokeWidth: 0.0,
           featureColor: [
             { name: 'ERBB2', color: [255, 0, 0] },

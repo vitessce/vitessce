@@ -47,7 +47,7 @@ import {
 import ChannelColorPickerMenu from './ChannelColorPickerMenu.js';
 import LayerPerFeatureController from './LayerPerFeatureController.js';
 
-const DEFAULT_POINT_SIZE = 5.0;
+const DEFAULT_POINT_RADIUS = 2.5;
 
 const useStyles = makeStyles()(() => ({
   pointLayerButton: {
@@ -97,8 +97,8 @@ function PointLayerEllipsisMenu(props) {
     setLegendVisible,
     strokeWidth,
     setStrokeWidth,
-    pointSize,
-    setPointSize,
+    pointRadius,
+    setpointRadius,
   } = props;
   const [open, setOpen] = useState(false);
   const { classes: selectClasses } = useSelectStyles();
@@ -112,7 +112,7 @@ function PointLayerEllipsisMenu(props) {
   const featureFilterModeId = useId();
   const colormapSelectorId = useId();
   const strokeWidthId = useId();
-  const pointSizeId = useId();
+  const pointRadiusId = useId();
 
   return (
     <PopperMenu
@@ -240,19 +240,19 @@ function PointLayerEllipsisMenu(props) {
         </MenuItem>
       ) : null}
       <MenuItem dense disableGutters>
-        <label className={menuClasses.imageLayerMenuLabel} htmlFor={pointSizeId}>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={pointRadiusId}>
           Point Size:&nbsp;
         </label>
         <Slider
-          value={pointSize ?? DEFAULT_POINT_SIZE}
+          value={pointRadius ?? DEFAULT_POINT_RADIUS}
           min={0.1}
           max={20.0}
           step={0.1}
           valueLabelDisplay="auto"
-          onChange={(e, v) => setPointSize?.(v)}
+          onChange={(e, v) => setpointRadius?.(v)}
           className={menuClasses.menuItemSlider}
           orientation="horizontal"
-          id={pointSizeId}
+          id={pointRadiusId}
           aria-label="Point size slider"
         />
       </MenuItem>
@@ -301,7 +301,7 @@ export default function PointLayerController(props) {
     tooltipCrosshairsVisible,
     legendVisible,
     spatialPointStrokeWidth,
-    spatialPointSize,
+    spatialPointRadius,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -318,7 +318,7 @@ export default function PointLayerController(props) {
     setTooltipCrosshairsVisible,
     setLegendVisible,
     setSpatialPointStrokeWidth,
-    setSpatialPointSize,
+    setSpatialPointRadius,
   } = setLayerCoordination;
 
   const label = spatialLayerLabel ?? capitalize(obsType);
@@ -504,8 +504,8 @@ export default function PointLayerController(props) {
               setFeatureValueColormap={setFeatureValueColormap}
               strokeWidth={spatialPointStrokeWidth}
               setStrokeWidth={setSpatialPointStrokeWidth}
-              pointSize={spatialPointSize}
-              setPointSize={setSpatialPointSize}
+              pointRadius={spatialPointRadius}
+              setpointRadius={setSpatialPointRadius}
             />
           </Grid>
           <Grid size={1} container direction="row" sx={channelControlCellSx}>

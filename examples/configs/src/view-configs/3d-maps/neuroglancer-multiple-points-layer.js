@@ -80,23 +80,25 @@ function generateNeuroglancerMisTwoLayersConfig() {
     meshLoadProjectionScaleThreshold: 300000,
     showAxisLines: false,
   });
-  const layerController = config.addView(dataset, 'layerControllerBeta');
+  const layerController = config.addView(dataset, 'layerControllerBeta').setProps({ forceEnable3d: true });
   const obsSets = config.addView(dataset, 'obsSets');
   // const proteinList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
 
-  config.linkViewsByObject([neuroglancerView, layerController], {
-    spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationZ: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
+  // config.linkViewsByObject([neuroglancerView, layerController], {
+  //   spatialRenderingMode: '3D',
+  //   spatialZoom: 0,
+  //   spatialTargetT: 0,
+  //   spatialTargetX: 0,
+  //   spatialTargetY: 0,
+  //   spatialTargetZ: 0,
+  //   spatialRotationX: 0,
+  //   spatialRotationY: 0,
+  //   spatialRotationZ: 0,
+  //   spatialRotationOrbit: 0,
+  // }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
+    spatialRenderingMode: '3D',
     segmentationLayer: CL([{
       fileUid: 'mis-meshes',
       spatialLayerOpacity: 1,

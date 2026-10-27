@@ -483,7 +483,7 @@ export function useNeuroglancerViewerState(
           spatialPointProjectionSpacing,
           featureValueColormap,
           featureValueColormapRange,
-          spatialPointSize,
+          spatialPointRadius,
         } = layerCoordination || {};
         const quantitativeColorMaxSelected = getQuantitativeColorMax(ngOptions, obsColorEncoding);
         // Dynamically construct the shader based on the color encoding
@@ -509,7 +509,9 @@ export function useNeuroglancerViewerState(
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
           quantitativeColorMax: quantitativeColorMaxSelected,
-          pointMarkerSize: spatialPointSize ?? DEFAULT_POINT_MARKER_SIZE,
+          // spatialPointRadius is a radius (consistent with spatialSpotRadius), but NG's
+          // own setPointMarkerSize expects a diameter, so double it here.
+          pointMarkerSize: (spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2) * 2,
         });
         result = {
           ...result,

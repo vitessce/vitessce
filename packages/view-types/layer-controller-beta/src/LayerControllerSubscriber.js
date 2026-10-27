@@ -61,6 +61,7 @@ export function LayerControllerSubscriber(props) {
     uuid,
     layerPerFeatureForPoints = false,
     globalDisable3d = false,
+    forceEnable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
     showViewerOptions = false,
@@ -288,7 +289,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
-      CoordinationType.SPATIAL_POINT_SIZE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -417,6 +418,7 @@ export function LayerControllerSubscriber(props) {
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
         globalDisable3d={globalDisable3d}
+        forceEnable3d={forceEnable3d}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />

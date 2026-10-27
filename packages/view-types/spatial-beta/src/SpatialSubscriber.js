@@ -192,7 +192,6 @@ export function SpatialSubscriber(props) {
     spatialAxisFixed,
     spatialBackgroundTheme,
     spatialCameraSnapshot,
-    spatialCameraResetRequest,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
@@ -220,7 +219,6 @@ export function SpatialSubscriber(props) {
     setSpatialAxisFixed,
     setSpatialBackgroundTheme,
     setSpatialCameraSnapshot,
-    setSpatialCameraResetRequest,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
@@ -251,8 +249,8 @@ export function SpatialSubscriber(props) {
   // that a neuroglancer view is present and is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
   const requestCameraReset = useCallback(() => {
-    setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
-  }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
+       setSpatialCameraSnapshot(null);
+  }, [setSpatialCameraSnapshot]);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -411,7 +409,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
-      CoordinationType.SPATIAL_POINT_SIZE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     ],
     coordinationScopes,

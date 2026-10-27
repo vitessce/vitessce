@@ -185,17 +185,13 @@ export function NeuroglancerSubscriber(props) {
     spatialRenderingMode,
     spatialAxisLinesVisible,
     spatialBoundsVisible,
-    spatialOrthographic,
     spatialScaleBarVisible,
-    spatialCameraResetRequest,
     spatialBackgroundTheme,
   }, {
     setSpatialCameraSnapshot,
     setSpatialAxisLinesVisible,
     setSpatialBoundsVisible,
-    setSpatialOrthographic,
     setSpatialScaleBarVisible,
-    setSpatialCameraResetRequest,
     setSpatialBackgroundTheme,
     setAdditionalObsSets: setAdditionalCellSets,
     setObsSetColor: setCellSetColor,
@@ -301,7 +297,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
-      CoordinationType.SPATIAL_POINT_SIZE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
       CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.OBS_SET_COLOR,
@@ -1682,7 +1678,9 @@ export function NeuroglancerSubscriber(props) {
 
   const axisLinesVisibleEffective = spatialAxisLinesVisible ?? showAxisLines;
   const boundsVisibleEffective = spatialBoundsVisible ?? false;
-  const orthographicEffective = spatialOrthographic ?? false;
+  // Neuroglancer only draws its scale bar in orthographic projection,
+  // so derive it from spatialRenderingMode
+  const orthographicEffective = spatialRenderingMode !== '3D';
   const scaleBarVisibleEffective = spatialScaleBarVisible ?? true;
 
   // One options group per point layer (includes centroid layers).
@@ -1719,9 +1717,22 @@ export function NeuroglancerSubscriber(props) {
       });
     });
   }, [segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination]);
+  // Recenter: clear the shared spatialCameraSnapshot to signal "reset to home",
   const onRecenter = useCallback(() => {
-    setSpatialCameraResetRequest((spatialCameraResetRequest ?? 0) + 1);
-  }, [setSpatialCameraResetRequest, spatialCameraResetRequest]);
+    setSpatialCameraSnapshot(null);
+  }, [setSpatialCameraSnapshot]);
+
+  // Detect that null transition (snapshot present -> cleared) and turn it into
+  // a value that changes exactly once per request, since ReactNeuroglancer's
+  // cameraResetRequest prop fires its home-camera restore on any prop change.
+  const [cameraResetTick, setCameraResetTick] = useState(0);
+  const prevSpatialCameraSnapshotForResetRef = useRef(spatialCameraSnapshot);
+  useEffect(() => {
+    if (prevSpatialCameraSnapshotForResetRef.current && !spatialCameraSnapshot) {
+      setCameraResetTick(tick => tick + 1);
+    }
+    prevSpatialCameraSnapshotForResetRef.current = spatialCameraSnapshot;
+  }, [spatialCameraSnapshot]);
 
   const backgroundTheme = spatialBackgroundTheme ?? 'dark';
   return (
@@ -1745,10 +1756,9 @@ export function NeuroglancerSubscriber(props) {
           axisLinesVisible={axisLinesVisibleEffective}
           setAxisLinesVisible={setSpatialAxisLinesVisible}
           boundsVisible={boundsVisibleEffective}
+          orthographic={orthographicEffective}
           setBoundsVisible={setSpatialBoundsVisible}
           pointLayers={pointLayersForOptions}
-          orthographic={orthographicEffective}
-          setOrthographic={setSpatialOrthographic}
           scaleBarVisible={scaleBarVisibleEffective}
           setScaleBarVisible={setSpatialScaleBarVisible}
           hideUnselected={hideUnselected}
@@ -1808,9 +1818,9 @@ export function NeuroglancerSubscriber(props) {
             allowEmptySegments={detailMode || hideUnselected}
             axisLinesVisible={axisLinesVisibleEffective}
             boundsVisible={boundsVisibleEffective}
-            orthographic={orthographicEffective}
             scaleBarVisible={scaleBarVisibleEffective}
-            cameraResetRequest={spatialCameraResetRequest}
+            orthographic={orthographicEffective}
+            cameraResetRequest={cameraResetTick}
             backgroundTheme={spatialBackgroundTheme ?? 'dark'}
           />
           {!disableTooltip && !detailMode ? (
