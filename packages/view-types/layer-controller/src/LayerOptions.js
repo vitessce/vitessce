@@ -15,6 +15,7 @@ import {
   COLORMAP_OPTIONS,
   formatBytes,
 } from '@vitessce/utils';
+import { CHANNELS_SORT_ORDER_OPTIONS } from './channel-sort-utils.js';
 import {
   useSelectionSliderStyles,
   useSelectStyles,
@@ -242,6 +243,32 @@ function OpacitySlider({ value, inputId, handleChange }) {
 }
 
 /**
+ * Wrapper for the dropdown that chooses the channel dropdown sort order.
+ * @prop {string} value Currently selected value ('original' or 'alphabetical').
+ * @prop {string} inputId Css id.
+ * @prop {function} handleChange Callback for every change in sort order.
+ */
+function ChannelsSortOrderSelect({ value, inputId, handleChange }) {
+  const { classes } = useSelectStyles();
+  return (
+    <NativeSelect
+      onChange={e => handleChange(e.target.value)}
+      value={value || 'original'}
+      id={inputId}
+      inputProps={{ 'aria-label': 'Channel sort order selector' }}
+      style={{ width: '100%' }}
+      classes={{ root: classes.selectRoot }}
+    >
+      {CHANNELS_SORT_ORDER_OPTIONS.map(({ value: optValue, label }) => (
+        <option key={optValue} value={optValue}>
+          {label}
+        </option>
+      ))}
+    </NativeSelect>
+  );
+}
+
+/**
  * Wrapper for the dropdown that chooses the domain type.
  * @prop {string} value Currently selected value (i.e 'Max/Min').
  * @prop {string} inputId Css id.
@@ -350,6 +377,8 @@ function LayerOption({ name, inputId, children }) {
  * @prop {array} dimensions Currently available dimensions (channel, z, t etc.).
  * @prop {string} domainType One of Max/Min or Full (soon presets as well).
  * @prop {boolean} disableChannelsIfRgbDetected Whether or not we need colormap controllers if RGB.
+ * @prop {string} channelsSortOrder Channel dropdown sort order ('original' or 'alphabetical').
+ + @prop {function} handleChannelsSortOrderChange Callback for sort order changes.
  */
 function LayerOptions({
   colormap,
@@ -362,6 +391,8 @@ function LayerOptions({
   handleGlobalChannelsSelectionChange,
   handleSliderChange,
   handleDomainChange,
+  channelsSortOrder,
+  handleChannelsSortOrderChange,
   transparentColor,
   channels,
   domainType,
@@ -394,6 +425,7 @@ function LayerOptions({
   const domainSelectorId = useId();
   const opacitySliderId = useId();
   const zeroTransparentId = useId();
+  const channelsSortOrderId = useId();
   return (
     <Grid container sx={{ flexDirection: 'column', width: '100%' }}>
       {hasZStack
@@ -442,6 +474,17 @@ function LayerOptions({
                   value={colormap || ''}
                   inputId={colormapSelectId}
                   handleChange={handleColormapChange}
+                />
+              </LayerOption>
+            </Grid>
+          )}
+          {hasDimensionsAndChannels && handleChannelsSortOrderChange && (
+            <Grid>
+              <LayerOption name="Channel Order" inputId={channelsSortOrderId}>
+                <ChannelsSortOrderSelect
+                  value={channelsSortOrder}
+                  inputId={channelsSortOrderId}
+                  handleChange={handleChannelsSortOrderChange}
                 />
               </LayerOption>
             </Grid>

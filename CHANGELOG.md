@@ -1,4 +1,13 @@
 
+## 4.1.2
+
+### Patch Changes
+
+- Allows support for adding multiple points layers to the Neuroglancer view. Adds the `obsLocations.ng-annotations` file type for segmentation centroids, which are rendered implicitly alongside the segmentation layer with a matching `obsType` (using its visual properties) rather than being listed as point layers. Removes `SegmentationCentroidsController` from the layer controller. (`@vitessce/neuroglancer`, `@vitessce/example-configs`, `@vitessce/layer-controller-beta`, `@vitessce/constants-internal`, `@vitessce/schemas`, `@vitessce/spatial-zarr`, `@vitessce/all`) ([#2659](https://github.com/vitessce/vitessce/pull/2659))
+
+- Added channelSortOption to LayerController. (`@vitessce/layer-controller-beta`, `@vitessce/layer-controller`, `@vitessce/constants-internal`, `@vitessce/spatial`) ([#2676](https://github.com/vitessce/vitessce/pull/2676))
+
+
 ## 4.1.1
 
 ### Patch Changes

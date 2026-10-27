@@ -279,6 +279,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -500,6 +501,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
   ],
   [ViewType.LAYER_CONTROLLER_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
