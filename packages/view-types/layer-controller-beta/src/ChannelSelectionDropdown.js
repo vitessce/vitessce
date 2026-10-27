@@ -3,9 +3,9 @@ import {
   makeStyles,
   NativeSelect,
 } from '@vitessce/styles';
+import { getSortedChannelOptions } from '@vitessce/layer-controller';
 import { useSelectStyles } from './styles.js';
 
-import { getSortedChannelOptions } from '@vitessce/layer-controller';
 const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
     width: '90%',
@@ -39,8 +39,8 @@ export default function ChannelSelectionDropdown(props) {
   }
 
   const sortedOptions = useMemo(
-        () => getSortedChannelOptions(featureIndex, channelsSortOrder),
-      [featureIndex, channelsSortOrder],
+    () => getSortedChannelOptions(featureIndex, channelsSortOrder),
+    [featureIndex, channelsSortOrder],
   );
   return (Array.isArray(featureIndex) ? (
     <NativeSelect

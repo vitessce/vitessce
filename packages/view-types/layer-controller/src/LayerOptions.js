@@ -4,7 +4,6 @@ import { range } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import { Grid, Slider, InputLabel, NativeSelect, Checkbox } from '@vitessce/styles';
 import { viv } from '@vitessce/gl';
-import { CHANNELS_SORT_ORDER_OPTIONS } from './channel-sort-utils.js';
 import {
   getBoundingCube,
   getMultiSelectionStats,
@@ -16,6 +15,7 @@ import {
   COLORMAP_OPTIONS,
   formatBytes,
 } from '@vitessce/utils';
+import { CHANNELS_SORT_ORDER_OPTIONS } from './channel-sort-utils.js';
 import {
   useSelectionSliderStyles,
   useSelectStyles,

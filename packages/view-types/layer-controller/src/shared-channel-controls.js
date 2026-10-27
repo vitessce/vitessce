@@ -21,9 +21,9 @@ export function ChannelSelectionDropdown({
 }) {
   const { classes } = useSelectStyles();
   const sortedOptions = useMemo(
-      () => getSortedChannelOptions(channelOptions, channelsSortOrder),
-      [channelOptions, channelsSortOrder],
-    );
+    () => getSortedChannelOptions(channelOptions, channelsSortOrder),
+    [channelOptions, channelsSortOrder],
+  );
   return (
     <NativeSelect
       classes={{ root: classes.selectRoot }}
@@ -31,9 +31,9 @@ export function ChannelSelectionDropdown({
       onChange={e => handleChange(Number(e.target.value))}
       inputProps={{ 'aria-label': 'Select a channel' }}
     >
-    {sortedOptions.map(({ channelName, channelIndex }) => (
-  <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
-    {channelName}
+      {sortedOptions.map(({ channelName, channelIndex }) => (
+        <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
+          {channelName}
         </option>
       ))}
     </NativeSelect>

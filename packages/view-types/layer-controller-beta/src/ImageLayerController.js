@@ -401,9 +401,9 @@ function ImageLayerEllipsisMenu(props) {
           inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
           classes={{ root: selectClasses.selectRoot }}
         >
-        {CHANNELS_SORT_ORDER_OPTIONS.map(({ value, label }) => (
+          {CHANNELS_SORT_ORDER_OPTIONS.map(({ value, label }) => (
             <option key={value} aria-label={label} value={value}>{label}</option>
-         ))}
+          ))}
         </NativeSelect>
       </MenuItem>
     </PopperMenu>
