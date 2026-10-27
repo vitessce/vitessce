@@ -23,6 +23,7 @@ export default class OmeZarrAsObsSegmentationsLoader extends OmeZarrLoader {
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
       featureValueColormap: GLSL_COLORMAP_DEFAULT,
+      featureAggregationStrategy: null,
       ...(obsTypesFromChannelNames ? { obsType: channelObj.name } : {}),
     }));
 

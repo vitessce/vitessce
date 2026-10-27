@@ -30,6 +30,8 @@ export default class ObsSpotsCsvLoader extends CsvLoader {
         spatialLayerVisible: true,
         spatialLayerOpacity: 1.0,
         spatialSpotRadius: 10.0,
+        spatialSpotShape: null,
+        featureAggregationStrategy: null,
         // TODO: spatialSpotRadiusUnit: 'µm' or 'um'
         // after resolving https://github.com/vitessce/vitessce/issues/1760
         // featureValueColormapRange: [0, 1],

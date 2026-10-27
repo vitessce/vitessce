@@ -2,6 +2,43 @@
 import { extent } from 'd3-array';
 
 /**
+ * featureAggregationStrategy values with special meaning.
+ * Any other string value is interpreted as a feature name.
+ */
+export const RESERVED_FEATURE_AGGREGATION_STRATEGIES = [
+  'first', 'last', 'sum', 'mean', 'difference',
+];
+
+/**
+ * Convert a featureAggregationStrategy that refers to a feature by name
+ * into the index of that feature within the featureSelection, so that
+ * downstream code only needs to handle reserved strings and indices.
+ * @param strategy The featureAggregationStrategy coordination value.
+ * @param featureSelection The featureSelection coordination value.
+ * @returns The strategy with feature names replaced by indices.
+ * Falls back to 'first' when the named feature is not
+ * (or is no longer) in the featureSelection, or when an
+ * index is out of bounds.
+ */
+export function resolveFeatureAggregationStrategy(
+  strategy: string | number | null | undefined,
+  featureSelection: string[] | null | undefined,
+): string | number | null {
+  if (typeof strategy === 'string' && !RESERVED_FEATURE_AGGREGATION_STRATEGIES.includes(strategy)) {
+    const featureIndex = featureSelection?.indexOf(strategy) ?? -1;
+    return featureIndex >= 0 ? featureIndex : 'first';
+  }
+  if (
+    typeof strategy === 'number'
+    && Array.isArray(featureSelection)
+    && (strategy < 0 || strategy >= featureSelection.length)
+  ) {
+    return 'first';
+  }
+  return strategy ?? null;
+}
+
+/**
  * Aggregates multiple arrays of numbers into a single array using a specified strategy.
  *
  * This function aggregates element-wise across all input arrays.

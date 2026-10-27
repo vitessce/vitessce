@@ -32,6 +32,7 @@ export default class ObsSegmentationsJsonLoader extends JsonLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureAggregationStrategy: null,
     }];
 
     const coordinationValues = {
