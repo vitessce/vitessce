@@ -243,38 +243,38 @@ function OpacitySlider({ value, inputId, handleChange }) {
 }
 
 /**
- * Wrapper for the dropdown that chooses the domain type.
- * @prop {string} value Currently selected value (i.e 'Max/Min').
- * @prop {string} inputId Css id.
- * @prop {function} handleChange Callback for every change in domain.
- */
-function SliderDomainSelector({ value, inputId, handleChange }) {
-
-/**
  * Wrapper for the dropdown that chooses the channel dropdown sort order.
  * @prop {string} value Currently selected value ('original' or 'alphabetical').
  * @prop {string} inputId Css id.
  * @prop {function} handleChange Callback for every change in sort order.
  */
 function ChannelsSortOrderSelect({ value, inputId, handleChange }) {
-    const { classes } = useSelectStyles();
-    return (
-      <NativeSelect
-        onChange={e => handleChange(e.target.value)}
-        value={value || 'original'}
-        id={inputId}
-        inputProps={{ 'aria-label': 'Channel sort order selector' }}
-        style={{ width: '100%' }}
-        classes={{ root: classes.selectRoot }}
-      >
-        {CHANNELS_SORT_ORDER_OPTIONS.map(({ value: optValue, label }) => (
-          <option key={optValue} value={optValue}>
-            {label}
-          </option>
-        ))}
-      </NativeSelect>
-    );
-  }
+  const { classes } = useSelectStyles();
+  return (
+    <NativeSelect
+      onChange={e => handleChange(e.target.value)}
+      value={value || 'original'}
+      id={inputId}
+      inputProps={{ 'aria-label': 'Channel sort order selector' }}
+      style={{ width: '100%' }}
+      classes={{ root: classes.selectRoot }}
+    >
+      {CHANNELS_SORT_ORDER_OPTIONS.map(({ value: optValue, label }) => (
+        <option key={optValue} value={optValue}>
+          {label}
+        </option>
+      ))}
+    </NativeSelect>
+  );
+}
+
+/**
+ * Wrapper for the dropdown that chooses the domain type.
+ * @prop {string} value Currently selected value (i.e 'Max/Min').
+ * @prop {string} inputId Css id.
+ * @prop {function} handleChange Callback for every change in domain.
+ */
+function SliderDomainSelector({ value, inputId, handleChange }) {
   const { classes } = useSelectStyles();
   return (
     <NativeSelect

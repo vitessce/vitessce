@@ -41,7 +41,7 @@ export default function ChannelSelectionDropdown(props) {
   const sortedOptions = useMemo(
         () => getSortedChannelOptions(featureIndex, channelsSortOrder),
       [featureIndex, channelsSortOrder],
-
+  );
   return (Array.isArray(featureIndex) ? (
     <NativeSelect
       classes={{ root: selectClasses.selectRoot }}
