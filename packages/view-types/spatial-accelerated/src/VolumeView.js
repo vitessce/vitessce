@@ -19,7 +19,7 @@ import {
   INIT_STATUS,
   DEFAULT_SIGMA_NORMALIZED,
 } from './VolumeDataManager.js';
-import { VolumeRenderManager } from './VolumeRenderManager.js';
+import { VolumeRenderManager, getScreenLodFactor } from './VolumeRenderManager.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
 import { gaussianFragmentShader } from './shaders/GaussianFragmentShader.js';
@@ -540,6 +540,15 @@ export function VolumeView(props) {
       scene: frameScene,
       clock,
     } = state;
+
+    // Pixels per voxel change with the view size and field of view.
+    const uniforms = meshRef.current?.material?.uniforms;
+    if (uniforms?.lodFactor && dataManager.zarrStore?.shapes?.length) {
+      uniforms.lodFactor.value = getScreenLodFactor(
+        renderManager.lodFactor, frameCamera.fov, mrtRef.current.height,
+        dataManager.zarrStore.shapes[0],
+      );
+    }
 
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });

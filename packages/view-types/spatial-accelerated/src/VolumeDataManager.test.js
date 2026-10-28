@@ -9,6 +9,7 @@ import {
   _packPT,
   _ptToZarr,
   _requestBufferToRequestObjects,
+  _groupBySourceChunk,
   _getVoxelSpacing,
   _getDataRange,
   _toUint8,
@@ -449,6 +450,84 @@ describe('spatial-accelerated data utils', () => {
       expect(result).toEqual([
         { x: 2, y: 1, z: 13 },
       ]);
+    });
+  });
+
+  describe('loading bricks that share source chunks', () => {
+    // Bricks of one level and z slab share their chunk, as with one-plane chunks
+    // that cover the whole XY extent. Uncached reads take a moment.
+    function withBrickSource(manager, { cached = [] } = {}) {
+      const ready = new Set(cached);
+      const reads = [];
+      const keyOf = ({ level, c, bz }) => `${level}:${c}:${bz}`;
+      // eslint-disable-next-line no-param-reassign
+      manager.brickSource = {
+        brickChunkKeys: brick => [keyOf(brick)],
+        isChunkCached: key => ready.has(key),
+        async readBrick(brick) {
+          reads.push(`${brick.level}:${brick.c}:${brick.bz}:${brick.by}:${brick.bx}`);
+          if (!ready.has(keyOf(brick))) {
+            await new Promise((resolve) => { setTimeout(resolve, 1); });
+            ready.add(keyOf(brick));
+          }
+          return { data: new Uint8Array(32 ** 3).fill(9) };
+        },
+      };
+      // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+      manager._writeBrick = () => true;
+      return { reads };
+    }
+
+    it('_groupBySourceChunk puts requests for the same chunk next to each other', () => {
+      const keys = { a: ['s0'], b: ['s1'], c: ['s0'], d: null, e: ['s1', 's2'] };
+      expect(_groupBySourceChunk(['a', 'b', 'c', 'd', 'e'], item => keys[item]))
+        .toEqual(['a', 'c', 'b', 'e', 'd']);
+    });
+
+    it('fetches cached bricks first, groups the rest by chunk, and skips resident ones', async () => {
+      const { manager, PT } = createManager();
+      const { reads } = withBrickSource(manager, { cached: ['0:0:2'] });
+      const pt = (bx, by, bz) => _zarrToPt(0, 0, bx, by, bz, PT);
+      // eslint-disable-next-line prefer-destructuring
+      manager.bc2pt[3] = pt(5, 5, 5); // already resident
+      const uploaded = await manager.handleBrickRequests([
+        pt(0, 0, 0), pt(0, 0, 1), pt(1, 0, 0), pt(0, 0, 2), pt(0, 0, 0), pt(5, 5, 5),
+      ]);
+      expect(reads).toEqual(['0:0:2:0:0', '0:0:0:0:0', '0:0:0:0:1', '0:0:1:0:0']);
+      // Slots are taken per uploaded brick.
+      expect(uploaded).toHaveLength(4);
+      expect(manager.BCUnusedIndex).toBe(4);
+    });
+
+    it('takes no cache slots for bricks a bail-out never fetched', async () => {
+      const { manager, PT } = createManager();
+      const { reads } = withBrickSource(manager);
+      const requests = Array.from({ length: 8 }, (_, bz) => _zarrToPt(0, 0, 0, 0, bz, PT));
+      const handled = manager.handleBrickRequests(requests);
+      manager.needsBailout = true; // as when usage data arrives mid-batch
+      const uploaded = await handled;
+      expect(reads).toHaveLength(6);
+      expect(uploaded).toHaveLength(6);
+      expect(manager.BCUnusedIndex).toBe(6);
+    });
+
+    it('also loads requests beyond the top k whose chunks are cached', async () => {
+      const { manager, PT } = createManager();
+      const { reads } = withBrickSource(manager, { cached: ['0:0:3'] });
+      manager.initStatus = 'complete';
+      manager.k = 1;
+      manager.overviewBricks.set(0, []).set(1, []);
+      // Weighted by pixel count: the top request, an uncached one, a cached one.
+      const pixels = [[0, 0, 0, 3], [0, 0, 1, 2], [0, 0, 3, 1]].flatMap(
+        ([bx, by, bz, count]) => Array(count).fill(_zarrToPt(0, 0, bx, by, bz, PT)),
+      );
+      // Requests as the shader packs them: x:10 | y:10 | z:12, big-endian RGBA8.
+      const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+      pixels.forEach(({ x, y, z }, i) => {
+        buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+      });
+      await manager.processRequestData(new Uint8Array(buffer.buffer), {});
+      expect(reads).toEqual(['0:0:3:0:0', '0:0:0:0:0']);
     });
   });
 });

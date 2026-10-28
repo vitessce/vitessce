@@ -11,8 +11,6 @@ const zebrahubUrls = {
   'zebrahub-zmns002': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/multi-view/ZMNS002.ome.zarr',
   'zebrahub-zsns001': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/single-objective/ZSNS001.ome.zarr',
   'zebrahub-zsns002': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/single-objective/ZSNS002.ome.zarr',
-  // Uppercase axis names, and level scales that shrink instead of grow.
-  'zebrahub-zsns003': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/single-objective/ZSNS003.ome.zarr',
   'zebrahub-zsns004': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/single-objective/ZSNS004.ome.zarr',
   'zebrahub-zsns005': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/single-objective/ZSNS005.ome.zarr',
 };

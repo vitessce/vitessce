@@ -78,24 +78,39 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
   const planeLabels = labels.filter(axis => axis !== 'y' && axis !== 'x');
   const yIndex = labels.indexOf('y');
   const xIndex = labels.indexOf('x');
-  return async function readRegion(source, {
+  // The tiles a region covers, each with its cache key.
+  function regionTiles(source, {
     t, c, z: [z0, z1], y: [y0, y1], x: [x0, x1],
   }) {
+    const { chunks } = arrays[source];
+    const tileHeight = chunks[yIndex];
+    const tileWidth = chunks[xIndex];
+    const tiles = [];
+    for (let z = z0; z < z1; z++) {
+      for (let ty = Math.floor(y0 / tileHeight); ty * tileHeight < y1; ty++) {
+        for (let tx = Math.floor(x0 / tileWidth); tx * tileWidth < x1; tx++) {
+          const tileY = ty * tileHeight;
+          const tileX = tx * tileWidth;
+          tiles.push({
+            z, tileY, tileX, key: `${source}:${t}:${c}:${z}:${tileY}:${tileX}`,
+          });
+        }
+      }
+    }
+    return tiles;
+  }
+  async function readRegion(source, region) {
+    const {
+      t, c, z: [z0, z1], y: [y0, y1], x: [x0, x1],
+    } = region;
     const { pixelSource, shape, chunks } = arrays[source];
     const tileHeight = chunks[yIndex];
     const tileWidth = chunks[xIndex];
     const height = y1 - y0;
     const width = x1 - x0;
-    const tiles = [];
-    for (let z = z0; z < z1; z++) {
-      for (let ty = Math.floor(y0 / tileHeight); ty * tileHeight < y1; ty++) {
-        for (let tx = Math.floor(x0 / tileWidth); tx * tileWidth < x1; tx++) {
-          tiles.push({ z, tileY: ty * tileHeight, tileX: tx * tileWidth });
-        }
-      }
-    }
-    const loaded = await Promise.all(tiles.map(({ z, tileY, tileX }) => cache.load(
-      `${source}:${t}:${c}:${z}:${tileY}:${tileX}`,
+    const tiles = regionTiles(source, region);
+    const loaded = await Promise.all(tiles.map(({ z, tileY, tileX, key }) => cache.load(
+      key,
       async () => {
         const selection = Object.fromEntries(planeLabels.map(
           axis => [axis, { t, c, z }[axis] ?? 0],
@@ -129,5 +144,7 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
       }
     });
     return { data, stride: [height * width, width, 1] };
-  };
+  }
+  readRegion.chunkKeys = (source, region) => regionTiles(source, region).map(({ key }) => key);
+  return readRegion;
 }

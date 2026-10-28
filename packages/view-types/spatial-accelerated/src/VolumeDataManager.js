@@ -52,13 +52,14 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
-const MAX_DECODED_BYTES_PER_BRICK = 32 * (2 ** 20); // starting value, not measured
 // Page table extents (XYZ) that brick requests can address: the fragment shader
 // packs request coordinates into 32 bits as x:10 | y:10 | z:12 (packPTCoordToRGBA8).
 const PAGE_TABLE_MAX_EXTENT = [1024, 1024, 4096];
-// Bricks fetched at once. Each keeps at most 32 source planes in flight, and each
-// is within MAX_DECODED_BYTES_PER_BRICK, so peak decoding stays bounded.
+// Bricks fetched at once. Each keeps at most 32 source planes in flight.
 const BRICK_FETCH_CONCURRENCY = 6;
+// Requested bricks beyond the top k that a batch also loads when all their source
+// chunks are already decoded: they cost a copy and an upload, but no fetch.
+const MAX_CACHED_BRICKS_PER_BATCH = 256;
 
 // const manualChannelSelection = 0;
 
@@ -577,15 +578,35 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
 
   // Get the top K (potentially fewer than K) page table requests by weighted count.
   const sorted = Array.from(counts.entries()).toSorted((a, b) => b[1] - a[1]);
-  const requests = sorted
-    .slice(0, k)
-    .map(([packed]) => ({
-      x: (packed >> 22) & 0x3FF,
-      y: (packed >> 12) & 0x3FF,
-      z: packed & 0xFFF,
-    }));
+  const toRequest = ([packed]) => ({
+    x: (packed >> 22) & 0x3FF,
+    y: (packed >> 12) & 0x3FF,
+    z: packed & 0xFFF,
+  });
+  const requests = sorted.slice(0, k).map(toRequest);
+  // The rest, still by weight: loaded too when their source chunks are cached.
+  const remaining = sorted.slice(k).map(toRequest);
 
-  return { requests, origRequestCount: counts.size };
+  return { requests, remaining, origRequestCount: counts.size };
+}
+
+/**
+ * Order requests so that bricks reading the same source chunk are adjacent and
+ * fetched together, sharing one download and decode. Groups keep the order of
+ * their first request, and requests keep their order within a group.
+ * @param {object[]} items Requests, highest priority first.
+ * @param {(item: object) => string[]|null} chunkKeysOf Source chunk keys of an item.
+ * @returns {object[]}
+ */
+export function _groupBySourceChunk(items, chunkKeysOf) {
+  const groups = new Map();
+  items.forEach((item, i) => {
+    // Without known chunks, an item is a group of its own.
+    const groupKey = chunkKeysOf(item)?.[0] ?? `#${i}`;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push(item);
+  });
+  return Array.from(groups.values()).flat();
 }
 
 /* End extracted functions */
@@ -1023,12 +1044,12 @@ export class VolumeDataManager {
           level => [level.source, level.zFactor, level.zMode, level.shape],
         ));
 
-        // Skip fine levels whose bricks decode too much source data,
-        // e.g. whole-plane chunks at full resolution.
+        // Every level is rendered, however much source data its bricks decode
+        // (e.g. whole-plane chunks at full resolution make them slow).
         const bytesPerElement = getBytesPerElement(array0.dtype);
-        const finestLevel = levels.findIndex(level => decodedBytesPerBrick(
+        log.debug('volume levels: MiB decoded per brick', levels.map(level => decodedBytesPerBrick(
           level, arrays[level.source], labels, bytesPerElement,
-        ) <= MAX_DECODED_BYTES_PER_BRICK);
+        ) / (2 ** 20)));
 
         const axisSize = axis => (labels.includes(axis) ? array0.shape[labels.indexOf(axis)] : 1);
         const shapes = levels.map(level => [axisSize('t'), axisSize('c'), ...level.shape]);
@@ -1047,7 +1068,7 @@ export class VolumeDataManager {
           channelCount: shapes[0][1],
           // XYZ ratios relative to level-0 voxels, as the shader expects (extent / scale).
           scales: levels.map(level => [...level.ratio].reverse()),
-          finestLevel: finestLevel === -1 ? levels.length - 1 : finestLevel,
+          finestLevel: 0, // finest renderable level
         };
         this.brickSource = createVolumeBrickSource({
           arrays, levels, labels, createRegionReader,
@@ -1496,13 +1517,22 @@ export class VolumeDataManager {
       return;
     }
 
-    const { requests, origRequestCount } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
+    const {
+      requests, remaining, origRequestCount,
+    } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
     if (requests.length === 0) {
       this.noNewRequests = true;
     }
-    log.debug(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`);
-    await this.handleBrickRequests(requests);
+    // Requests past the top k whose source chunks are already decoded come along.
+    const cachedRequests = [];
+    for (let i = 0; i < remaining.length
+      && cachedRequests.length < MAX_CACHED_BRICKS_PER_BATCH; i++) {
+      if (this._isRequestCached(remaining[i])) cachedRequests.push(remaining[i]);
+    }
+    log.debug(`processRequestData: handling ${requests.length} requests of ${origRequestCount}`
+      + ` and ${cachedRequests.length} more from cached chunks`);
+    await this.handleBrickRequests([...requests, ...cachedRequests]);
 
     // We want processRequestData to alternate with processUsageData.
     this.triggerUsage = true;
@@ -1672,6 +1702,7 @@ export class VolumeDataManager {
    */
   _allocateBCSlots(n) {
     let slots = [];
+    if (n <= 0) return slots;
     const total = BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y * BRICK_CACHE_SIZE_Z;
 
     if (!this.BCFull && this.BCUnusedIndex + n > total) {
@@ -1696,7 +1727,7 @@ export class VolumeDataManager {
       // Before proceeding to choose old slots from the LRU stack,
       // we need to ensure that the LRU stack is at least as long as N
       // (since N is the number of new brick slots to allocate).
-      if (this.LRUStack.length < n) this._buildLRU(); // top-up list
+      if (this.LRUStack.length < n) this._buildLRU(n); // top-up list
       // Use the LRU stack to evict the least-recently-used bricks
       // and return their coordinates for the new bricks to use.
       slots = this.LRUStack.splice(0, n).map((bcIndex) => {
@@ -1915,62 +1946,103 @@ export class VolumeDataManager {
     return true;
   }
 
+  /**
+   * Cache keys of the source chunks a requested brick reads.
+   * @returns {string[]|null} null if the request does not map to a readable brick.
+   */
+  _requestChunkKeys(ptCoord) {
+    const { channel, resolution, x, y, z } = _ptToZarr(
+      ptCoord.x, ptCoord.y, ptCoord.z,
+      { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors },
+    );
+    const zarrChannel = this.channels.zarrMappings[channel];
+    if (zarrChannel === undefined || zarrChannel === -1 || !this.brickSource?.brickChunkKeys) {
+      return null;
+    }
+    try {
+      return this.brickSource.brickChunkKeys({
+        level: resolution, t: 0, c: zarrChannel, bx: x, by: y, bz: z,
+      });
+    } catch (error) {
+      return null; // Outside its level; _fetchBrick reports it.
+    }
+  }
+
+  // Whether all of a brick's source chunks are decoded, so it needs no fetch.
+  _areChunksCached(chunkKeys) {
+    return chunkKeys !== null && chunkKeys.length > 0
+      && chunkKeys.every(key => this.brickSource.isChunkCached(key));
+  }
+
+  _isRequestCached(ptCoord) {
+    return this._areChunksCached(this._requestChunkKeys(ptCoord));
+  }
+
   /* ------------------------------------------------------------- *
  * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
  * ------------------------------------------------------------- */
   /**
-   * @param {{ x: number, y: number, z: number }[]} ptRequests Page table coordinates.
+   * @param {{ x: number, y: number, z: number }[]} requests Page table coordinates.
    * @param {object} options
    * @param {boolean} options.canBailOut Whether needsBailout may stop the batch early.
    * @returns {Promise<{ ptCoord: object, bcIndex: number }[]>} The uploaded bricks.
    */
-  async handleBrickRequests(ptRequests, { canBailOut = true } = {}) {
+  async handleBrickRequests(requests, { canBailOut = true } = {}) {
     // log.debug('handleBrickRequests');
-    if (ptRequests.length === 0) return [];
+    // Skip duplicates and bricks that are already resident.
+    const ptKey = ({ x, y, z }) => `${x},${y},${z}`;
+    const skipped = new Set(this.bc2pt.filter(Boolean).map(ptKey));
+    const unique = requests.filter((ptCoord) => {
+      const key = ptKey(ptCoord);
+      if (skipped.has(key)) return false;
+      skipped.add(key);
+      return true;
+    });
+    if (unique.length === 0) return [];
+
+    // Bricks that read the same source chunk run together and share its download.
+    const chunkKeys = new Map(unique.map(ptCoord => [ptCoord, this._requestChunkKeys(ptCoord)]));
+    const pending = _groupBySourceChunk(unique, ptCoord => chunkKeys.get(ptCoord));
 
     // Track loading progress
-    this.totalBricksRequested = ptRequests.length;
-    this.currentRequestCount = ptRequests.length;
+    this.totalBricksRequested = pending.length;
+    this.currentRequestCount = pending.length;
 
-    // log.debug('ptRequests', ptRequests);
-    // log.debug('this.BCFull', this.BCFull);
-    // log.debug('this.BCUnusedIndex', this.BCUnusedIndex);
-    // log.debug('this.BCTimeStamps', this.BCTimeStamps);
-    // log.debug('this.LRUStack', this.LRUStack);
+    log.debug('Handling brick requests:', { requestCount: pending.length });
 
-    /* <= k requests, allocate same number of bricks */
-    const slots = this._allocateBCSlots(ptRequests.length);
-    // log.debug('slots', slots);
-
-    log.debug('Handling brick requests:', { requestCount: ptRequests.length, slotCount: slots.length });
-
-    // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once, in request order. Each
-    // brick is uploaded as soon as its fetch completes.
+    // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once. A brick whose source
+    // chunks are already decoded goes first, since it needs no fetch. Each brick
+    // takes a cache slot and is uploaded as soon as its fetch completes, so a
+    // bail-out evicts nothing for bricks that were never fetched.
     const uploaded = [];
-    let nextRequest = 0;
     let isBailingOut = false;
     const fetchNext = async () => {
-      while (nextRequest < ptRequests.length && !isBailingOut) {
-        const i = nextRequest;
-        nextRequest += 1;
+      while (pending.length > 0 && !isBailingOut) {
+        const cachedIndex = pending.findIndex(
+          ptCoord => this._areChunksCached(chunkKeys.get(ptCoord)),
+        );
+        const [ptCoord] = pending.splice(Math.max(0, cachedIndex), 1);
         let brick;
         try {
           // eslint-disable-next-line no-await-in-loop
-          brick = await this._fetchBrick(ptRequests[i]);
+          brick = await this._fetchBrick(ptCoord);
         } catch (error) {
-          log.error('Failed to fetch brick', ptRequests[i], error);
+          log.error('Failed to fetch brick', ptCoord, error);
         }
-        if (brick && this._writeBrick(ptRequests[i], slots[i], brick)) {
-          uploaded.push({ ptCoord: ptRequests[i], bcIndex: slots[i].bcIndex });
+        if (brick) {
+          const [slot] = this._allocateBCSlots(1);
+          if (slot && this._writeBrick(ptCoord, slot, brick)) {
+            uploaded.push({ ptCoord, bcIndex: slot.bcIndex });
+          }
         }
 
         // Update progress
         this.currentRequestCount -= 1;
 
         const rlength = this.bricksEverLoaded.size;
-        this.bricksEverLoaded.add(`${ptRequests[i].x},${ptRequests[i].y},${ptRequests[i].z}`);
+        this.bricksEverLoaded.add(ptKey(ptCoord));
         if (rlength === this.bricksEverLoaded.size) {
-          log.debug('DUPLICATE BRICK LOADED', ptRequests[i]);
+          log.debug('DUPLICATE BRICK LOADED', ptCoord);
         }
 
         if (canBailOut && this.needsBailout) {
@@ -1978,12 +2050,11 @@ export class VolumeDataManager {
           log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
           this.needsBailout = false; // Reset the flag
           isBailingOut = true;
-          // TODO(mark): do something with the allocated slots that were not used?
         }
       }
     };
     await Promise.all(Array.from(
-      { length: Math.min(BRICK_FETCH_CONCURRENCY, ptRequests.length) },
+      { length: Math.min(BRICK_FETCH_CONCURRENCY, pending.length) },
       fetchNext,
     ));
 
@@ -2003,7 +2074,7 @@ export class VolumeDataManager {
   /* --------------------------------------------------------- *
    * Rebuild the LRUStack with the k least-recently-used bricks *
    * --------------------------------------------------------- */
-  _buildLRU() {
+  _buildLRU(count = this.k) {
     // Update this.LRUStack based on BCTimeStamps.
     // BCTimeStamps is updated during both initial brick upload and processUsageData.
     // However it is not until _buildLRU is called that the timestamps are sorted
@@ -2015,7 +2086,7 @@ export class VolumeDataManager {
       .filter(({ index }) => !pinned.has(index));
     this.LRUStack = brickIndicesWithTimes
       .sort((a, b) => a.time - b.time)
-      .slice(0, this.k)
+      .slice(0, Math.max(count, this.k))
       .map(item => item.index);
   }
 }

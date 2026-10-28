@@ -147,10 +147,15 @@ export function getBytesPerElement(dtype) {
   return prefix ? Number(digits) : Number(digits) / 8;
 }
 
+// Room for several 32-plane stacks of large one-plane chunks, e.g. eight of
+// idr0048A's 1024 x 1024 uint16 chunks (64 MiB each), so neighboring bricks
+// can reuse a stack before it is evicted.
+const DECODED_CHUNK_CACHE_BYTES = 512 * (2 ** 20);
+
 // Decoded-chunk LRU shared by all levels and neighboring bricks (Zarr chunks
 // or TIFF tiles). Entries hold promises, so concurrent reads of the same chunk
 // share one decode. Failures are retryable.
-export function createChunkCache(maxBytes = 256 * (2 ** 20)) {
+export function createChunkCache(maxBytes = DECODED_CHUNK_CACHE_BYTES) {
   const cache = new Map();
   let bytes = 0;
   function load(key, loader) {
@@ -160,9 +165,10 @@ export function createChunkCache(maxBytes = 256 * (2 ** 20)) {
       cache.set(key, entry);
       return entry.promise;
     }
-    const entry = { bytes: 0 };
+    const entry = { bytes: 0, isReady: false };
     entry.promise = loader().then((chunk) => {
       if (cache.get(key) === entry) {
+        entry.isReady = true;
         entry.bytes = chunk.data.byteLength;
         bytes += entry.bytes;
         // Evict least recently used decoded chunks; in-flight entries have 0 bytes.
@@ -186,15 +192,25 @@ export function createChunkCache(maxBytes = 256 * (2 ** 20)) {
   }
   return {
     load,
+    // Whether a chunk is decoded and retained, without touching its recency.
+    isReady: key => cache.get(key)?.isReady === true,
     stats: () => ({ entries: cache.size, bytes }),
     clear: () => { cache.clear(); bytes = 0; },
   };
+}
+
+// Chunk indices along one axis covering an index or a [start, end) range.
+function chunkIndices(selection, chunkSize) {
+  const [start, end] = Array.isArray(selection) ? selection : [selection, selection + 1];
+  const first = Math.floor(start / chunkSize);
+  return Array.from({ length: Math.floor((end - 1) / chunkSize) - first + 1 }, (_, i) => first + i);
 }
 
 /**
  * Region reader for zarrita arrays (or the Vitessce adapter proxy).
  * readRegion(source, { t, c, z, y, x }) takes [start, end) ranges for z, y, x
  * and returns { data, stride } with strides in ZYX order.
+ * readRegion.chunkKeys(source, region) lists the cache keys of the chunks it reads.
  */
 export function createZarrRegionReader({ arrays, labels, cache }) {
   // Zarrita assembles selections through getChunk, so caching getChunk lets
@@ -209,7 +225,7 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
     },
   }));
   const spatialLabels = labels.filter(axis => SPATIAL_AXES.includes(axis));
-  return async function readRegion(source, {
+  async function readRegion(source, {
     t, c, z, y, x,
   }) {
     const selections = {
@@ -220,7 +236,18 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
       data: result.data,
       stride: SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]),
     };
+  }
+  readRegion.chunkKeys = (source, region) => {
+    const { chunks } = arrays[source];
+    // Same coordinates as zarrita's getChunk calls, so the same keys as load().
+    const perAxis = labels.map((axis, i) => chunkIndices(region[axis] ?? 0, chunks[i]));
+    return perAxis
+      .reduce((products, indices) => products.flatMap(
+        prefix => indices.map(index => [...prefix, index]),
+      ), [[]])
+      .map(coordinates => `${source}:${coordinates.join(',')}`);
   };
+  return readRegion;
 }
 
 /**
@@ -234,13 +261,14 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
  * => readRegion; defaults to reading zarrita arrays.
  */
 export function createVolumeBrickSource({
-  arrays, levels, labels, cacheBytes = 256 * (2 ** 20),
+  arrays, levels, labels, cacheBytes = DECODED_CHUNK_CACHE_BYTES,
   createRegionReader = createZarrRegionReader,
 }) {
   const cache = createChunkCache(cacheBytes);
   const readRegion = createRegionReader({ arrays, labels, cache });
 
-  async function readBrick({ level: levelIndex, t = 0, c = 0, bx, by, bz }) {
+  // The source regions one logical brick reads, and where they land.
+  function planBrickReads({ level: levelIndex, bx, by, bz }) {
     const level = levels[levelIndex];
     const origin = [bz, by, bx].map(value => value * BRICK_SIZE);
     if (origin.some((start, axis) => !Number.isInteger(start) || start < 0
@@ -256,34 +284,64 @@ export function createVolumeBrickSource({
     const { zFactor, zMode, sourceDepth } = level;
     const { yFactor = 1, xFactor = 1 } = level;
     const isSample = zMode === 'sample';
-    const isMean = zMode === 'mean';
-    const isMax = zMode === 'max';
-    // Logical voxels average blocks of source voxels for mean Z and for XY factors.
-    const isSum = !isMax && (isMean || yFactor > 1 || xFactor > 1);
-    const values = new Float64Array(BRICK_SIZE ** 3);
-    if (isMax) values.fill(-Infinity);
     const sourceEnd = Math.min(sourceDepth, (z0 + nz) * zFactor);
     const [sourceHeight, sourceWidth] = ['y', 'x'].map(
       axis => arrays[level.source].shape[labels.indexOf(axis)],
     );
     const yRange = [y0 * yFactor, Math.min(sourceHeight, (y0 + ny) * yFactor)];
     const xRange = [x0 * xFactor, Math.min(sourceWidth, (x0 + nx) * xFactor)];
-    // Output voxel of each source row and column in the read region.
-    const yOut = Array.from({ length: yRange[1] - yRange[0] },
-      (_, i) => Math.floor((yRange[0] + i) / yFactor) - y0);
-    const xOut = Array.from({ length: xRange[1] - xRange[0] },
-      (_, i) => Math.floor((xRange[0] + i) / xFactor) - x0);
     // Sample one plane per bin; stepped slices in zarrita also read skipped chunks.
     // At most one brick depth of source planes is in flight: 32 single-plane
     // samples, or one 32-plane slab at a time for native and filtered reads.
     const step = isSample ? zFactor : BRICK_SIZE;
-    const concurrency = isSample ? BRICK_SIZE : 1;
     const ranges = [];
     for (let start = z0 * zFactor; start < sourceEnd; start += step) {
       const readStart = isSample
         ? Math.min(sourceDepth - 1, start + Math.floor(zFactor / 2)) : start;
       ranges.push([readStart, isSample ? readStart + 1 : Math.min(sourceEnd, start + step)]);
     }
+    return {
+      level,
+      origin: [z0, y0, x0],
+      valid,
+      yRange,
+      xRange,
+      ranges,
+      sourceHeight,
+      sourceWidth,
+      concurrency: isSample ? BRICK_SIZE : 1,
+    };
+  }
+
+  // Cache keys of every source chunk a brick reads.
+  function brickChunkKeys(brick) {
+    const { level, yRange, xRange, ranges } = planBrickReads(brick);
+    const { t = 0, c = 0 } = brick;
+    return ranges.flatMap(z => readRegion.chunkKeys(level.source, {
+      t, c, z, y: yRange, x: xRange,
+    }));
+  }
+
+  async function readBrick(brick) {
+    const { t = 0, c = 0 } = brick;
+    const {
+      level, origin: [z0, y0, x0], valid, yRange, xRange, ranges,
+      sourceHeight, sourceWidth, concurrency,
+    } = planBrickReads(brick);
+    const [nz, ny, nx] = valid;
+    const { zFactor, zMode, sourceDepth } = level;
+    const { yFactor = 1, xFactor = 1 } = level;
+    const isMean = zMode === 'mean';
+    const isMax = zMode === 'max';
+    // Logical voxels average blocks of source voxels for mean Z and for XY factors.
+    const isSum = !isMax && (isMean || yFactor > 1 || xFactor > 1);
+    const values = new Float64Array(BRICK_SIZE ** 3);
+    if (isMax) values.fill(-Infinity);
+    // Output voxel of each source row and column in the read region.
+    const yOut = Array.from({ length: yRange[1] - yRange[0] },
+      (_, i) => Math.floor((yRange[0] + i) / yFactor) - y0);
+    const xOut = Array.from({ length: xRange[1] - xRange[0] },
+      (_, i) => Math.floor((xRange[0] + i) / xFactor) - x0);
     let DataType = null;
     // Fold each result into values as it arrives, so results are not retained.
     const accumulate = (result, [readStart, readEnd]) => {
@@ -350,6 +408,9 @@ export function createVolumeBrickSource({
 
   return {
     readBrick,
+    brickChunkKeys,
+    // Whether a chunk from brickChunkKeys is decoded, so reading it fetches nothing.
+    isChunkCached: cache.isReady,
     cache: { stats: cache.stats, clear: cache.clear },
   };
 }

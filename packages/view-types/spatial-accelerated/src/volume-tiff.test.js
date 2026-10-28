@@ -224,6 +224,39 @@ describe('volume-tiff', () => {
       ));
       expect(pixelSource.tileReads).toBe(32);
     });
+
+    it('lists exactly the chunks a brick reads, for TIFF tiles and Zarr chunks', async () => {
+      const labels = ['t', 'c', 'z', 'y', 'x'];
+      const createSources = async () => [
+        createVolumeBrickSource({
+          arrays: await getTiffLevelArrays([
+            createMockPixelSource({ labels, shape: [1, 2, 70, 45, 50], tileSize: 20 }),
+          ]),
+          levels,
+          labels,
+          createRegionReader: createTiffRegionReader,
+        }),
+        createVolumeBrickSource({
+          arrays: [await createZarrArray([1, 2, 70, 45, 50], [1, 1, 16, 16, 16])],
+          levels,
+          labels,
+        }),
+      ];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const read of reads) {
+        // eslint-disable-next-line no-await-in-loop
+        const sources = await createSources();
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(sources.map(async (source) => {
+          const keys = source.brickChunkKeys(read);
+          expect(keys.some(source.isChunkCached)).toBe(false);
+          await source.readBrick(read);
+          // Every listed chunk is now decoded, and nothing else was.
+          expect(keys.every(source.isChunkCached)).toBe(true);
+          expect(source.cache.stats().entries).toBe(new Set(keys).size);
+        }));
+      }
+    });
   });
 
   describe('planning OME-TIFF pyramids', () => {

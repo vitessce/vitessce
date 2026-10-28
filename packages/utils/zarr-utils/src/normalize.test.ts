@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { type AbsolutePath, AsyncReadable, type RangeQuery, extendStore } from 'zarrita';
-import { withQueryClientCache, UNCACHED_READ, type QueryClientLike } from './normalize.js';
+import {
+  withQueryClientCache, applyStoreExtensions, UNCACHED_READ, type QueryClientLike,
+} from './normalize.js';
 
 // A store whose responses resolve only when released, for testing coalescing.
 function makeGatedStore(withGetRange = true) {
@@ -173,5 +175,30 @@ describe('CachedStore', () => {
     await cached.get('/X/indices/1');
     expect(getFetchQueryCalls()).toEqual(2);
     expect(seen.filter(([label]) => label === 'get:/X/indices/1').length).toEqual(1);
+  });
+});
+
+describe('applyStoreExtensions', () => {
+  it('merges concurrent nearby range reads of one file, as for inner chunks of a shard', async () => {
+    const file = Uint8Array.from({ length: 1000 }, (_, i) => i % 251);
+    const ranges: string[] = [];
+    const store = {
+      async get() { return undefined; },
+      async getRange(key: AbsolutePath, range: RangeQuery) {
+        ranges.push(`${key}:${JSON.stringify(range)}`);
+        if ('suffixLength' in range) return file.slice(-range.suffixLength);
+        return file.slice(range.offset, range.offset + range.length);
+      },
+    };
+    const extended = applyStoreExtensions(store, 'http://example.com/a.zarr');
+    // Three adjacent inner chunks and one far away in the same shard.
+    const reads = [[0, 100], [100, 50], [150, 200], [900, 50]]
+      .map(([offset, length]) => ({ offset, length }));
+    const results = await Promise.all(reads.map(range => extended.getRange?.('/X/c/0/0', range)));
+    results.forEach((bytes, i) => {
+      expect(bytes).toEqual(file.slice(reads[i].offset, reads[i].offset + reads[i].length));
+    });
+    // The far chunk is within the default 32 KiB gap, so all four share one request.
+    expect(ranges).toEqual(['/X/c/0/0:{"offset":0,"length":950}']);
   });
 });

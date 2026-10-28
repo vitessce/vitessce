@@ -27,6 +27,24 @@ function normalizeValue(value, minMax) {
 }
 
 /**
+ * The shader's LOD factor for a spatialLodFactor value, so that 1 targets about
+ * one level-0 voxel per screen pixel, whatever the view size, field of view, or
+ * volume shape. The shader scales its factor by voxelEdge / 256, and the volume
+ * box is one unit wide in x.
+ * @param {number} lodFactor The spatialLodFactor coordination value.
+ * @param {number} fov The camera's vertical field of view, in degrees.
+ * @param {number} heightPx Height of the rendered image, in pixels.
+ * @param {number[]} shape Level-0 shape, TCZYX.
+ * @returns {number}
+ */
+export function getScreenLodFactor(lodFactor, fov, heightPx, shape) {
+  const fovRadians = fov * Math.PI / 180;
+  const shapeX = shape[4];
+  const voxelEdge = Math.max(shape[2], shape[3], shape[4]);
+  return lodFactor * 2 * Math.tan(fovRadians / 2) * shapeX * 256 / (heightPx * voxelEdge);
+}
+
+/**
  * Manages the volume rendering state, shader setup, and uniform management
  * Serves as a replacement for many functions from three-utils.js
  */
@@ -56,6 +74,7 @@ export class VolumeRenderManager {
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
     this.finestRes = 0; // finest renderable level, set in setZarrUniforms
+    this.lodFactor = 1.0; // spatialLodFactor; VolumeView sets the shader's factor from it
 
     this.maxRange = 255;
     this.maxRangeSet = false;
@@ -243,11 +262,11 @@ export class VolumeRenderManager {
     this.xSlice = settings.xSlice;
     this.ySlice = settings.ySlice;
     this.zSlice = settings.zSlice;
-    this.uniforms.lodFactor.value = settings.lodFactor;
+    // Converted to the shader's factor every frame (getScreenLodFactor), since
+    // that depends on the view size.
+    this.lodFactor = settings.lodFactor;
 
     logWithColor(`lodFactor ${settings.lodFactor}`);
-
-    this.shader.uniforms.lodFactor.value = settings.lodFactor;
 
     logWithColor('Updating from props - success');
     return true;
@@ -521,7 +540,7 @@ export class VolumeRenderManager {
     );
     for (let i = 0; i < 7; i++) {
       if (typeof this.channelMaxResolutionIndex[i] === 'number') {
-        // Never finer than finestRes, which also excludes levels too costly to decode.
+        // Never finer than finestRes.
         this.uniforms[`res${i}`].value.set(
           Math.max(this.finestRes, this.channelMaxResolutionIndex[i]),
           this.zarrStoreNumResolutions - 1,
@@ -579,8 +598,7 @@ export class VolumeRenderManager {
     }
     log.debug('zarrStore.brickLayout', zarrStore.brickLayout);
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
-    // Level 0 (full resolution) is rendered unless its bricks would decode too
-    // much source data; finestLevel is the finest level within that budget.
+    // The finest level rendered: level 0 (full resolution) unless restricted.
     this.finestRes = zarrStore.finestLevel ?? 0;
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
