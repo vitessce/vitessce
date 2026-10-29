@@ -1,20 +1,25 @@
+/* eslint-disable no-plusplus */
 import dicomParser, { type DataSet } from 'dicom-parser';
 import { VolumeLoader } from './VolumeLoader.js';
 import { type DicomImage, toVolume } from './dicom.js';
+import {
+  UNCOMPRESSED_TRANSFER_SYNTAXES,
+  isSupportedTransferSyntax,
+  decodeFrame,
+} from './codecs.js';
 import type { Volume } from './volume.js';
 
-const UNCOMPRESSED_TRANSFER_SYNTAXES = [
-  '1.2.840.10008.1.2', // Implicit VR Little Endian
-  '1.2.840.10008.1.2.1', // Explicit VR Little Endian
-];
 const PIXEL_DATA = 'x7fe00010';
 // Headers are usually a few kilobytes. Try small reads before reading the whole file.
 const HEADER_READ_SIZES = [16_384, 262_144];
 
-async function fetchBytes(url: string, requestInit?: RequestInit, range?: [number, number]) {
+/**
+ * @param range First and last byte to read. Without a last byte, reads to the end.
+ */
+async function fetchBytes(url: string, requestInit?: RequestInit, range?: [number, number?]) {
   const headers = new Headers(requestInit?.headers);
   if (range) {
-    headers.set('Range', `bytes=${range[0]}-${range[1]}`);
+    headers.set('Range', `bytes=${range[0]}-${range[1] ?? ''}`);
   }
   const res = await fetch(url, { ...requestInit, headers });
   if (!res.ok) {
@@ -61,15 +66,16 @@ function getNumbers(dataSet: DataSet, tag: string) {
   return dataSet.string(tag)?.split('\\').map(Number);
 }
 
-function fromDataSet(dataSet: DataSet, url: string): DicomImage {
+function fromDataSet(dataSet: DataSet, url: string): DicomImage & { transferSyntax: string } {
   const transferSyntax = dataSet.string('x00020010') ?? '';
-  if (!UNCOMPRESSED_TRANSFER_SYNTAXES.includes(transferSyntax)) {
-    throw new Error(`${url} has compressed pixel data (${transferSyntax}), which is not supported yet.`);
+  if (!isSupportedTransferSyntax(transferSyntax)) {
+    throw new Error(`${url} uses transfer syntax ${transferSyntax}, which is not supported.`);
   }
   if (!dataSet.elements[PIXEL_DATA]) {
     throw new Error(`${url} has no pixel data.`);
   }
   return {
+    transferSyntax,
     modality: dataSet.string('x00080060'),
     seriesDescription: dataSet.string('x0008103e'),
     sliceThickness: getNumbers(dataSet, 'x00180050')?.[0],
@@ -89,6 +95,37 @@ function fromDataSet(dataSet: DataSet, url: string): DicomImage {
     intercept: getNumbers(dataSet, 'x00281052')?.[0] ?? 0,
     slope: getNumbers(dataSet, 'x00281053')?.[0] ?? 1,
   };
+}
+
+/**
+ * Join the fragments of encapsulated (compressed) pixel data: a sequence of items,
+ * starting with a basic offset table, ended by a sequence delimiter.
+ * Assumes one frame per file.
+ */
+export function readFragments(bytes: Uint8Array) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const fragments: Uint8Array[] = [];
+  let offset = 0;
+  while (offset + 8 <= bytes.length) {
+    // Tags (FFFE,E000) and (FFFE,E0DD) read as little-endian 32-bit values.
+    const tag = view.getUint32(offset, true);
+    const length = view.getUint32(offset + 4, true);
+    offset += 8;
+    if (tag === 0xE0DDFFFE) break;
+    fragments.push(bytes.subarray(offset, offset + length));
+    offset += length;
+  }
+  // Skip the basic offset table.
+  const [, ...frameFragments] = fragments;
+  if (frameFragments.length === 1) {
+    return frameFragments[0];
+  }
+  const frame = new Uint8Array(frameFragments.reduce((sum, f) => sum + f.length, 0));
+  frameFragments.reduce((position, f) => {
+    frame.set(f, position);
+    return position + f.length;
+  }, 0);
+  return frame;
 }
 
 /**
@@ -113,13 +150,21 @@ export class DicomLoader extends VolumeLoader {
     }));
 
     return toVolume(images, async (image) => {
+      const isCompressed = !UNCOMPRESSED_TRANSFER_SYNTAXES.includes(image.transferSyntax);
       const start = image.pixelDataOffset;
-      const end = start + image.rows * image.columns * (image.bitsAllocated / 8);
+      // The length of compressed pixel data is not known up front, so read to the end.
+      const end = isCompressed
+        ? undefined
+        : start + image.rows * image.columns * (image.bitsAllocated / 8);
+      let bytes: Uint8Array;
       if (image.file) {
-        return image.file.slice(start, end);
+        bytes = new Uint8Array(image.file).subarray(start, end);
+      } else {
+        const range: [number, number?] = [start, end && end - 1];
+        const { buffer, isWholeFile } = await fetchBytes(image.url, requestInit, range);
+        bytes = isWholeFile ? new Uint8Array(buffer).subarray(start, end) : new Uint8Array(buffer);
       }
-      const { buffer, isWholeFile } = await fetchBytes(image.url, requestInit, [start, end - 1]);
-      return isWholeFile ? buffer.slice(start, end) : buffer;
+      return decodeFrame(image.transferSyntax, isCompressed ? readFragments(bytes) : bytes, image);
     });
   }
 }

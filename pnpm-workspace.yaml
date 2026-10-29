@@ -32,6 +32,12 @@ catalog:
   # nifti-reader-js is pinned: 0.8.1 was published after a 20-month gap and has not been reviewed.
   "nifti-reader-js": 0.8.0
   "dicom-parser": 1.8.21
+  "jpeg-lossless-decoder-js": 2.1.2
+  # Exact versions: the bundled codec JS must match the .wasm files that
+  # @vitessce/radiology fetches at runtime (see WASM_URLS in its codecs.ts).
+  "@cornerstonejs/codec-charls": 1.2.7
+  "@cornerstonejs/codec-openjpeg": 1.3.6
+  "@cornerstonejs/codec-openjph": 2.4.11
   "d3-hierarchy": ^3.1.2
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0

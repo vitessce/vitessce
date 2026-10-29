@@ -5,6 +5,7 @@ import {
 } from 'vitest';
 import { DicomLoader } from './DicomLoader.js';
 import { RadiologySource } from './RadiologySource.js';
+import { CODEC_FIXTURES } from './codecs.test.fixtures.js';
 
 const LONG_VRS = ['OB', 'OW', 'SQ', 'UN', 'UT'];
 
@@ -35,10 +36,41 @@ function element(group: number, elem: number, vr: string, value: string | number
 }
 
 /**
- * A DICOM file for an axial CT slice of 3 x 2 pixels at height z,
- * with every pixel set to 1000 + z (12-bit unsigned, rescale intercept -1024).
+ * Encapsulated (compressed) pixel data with an empty basic offset table and one fragment.
  */
-function makeFile(z: number, transferSyntax = '1.2.840.10008.1.2.1') {
+function encapsulatedPixelData(fragment: Uint8Array) {
+  const header = new DataView(new ArrayBuffer(12));
+  header.setUint16(0, 0x7FE0, true);
+  header.setUint16(2, 0x0010, true);
+  header.setUint8(4, 'O'.charCodeAt(0));
+  header.setUint8(5, 'B'.charCodeAt(0));
+  header.setUint32(8, 0xFFFFFFFF, true);
+  const item = (elem: number, length: number) => {
+    const view = new DataView(new ArrayBuffer(8));
+    view.setUint16(0, 0xFFFE, true);
+    view.setUint16(2, elem, true);
+    view.setUint32(4, length, true);
+    return new Uint8Array(view.buffer);
+  };
+  return [
+    new Uint8Array(header.buffer),
+    item(0xE000, 0),
+    item(0xE000, fragment.length),
+    fragment,
+    item(0xE0DD, 0),
+  ];
+}
+
+/**
+ * A DICOM file for an axial CT slice at height z (12-bit unsigned, rescale intercept -1024).
+ * By default, it has 3 x 2 uncompressed pixels set to 1000 + z.
+ */
+function makeFile(z: number, {
+  transferSyntax = '1.2.840.10008.1.2.1',
+  rows = 2,
+  columns = 3,
+  fragment = undefined as Uint8Array | undefined,
+} = {}) {
   const parts = [
     new Uint8Array(128),
     new TextEncoder().encode('DICM'),
@@ -48,8 +80,8 @@ function makeFile(z: number, transferSyntax = '1.2.840.10008.1.2.1') {
     ...element(0x0020, 0x0037, 'DS', '1\\0\\0\\0\\1\\0'),
     ...element(0x0028, 0x0002, 'US', 1),
     ...element(0x0028, 0x0004, 'CS', 'MONOCHROME2'),
-    ...element(0x0028, 0x0010, 'US', 2),
-    ...element(0x0028, 0x0011, 'US', 3),
+    ...element(0x0028, 0x0010, 'US', rows),
+    ...element(0x0028, 0x0011, 'US', columns),
     ...element(0x0028, 0x0030, 'DS', '0.5\\0.5'),
     ...element(0x0028, 0x0100, 'US', 16),
     ...element(0x0028, 0x0101, 'US', 12),
@@ -58,7 +90,9 @@ function makeFile(z: number, transferSyntax = '1.2.840.10008.1.2.1') {
     ...element(0x0028, 0x1051, 'DS', '400'),
     ...element(0x0028, 0x1052, 'DS', '-1024'),
     ...element(0x0028, 0x1053, 'DS', '1'),
-    ...element(0x7FE0, 0x0010, 'OW', new Uint16Array(6).fill(1000 + z)),
+    ...(fragment
+      ? encapsulatedPixelData(fragment)
+      : element(0x7FE0, 0x0010, 'OW', new Uint16Array(rows * columns).fill(1000 + z))),
   ];
   const file = new Uint8Array(parts.reduce((sum, p) => sum + p.length, 0));
   parts.reduce((offset, p) => {
@@ -68,14 +102,15 @@ function makeFile(z: number, transferSyntax = '1.2.840.10008.1.2.1') {
   return file;
 }
 
-function mockServer(
-  { supportsRange = true, transferSyntax = undefined as string | undefined } = {},
-) {
+function mockServer({ supportsRange = true, ...fileOptions }: {
+  supportsRange?: boolean;
+} & Parameters<typeof makeFile>[1] = {}) {
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
-    const file = makeFile(Number(/z(\d+)\.dcm/.exec(url)?.[1]), transferSyntax);
-    const range = /bytes=(\d+)-(\d+)/.exec(new Headers(init?.headers).get('Range') ?? '');
+    const file = makeFile(Number(/z(\d+)\.dcm/.exec(url)?.[1]), fileOptions);
+    const range = /bytes=(\d+)-(\d*)/.exec(new Headers(init?.headers).get('Range') ?? '');
     if (supportsRange && range) {
-      return new Response(file.slice(Number(range[1]), Number(range[2]) + 1), { status: 206 });
+      const end = range[2] ? Number(range[2]) + 1 : undefined;
+      return new Response(file.slice(Number(range[1]), end), { status: 206 });
     }
     return new Response(file);
   });
@@ -122,8 +157,22 @@ describe('DicomLoader', () => {
     expect(fetchMock).toHaveBeenCalledTimes(URLS.length);
   });
 
-  it('rejects compressed files', async () => {
-    mockServer({ transferSyntax: '1.2.840.10008.1.2.4.70' });
-    await expect(makeLoader().load()).rejects.toThrow('compressed pixel data (1.2.840.10008.1.2.4.70)');
+  it.each([true, false])('decodes compressed files (range requests: %s)', async (supportsRange) => {
+    const { transferSyntax, base64 } = CODEC_FIXTURES.rle;
+    const fragment = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    mockServer({
+      supportsRange, transferSyntax, rows: 5, columns: 7, fragment,
+    });
+    const [source] = (await makeLoader().load()).data.image.instance.getData();
+    const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 0 } });
+    expect(Array.from(raster.data)).toEqual(
+      Array.from({ length: 35 }, (_, i) => ((i * 97) % 4096) - 1024),
+    );
+  });
+
+  it('rejects unsupported transfer syntaxes', async () => {
+    // JPEG Baseline
+    mockServer({ transferSyntax: '1.2.840.10008.1.2.4.50' });
+    await expect(makeLoader().load()).rejects.toThrow('transfer syntax 1.2.840.10008.1.2.4.50, which is not supported');
   });
 });

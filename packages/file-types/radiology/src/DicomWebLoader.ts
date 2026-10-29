@@ -1,13 +1,23 @@
+/* eslint-disable no-plusplus */
 import { VolumeLoader } from './VolumeLoader.js';
 import { type DicomImage, toVolume } from './dicom.js';
+import { decodeFrame } from './codecs.js';
 import type { Volume } from './volume.js';
 
-const UNCOMPRESSED_TRANSFER_SYNTAXES = [
-  '1.2.840.10008.1.2', // Implicit VR Little Endian
-  '1.2.840.10008.1.2.1', // Explicit VR Little Endian
-];
-// Ask the server to transcode frames to Explicit VR Little Endian.
+// Prefer frames transcoded to Explicit VR Little Endian, which need no decoding.
 const FRAME_ACCEPT = 'multipart/related; type="application/octet-stream"; transfer-syntax=1.2.840.10008.1.2.1';
+// For servers that cannot transcode: accept frames as stored.
+const FRAME_ACCEPT_STORED = 'multipart/related; type="application/octet-stream"; transfer-syntax=*';
+
+// Transfer syntaxes implied by part media types, for parts without a transfer-syntax parameter.
+// Reference: DICOM PS3.18 Section 8.7.3
+const MEDIA_TYPE_TRANSFER_SYNTAXES: Record<string, string> = {
+  'application/octet-stream': '1.2.840.10008.1.2.1',
+  'image/jls': '1.2.840.10008.1.2.4.80',
+  'image/jp2': '1.2.840.10008.1.2.4.90',
+  'image/jphc': '1.2.840.10008.1.2.4.201',
+  'image/x-dicom-rle': '1.2.840.10008.1.2.5',
+};
 
 type DicomJson = Record<string, { vr: string; Value?: unknown[] } | undefined>;
 
@@ -51,33 +61,40 @@ export function fromDicomJson(instance: DicomJson): DicomImage & { sopInstanceUi
   };
 }
 
+function lastIndexOf(bytes: Uint8Array, sequence: Uint8Array) {
+  for (let i = bytes.length - sequence.length; i >= 0; i--) {
+    let j = 0;
+    while (j < sequence.length && bytes[i + j] === sequence[j]) j++;
+    if (j === sequence.length) return i;
+  }
+  return -1;
+}
+
 /**
- * Get the pixel data of a frame from a WADO-RS response,
- * which wraps it in a multipart/related body.
- * Throws if the server did not return uncompressed pixel data.
+ * Get the pixel data of a frame from a WADO-RS response, which usually wraps it
+ * in a multipart/related body, along with its transfer syntax.
  */
-export function extractFrame(body: ArrayBuffer, contentType: string, frameLength: number) {
+export function extractFrame(body: ArrayBuffer, contentType: string) {
+  let bytes = new Uint8Array(body);
   let headers = `Content-Type: ${contentType}`;
-  let dataStart = 0;
   if (contentType.startsWith('multipart/related')) {
-    // The frame follows the headers of the first part.
-    const bytes = new Uint8Array(body);
+    // The frame follows the headers of the first part and ends before the closing delimiter.
     const headersEnd = bytes.findIndex((_, i) => (
       bytes[i] === 13 && bytes[i + 1] === 10 && bytes[i + 2] === 13 && bytes[i + 3] === 10
     ));
     headers = new TextDecoder().decode(bytes.subarray(0, headersEnd));
-    dataStart = headersEnd + 4;
+    // Read the delimiter from the first line, since some servers omit the boundary parameter.
+    const delimiter = headers.split('\r\n')[0];
+    const end = lastIndexOf(bytes, new TextEncoder().encode(`\r\n${delimiter}`));
+    bytes = bytes.subarray(headersEnd + 4, end > headersEnd ? end : undefined);
   }
-  const partType = /content-type:\s*([^;\s]+)/i.exec(headers)?.[1] ?? 'application/octet-stream';
-  const transferSyntax = /transfer-syntax="?([\d.]+)/i.exec(headers)?.[1];
-  if (partType !== 'application/octet-stream'
-    || (transferSyntax && !UNCOMPRESSED_TRANSFER_SYNTAXES.includes(transferSyntax))) {
-    throw new Error(`The DICOMweb server returned compressed pixel data (${transferSyntax ?? partType}), which is not supported yet. Use a server that can transcode to uncompressed data.`);
+  const mediaType = /content-type:\s*([^;\s]+)/i.exec(headers)?.[1]?.toLowerCase() ?? '';
+  const transferSyntax = /transfer-syntax="?([\d.]+)/i.exec(headers)?.[1]
+    ?? MEDIA_TYPE_TRANSFER_SYNTAXES[mediaType];
+  if (!transferSyntax) {
+    throw new Error(`The DICOMweb server returned frames as ${mediaType}, which is not supported.`);
   }
-  if (body.byteLength < dataStart + frameLength) {
-    throw new Error('The DICOMweb server returned an incomplete frame.');
-  }
-  return body.slice(dataStart, dataStart + frameLength);
+  return { bytes, transferSyntax };
 }
 
 function withAccept(requestInit: RequestInit | undefined, accept: string): RequestInit {
@@ -105,16 +122,18 @@ export class DicomWebLoader extends VolumeLoader {
 
     return toVolume(images, async (image) => {
       const frameUrl = `${seriesUrl}/instances/${image.sopInstanceUid}/frames/1`;
-      const frameRes = await fetch(frameUrl, withAccept(requestInit, FRAME_ACCEPT));
+      let frameRes = await fetch(frameUrl, withAccept(requestInit, FRAME_ACCEPT));
+      if (frameRes.status === 406) {
+        frameRes = await fetch(frameUrl, withAccept(requestInit, FRAME_ACCEPT_STORED));
+      }
       if (!frameRes.ok) {
         throw new Error(`DICOMweb frame failed to load: ${frameRes.status} from ${frameRes.url}`);
       }
-      const frameLength = image.rows * image.columns * (image.bitsAllocated / 8);
-      return extractFrame(
+      const { bytes, transferSyntax } = extractFrame(
         await frameRes.arrayBuffer(),
         frameRes.headers.get('Content-Type') ?? '',
-        frameLength,
       );
+      return decodeFrame(transferSyntax, bytes, image);
     });
   }
 }

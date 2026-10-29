@@ -30,12 +30,16 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
+    "@cornerstonejs/codec-charls": "catalog:",
+    "@cornerstonejs/codec-openjpeg": "catalog:",
+    "@cornerstonejs/codec-openjph": "catalog:",
     "@vitessce/abstract": "workspace:*",
     "@vitessce/config": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "@vitessce/image-utils": "workspace:*",
     "@vitessce/types": "workspace:*",
     "dicom-parser": "catalog:",
+    "jpeg-lossless-decoder-js": "catalog:",
     "nifti-reader-js": "catalog:"
   },
   "devDependencies": {

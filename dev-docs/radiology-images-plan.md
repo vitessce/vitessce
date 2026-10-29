@@ -1,6 +1,6 @@
 # Plan: radiology images (DICOMweb, `.dcm`, NIfTI) via Viv
 
-Milestone 1 of DICOM support. Status: steps 1 to 4 implemented on branch `nickakhmetov/dicom-support` (see [Implementation notes](#implementation-notes)).
+Milestone 1 of DICOM support. Status: steps 1 to 4 implemented on branch `nickakhmetov/dicom-support` (see [Implementation notes](#implementation-notes)), followed by compressed transfer syntaxes (see [Codecs](#codecs)).
 
 ## Goal
 
@@ -17,7 +17,7 @@ Done means:
 | Topic | Decision |
 |---|---|
 | Rendering | Viv tile adapter. No Cornerstone renderer. |
-| Codecs | Uncompressed transfer syntaxes only. Compressed data fails with a clear error. Codecs are the first follow-up. |
+| Codecs | Uncompressed transfer syntaxes only. Compressed data fails with a clear error. Codecs are the first follow-up (since implemented; see [Codecs](#codecs)). |
 | `.dcm` series input | `options.urls` lists one URL per file. |
 | Geometry | Model matrix carries spacing and origin in patient LPS millimeters, including axis flips. Oblique rotation is dropped with a warning. |
 | Validation data | IDC CT (DICOMweb proxy and `.dcm` from the public S3 bucket) and Niivue demo NIfTI files. |
@@ -143,4 +143,29 @@ Findings from implementing and validating steps 1 to 4. These change the design 
 
 - The initial Z slice is 0 rather than the middle slice. Loader `spatialTargetZ` values are not applied by `mergeCoordination`; this affects OME-Zarr `rdefs.defaultZ` too.
 - The initial 3D camera is zoomed out too far.
-- The OHIF demo DICOMweb server only serves JPEG-LS frames, so it needs codecs (follow-up 1).
+
+## Codecs
+
+Follow-up 1 is implemented: JPEG Lossless (`1.2.840.10008.1.2.4.57`, `.70`), JPEG-LS (`.80`, `.81`), JPEG 2000 (`.90`, `.91`), HTJ2K (`.201`, `.202`, `.203`), and RLE Lossless (`1.2.840.10008.1.2.5`), for both `image.dicomweb` and `image.dicom`. Lossy JPEG (Baseline, Extended) is out of scope because it is rare for CT/MR.
+
+### Design
+
+- JPEG-LS, JPEG 2000, and HTJ2K use the Cornerstone WebAssembly codecs (`@cornerstonejs/codec-charls`, `codec-openjpeg`, `codec-openjph`). Their JavaScript is bundled as lazy chunks (about 80 KB each). Their `.wasm` files are fetched from jsDelivr on first use and passed to the module as bytes, which avoids bundler `.wasm` handling and MIME type issues (the same reason parquet-wasm is loaded from a CDN). Versions are pinned exactly in the catalog, because the bundled JavaScript must match the fetched `.wasm`.
+- TODO: host the `.wasm` files on `cdn.vitessce.io` by adding the codec packages to `scripts/sync-cdn.mjs`, then update `WASM_URLS` in `codecs.ts`.
+- JPEG Lossless uses `jpeg-lossless-decoder-js` (plain JavaScript). RLE is decoded by a small function in `codecs.ts`.
+- DICOMweb frames are still requested as Explicit VR Little Endian. A server that cannot transcode answers 406, and the request is repeated with `transfer-syntax=*`. Servers that ignore the requested transfer syntax (such as OHIF's static demo server) return compressed frames, which are decoded.
+- For compressed `.dcm` files, pixel data is read from its start to the end of the file, and the fragments of the single frame are joined before decoding.
+- Decoding runs on the main thread. Move it to a worker if loading many slices (3D mode) blocks the UI.
+
+### Validation results
+
+- **JPEG-LS (DICOMweb)**: OHIF demo server, LIDC chest CT. Display slice 67 matches viewer.ohif.org image 68/135, and matches a Python `imagecodecs` decode of the same frame (slice sum -296159814).
+- **JPEG 2000 (`.dcm`)**: IDC ICDC-Glioma MR series. The first displayed slice matches a `pydicom` + `imagecodecs` decode (slice sum 12629531).
+- **JPEG Lossless (`.dcm`)**: IDC TCGA-UCEC CT series. The first displayed slice matches a `pydicom` + `imagecodecs` decode (slice sum -99080085). This series includes a localizer image with a different orientation, so images that do not match the rest of a series are now skipped with a warning instead of failing the series.
+- **HTJ2K and RLE**: no public CT/MR examples were found, so they are covered by unit tests with fixtures encoded by `imagecodecs`.
+- Unit tests decode a fixture for each codec, using the `.wasm` files from `node_modules`.
+
+### Findings
+
+- OHIF's demo server responds with `Content-Type: multipart/related` without a `boundary` parameter, so the multipart delimiter is read from the first line of the body.
+- In the jsdom test environment, `Headers` drops the `Range` header (browsers and Node keep it). `DicomLoader.test.ts` runs in the Node environment.

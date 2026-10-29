@@ -80,12 +80,28 @@ function validate(images: DicomImage[]) {
     if (image.position?.length !== 3 || image.orientation?.length !== 6) {
       throw new Error('DICOM images must have ImagePositionPatient and ImageOrientationPatient.');
     }
-    const keys = ['rows', 'columns', 'bitsAllocated', 'pixelRepresentation'] as const;
-    if (keys.some(key => image[key] !== first[key])
-      || image.orientation.some((v, i) => Math.abs(v - first.orientation[i]) > 1e-4)) {
-      throw new Error('All images in a DICOM series must have the same dimensions, pixel format, and orientation.');
-    }
   });
+}
+
+/**
+ * Keep the largest group of images that can be stacked: same dimensions,
+ * pixel format, and orientation. Series often include a few other images,
+ * such as localizers.
+ */
+function getMainStack<T extends DicomImage>(images: T[]) {
+  const groups = new Map<string, T[]>();
+  images.forEach((image) => {
+    const key = [
+      image.rows, image.columns, image.bitsAllocated, image.pixelRepresentation,
+      ...image.orientation.map(v => v.toFixed(3)),
+    ].join();
+    groups.set(key, [...(groups.get(key) ?? []), image]);
+  });
+  const stack = [...groups.values()].reduce((a, b) => (b.length > a.length ? b : a));
+  if (stack.length < images.length) {
+    log.warn(`Skipped ${images.length - stack.length} DICOM images that do not match the rest of the series, such as localizers.`);
+  }
+  return stack;
 }
 
 /**
@@ -98,13 +114,14 @@ export async function toVolume<T extends DicomImage>(
   loadPixels: (image: T) => Promise<ArrayBuffer>,
 ): Promise<Volume> {
   validate(images);
-  const [first] = images;
+  const stack = getMainStack(images);
+  const [first] = stack;
   const rowDirection = first.orientation.slice(0, 3);
   const columnDirection = first.orientation.slice(3, 6);
   const normal = cross(rowDirection, columnDirection);
 
   // Order slices along the normal; instance numbers are not reliable.
-  const sorted = [...images].sort((a, b) => dot(a.position, normal) - dot(b.position, normal));
+  const sorted = [...stack].sort((a, b) => dot(a.position, normal) - dot(b.position, normal));
   const gaps = sorted.slice(1).map((image, i) => (
     dot(image.position, normal) - dot(sorted[i].position, normal)
   ));
