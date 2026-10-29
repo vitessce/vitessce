@@ -720,7 +720,11 @@ export function SpatialSubscriber(props) {
         if (notYetInitialized || stillDefaultInitialized) {
           setTargetX(defaultTargetX);
           setTargetY(defaultTargetY);
-          setTargetZ(defaultTargetZ);
+          // In 2D, spatialTargetZ is the selected slice rather than part of the camera,
+          // so it keeps its value from the view config or the image loader.
+          if (is3dMode) {
+            setTargetZ(defaultTargetZ);
+          }
           setZoom(defaultZoom);
         }
         setOriginalViewState(
@@ -750,6 +754,8 @@ export function SpatialSubscriber(props) {
   // explicitly whenever its resolution select moved between 2D and a 3D
   // resolution (see LayerOptions in @vitessce/layer-controller).
   const prevIs3dMode = useRef(is3dMode);
+  // The 2D slice to return to after leaving 3D, where spatialTargetZ is the camera target.
+  const sliceBefore3d = useRef(null);
   useEffect(() => {
     if (prevIs3dMode.current === is3dMode) {
       return;
@@ -769,7 +775,13 @@ export function SpatialSubscriber(props) {
     prevIs3dMode.current = is3dMode;
     setTargetX(defaultTargetX);
     setTargetY(defaultTargetY);
-    setTargetZ(defaultTargetZ);
+    if (is3dMode) {
+      sliceBefore3d.current = targetZ;
+      setTargetZ(defaultTargetZ);
+    } else {
+      const firstImage = Object.values(imageData ?? {})[0]?.image?.instance;
+      setTargetZ(sliceBefore3d.current ?? firstImage?.getDefaultTargetZ() ?? 0);
+    }
     setZoom(defaultZoom);
     // Rotation is meaningless outside of the OrbitView used in 3D.
     setRotationX(is3dMode ? 0 : null);

@@ -141,8 +141,8 @@ Findings from implementing and validating steps 1 to 4. These change the design 
 
 ### Known gaps
 
-- The initial Z slice is 0 rather than the middle slice. Loader `spatialTargetZ` values are not applied by `mergeCoordination`; this affects OME-Zarr `rdefs.defaultZ` too.
-- The initial 3D camera is zoomed out too far.
+- ~~The initial Z slice is 0 rather than the middle slice.~~ Fixed: `spatialBeta` set `spatialTargetZ` from its camera initialization even in 2D, where it is the slice index. It now only does so in 3D, so the loader's middle slice (and OME-Zarr `rdefs.defaultZ`) is used.
+- ~~The initial 3D camera is zoomed out too far.~~ Fixed: `getInitialSpatialTargets` applied the zoom backoff twice (once inside Viv's `getDefaultInitialViewState`).
 
 ## Codecs
 
