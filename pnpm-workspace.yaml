@@ -28,6 +28,10 @@ catalog:
   "d3-force": ^2.1.1
   "d3-format": ^3.1.0
   "d3-quadtree": ^1.0.7
+  # Radiology file types.
+  # nifti-reader-js is pinned: 0.8.1 was published after a 20-month gap and has not been reviewed.
+  "nifti-reader-js": 0.8.0
+  "dicom-parser": 1.8.21
   "d3-hierarchy": ^3.1.2
   "d3-scale": ^4.0.0
   "d3-axis": ^3.0.0
