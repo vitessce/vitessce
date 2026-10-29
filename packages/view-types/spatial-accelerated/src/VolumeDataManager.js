@@ -532,6 +532,41 @@ export function _ptToZarr(ptx, pty, ptz, ptInfo) {
 // sigmaNormalized: fraction of half-dimension that determines Gaussian spread
 export const DEFAULT_SIGMA_NORMALIZED = 0.25;
 
+// Request and usage buffers are scanned on a pixel grid of at most about this
+// many samples. A brick covers many pixels, so large screens lose nothing.
+const MAX_SAMPLED_PIXELS = 512 * 1024;
+
+/**
+ * The step between sampled pixels, in both X and Y, for a buffer of this size.
+ * @returns {number} 1 for buffers within MAX_SAMPLED_PIXELS.
+ */
+export function _pixelStride(width, height) {
+  return Math.max(1, Math.ceil(Math.sqrt((width * height) / MAX_SAMPLED_PIXELS)));
+}
+
+/**
+ * Call callback(i, x, y) for the sampled pixels of an RGBA buffer, where i is
+ * the index of the pixel's first byte. Rows follow from the buffer's length.
+ * Without a valid width, every pixel is visited and x and y are undefined.
+ */
+export function _forEachSampledPixel(buffer, width, callback) {
+  const maxPixels = Math.floor(buffer.length / 4);
+  if (!(Number.isInteger(width) && width > 0)) {
+    for (let pix = 0; pix < maxPixels; pix += 1) {
+      callback(pix * 4);
+    }
+    return;
+  }
+  const height = Math.ceil(maxPixels / width);
+  const stride = _pixelStride(width, height);
+  for (let y = 0; y < height; y += stride) {
+    for (let x = 0; x < width; x += stride) {
+      const pix = y * width + x;
+      if (pix < maxPixels) callback(pix * 4, x, y);
+    }
+  }
+}
+
 export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   const counts = new Map();
 
@@ -546,25 +581,16 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
     log.warn('_requestBufferToRequestObjects: proceeding without weighting');
   }
 
-  // Number of pixels present in buffer
-  const maxPixels = Math.floor(buffer.length / 4);
-
-  for (let pix = 0; pix < maxPixels; pix += 1) {
-    const i = pix * 4;
+  _forEachSampledPixel(buffer, width, (i, x, y) => {
     const r = buffer[i];
     const g = buffer[i + 1];
     const b = buffer[i + 2];
     const a = buffer[i + 3];
-    if ((r | g | b | a) === 0) {
-      // eslint-disable-next-line no-continue
-      continue;
-    }
+    if ((r | g | b | a) === 0) return;
     const packed = ((r << 24) | (g << 16) | (b << 8) | a) >>> 0;
 
     let weight = 1.0;
     if (useWeighting) {
-      const x = pix % width;
-      const y = Math.floor(pix / width);
       const dx = x - (width / 2);
       const dy = y - (height / 2);
       // normalized distance relative to full width/height to be resolution-independent
@@ -574,7 +600,7 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
     }
 
     counts.set(packed, (counts.get(packed) || 0) + weight);
-  }
+  });
 
   // Get the top K (potentially fewer than K) page table requests by weighted count.
   const sorted = Array.from(counts.entries()).toSorted((a, b) => b[1] - a[1]);
@@ -1540,7 +1566,13 @@ export class VolumeDataManager {
   }
 
 
-  async processUsageData(buffer) {
+  /**
+   * @param {Uint8Array} buffer The usage buffer, RGBA per pixel.
+   * @param {object} size
+   * @param {number} size.width The width of the render target.
+   * Without it, every pixel is scanned.
+   */
+  async processUsageData(buffer, { width } = {}) {
     if (this.isBusy) {
       log.debug('processUsageData: already busy, skipping');
       this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
@@ -1560,16 +1592,13 @@ export class VolumeDataManager {
     const usedBricks = new Set();
 
     // Process buffer to identify used bricks
-    for (let i = 0; i < buffer.length; i += 4) {
+    _forEachSampledPixel(buffer, width, (i) => {
       const x = buffer[i];
       const y = buffer[i + 1];
       const z = buffer[i + 2];
 
       // Skip empty entries
-      if ((x | y | z) === 0) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
+      if ((x | y | z) === 0) return;
 
       // Calculate brick index
       const bcIndex = z * BRICK_CACHE_SIZE_X * BRICK_CACHE_SIZE_Y + y * BRICK_CACHE_SIZE_X + x;
@@ -1578,7 +1607,7 @@ export class VolumeDataManager {
       if (bcIndex < this.BCTimeStamps.length) {
         usedBricks.add(bcIndex);
       }
-    }
+    });
     // Update timestamps for all used bricks at once
     Array.from(usedBricks).forEach((bcIndex) => {
       this.BCTimeStamps[bcIndex] = now;
@@ -1896,9 +1925,13 @@ export class VolumeDataManager {
     gl.bindTexture(gl.TEXTURE_3D, null);
     // log.debug('uploaded brick');
 
-    const error = gl.getError();
-    if (error !== gl.NO_ERROR) {
-      log.error('WebGL error during brick upload:', error, chunk);
+    // getError waits for the GPU to catch up, so only check while debugging.
+    const isCheckingErrors = atLeastLogLevel(LogLevel.DEBUG);
+    if (isCheckingErrors) {
+      const error = gl.getError();
+      if (error !== gl.NO_ERROR) {
+        log.error('WebGL error during brick upload:', error, chunk);
+      }
     }
 
     /* 4.4 PT entry upload */
@@ -1932,9 +1965,11 @@ export class VolumeDataManager {
     // log.debug('z', z);
     // log.debug('ptCoord', ptCoord);
 
-    const error2 = gl.getError();
-    if (error2 !== gl.NO_ERROR) {
-      log.error('WebGL error during pagetable upload:', error2, chunk);
+    if (isCheckingErrors) {
+      const error2 = gl.getError();
+      if (error2 !== gl.NO_ERROR) {
+        log.error('WebGL error during pagetable upload:', error2, chunk);
+      }
     }
 
     /* 4.5 bookkeeping */

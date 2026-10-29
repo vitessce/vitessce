@@ -9,6 +9,8 @@ import {
   _packPT,
   _ptToZarr,
   _requestBufferToRequestObjects,
+  _pixelStride,
+  _forEachSampledPixel,
   _groupBySourceChunk,
   _getVoxelSpacing,
   _getDataRange,
@@ -450,6 +452,29 @@ describe('spatial-accelerated data utils', () => {
       expect(result).toEqual([
         { x: 2, y: 1, z: 13 },
       ]);
+    });
+  });
+
+  describe('_forEachSampledPixel', () => {
+    it('visits every pixel of a small buffer', () => {
+      expect(_pixelStride(1024, 512)).toEqual(1);
+      const visited = [];
+      _forEachSampledPixel(new Uint8Array(3 * 2 * 4), 3, (i, x, y) => visited.push([i, x, y]));
+      expect(visited).toEqual([
+        [0, 0, 0], [4, 1, 0], [8, 2, 0],
+        [12, 0, 1], [16, 1, 1], [20, 2, 1],
+      ]);
+    });
+    it('samples a grid of a large buffer', () => {
+      const [width, height] = [3840, 2160];
+      expect(_pixelStride(width, height)).toEqual(4);
+      let count = 0;
+      _forEachSampledPixel(new Uint8Array(width * height * 4), width, (i, x, y) => {
+        expect(i).toEqual((y * width + x) * 4);
+        expect([x % 4, y % 4]).toEqual([0, 0]);
+        count += 1;
+      });
+      expect(count).toEqual((width / 4) * (height / 4));
     });
   });
 

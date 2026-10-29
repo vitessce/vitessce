@@ -10,6 +10,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+import { isEqual } from 'lodash-es';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -65,6 +66,12 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
     // eslint-disable-next-line no-param-reassign
     dataManager.noNewRequests = false;
   }
+  // Only read the buffers back when the data manager can take new requests.
+  // Reading stalls the GPU, and while a batch is loading the result would be dropped.
+  // Each batch sets triggerUsage when it completes, so the reads resume on the next frame.
+  if (dataManager.isBusy) {
+    return;
+  }
   if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
     // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
     ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
@@ -93,7 +100,9 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
     // Timestamps are used to determine which bricks are most/least recently used for cache eviction.
     // If the brick cache is full, it will create an LRU cache.
     // Finally, it will set triggerRequest to true.
-    dataManager.processUsageData(bufUsage.current);
+    dataManager.processUsageData(bufUsage.current, {
+      width: mrtRef?.current?.width,
+    });
   }
 }
 
@@ -131,6 +140,11 @@ function handleAdaptiveQuality(clock, params) {
     if (!dataManager.manuallyStopped) {
       dataManager.noNewRequests = false;
       dataManager.triggerUsage = true;
+      // A batch in flight was requested for the previous view: stop it early,
+      // so that the buffers are read again for the current one.
+      if (dataManager.isBusy) {
+        dataManager.needsBailout = true;
+      }
     }
     return;
   }
@@ -191,6 +205,9 @@ function handleAdaptiveQuality(clock, params) {
 
 // END Functions called with useFrame
 
+// How long after the last interaction the view stays in interactive (fast) mode
+// before stepping up to high quality.
+const INTERACTION_SETTLE_MS = 600;
 
 export function VolumeView(props) {
   const {
@@ -238,11 +255,11 @@ export function VolumeView(props) {
   const screenCameraRef = useRef(null);
   const screenQuadRef = useRef(null);
 
-  // The `_setIsInteracting` function is wrapped by the `setIsInteracting` useEventCallback below
-  // This allows us to apply the effects related to interaction state synchronously,
-  // rather than relying waiting for a React state update with `useEffect`.
-  // Updates to `isInteracting` should be done via `setIsInteracting`.
-  const [isInteracting, _setIsInteracting] = useState(false);
+  // Whether the user is interacting (orbiting, or editing channels or layer settings).
+  // A ref rather than React state, so that the very next frame sees the change:
+  // with state, useFrame ran with a stale `false` and switched back to best quality.
+  // Updates should be done via `startInteraction` and `endInteraction`.
+  const isInteractingRef = useRef(false);
   const interactionTimeoutRef = useRef(null);
 
 
@@ -461,6 +478,34 @@ export function VolumeView(props) {
   }, [dataManager, renderManager, lastRes, lastChannels]);
   */
 
+  /**
+   * Switch to interactive (fast) rendering immediately.
+   * Cancels a pending end, so a new interaction is never cut short by an earlier one.
+   */
+  const startInteraction = useEventCallback(() => {
+    logWithColor('startInteraction callback');
+    clearTimeout(interactionTimeoutRef.current);
+    isInteractingRef.current = true;
+    const meshRefUniforms = meshRef.current?.material?.uniforms;
+    if (meshRefUniforms) {
+      meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
+    }
+    stillRef.current = false;
+    invalidate();
+  });
+
+  /**
+   * Leave interactive rendering once no new interaction starts within INTERACTION_SETTLE_MS.
+   */
+  const endInteraction = useEventCallback(() => {
+    clearTimeout(interactionTimeoutRef.current);
+    interactionTimeoutRef.current = setTimeout(() => {
+      isInteractingRef.current = false;
+    }, INTERACTION_SETTLE_MS);
+  });
+
+  useEffect(() => () => clearTimeout(interactionTimeoutRef.current), []);
+
   // TODO(mark): convert to a useMemo?
   useEffect(() => {
     const on3D = spatialRenderingMode === '3D';
@@ -476,6 +521,7 @@ export function VolumeView(props) {
         imageChannelCoordination,
         spatialRenderingMode,
       };
+      const previousImageSettings = renderManager.getImageSettings();
       if (renderManager.updateFromProps(propsForRenderManager)) {
         const { zarrInit } = renderManager;
         if (!zarrInit) {
@@ -508,9 +554,17 @@ export function VolumeView(props) {
         if (nextRenderState) {
           setRenderState(nextRenderState);
         }
+        // Layer edits (e.g., clipping planes) count as interaction, so the view redraws
+        // in fast mode and requests the bricks it now needs. Only actual edits:
+        // this effect also runs whenever the parent re-renders, since the coordination
+        // props are new arrays each time (e.g., every second for the loading progress).
+        if (!isEqual(previousImageSettings, renderManager.getImageSettings())) {
+          startInteraction();
+          endInteraction();
+        }
       }
     }
-  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode, dmInitComplete]);
+  }, [dataManager, renderManager, images, imageLayerScopes, imageLayerCoordination, imageChannelScopesByLayer, imageChannelCoordination, spatialRenderingMode, dmInitComplete, startInteraction, endInteraction]);
 
 
   // Execute code on every rendered frame.
@@ -542,10 +596,12 @@ export function VolumeView(props) {
     } = state;
 
     // Pixels per voxel change with the view size and field of view.
+    // Measured in screen (CSS) pixels: on high-DPI displays, device pixels
+    // would ask for a level finer than the eye can tell apart.
     const uniforms = meshRef.current?.material?.uniforms;
     if (uniforms?.lodFactor && dataManager.zarrStore?.shapes?.length) {
       uniforms.lodFactor.value = getScreenLodFactor(
-        renderManager.lodFactor, frameCamera.fov, mrtRef.current.height,
+        renderManager.lodFactor, frameCamera.fov, mrtRef.current.height / frameGl.getPixelRatio(),
         dataManager.zarrStore.shapes[0],
       );
     }
@@ -558,7 +614,7 @@ export function VolumeView(props) {
     handleRequests(frameGl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage });
     handleAdaptiveQuality(clock, {
       invalidate,
-      isInteracting,
+      isInteracting: isInteractingRef.current,
       dataManager,
       spatialRenderingModeChanging,
       meshRef,
@@ -632,53 +688,27 @@ export function VolumeView(props) {
   */
 
 
-  /**
-   * Handle interaction state changes in event callbacks.
-   * This avoids the need for a useEffect hook which
-   * would run on every render frame.
-   */
-  const setIsInteracting = useEventCallback((interacting) => {
-    logWithColor('invalidateOnInteraction callback');
-    _setIsInteracting(interacting);
-    if (interacting) {
-      const meshRefUniforms = meshRef.current?.material?.uniforms;
-      if (meshRefUniforms) {
-        meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
-      }
-      // setRenderSpeed(dataManager.PT.lowestDataRes);
-      stillRef.current = false;
-      invalidate();
-    }
-  });
-
   const onOrbitControlsStart = useEventCallback((e) => {
-    setIsInteracting(true);
+    startInteraction();
   });
-
 
   const onOrbitControlsEnd = useEventCallback((e) => {
-    clearTimeout(interactionTimeoutRef.current);
-    interactionTimeoutRef.current = setTimeout(() => {
-      setIsInteracting(false);
-    }, 300);
+    endInteraction();
   });
 
-  // Set isInteracting while the user is sliding the channel slider
+  // Interact while the user is sliding the channel slider
   // for smooth updates.
   useEffect(() => {
     if (!dmInitComplete) return;
     logWithColor('useEffect firstImageLayerChannelCoordination');
-    setIsInteracting(true);
+    startInteraction();
     log.debug('something about channels changed');
 
     dataManager.updateChannels(firstImageLayerChannelCoordination);
     renderManager.setChannelMapping(dataManager.channels.colorMappings);
 
-    clearTimeout(interactionTimeoutRef.current);
-    interactionTimeoutRef.current = setTimeout(() => {
-      setIsInteracting(false);
-    }, 300);
-  }, [dataManager, firstImageLayerChannelCoordination, renderManager, setIsInteracting, dmInitComplete]);
+    endInteraction();
+  }, [dataManager, firstImageLayerChannelCoordination, renderManager, startInteraction, endInteraction, dmInitComplete]);
 
   const stopLoading = useEventCallback(() => {
     if (dataManager) {

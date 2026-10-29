@@ -32,7 +32,7 @@ function normalizeValue(value, minMax) {
  * box is one unit wide in x.
  * @param {number} lodFactor The spatialLodFactor coordination value.
  * @param {number} fov The camera's vertical field of view, in degrees.
- * @param {number} heightPx Height of the rendered image, in pixels.
+ * @param {number} heightPx Height of the rendered image, in screen (CSS) pixels.
  * @param {number[]} shape Level-0 shape, TCZYX.
  * @returns {number}
  */
@@ -312,6 +312,26 @@ export class VolumeRenderManager {
 
     logWithColor('Updating from props - success');
     return true;
+  }
+
+  /**
+   * The settings from props that change the rendered image. updateFromProps
+   * replaces rather than mutates them, so a snapshot can be compared later.
+   * @returns {object}
+   */
+  getImageSettings() {
+    return {
+      channelsVisible: this.channelsVisible,
+      channelTargetC: this.channelTargetC,
+      channelMaxResolutionIndex: this.channelMaxResolutionIndex,
+      colors: this.colors,
+      contrastLimits: this.contrastLimits,
+      layerTransparency: this.layerTransparency,
+      xSlice: this.xSlice,
+      ySlice: this.ySlice,
+      zSlice: this.zSlice,
+      lodFactor: this.lodFactor,
+    };
   }
 
   /**
