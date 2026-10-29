@@ -576,6 +576,22 @@ describe('spatial-accelerated data utils', () => {
       expect(manager.overviewBricks.get(0)).toContain(7);
     });
 
+    it('reports the bricks of a batch per level while it loads', async () => {
+      const { manager, PT } = createManager();
+      withBrickSource(manager);
+      manager.initStatus = 'complete';
+      const requests = [
+        _zarrToPt(0, 0, 0, 0, 0, PT), _zarrToPt(0, 0, 0, 0, 1, PT), _zarrToPt(1, 1, 0, 0, 0, PT),
+      ];
+      const handled = manager.handleBrickRequests(requests);
+      const queued = manager.getQueueStatus().queuedByLevel;
+      expect(queued[0]).toBe(2);
+      expect(queued[1]).toBe(1);
+      await handled;
+      const { queuedByLevel } = manager.getQueueStatus();
+      expect(queuedByLevel.every(count => count === 0)).toBe(true);
+    });
+
     it('takes no cache slots for bricks a bail-out never fetched', async () => {
       const { manager, PT } = createManager();
       const { reads } = withBrickSource(manager);

@@ -220,6 +220,7 @@ export function VolumeView(props) {
     spatialRenderingMode,
     spatialRenderingModeChanging,
     onVolumeLoadingUpdate,
+    onDataManagerReady,
     volumeZReduction = 'auto',
   } = props;
   const {
@@ -745,6 +746,13 @@ export function VolumeView(props) {
       onRestartLoading: restartLoading,
     });
   });
+
+  // The info panel, outside the Canvas, reads the dataset description and queue.
+  useEffect(() => {
+    if (dmInitComplete && onDataManagerReady) {
+      onDataManagerReady(dataManager);
+    }
+  }, [dmInitComplete, dataManager, onDataManagerReady]);
 
   // Notify parent component about loading updates
   useEffect(() => {

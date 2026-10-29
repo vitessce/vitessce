@@ -25,6 +25,7 @@ import {
   createTiffRegionReader,
   getTiffSampleRange,
 } from './volume-tiff.js';
+import { getVolumeInfo } from './volume-info.js';
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -820,6 +821,12 @@ export class VolumeDataManager {
     // Track loading progress
     this.currentRequestCount = 0; // Number of requests currently being processed
     this.totalBricksRequested = 0; // Total number of bricks requested in current batch
+    // Page table coordinates of the current batch: not started, and being fetched.
+    this.brickQueue = [];
+    this.bricksInFlight = new Set();
+
+    // Dataset description for the info panel, set by init.
+    this.volumeInfo = null;
 
     logWithColor('VolumeDataManager constructor complete');
   }
@@ -843,6 +850,21 @@ export class VolumeDataManager {
       percentage,
       noNewRequests: this.noNewRequests,
     };
+  }
+
+  /**
+   * Bricks of the current batch, waiting or being fetched, per render level.
+   * For the volume info panel.
+   * @returns {{ queuedByLevel: number[] }|null}
+   */
+  getQueueStatus() {
+    if (this.initStatus !== INIT_STATUS.COMPLETE) return null;
+    const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
+    const queuedByLevel = new Array(this.zarrStore.resolutions).fill(0);
+    [...this.brickQueue, ...this.bricksInFlight].forEach(({ x, y, z }) => {
+      queuedByLevel[_ptToZarr(x, y, z, ptInfo).resolution] += 1;
+    });
+    return { queuedByLevel };
   }
 
   /**
@@ -1048,6 +1070,8 @@ export class VolumeDataManager {
       if (sourceArrays.length > 0) {
         const sourceAxisSize = axis => (labels.includes(axis)
           ? sourceArrays[0].shape[labels.indexOf(axis)] : 1);
+        // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
+        const sourceSpacing = _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata);
 
         // Render levels are logical: a source array plus a Z reduction factor.
         // Bricks are 32^3 regions read independently of the source chunk shape.
@@ -1059,8 +1083,7 @@ export class VolumeDataManager {
           arrays: sourceArrays,
           labels,
           datasets,
-          // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
-          spacing: _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata),
+          spacing: sourceSpacing,
           mode: loadingOptions.zReduction,
           maxLevels: MAX_RESOLUTION_LEVELS,
           channelCount: Math.min(sourceAxisSize('c'), MAX_CHANNELS),
@@ -1069,6 +1092,17 @@ export class VolumeDataManager {
         if (firstSource > 0) {
           log.warn(`Volume too large for the page table: rendering from source level ${firstSource}, skipping the ${firstSource} finest`);
         }
+        this.volumeInfo = getVolumeInfo({
+          sourceArrays,
+          labels,
+          levels,
+          firstSource,
+          spacing: sourceSpacing,
+          // NGFF axes, or the OME-XML of an OME-TIFF.
+          spacingUnit: this.ngffMetadata?.multiscales?.[0]?.axes
+            ?.find(axis => axis.name?.toLowerCase() === 'x')?.unit
+            ?? this.ngffMetadata?.Pixels?.PhysicalSizeXUnit,
+        });
         const array0 = arrays[0];
         log.debug('volume levels [source, zFactor, zMode, shape ZYX]', levels.map(
           level => [level.source, level.zFactor, level.zMode, level.shape],
@@ -2074,6 +2108,7 @@ export class VolumeDataManager {
     // Track loading progress
     this.totalBricksRequested = pending.length;
     this.currentRequestCount = pending.length;
+    this.brickQueue = pending;
 
     log.debug('Handling brick requests:', { requestCount: pending.length });
 
@@ -2089,6 +2124,7 @@ export class VolumeDataManager {
           ptCoord => this._areChunksCached(chunkKeys.get(ptCoord)),
         );
         const [ptCoord] = pending.splice(Math.max(0, cachedIndex), 1);
+        this.bricksInFlight.add(ptCoord);
         let brick;
         try {
           // eslint-disable-next-line no-await-in-loop
@@ -2096,6 +2132,7 @@ export class VolumeDataManager {
         } catch (error) {
           log.error('Failed to fetch brick', ptCoord, error);
         }
+        this.bricksInFlight.delete(ptCoord);
         if (brick) {
           const [slot] = this._allocateBCSlots(1);
           if (slot && this._writeBrick(ptCoord, slot, brick)) {
@@ -2127,6 +2164,8 @@ export class VolumeDataManager {
 
     // Reset progress when complete
     this.currentRequestCount = 0;
+    // After a bail-out, the bricks never started are no longer queued.
+    this.brickQueue = [];
 
     // log.debug('this.bricksAllocated', this.bricksAllocated);
     log.debug('this.bricksEverLoaded', this.bricksEverLoaded);
