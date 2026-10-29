@@ -212,8 +212,8 @@ catalogs:
       specifier: 0.7.5
       version: 0.7.5
     zod:
-      specifier: ^3.21.4
-      version: 3.22.4
+      specifier: ^4.6.6
+      version: 4.6.7
     zustand:
       specifier: ^5.0.4
       version: 5.0.5
@@ -720,7 +720,7 @@ importers:
         version: 0.7.5
       zod:
         specifier: 'catalog:'
-        version: 3.22.4
+        version: 4.6.7
 
   packages/file-types/ome-tiff:
     dependencies:
@@ -1051,7 +1051,7 @@ importers:
         version: link:../schemas
       zod-to-json-schema:
         specifier: ^3.20.4
-        version: 3.21.1(zod@3.22.4)
+        version: 3.21.1(zod@4.6.7)
     devDependencies:
       '@vitessce/all':
         specifier: workspace:*
@@ -1303,7 +1303,7 @@ importers:
         version: 0.165.0
       zod:
         specifier: 'catalog:'
-        version: 3.22.4
+        version: 4.6.7
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1518,7 +1518,7 @@ importers:
     dependencies:
       zod:
         specifier: 'catalog:'
-        version: 3.22.4
+        version: 4.6.7
     devDependencies:
       '@types/react':
         specifier: 'catalog:'
@@ -1567,7 +1567,7 @@ importers:
         version: 9.0.1
       zod:
         specifier: 'catalog:'
-        version: 3.22.4
+        version: 4.6.7
     devDependencies:
       json-schema-to-zod:
         specifier: ^0.6.3
@@ -1580,7 +1580,7 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
       zod-to-json-schema:
         specifier: ^3.20.4
-        version: 3.21.1(zod@3.22.4)
+        version: 3.21.1(zod@4.6.7)
 
   packages/styles:
     dependencies:
@@ -16315,6 +16315,9 @@ packages:
   zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
 
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
   zstddec@0.1.0:
     resolution: {integrity: sha512-w2NTI8+3l3eeltKAdK8QpiLo/flRAr2p8AGeakfMZOXBxOg9HIu4LVDxBi81sYgVhFhdJjv1OrB5ssI8uFPoLg==}
 
@@ -19507,7 +19510,7 @@ snapshots:
 
   '@manypkg/find-root@1.1.0':
     dependencies:
-      '@babel/runtime': 7.27.4
+      '@babel/runtime': 7.29.7
       '@types/node': 12.20.55
       find-up: 4.1.0
       fs-extra: 8.1.0
@@ -33470,11 +33473,13 @@ snapshots:
       '@zarrita/storage': 0.2.0
       numcodecs: 0.3.2
 
-  zod-to-json-schema@3.21.1(zod@3.22.4):
+  zod-to-json-schema@3.21.1(zod@4.6.7):
     dependencies:
-      zod: 3.22.4
+      zod: 4.6.7
 
   zod@3.22.4: {}
+
+  zod@4.6.7: {}
 
   zstddec@0.1.0: {}
 
