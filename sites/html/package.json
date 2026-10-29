@@ -1,7 +1,7 @@
 {
   "name": "html",
   "private": true,
-  "version": "3.3.101",
+  "version": "3.3.102",
   "scripts": {
     "start-html": "http-server --cors='*' --port 3003 ../../",
     "cypress:open": "cypress open",

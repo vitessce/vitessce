@@ -1,4 +1,13 @@
 
+## 4.1.3
+
+### Patch Changes
+
+- Publish `config-<latestVersion>.base-plugins.schema.json`, a JSON schema built with the base plugins that also validates file definition options, view component names, and coordination values. (`@vitessce/json-schema`) ([#2683](https://github.com/vitessce/vitessce/pull/2683))
+
+- Move `react` from `dependencies` to `peerDependencies` in `@vitessce/neuroglancer` so that consumers are not forced to install an exact React version. (`@vitessce/neuroglancer`) ([#2680](https://github.com/vitessce/vitessce/pull/2680))
+
+
 ## 4.1.2
 
 ### Patch Changes
