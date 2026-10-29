@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import {
-  Vector2,
   UniformsUtils,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -45,6 +44,45 @@ export function getScreenLodFactor(lodFactor, fov, heightPx, shape) {
 }
 
 /**
+ * The range of the layer controller's clipping sliders per axis, XYZ, as
+ * ImageWrapper.getBoundingCube computes it: 0 to the level-0 extent, in
+ * physical units when the image has physical sizes. Also accepts uppercase
+ * axis names.
+ * @param {number[]} shape Level-0 shape of the loader.
+ * @param {string[]} labels Axis names of the loader.
+ * @param {number[]} modelMatrix The image's model matrix (column-major 4x4).
+ * @returns {number[][]} [[0, xMax], [0, yMax], [0, zMax]]
+ */
+export function getClippingBounds(shape, labels, modelMatrix) {
+  const axisSize = (axis) => {
+    const index = labels.indexOf(axis);
+    return shape[index === -1 ? labels.indexOf(axis.toUpperCase()) : index];
+  };
+  return [
+    [0, modelMatrix[0] * axisSize('x')],
+    [0, modelMatrix[5] * axisSize('y')],
+    [0, modelMatrix[10] * axisSize('z')],
+  ];
+}
+
+/**
+ * Map a clipping slider range to the shader's box coordinates (0 to boxSize),
+ * as a fraction of the slider's range. This holds whatever the slider units
+ * are, and whichever levels the volume renders from.
+ * @param {number[]|null} slice The slider range, or null when not set.
+ * @param {number[]} bounds The slider's [min, max].
+ * @param {number} boxSize The box extent along this axis.
+ * @returns {number[]} [min, max] in box coordinates, or the shader's inactive
+ * value (-1, 100000) without a slice or valid bounds.
+ */
+export function sliceToClip(slice, bounds, boxSize) {
+  const [min, max] = bounds;
+  if (!Array.isArray(slice) || !(max > min)) return [-1, 100000];
+  const toBox = value => ((value - min) / (max - min)) * boxSize;
+  return [toBox(slice[0]), toBox(slice[1])];
+}
+
+/**
  * Manages the volume rendering state, shader setup, and uniform management
  * Serves as a replacement for many functions from three-utils.js
  */
@@ -67,9 +105,10 @@ export class VolumeRenderManager {
     this.colors = [];
     this.contrastLimits = [];
     this.layerTransparency = 1.0;
-    this.xSlice = new Vector2(-1, 100000);
-    this.ySlice = new Vector2(-1, 100000);
-    this.zSlice = new Vector2(-1, 100000);
+    this.xSlice = null;
+    this.ySlice = null;
+    this.zSlice = null;
+    this.clippingBounds = [[0, 1], [0, 1], [0, 1]]; // range of the clipping sliders, XYZ
     this.originalScale = [1, 1, 1];
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
@@ -206,15 +245,16 @@ export class VolumeRenderManager {
     ));
 
 
-    // Get slice planes
-    let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X];
-    let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
-    let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
+    // Get slice planes (null when not set)
+    const xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X] ?? null;
+    const ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y] ?? null;
+    const zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z] ?? null;
     const lodFactor = layerCoordination[CoordinationType.SPATIAL_LOD_FACTOR] ?? 1.0;
 
-    xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
-    ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
-    zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
+    const source = Array.isArray(data) ? data[0] : data;
+    const clippingBounds = getClippingBounds(
+      source.shape, source.labels, imageWrapperInstance.getModelMatrix(),
+    );
 
     const allChannels = images[layerScope].image.loaders[0].channels;
 
@@ -234,6 +274,7 @@ export class VolumeRenderManager {
       xSlice,
       ySlice,
       zSlice,
+      clippingBounds,
       lodFactor,
     };
   }
@@ -262,6 +303,7 @@ export class VolumeRenderManager {
     this.xSlice = settings.xSlice;
     this.ySlice = settings.ySlice;
     this.zSlice = settings.zSlice;
+    this.clippingBounds = settings.clippingBounds;
     // Converted to the shader's factor every frame (getScreenLodFactor), since
     // that depends on the view size.
     this.lodFactor = settings.lodFactor;
@@ -419,9 +461,9 @@ export class VolumeRenderManager {
    * @param {Array} contrastLimits - List of contrast limits for each channel
    * @param {Array} colors - List of colors for each channel
    * @param {number} layerTransparency - Overall transparency value
-   * @param {Vector2} xSlice - X clipping plane
-   * @param {Vector2} ySlice - Y clipping plane
-   * @param {Vector2} zSlice - Z clipping plane
+   * @param {number[]|null} xSlice - X clipping slider range
+   * @param {number[]|null} ySlice - Y clipping slider range
+   * @param {number[]|null} zSlice - Z clipping slider range
    */
   updateUniforms(
     textures, dimensions, renderstyle, contrastLimits, colors, layerTransparency,
@@ -481,19 +523,11 @@ export class VolumeRenderManager {
       contrastLimits.length > 6 ? contrastLimits[6][1] : null,
     );
 
-    // Set clipping planes
-    this.uniforms.xClip.value.set(
-      xSlice[0] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
-      xSlice[1] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
-    );
-    this.uniforms.yClip.value.set(
-      ySlice[0] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
-      ySlice[1] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
-    );
-    this.uniforms.zClip.value.set(
-      zSlice[0] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
-      zSlice[1] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
-    );
+    // Set clipping planes. The slider values are in the units of the slider
+    // range (physical when the image has physical sizes), not voxels.
+    this.uniforms.xClip.value.set(...sliceToClip(xSlice, this.clippingBounds[0], this.boxSize[0]));
+    this.uniforms.yClip.value.set(...sliceToClip(ySlice, this.clippingBounds[1], this.boxSize[1]));
+    this.uniforms.zClip.value.set(...sliceToClip(zSlice, this.clippingBounds[2], this.boxSize[2]));
 
     // Set colors (up to 7 channels)
     this.uniforms.color0.value.set(

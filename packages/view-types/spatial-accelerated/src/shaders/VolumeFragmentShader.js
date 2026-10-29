@@ -1354,6 +1354,10 @@ void main(void) {
         vec3 sliceColor = vec3(0.0);
         float sliceAlpha = 0.0;
 
+        // MIP/MinIP: whether every visible channel is already at the top (MIP)
+        // or bottom (MinIP) of its contrast window, so no sample can change the result.
+        bool isProjectionSettled = true;
+
         // ========================================
         // MULTI-CHANNEL SAMPLING
         // ========================================
@@ -1368,6 +1372,8 @@ void main(void) {
             } else if (channelMapping[c] == -1) {
                 continue;
             }
+            isProjectionSettled = isProjectionSettled
+                && (u_renderstyle == 0 ? c_maxVal[c] >= 1.0 : c_minVal[c] == 0.0);
 
             // physical slot in pagetable
             int slot = channelMapping[c];
@@ -1784,7 +1790,13 @@ void main(void) {
         // Clamp total intensity and calculate alpha.
         // add the calculated slice to the total color
         total = clamp(total, 0.0, 1.0);
-        sliceAlpha = total * opacity * dt * 32.0;  // Scale by step size and brick size
+        // The layer opacity sets the opacity of one fully bright level-0 voxel to
+        // N^(opacity - 1), N the largest extent: 1 = a single voxel is opaque,
+        // 0 = a bright line across the whole volume is ~63% opaque. Corrected for the
+        // voxels this step crosses, so it does not depend on step or volume size.
+        float voxelAlpha = total * pow(voxelEdge, opacity - 1.0);
+        float voxelsCrossed = length(dp * vec3(voxelExtents));
+        sliceAlpha = 1.0 - pow(1.0 - voxelAlpha, voxelsCrossed);
         sliceColor = rgbCombo;
 
         // Front-to-back alpha blending
@@ -1794,7 +1806,8 @@ void main(void) {
 
         // Early termination for opaque regions (standard rendering only).
         // check if we can exit early
-        if (outColor.a > 0.99 && u_renderstyle == 0) { break; }
+        if (outColor.a > 0.99 && u_renderstyle == 2) { break; }
+        if (isProjectionSettled && (u_renderstyle == 0 || u_renderstyle == 1)) { break; }
 
         // ========================================
         // ADVANCE RAY POSITION
