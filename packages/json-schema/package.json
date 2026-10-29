@@ -12,10 +12,15 @@
     "dist"
   ],
   "scripts": {
-    "build-json-schema": "node scripts/convert-schemas.mjs"
+    "build-json-schema": "vite-node scripts/convert-schemas.mjs"
   },
   "dependencies": {
     "@vitessce/schemas": "workspace:*",
     "zod-to-json-schema": "^3.20.4"
+  },
+  "devDependencies": {
+    "@vitessce/all": "workspace:*",
+    "jsdom": "^26.1.0",
+    "vite-node": "catalog:"
   }
 }

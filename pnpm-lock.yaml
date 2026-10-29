@@ -202,6 +202,9 @@ catalogs:
     vite:
       specifier: ^7.0.0
       version: 7.1.4
+    vite-node:
+      specifier: ^3.1.4
+      version: 3.2.4
     vitest:
       specifier: ^3.1.4
       version: 3.2.4
@@ -1049,6 +1052,16 @@ importers:
       zod-to-json-schema:
         specifier: ^3.20.4
         version: 3.21.1(zod@3.22.4)
+    devDependencies:
+      '@vitessce/all':
+        specifier: workspace:*
+        version: link:../main/all
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+      vite-node:
+        specifier: 'catalog:'
+        version: 3.2.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
 
   packages/launcher:
     dependencies:
