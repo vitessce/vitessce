@@ -710,18 +710,6 @@ export function VolumeView(props) {
     endInteraction();
   }, [dataManager, firstImageLayerChannelCoordination, renderManager, startInteraction, endInteraction, dmInitComplete]);
 
-  const stopLoading = useEventCallback(() => {
-    if (dataManager) {
-      dataManager.stopLoading();
-    }
-  });
-
-  const restartLoading = useEventCallback(() => {
-    if (dataManager) {
-      dataManager.restartLoading();
-    }
-  });
-
   const getLoadingProgress = useEventCallback(() => {
     if (dataManager) {
       return dataManager.getLoadingProgress();
@@ -729,19 +717,40 @@ export function VolumeView(props) {
     return null;
   });
 
+  // stopLoading and restartLoading notify right away, so the buttons
+  // update on click rather than at the next poll. notifyLoadingUpdate passes
+  // them to the parent in turn, so one of the two must refer ahead.
+  const stopLoading = useEventCallback(() => {
+    if (dataManager) {
+      dataManager.stopLoading();
+      // eslint-disable-next-line no-use-before-define
+      notifyLoadingUpdate();
+    }
+  });
+
+  const restartLoading = useEventCallback(() => {
+    if (dataManager) {
+      dataManager.restartLoading();
+      // eslint-disable-next-line no-use-before-define
+      notifyLoadingUpdate();
+    }
+  });
+
+  const notifyLoadingUpdate = useEventCallback(() => {
+    if (!onVolumeLoadingUpdate) return;
+    onVolumeLoadingUpdate({
+      loadingProgress: getLoadingProgress(),
+      stillRef,
+      onStopLoading: stopLoading,
+      onRestartLoading: restartLoading,
+    });
+  });
+
   // Notify parent component about loading updates
   useEffect(() => {
     if (!onVolumeLoadingUpdate) return undefined;
 
-    const intervalId = setInterval(() => {
-      const loadingProgress = getLoadingProgress();
-      onVolumeLoadingUpdate({
-        loadingProgress,
-        stillRef,
-        onStopLoading: stopLoading,
-        onRestartLoading: restartLoading,
-      });
-    }, 1000); // Update every 1000ms (1s)
+    const intervalId = setInterval(notifyLoadingUpdate, 1000); // Update every 1000ms (1s)
 
     return () => clearInterval(intervalId);
     // `useEventCallback` ensures stable references

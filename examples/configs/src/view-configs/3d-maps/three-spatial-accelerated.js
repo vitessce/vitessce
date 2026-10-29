@@ -5,6 +5,13 @@ import {
 
 const idr0077Angles = [0, 1, 2, 3, 4, 5, 6, 7];
 
+// HuBMAP light sheet Sample 16 (HBM344.BLMJ.348, HBM355.NKSK.532). The offsets
+// JSON files live under output_offsets/, not next to the OME-TIFF.
+const hubmapSample16Urls = {
+  '20x': 'https://assets.hubmapconsortium.org/ac8632366eedd22825b2aa1ee5bef151',
+  '5x': 'https://assets.hubmapconsortium.org/eac81d216e598fdfb0c7566b30e14796',
+};
+
 // Zebrahub light sheet time series (TCZYX, uint16); the view shows t = 0.
 const zebrahubUrls = {
   'zebrahub-zmns001': 'https://public.czbiohub.org/royerlab/zebrahub/imaging/multi-view/ZMNS001.ome.zarr',
@@ -70,6 +77,10 @@ const idToUrl = {
   'kiemen-he-tiff': 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE.ome.tiff',
   // HuBMAP lymph node 3D IMC, HBM475.RQSB.723.
   'hubmap-lymph-node-imc-tiff': 'https://assets.hubmapconsortium.org/21221d689913ae19e0cc92f532738c44/ometiff-pyramids/data/3D_image_stack.ome.tif',
+  // 3702 x 3675 x 2207, 4 channels, uint16.
+  'hubmap-sample16-20x-tiff': `${hubmapSample16Urls['20x']}/ometiff-pyramids/lab_processed/images/Sample_16_20x_7-Stitched.ome.tif`,
+  // 3645 x 12150 x 961, 4 channels, uint16 (221 GB).
+  'hubmap-sample16-5x-tiff': `${hubmapSample16Urls['5x']}/ometiff-pyramids/lab_processed/images/Sample16_5x_stitched.ome.tif`,
 };
 
 const idToFileType = {
@@ -82,6 +93,8 @@ const idToFileType = {
   'hubmap-spleen-tiff': 'image.ome-tiff',
   'hubmap-lymph-node-imc-tiff': 'image.ome-tiff',
   'kiemen-he-tiff': 'image.ome-tiff',
+  'hubmap-sample16-20x-tiff': 'image.ome-tiff',
+  'hubmap-sample16-5x-tiff': 'image.ome-tiff',
 };
 
 const idToOptions = {
@@ -100,6 +113,8 @@ const idToOptions = {
   'brain-tiff': { offsetsUrl: 'https://viv-demo.storage.googleapis.com/brain.pyramid.offsets.json' },
   'washu-kidney-tiff': { offsetsUrl: 'https://data-2.vitessce.io/data/washu-kidney/LS_20x_5_Stitched.pyramid.offsets.json' },
   'kiemen-he-tiff': { offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE.offsets.json' },
+  'hubmap-sample16-20x-tiff': { offsetsUrl: `${hubmapSample16Urls['20x']}/output_offsets/lab_processed/images/Sample_16_20x_7-Stitched.offsets.json` },
+  'hubmap-sample16-5x-tiff': { offsetsUrl: `${hubmapSample16Urls['5x']}/output_offsets/lab_processed/images/Sample16_5x_stitched.offsets.json` },
 };
 
 // volumeZReduction: 'auto' | 'none' | 'sample' | 'mean' | 'max'
@@ -194,6 +209,8 @@ export const saHubmapSpleenTiff = generateSpatialAcceleratedConfiguration('hubma
 export const saIdr0062A6001257 = generateSpatialAcceleratedConfiguration('idr0062A-6001257');
 export const saHubmapLymphNodeImcTiff = generateSpatialAcceleratedConfiguration('hubmap-lymph-node-imc-tiff');
 export const saKiemenHeTiff = generateSpatialAcceleratedConfiguration('kiemen-he-tiff');
+export const saHubmapSample1620xTiff = generateSpatialAcceleratedConfiguration('hubmap-sample16-20x-tiff');
+export const saHubmapSample165xTiff = generateSpatialAcceleratedConfiguration('hubmap-sample16-5x-tiff');
 // Keyed by demo config name, s-a-idr0077-a0 to s-a-idr0077-a7.
 export const saIdr0077Angles = Object.fromEntries(idr0077Angles.map(angle => [
   `s-a-idr0077-a${angle}`,

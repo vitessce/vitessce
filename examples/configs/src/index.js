@@ -105,7 +105,8 @@ import {
   saIdr0106Tiff, saBrainTiff, saLucaTiff,
   saWashuKidneyTiff, saIdr0048A9846152, saHubmapLymphNodeTiff, saIdr0066, saIdr0044A,
   saHubmapThymusTiff, saIdr0157, saHubmapSpleenTiff, saIdr0062A6001257, saIdr0077Angles,
-  saHubmapLymphNodeImcTiff, saKiemenHeTiff, saZebrahub, saScivis, saRandom,
+  saHubmapLymphNodeImcTiff, saKiemenHeTiff, saHubmapSample1620xTiff, saHubmapSample165xTiff,
+  saZebrahub, saScivis, saRandom,
 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
@@ -292,6 +293,8 @@ export const configs = {
   ...saIdr0077Angles,
   's-a-hubmap-lymph-node-imc-tiff': saHubmapLymphNodeImcTiff,
   's-a-kiemen-he-tiff': saKiemenHeTiff,
+  's-a-hubmap-sample16-20x-tiff': saHubmapSample1620xTiff,
+  's-a-hubmap-sample16-5x-tiff': saHubmapSample165xTiff,
   ...saZebrahub,
   ...saScivis,
   's-a-random': saRandom,

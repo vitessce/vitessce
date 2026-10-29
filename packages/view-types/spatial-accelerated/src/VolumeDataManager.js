@@ -60,6 +60,9 @@ const BRICK_FETCH_CONCURRENCY = 6;
 // Requested bricks beyond the top k that a batch also loads when all their source
 // chunks are already decoded: they cost a copy and an upload, but no fetch.
 const MAX_CACHED_BRICKS_PER_BATCH = 256;
+// Loads of a channel's overview before its missing bricks are left to the
+// regular requests, so that a brick that keeps failing cannot block them.
+const MAX_OVERVIEW_ATTEMPTS = 3;
 
 // const manualChannelSelection = 0;
 
@@ -793,6 +796,7 @@ export class VolumeDataManager {
     // Bricks of the coarsest level, per channel slot. They load first for every
     // channel and are never evicted, so each channel always has something to show.
     this.overviewBricks = new Map(); // slot -> brick cache indices
+    this.overviewAttempts = new Map(); // slot -> overview loads tried
 
     // top k unused brick cache addresses
     this.LRUStack = [];
@@ -1228,19 +1232,28 @@ export class VolumeDataManager {
   }
 
   /**
-   * Page table requests for all bricks of the coarsest level (one brick when it
-   * is the overview level), for each mapped channel slot without them yet.
+   * Page table requests for the bricks of the coarsest level (one brick when it
+   * is the overview level) that are not pinned yet, for each mapped channel slot
+   * with overview loads left to try.
    */
   _overviewRequests() {
     const resolution = this.zarrStore.brickLayout.length - 1;
     const [zBricks, yBricks, xBricks] = this.zarrStore.brickLayout[resolution];
+    const ptKey = ({ x, y, z }) => `${x},${y},${z}`;
     return this.channels.zarrMappings.flatMap((zarrChannel, slot) => {
-      if (zarrChannel === undefined || this.overviewBricks.has(slot)) return [];
+      const pinnedIndices = this.overviewBricks.get(slot) ?? [];
+      if (zarrChannel === undefined
+        || pinnedIndices.length >= zBricks * yBricks * xBricks
+        || (this.overviewAttempts.get(slot) ?? 0) >= MAX_OVERVIEW_ATTEMPTS) {
+        return [];
+      }
+      const pinned = new Set(pinnedIndices.map(bcIndex => this.bc2pt[bcIndex]).filter(Boolean).map(ptKey));
       const requests = [];
       for (let z = 0; z < zBricks; z++) {
         for (let y = 0; y < yBricks; y++) {
           for (let x = 0; x < xBricks; x++) {
-            requests.push(_zarrToPt(slot, resolution, x, y, z, this.PT));
+            const ptCoord = _zarrToPt(slot, resolution, x, y, z, this.PT);
+            if (!pinned.has(ptKey(ptCoord))) requests.push(ptCoord);
           }
         }
       }
@@ -1249,22 +1262,35 @@ export class VolumeDataManager {
   }
 
   /**
-   * Load and pin the overview bricks of channels that do not have them yet.
+   * Load and pin the overview bricks of channels that do not have them all yet.
+   * Bricks that fail are requested again by the next call, up to
+   * MAX_OVERVIEW_ATTEMPTS loads per channel slot.
    * @returns {Promise<boolean>} Whether any overview requests were made.
    */
   async _loadOverviews() {
     const requests = this._overviewRequests();
     if (requests.length === 0) return false;
     const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
-    // Mark slots as attempted even if a read fails; the regular requests retry those bricks.
-    requests.forEach(({ x, y, z }) => {
-      const { channel } = _ptToZarr(x, y, z, ptInfo);
-      if (!this.overviewBricks.has(channel)) this.overviewBricks.set(channel, []);
+    const slotOf = ({ x, y, z }) => _ptToZarr(x, y, z, ptInfo).channel;
+    const ptKey = ({ x, y, z }) => `${x},${y},${z}`;
+    new Set(requests.map(slotOf)).forEach((slot) => {
+      if (!this.overviewBricks.has(slot)) this.overviewBricks.set(slot, []);
+      this.overviewAttempts.set(slot, (this.overviewAttempts.get(slot) ?? 0) + 1);
     });
-    const uploaded = await this.handleBrickRequests(requests, { canBailOut: false });
+    // Pin bricks that the regular requests already loaded, so they count as done.
+    const residentIndices = new Map();
+    this.bc2pt.forEach((pt, bcIndex) => {
+      if (pt) residentIndices.set(ptKey(pt), bcIndex);
+    });
+    const toFetch = requests.filter((ptCoord) => {
+      const bcIndex = residentIndices.get(ptKey(ptCoord));
+      if (bcIndex === undefined) return true;
+      this.overviewBricks.get(slotOf(ptCoord)).push(bcIndex);
+      return false;
+    });
+    const uploaded = await this.handleBrickRequests(toFetch, { canBailOut: false });
     uploaded.forEach(({ ptCoord, bcIndex }) => {
-      const { channel } = _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfo);
-      this.overviewBricks.get(channel)?.push(bcIndex);
+      this.overviewBricks.get(slotOf(ptCoord))?.push(bcIndex);
     });
     return true;
   }
@@ -1375,9 +1401,11 @@ export class VolumeDataManager {
     log.debug('newColorMappings', newColorMappings);
     this.channels.colorMappings = newColorMappings;
 
-    // Resume requests so that newly mapped channels load their overview bricks.
+    // Resume requests so that newly mapped channels load their overview bricks,
+    // and stop the batch in flight early so that the overview goes next.
     if (this._overviewRequests().length > 0 && !this.manuallyStopped) {
       this.noNewRequests = false;
+      if (this.isBusy) this.needsBailout = true;
     }
 
     log.debug('updatedChannels', this.channels);
@@ -1664,6 +1692,7 @@ export class VolumeDataManager {
     // Unpin the slot's overview and forget its resident bricks, so that evicting
     // them later cannot clear page table entries of the next channel in this slot.
     this.overviewBricks.delete(ptChannelIndex);
+    this.overviewAttempts.delete(ptChannelIndex);
     const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
     this.bc2pt.forEach((pt, bcIndex) => {
       if (pt && _ptToZarr(pt.x, pt.y, pt.z, ptInfo).channel === ptChannelIndex) {
@@ -2034,6 +2063,9 @@ export class VolumeDataManager {
       return true;
     });
     if (unique.length === 0) return [];
+    // A bail-out asked for while an earlier batch ran was meant for that batch,
+    // e.g. one that could not bail out; this batch comes from the current view.
+    if (canBailOut) this.needsBailout = false;
 
     // Bricks that read the same source chunk run together and share its download.
     const chunkKeys = new Map(unique.map(ptCoord => [ptCoord, this._requestChunkKeys(ptCoord)]));
@@ -2071,8 +2103,8 @@ export class VolumeDataManager {
           }
         }
 
-        // Update progress
-        this.currentRequestCount -= 1;
+        // Update progress. stopLoading zeroes the count while fetches are in flight.
+        this.currentRequestCount = Math.max(0, this.currentRequestCount - 1);
 
         const rlength = this.bricksEverLoaded.size;
         this.bricksEverLoaded.add(ptKey(ptCoord));

@@ -229,6 +229,7 @@ describe('spatial-accelerated data utils', () => {
         zarrStore: { brickLayout },
         channels: { zarrMappings: [0, undefined, 1] },
         overviewBricks: new Map([[2, [5]]]), // slot 2 already has its overview
+        overviewAttempts: new Map(),
         PT,
       };
       // eslint-disable-next-line no-underscore-dangle
@@ -524,6 +525,57 @@ describe('spatial-accelerated data utils', () => {
       expect(manager.BCUnusedIndex).toBe(4);
     });
 
+    it('loads overview bricks that failed again, up to three loads per channel', async () => {
+      const { manager, brickLayout } = createManager();
+      const { reads } = withBrickSource(manager);
+      // eslint-disable-next-line no-underscore-dangle
+      manager._writeBrick = (ptCoord, slot) => {
+        manager.bc2pt[slot.bcIndex] = ptCoord;
+        return true;
+      };
+      const overview = brickLayout.length - 1;
+      const isFailing = brick => brick.level === overview && brick.c === 0
+        && brick.bx === 0 && brick.by === 0 && brick.bz === 0;
+      const { readBrick } = manager.brickSource;
+      let failedReads = 0;
+      manager.brickSource.readBrick = async (brick) => {
+        if (isFailing(brick)) {
+          failedReads += 1;
+          throw new Error('network');
+        }
+        return readBrick(brick);
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      const [failing] = manager._overviewRequests();
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._loadOverviews()).toBe(true);
+      // Only the failed brick is left, and only for its channel.
+      // eslint-disable-next-line no-underscore-dangle
+      expect(manager._overviewRequests()).toEqual([failing]);
+      // eslint-disable-next-line no-underscore-dangle
+      await manager._loadOverviews();
+      // eslint-disable-next-line no-underscore-dangle
+      await manager._loadOverviews();
+      // Then the regular requests take over.
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._loadOverviews()).toBe(false);
+      expect(failedReads).toBe(3);
+      // The other bricks loaded once each.
+      expect(new Set(reads).size).toBe(reads.length);
+    });
+
+    it('pins overview bricks that are already resident instead of loading them', async () => {
+      const { manager } = createManager();
+      const { reads } = withBrickSource(manager);
+      // eslint-disable-next-line no-underscore-dangle
+      const [resident, ...others] = manager._overviewRequests();
+      manager.bc2pt[7] = resident;
+      // eslint-disable-next-line no-underscore-dangle
+      await manager._loadOverviews();
+      expect(reads).toHaveLength(others.length);
+      expect(manager.overviewBricks.get(0)).toContain(7);
+    });
+
     it('takes no cache slots for bricks a bail-out never fetched', async () => {
       const { manager, PT } = createManager();
       const { reads } = withBrickSource(manager);
@@ -541,7 +593,8 @@ describe('spatial-accelerated data utils', () => {
       const { reads } = withBrickSource(manager, { cached: ['0:0:3'] });
       manager.initStatus = 'complete';
       manager.k = 1;
-      manager.overviewBricks.set(0, []).set(1, []);
+      // No overview loads left to try, so the batch goes to the regular requests.
+      manager.overviewAttempts.set(0, 3).set(1, 3);
       // Weighted by pixel count: the top request, an uncached one, a cached one.
       const pixels = [[0, 0, 0, 3], [0, 0, 1, 2], [0, 0, 3, 1]].flatMap(
         ([bx, by, bz, count]) => Array(count).fill(_zarrToPt(0, 0, bx, by, bz, PT)),
