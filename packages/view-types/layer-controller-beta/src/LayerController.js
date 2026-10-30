@@ -40,11 +40,15 @@ export default function LayerController(props) {
     tiledPointsLoadingProgress,
     layerPerFeatureForPoints,
     globalDisable3d,
+    forceEnable3d,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
     .some(image => image?.image?.instance.hasTStack());
-  const anyLayerHasZ = Object.values(images || {})
+  // forceEnable3d lets a config show the switch with no Z-stack image at all (e.g. a
+  // Neuroglancer-only view with just segmentation meshes and/or points, which is always
+  // 3D-capable)
+  const anyLayerHasZ = forceEnable3d || Object.values(images || {})
     .some(image => image?.image?.instance.hasZStack());
 
   const maxT = Object.values(images || {})
