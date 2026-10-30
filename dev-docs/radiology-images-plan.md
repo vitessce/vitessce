@@ -155,7 +155,8 @@ Follow-up 1 is implemented: JPEG Lossless (`1.2.840.10008.1.2.4.57`, `.70`), JPE
 - JPEG Lossless uses `jpeg-lossless-decoder-js` (plain JavaScript). RLE is decoded by a small function in `codecs.ts`.
 - DICOMweb frames are still requested as Explicit VR Little Endian. A server that cannot transcode answers 406, and the request is repeated with `transfer-syntax=*`. Servers that ignore the requested transfer syntax (such as OHIF's static demo server) return compressed frames, which are decoded.
 - For compressed `.dcm` files, pixel data is read from its start to the end of the file, and the fragments of the single frame are joined before decoding.
-- Decoding runs on the main thread. Move it to a worker if loading many slices (3D mode) blocks the UI.
+- Decoding runs in a pool of 4 web workers (the `Pool` class from `@vitessce/utils`; each worker holds its own codec memory, so the pool is not one worker per core). The workers are in a separate package, `@vitessce/radiology-workers`, built like `@vitessce/workers` and `@vitessce/neuroglancer-workers`: Rollup inlines the worker into `dist/index.js`, so it does not depend on a relative worker URL (which fails when Vitessce is loaded from a CDN) and works with both Vite and webpack (the docs site). Vite's `?worker&inline` was not used, because the docs site's webpack build reads the packages' `dist-tsc` output. The worker bundle includes the codec JavaScript, so `@vitessce/radiology` imports it lazily.
+- The decoders are also exported as `@vitessce/radiology-workers/decoders` and used on the main thread when `Worker` is unavailable. Unit tests use this path: the `jsdom-worker` polyfill cannot run inline workers.
 
 ### Validation results
 
@@ -169,3 +170,15 @@ Follow-up 1 is implemented: JPEG Lossless (`1.2.840.10008.1.2.4.57`, `.70`), JPE
 
 - OHIF's demo server responds with `Content-Type: multipart/related` without a `boundary` parameter, so the multipart delimiter is read from the first line of the body.
 - In the jsdom test environment, `Headers` drops the `Range` header (browsers and Node keep it). `DicomLoader.test.ts` runs in the Node environment.
+
+### Workers
+
+Measured in Chromium on a 32-core desktop: time to load the whole volume after switching to 3D, and main-thread long tasks (over 50 ms) during that time. Single runs.
+
+| Series | Workers | Main thread |
+|---|---|---|
+| JPEG-LS CT, 135 slices (DICOMweb) | 1196 ms; 2 long tasks, 154 ms | 1725 ms; 2 long tasks, 154 ms |
+| JPEG 2000 MR, 30 slices (`.dcm`) | 737 ms; 1 long task, 61 ms | 1067 ms; 2 long tasks, 138 ms |
+| JPEG Lossless CT, 32 slices (`.dcm`) | 750 ms; 1 long task, 65 ms | 1136 ms; 1 long task, 59 ms |
+
+Workers load volumes about 30% faster. On this machine, main-thread decoding caused little blocking, since each 512 x 512 frame decodes in milliseconds; the remaining long task, present either way, is assembling the volume. Slower machines should benefit more. Decoded pixel values are identical on both paths.

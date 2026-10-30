@@ -1,7 +1,7 @@
 // jsdom's Headers drops the Range header, which browsers and Node keep.
 // @vitest-environment node
 import {
-  describe, it, expect, vi, afterEach,
+  describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
 import { DicomLoader } from './DicomLoader.js';
 import { RadiologySource } from './RadiologySource.js';
@@ -127,6 +127,11 @@ function makeLoader() {
 }
 
 describe('DicomLoader', () => {
+  beforeEach(() => {
+    // Decode on this thread: the jsdom-worker test polyfill cannot run inline workers.
+    vi.stubGlobal('Worker', undefined);
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });

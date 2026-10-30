@@ -1,24 +1,16 @@
-// The Cornerstone codec packages are Emscripten modules without type declarations.
-// Matches their JS entry points, such as '@cornerstonejs/codec-charls/decodewasmjs'.
-declare module '@cornerstonejs/codec-*js' {
-  const factory: (options: { wasmBinary: ArrayBuffer }) => Promise<
-    Record<string, new () => {
-      getEncodedBuffer(length: number): Uint8Array;
-      decode(): void;
-      getDecodedBuffer(): Uint8Array;
-      delete(): void;
-    }>
-  >;
-  export default factory;
+declare module '@vitessce/radiology-workers' {
+  export const DecodeWorker: new () => Worker;
 }
 
-// jpeg-lossless-decoder-js 2.1.2 points "types" at a file it does not publish.
-declare module 'jpeg-lossless-decoder-js' {
-  export class Decoder {
-    decode(
-      buffer: ArrayBuffer, offset: number, length: number, numBytes: number,
-    ): Uint8Array | Uint16Array;
-  }
+declare module '@vitessce/radiology-workers/decoders' {
+  export const UNCOMPRESSED_TRANSFER_SYNTAXES: string[];
+  export const WASM_URLS: Record<'charls' | 'openjpeg' | 'openjph', string>;
+  export function isSupportedTransferSyntax(transferSyntax: string): boolean;
+  export function decodeFrame(
+    transferSyntax: string,
+    bytes: Uint8Array,
+    shape: { rows: number; columns: number; bitsAllocated: number },
+  ): Promise<ArrayBuffer>;
 }
 
 // Tests import codec .wasm files as data URLs.

@@ -4,7 +4,8 @@ import {
 import charlsWasm from '@cornerstonejs/codec-charls/decodewasm?inline';
 import openjpegWasm from '@cornerstonejs/codec-openjpeg/decodewasm?inline';
 import openjphWasm from '@cornerstonejs/codec-openjph/wasm?inline';
-import { decodeFrame, WASM_URLS } from './codecs.js';
+import { WASM_URLS } from '@vitessce/radiology-workers/decoders';
+import { decodeFrame } from './codecs.js';
 import { CODEC_FIXTURES, CODEC_FIXTURE_SHAPE } from './codecs.test.fixtures.js';
 
 const EXPECTED = Array.from({ length: 35 }, (_, i) => (i * 97) % 4096);
@@ -22,6 +23,8 @@ function fromBase64(base64: string) {
 
 describe('decodeFrame', () => {
   beforeAll(() => {
+    // Decode on this thread: the jsdom-worker test polyfill cannot run inline workers.
+    vi.stubGlobal('Worker', undefined);
     const realFetch = globalThis.fetch;
     vi.stubGlobal('fetch', (url: string) => realFetch(LOCAL_WASM[url]));
   });

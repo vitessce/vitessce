@@ -1,5 +1,5 @@
 import {
-  describe, it, expect, vi, afterEach,
+  describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
 import { DicomWebLoader, extractFrame } from './DicomWebLoader.js';
 import { RadiologySource } from './RadiologySource.js';
@@ -93,6 +93,11 @@ function fromBase64(base64: string) {
 }
 
 describe('DicomWebLoader', () => {
+  beforeEach(() => {
+    // Decode on this thread: the jsdom-worker test polyfill cannot run inline workers.
+    vi.stubGlobal('Worker', undefined);
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });
