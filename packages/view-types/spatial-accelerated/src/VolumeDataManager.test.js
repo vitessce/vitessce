@@ -507,12 +507,14 @@ describe('spatial-accelerated data utils', () => {
     it('samples a grid of a large buffer', () => {
       const [width, height] = [3840, 2160];
       expect(_pixelStride(width, height)).toEqual(4);
+      // One assertion at the end: an expect per pixel (half a million) is slow.
       let count = 0;
+      let mismatches = 0;
       _forEachSampledPixel(new Uint8Array(width * height * 4), width, (i, x, y) => {
-        expect(i).toEqual((y * width + x) * 4);
-        expect([x % 4, y % 4]).toEqual([0, 0]);
+        if (i !== (y * width + x) * 4 || x % 4 !== 0 || y % 4 !== 0) mismatches += 1;
         count += 1;
       });
+      expect(mismatches).toEqual(0);
       expect(count).toEqual((width / 4) * (height / 4));
     });
   });
