@@ -418,6 +418,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     const pointRadiusMaxPixels = pointRadius * 0.6;
     const pointLineWidth = spatialPointStrokeWidth ?? 0.0;
     const pointLineColor = [0, 0, 0];
+    const arePointsStroked = pointLineWidth > 0.0;
 
     // Obtain the numeric indices of the selected features, to use for filtering.
     // Note: this assumes that the feature names have been mapped to indices,
@@ -711,6 +712,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
     }
 
+    const getLineColor = (object, { index, data, target }) => {
+      // Here, we call getFillColor so that we can reuse its opacity logic,
+      // which also effectively filters out the un-selected points.
+      getFillColor(object, { index, data, target });
+      // Below, we give every point the same line color,
+      // to match the behavior of points in the Neuroglancer view.
+      // eslint-disable-next-line no-param-reassign
+      target[0] = pointLineColor[0];
+      // eslint-disable-next-line no-param-reassign
+      target[1] = pointLineColor[1];
+      // eslint-disable-next-line no-param-reassign
+      target[2] = pointLineColor[2];
+      return target;
+    };
+
     const {
       obsPointsModelMatrix,
       obsPoints,
@@ -821,9 +837,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
             data: tileData,
             getRadius: pointRadius,
             radiusMaxPixels: pointRadiusMaxPixels,
-            stroked: true,
+            stroked: arePointsStroked,
             getLineWidth: pointLineWidth,
-            getLineColor: pointLineColor,
+            getLineColor,
             // getPosition: d => d,
             // getFillColor: [255, 0, 0],
             getPosition: (object, { data, index, target }) => {
@@ -901,9 +917,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       modelMatrix,
       getRadius: pointRadius,
       radiusMaxPixels: pointRadiusMaxPixels,
-      stroked: true,
+      stroked: arePointsStroked,
       getLineWidth: pointLineWidth,
-      getLineColor: pointLineColor,
+      getLineColor,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsPoints.data[0][index];
