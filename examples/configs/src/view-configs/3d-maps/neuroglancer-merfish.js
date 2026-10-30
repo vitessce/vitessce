@@ -53,7 +53,7 @@ function generateNeuroglancerMerfish() {
       fileType: 'obsPoints.ng-annotations',
       url: pointsUrl,
       options: {
-        projectionAnnotationSpacing: 2.4544585683772735,
+        projectionAnnotationSpacing: 0.0625, // NG minimum = draw all levels (all points in view)
 
         // Note: tissue-map-tools creates an AnnotationProperty
         // for every column in the sdata Points element dask dataframe.
@@ -100,7 +100,7 @@ function generateNeuroglancerMerfish() {
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer', { x: 0, y: 0, w: 5, h: 7 }).setProps({
-    showAxisLines: false,
+    // showAxisLines: false,
     initialNgCameraState: {
       position: [2916001, 4695501, 55073],
       projectionScale: 10978746,

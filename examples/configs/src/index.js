@@ -122,6 +122,7 @@ import { neuroglancerInterscellarDetail } from './view-configs/3d-maps/neuroglan
 import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko.js';
 import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
+import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
 // Nature Methods figures
@@ -264,6 +265,7 @@ export const configs = {
   'neuroglancer-macosko': neuroglancerMacosko,
   'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
+  'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
   'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
   'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated

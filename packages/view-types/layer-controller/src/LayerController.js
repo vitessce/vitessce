@@ -103,6 +103,8 @@ export default function LayerController(props) {
     spatialWidth,
     photometricInterpretation,
     shouldShowRemoveLayerButton,
+    channelsSortOrder,
+    setChannelsSortOrder,
   } = props;
 
   const {
@@ -391,6 +393,7 @@ export default function LayerController(props) {
             setRasterLayerCallback={setImageLayerCallback}
             isLoading={areLayerChannelsLoading[channelId]}
             use3d={use3d}
+            channelsSortOrder={channelsSortOrder}
           />
         );
       },
@@ -446,6 +449,8 @@ export default function LayerController(props) {
         spatialHeight={spatialHeight}
         spatialWidth={spatialWidth}
         modelMatrix={modelMatrix}
+        channelsSortOrder={channelsSortOrder}
+        handleChannelsSortOrderChange={setChannelsSortOrder}
       />
       {photometricInterpretation === 'RGB'
         ? null

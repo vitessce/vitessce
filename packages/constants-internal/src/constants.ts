@@ -204,6 +204,7 @@ export const FileType = {
   // Precomputed (mesh) format
   OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
   OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
+  OBS_LOCATIONS_NG_ANNOTATIONS: 'obsLocations.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -362,6 +363,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
   TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  TOOLTIP_OBS_SETS_MODE: 'tooltipObsSetsMode',
   LEGEND_VISIBLE: 'legendVisible',
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',

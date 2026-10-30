@@ -63,8 +63,8 @@ function generateNeuroglancerInterscellarDetailConfiguration() {
 
   config.linkViews(
     [neuroglancerView, neuroglancerZoomView],
-    ['spatialCameraSnapshot'],
-    [null],
+    ['spatialCameraSnapshot', 'spatialRenderingMode'],
+    [null, '3D'],
   );
 
   config.linkViewsByObject([neuroglancerView, neuroglancerZoomView, lcView], {

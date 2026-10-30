@@ -1,9 +1,9 @@
 import { DataType } from '@vitessce/constants-internal';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { getPointsShader } from './shader-utils.js';
-
+import { NG_CAMERA_VALIDATORS } from './utils.js';
 
 export const DEFAULT_NG_DIMENSIONS = {
   x: [1, 'nm'],
@@ -29,6 +29,90 @@ export const DEFAULT_NG_PROPS = {
   dimensions: DEFAULT_NG_DIMENSIONS,
   layers: [],
 };
+
+/**
+ * Validate initialNgCameraState field by field. Invalid values fall back to a
+ * default where one is meaningful; `position` is left out instead, so the
+ * subscriber can derive it from the data bounds.
+ * @param {object} cameraState
+ * @param {object} [fallbacks] Defaults for invalid fields.
+ */
+export function sanitizeNgCameraState(cameraState, fallbacks = {}) {
+  const defaults = {
+    projectionOrientation: [0, 0, 0, 1],
+    projectionScale: DEFAULT_NG_PROPS.projectionScale,
+    crossSectionScale: DEFAULT_NG_PROPS.crossSectionScale,
+    ...fallbacks,
+  };
+  const result = {};
+  Object.entries(cameraState ?? {}).forEach(([key, value]) => {
+    const validate = NG_CAMERA_VALIDATORS[key];
+    if (!validate) {
+      if (value !== undefined) result[key] = value;
+      return;
+    }
+    if (validate(value)) {
+      result[key] = value;
+    } else if (key in defaults) {
+      console.warn(`Invalid initialNgCameraState.${key}:`, value, '— using default', defaults[key]);
+      result[key] = defaults[key];
+    } else {
+      console.warn(`Invalid initialNgCameraState.${key}:`, value, '— ignored');
+    }
+  });
+  return result;
+}
+
+/**
+ * Validate an NG coordinate-space dimensions object:
+ * { x: [scale, unit], y: [scale, unit], z: [scale, unit] }.
+ */
+export function isValidNgDimensions(dims) {
+  return !!dims && typeof dims === 'object'
+    && ['x', 'y', 'z'].every(axis => Array.isArray(dims[axis])
+      && dims[axis].length === 2
+      && Number.isFinite(dims[axis][0]) && dims[axis][0] > 0
+      && typeof dims[axis][1] === 'string');
+}
+
+/**
+ * Resolve the viewer's global `dimensions` once, independent of layer order.
+ * A point layer's `transform.outputDimensions` describes that layer's own
+ * output space; NG maps it into the global space per layer, so it must not
+ * overwrite the viewer dimensions.
+ * Precedence:
+ *   1. explicit `viewerDimensions` (Neuroglancer view prop),
+ *   2. the first point layer (in scope order) that declares outputDimensions,
+ *   3. DEFAULT_NG_DIMENSIONS.
+ * @param {Array<{ name: string, neuroglancerOptions: object }>} annotationSources
+ * Point layers and segmentation centroid layers.
+ * @param {object|null} viewerDimensionsOverride
+ */
+export function resolveViewerDimensions(
+  annotationSources, viewerDimensionsOverride = null,
+) {
+  if (viewerDimensionsOverride != null) {
+    if (isValidNgDimensions(viewerDimensionsOverride)) return viewerDimensionsOverride;
+    console.warn('Ignoring invalid viewerDimensions prop; expected { x: [scale, unit], y: [scale, unit], z: [scale, unit] }.');
+  }
+  const declared = (annotationSources ?? [])
+    .map(({ name: scope, neuroglancerOptions }) => ({
+      scope,
+      dims: neuroglancerOptions?.transform?.outputDimensions,
+    }))
+    .filter(({ dims }) => dims);
+  if (!declared.length) return DEFAULT_NG_DIMENSIONS;
+  const [{ dims: viewerDims }] = declared;
+  const mismatched = declared.filter(({ dims }) => !isEqual(dims, viewerDims));
+  if (mismatched.length) {
+    console.warn(
+      `Point layers declare different outputDimensions; using those of "${declared[0].scope}" `
+      + `for the viewer. Layers ${mismatched.map(({ scope }) => `"${scope}"`).join(', ')} `
+      + 'keep their own outputDimensions in their source transform.',
+    );
+  }
+  return viewerDims;
+}
 
 function toPrecomputedSource(url) {
   if (!url) {
@@ -91,49 +175,134 @@ export function toNgLayerName(dataType, layerScope, channelScope = null) {
   if (dataType === DataType.OBS_POINTS) {
     return `obsPoints-${layerScope}`;
   }
+  if (dataType === DataType.OBS_LOCATIONS) {
+    // Centroids of a segmentation layer/channel.
+    return `obsLocations-${layerScope}-${channelScope}`;
+  }
   throw new Error(`Unsupported data type: ${dataType}`);
 }
 
-export function pointsHaveMatchingSegmentation({
-  pointObsType,
+/**
+ * Get the centroid annotation sources of the segmentation layers/channels.
+ * A segmentation channel has centroids when an `obsLocations.ng-annotations`
+ * file is defined for its obsType. The centroids are rendered implicitly,
+ * using the visual properties of the segmentation layer/channel.
+ * @param {object} params
+ * @param {string[]} params.segmentationLayerScopes
+ * @param {object} params.segmentationChannelScopesByLayer
+ * @param {object} params.obsSegmentationsLocationsData Nested by layer and channel scope.
+ * @returns {Array<{
+ *   layerScope: string,
+ *   channelScope: string,
+ *   name: string,
+ *   url: string,
+ *   neuroglancerOptions: object,
+ *   neuroglancerInfo: object|null,
+ * }>}
+ */
+export function getSegmentationCentroidSources({
   segmentationLayerScopes,
   segmentationChannelScopesByLayer,
-  segmentationChannelCoordination,
+  obsSegmentationsLocationsData,
 }) {
-  // Check if there are segmentations with the same obsType.
-  // If so, infer that the points represent centroids of the segmentations.
-  // We pass this down to the getPointsShader, to determine whether to
-  // interpret `obsColorEncoding === 'geneSelection'` as a quantitative
-  // color encoding or a categorical color encoding.
-  return segmentationLayerScopes.some((segmentationLayerScope) => {
-    const segmentationChannelScopes = segmentationChannelScopesByLayer?.
-      [segmentationLayerScope] || [];
-    return segmentationChannelScopes.some((segmentationChannelScope) => {
-      const segmentationObsType = segmentationChannelCoordination?.[0]
-        ?.[segmentationLayerScope]?.[segmentationChannelScope]?.obsType;
-      return (
-        segmentationObsType && pointObsType
-        && segmentationObsType === pointObsType
-      );
-    });
-  });
+  return (segmentationLayerScopes ?? []).flatMap(layerScope => (
+    (segmentationChannelScopesByLayer?.[layerScope] ?? [])
+      .map((channelScope) => {
+        const locationsData = obsSegmentationsLocationsData?.[layerScope]?.[channelScope];
+        // Other obsLocations file types (e.g., non-Neuroglancer) are not centroid sources.
+        if (locationsData?.obsLocationsTilingType !== 'neuroglancer'
+          || !locationsData.neuroglancerUrl) {
+          return null;
+        }
+        return {
+          layerScope,
+          channelScope,
+          name: toNgLayerName(DataType.OBS_LOCATIONS, layerScope, channelScope),
+          url: locationsData.neuroglancerUrl,
+          neuroglancerOptions: locationsData.neuroglancerOptions ?? {},
+          neuroglancerInfo: locationsData.neuroglancerInfo ?? null,
+        };
+      })
+      .filter(Boolean)
+  ));
 }
 
-export function segmentationsHaveMatchingPoints({
-  segmentationObsType,
-  pointLayerScopes,
-  pointLayerCoordination,
-}) {
-  // Check if there are points with the same obsType.
-  // If so, we infer that the segmentations have matching points.
-  return pointLayerScopes.some((pointLayerScope) => {
-    const pointObsType = pointLayerCoordination?.
-      [0]?.[pointLayerScope]?.obsType;
-    return (
-      segmentationObsType && pointObsType
-      && segmentationObsType === pointObsType
-    );
-  });
+// Border width of the centroid point markers.
+const CENTROID_POINT_STROKE_WIDTH = 0.2;
+
+/**
+ * Map segmentation layer/channel coordination values onto the parameters
+ * of getPointsShader, so that centroids share the visual properties
+ * of their segmentation channel.
+ * @param {object} layerCoordination Segmentation layer coordination values.
+ * @param {object} channelCoordination Segmentation channel coordination values.
+ * @returns {object} Parameters for getPointsShader
+ * (excluding theme and the annotation property options).
+ */
+export function getCentroidShaderParams(layerCoordination, channelCoordination) {
+  const {
+    spatialLayerOpacity,
+  } = layerCoordination || {};
+  const {
+    spatialChannelOpacity,
+    spatialChannelColor,
+    obsColorEncoding,
+    featureValueColormap,
+    featureValueColormapRange,
+    obsSetColor,
+    obsSetSelection,
+    additionalObsSets,
+  } = channelCoordination || {};
+  return {
+    spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
+    // Segmentation channels use 'spatialChannelColor' for a static color,
+    // whereas the points shader uses 'spatialLayerColor'.
+    obsColorEncoding: obsColorEncoding === 'spatialChannelColor'
+      ? 'spatialLayerColor'
+      : obsColorEncoding,
+    spatialLayerColor: spatialChannelColor,
+    featureValueColormap,
+    featureValueColormapRange,
+    obsSetColor,
+    obsSetSelection,
+    additionalObsSets,
+    // Only show the centroids of the selected obsSets.
+    featureFilterMode: 'featureSelection',
+    pointMarkerBorderWidth: CENTROID_POINT_STROKE_WIDTH,
+    // The points represent the centroids of the segmentations.
+    // We pass this down to the getPointsShader, to determine whether to interpret
+    // `obsColorEncoding === 'geneSelection'` as a
+    // quantitative color encoding or a categorical color encoding.
+    pointsAreSegmentationCentroids: true,
+  };
+}
+
+function toAnnotationSource(url, ngOptions, viewerDimensions) {
+  return {
+    url: toPrecomputedSource(url),
+    subsources: {
+      default: true,
+    },
+    enableDefaultSubsources: false,
+    ...(ngOptions?.transform?.matrix
+      ? {
+        transform: {
+          matrix: ngOptions.transform.matrix,
+          // Layer-local output space; falls back to the viewer's
+          // dimensions (order-independent), never another layer's.
+          outputDimensions: ngOptions.transform?.outputDimensions ?? viewerDimensions,
+        },
+      }
+      : {}),
+  };
+}
+
+function getQuantitativeColorMax(ngOptions, obsColorEncoding) {
+  const quantitativeColorMax = ngOptions?.quantitativeColorMax;
+  if (!quantitativeColorMax && obsColorEncoding === 'geneSelection') {
+    console.warn('quantitativeColorMax not specified in options — defaulting to 1.0 (no normalization)');
+  }
+  return quantitativeColorMax ?? 1.0;
 }
 
 /**
@@ -157,14 +326,33 @@ export function useNeuroglancerViewerState(
   segmentationChannelCoordination,
   obsSegmentationsUrls,
   obsSegmentationsData,
+  obsSegmentationsLocationsData,
   pointLayerScopes,
   pointLayerCoordination,
   obsPointsUrls,
   obsPointsData,
   pointMultiIndicesData,
+  viewerDimensionsOverride = null,
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
+    const centroidSources = getSegmentationCentroidSources({
+      segmentationLayerScopes,
+      segmentationChannelScopesByLayer,
+      obsSegmentationsLocationsData,
+    });
+    // Global viewer dimensions are decided once, up front
+    const viewerDimensions = resolveViewerDimensions(
+      [
+        ...pointLayerScopes.map(layerScope => ({
+          name: toNgLayerName(DataType.OBS_POINTS, layerScope),
+          neuroglancerOptions: obsPointsData?.[layerScope]?.neuroglancerOptions,
+        })),
+        ...centroidSources,
+      ],
+      viewerDimensionsOverride,
+    );
+    result = { ...result, dimensions: viewerDimensions };
 
     // ======= SEGMENTATIONS =======
 
@@ -223,6 +411,49 @@ export function useNeuroglancerViewerState(
       }
     });
 
+    // ======= SEGMENTATION CENTROIDS =======
+
+    // Centroids are implicit: one annotation layer per segmentation channel
+    // that has an obsLocations.ng-annotations file for its obsType.
+    centroidSources.forEach(({
+      layerScope, channelScope, name, url, neuroglancerOptions: ngOptions,
+    }) => {
+      const layerCoordination = segmentationLayerCoordination[0][layerScope];
+      const channelCoordination = segmentationChannelCoordination[0]
+        ?.[layerScope]?.[channelScope];
+      const centroidShaderParams = getCentroidShaderParams(
+        layerCoordination, channelCoordination,
+      );
+      const shader = getPointsShader({
+        theme,
+        ...centroidShaderParams,
+        quantitativeColorProp: ngOptions.quantitativeColorProp,
+        quantitativeColorMax: getQuantitativeColorMax(
+          ngOptions, centroidShaderParams.obsColorEncoding,
+        ),
+      });
+      result = {
+        ...result,
+        layers: [
+          ...result.layers,
+          {
+            type: 'annotation',
+            source: toAnnotationSource(url, ngOptions, viewerDimensions),
+            tab: 'annotations',
+            shader,
+            name,
+            // Both layer and channel visibility must be true, as for the segmentation layer.
+            visible: Boolean(layerCoordination?.spatialLayerVisible
+              && channelCoordination?.spatialChannelVisible),
+            projectionAnnotationSpacing: ngOptions.projectionAnnotationSpacing ?? 1.0,
+          },
+        ],
+        selectedLayer: {
+          layer: name,
+        },
+      };
+    });
+
     // ======= POINTS =======
 
     // Iterate over point layers.
@@ -231,24 +462,6 @@ export function useNeuroglancerViewerState(
       const layerData = obsPointsData[layerScope];
       const layerUrl = obsPointsUrls[layerScope]?.[0]?.url;
       const ngOptions = layerData?.neuroglancerOptions;
-      if (ngOptions?.transform?.matrix && ngOptions?.transform?.outputDimensions) {
-        result = {
-          ...result,
-          dimensions: ngOptions.transform.outputDimensions ?? DEFAULT_NG_DIMENSIONS,
-        };
-      }
-
-      // Check if there are segmentations with the same obsType.
-      // If so, we infer that the points represent the centroids of the segmentations.
-      // We pass this down to the getPointsShader, to determine whether to interpret
-      // `obsColorEncoding === 'geneSelection'` as a
-      // quantitative color encoding or a categorical color encoding.
-      const pointsAreSegmentationCentroids = pointsHaveMatchingSegmentation({
-        pointObsType: layerCoordination?.obsType,
-        segmentationLayerScopes,
-        segmentationChannelScopesByLayer,
-        segmentationChannelCoordination,
-      });
 
       const featureIndex = pointMultiIndicesData[layerScope]?.featureIndex;
 
@@ -266,11 +479,7 @@ export function useNeuroglancerViewerState(
           featureValueColormap,
           featureValueColormapRange,
         } = layerCoordination || {};
-        const quantitativeColorMax = layerData.neuroglancerOptions?.quantitativeColorMax;
-        if (!quantitativeColorMax && obsColorEncoding === 'geneSelection') {
-          console.warn('quantitativeColorMax not specified in options — defaulting to 1.0 (no normalization)');
-        }
-        const quantitativeColorMaxSelected = quantitativeColorMax ?? 1.0;
+        const quantitativeColorMaxSelected = getQuantitativeColorMax(ngOptions, obsColorEncoding);
         // Dynamically construct the shader based on the color encoding
         // and other coordination values.
         const shader = getPointsShader({
@@ -294,7 +503,6 @@ export function useNeuroglancerViewerState(
           obsSetSelection: layerCoordination.obsSetSelection,
           additionalObsSets: layerCoordination.additionalObsSets,
           quantitativeColorMax: quantitativeColorMaxSelected,
-          pointsAreSegmentationCentroids,
         });
         result = {
           ...result,
@@ -302,21 +510,7 @@ export function useNeuroglancerViewerState(
             ...result.layers,
             {
               type: 'annotation',
-              source: {
-                url: toPrecomputedSource(layerUrl),
-                subsources: {
-                  default: true,
-                },
-                enableDefaultSubsources: false,
-                ...(ngOptions?.transform?.matrix
-                  ? {
-                    transform: {
-                      matrix: ngOptions.transform.matrix,
-                      outputDimensions: ngOptions.transform?.outputDimensions ?? result.dimensions,
-                    },
-                  }
-                  : {}),
-              },
+              source: toAnnotationSource(layerUrl, ngOptions, viewerDimensions),
               tab: 'annotations',
               shader,
               name: toNgLayerName(DataType.OBS_POINTS, layerScope),
@@ -347,11 +541,13 @@ export function useNeuroglancerViewerState(
     segmentationChannelCoordination,
     obsSegmentationsUrls,
     obsSegmentationsData,
+    obsSegmentationsLocationsData,
     pointLayerScopes,
     pointLayerCoordination,
     obsPointsUrls,
     obsPointsData,
     pointMultiIndicesData,
+    viewerDimensionsOverride,
   }, customIsEqualForInitialViewerState);
 
   return viewerState;

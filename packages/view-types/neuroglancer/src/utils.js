@@ -20,7 +20,6 @@ export function ngMetersPerUnit(dimensions) {
 }
 // TODO: Grey color used by Vitessce - maybe set globally
 export const GREY_HEX = '#323232';
-
 export const EPSILON_KEYS_MAPPING_NG = {
   projectionScale: 5,
   projectionOrientation: 2e-2,
@@ -52,6 +51,34 @@ export const quatdotAbs = (a, b) => Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * 
 
 export const rad2deg = r => r * 180 / Math.PI;
 export const deg2rad = d => d * Math.PI / 180;
+
+
+const isFiniteNumberArray = (value, length) => Array.isArray(value)
+  && value.length === length
+  && value.every(Number.isFinite);
+
+/** NG position: [x, y, z] in viewer units. */
+export function isValidNgPosition(position) {
+  return isFiniteNumberArray(position, 3);
+}
+
+/** NG projectionOrientation: unit-ish quaternion [x, y, z, w] (must not be all zeros). */
+export function isValidNgOrientation(orientation) {
+  return isFiniteNumberArray(orientation, 4)
+    && orientation.some(v => v !== 0);
+}
+
+/** NG projectionScale / crossSectionScale: finite positive number. */
+export function isValidNgScale(scale) {
+  return Number.isFinite(scale) && scale > 0;
+}
+
+export const NG_CAMERA_VALIDATORS = {
+  position: isValidNgPosition,
+  projectionOrientation: isValidNgOrientation,
+  projectionScale: isValidNgScale,
+  crossSectionScale: isValidNgScale,
+};
 
 // export const toVitUnits = rad => VIT_UNITS === 'degrees' ? (rad * 180 / Math.PI) : rad;
 // export const fromVitUnits = val => VIT_UNITS === 'degrees' ? (val * Math.PI / 180) : val;
@@ -229,53 +256,70 @@ export function applyQuat(q, v) {
 }
 
 /**
- * Parse segment IDs and positions from annotation chunk binary data
- * This mimics NG's annotation parsing parseAnnotations() from datasources/precomputed/backend.js)
-*/
-export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
+ * Resolve annotation property layout from the annotation `info` JSON.
+ * NG's AnnotationPropertySerializer.deserialize fills `properties[i]` in the
+ * same order as `info.properties`, so names map to indices by position in that list.
+ * @param {object} info Annotation info JSON.
+ * @param {object} [opts]
+ * @param {string} [opts.segmentIdProp] Property holding the mesh segment ID.
+ *   Defaults to 'id' when the info declares it.
+ * @returns {{ propertyIds: string[], segmentIdProp: string|null, segmentIdIndex: number }}
+ */
+export function getAnnotationPropertyIndices(info, { segmentIdProp } = {}) {
+  const propertyIds = (info?.properties ?? []).map(p => p.id);
+  const resolvedSegmentIdProp = segmentIdProp ?? (propertyIds.includes('id') ? 'id' : null);
+  return {
+    propertyIds,
+    segmentIdProp: resolvedSegmentIdProp,
+    segmentIdIndex: resolvedSegmentIdProp ? propertyIds.indexOf(resolvedSegmentIdProp) : -1,
+  };
+}
+
+/** Zip deserialized values with their info property names. */
+function toNamedProperties(propertyIds, values) {
+  const named = {};
+  propertyIds.forEach((name, k) => { named[name] = values[k]; });
+  return named;
+}
+
+/**
+ * Parse annotations from a chunk: position, the segment ID, and every property
+ * declared in the info (by name). Mimics NG's parseAnnotations().
+ * Chunk layout: [uint64 count][property data, group-major][uint64 ids * count].
+ * Group 0 starts with the geometry (POINT: 3 x float32), stride propertyGroupBytes[0].
+ * @param {ArrayBuffer} buffer
+ * @param {object} serializer NG AnnotationPropertySerializer for POINT.
+ * @param {object} layout From getAnnotationPropertyIndices().
+ * @returns {Array<{ id: string, x: number, y: number, z: number, properties: object }>}
+ */
+export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer, layout) {
   const dv = new DataView(buffer);
   if (buffer.byteLength <= 8) return [];
+  const { propertyIds = [], segmentIdIndex } = layout ?? {};
+  if (!(segmentIdIndex >= 0)) return [];
 
   const count = dv.getUint32(0, true);
   // countHigh at bytes 4-7 should be 0
-  if (count === 0) return [];
-  // 32 for spatial0, 44 for spatial1/2/3
-  const numBytes = serializer.serializedBytes;
-  // float32 index in buffer:
-  // [0] x position
-  // [1] y position
-  // [2] z position
-  // [3] padding
-  // [4] phenotype   -> properties[0]
-  // [5] id          -> properties[1]
-  // [6] volume_norm -> properties[2]
-  // [7] random      -> properties[3]
-  // [7] random      -> properties[4]
-  const properties = [null, null, null, null, null];
+  if (count === 0 || dv.getUint32(4, true) !== 0) return [];
+  const geometryStride = serializer.propertyGroupBytes?.[0] ?? serializer.serializedBytes;
+  const values = new Array(propertyIds.length).fill(null);
   const results = [];
 
   for (let i = 0; i < count; i++) {
-    // Use serializer to read properties for annotation i
-    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, properties);
-    const phenotype = properties[0]; // phenotype int8
-    const segId = properties[1]; // 'id' property = mesh segment ID
-    // const indexInfo = properties[4]; // index_info
+    serializer.deserialize(dv, ANNOTATION_HEADER_OFFSET, i, count, true, values);
+    const segId = values[segmentIdIndex];
     if (segId > 0) {
-      // Position x,y,z are the first 3 float32 in each annotation's property block
-      // at offset: 8 (header) + i * numBytes
-      const propBase = ANNOTATION_HEADER_OFFSET + i * numBytes;
+      const propBase = ANNOTATION_HEADER_OFFSET + i * geometryStride;
       const x = dv.getFloat32(propBase + 0, true);
       const y = dv.getFloat32(propBase + 4, true);
       const z = dv.getFloat32(propBase + 8, true);
-      // const indexInfo = dv.getInt32(propBase + 24, true);
-
       if (x !== 0 || y !== 0 || z !== 0) {
         results.push({
-          id: String(segId), // mesh segment ID - use for segments array
-          phenotype: Number(phenotype),
+          id: String(segId), // value of segmentIdProp: used for the NG segments array
           x,
           y,
           z,
+          properties: toNamedProperties(propertyIds, values),
         });
       }
     }
@@ -283,6 +327,21 @@ export function parseAnnotationChunkSegmentsWithPositions(buffer, serializer) {
   return results;
 }
 
+/**
+ * Decode a single-annotation `by_id/<id>` record (layout as NG's parseSingleAnnotation):
+ * deserialize(dv, offset 0, index 0, count 1) -> properties in declaration order.
+ * @returns {{ id: string, properties: object } | null}
+ */
+export function parseAnnotationById(buffer, serializer, layout) {
+  const { propertyIds = [], segmentIdIndex } = layout ?? {};
+  if (!(segmentIdIndex >= 0) || !buffer || !serializer
+    || buffer.byteLength < serializer.serializedBytes) return null;
+  const values = new Array(propertyIds.length).fill(null);
+  serializer.deserialize(new DataView(buffer), 0, 0, 1, true, values);
+  const segId = values[segmentIdIndex];
+  if (!(segId > 0)) return null;
+  return { id: String(segId), properties: toNamedProperties(propertyIds, values) };
+}
 
 export const remapCellColors = (ngCellColors, cellIdToMeshIdRef) => {
   const remapped = {};
@@ -319,4 +378,21 @@ export function autoColorForId(id) {
     autoColorCache.set(key, color);
   }
   return color;
+}
+
+
+/**
+ * Return the cached object if `next` has the same keys with identical (===) values;
+ * otherwise cache and return `next`.
+ */
+export function reuseIfShallowEqual(cacheRef, next) {
+  const prev = cacheRef.current;
+  const prevKeys = Object.keys(prev);
+  const nextKeys = Object.keys(next);
+  if (prevKeys.length === nextKeys.length && nextKeys.every(k => prev[k] === next[k])) {
+    return prev;
+  }
+  // eslint-disable-next-line no-param-reassign
+  cacheRef.current = next;
+  return next;
 }

@@ -23,6 +23,7 @@ import { useChannelSliderStyles } from './styles.js';
  * @prop {arry} slider Current value of the slider.
  * @prop {function} handleChange Callback for each slider change.
  * @prop {array} domain Current max/min allowable slider values.
+ * @prop {string} channelsSortOrder Either 'original' or 'alphabetical'.
  */
 function ChannelSlider({
   color,
@@ -102,6 +103,7 @@ function RasterChannelController({
   selectionIndex,
   isLoading,
   use3d: newUse3d,
+  channelsSortOrder,
 }) {
   const { dtype } = getSourceFromLoader(loader);
   const [domain, setDomain] = useState(null);
@@ -207,6 +209,7 @@ function RasterChannelController({
             selectionIndex={selectionIndex}
             channelOptions={channelOptions}
             disabled={isLoading}
+            channelsSortOrder={channelsSortOrder}
           />
         </Grid>
         <Grid size={1} sx={{ marginTop: '4px' }}>

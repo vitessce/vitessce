@@ -76,6 +76,7 @@ import {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  ngLocationsAnnotationSchema,
   annotationStoryObj,
   annotationShapesArray,
 } from '@vitessce/schemas';
@@ -194,6 +195,7 @@ import {
   NgPassthroughSource,
   NgPrecomputedMeshLoader,
   NgAnnotationPointsLoader,
+  NgAnnotationLocationsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -361,6 +363,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
   makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+  makeFileType(FileType.OBS_LOCATIONS_NG_ANNOTATIONS, DataType.OBS_LOCATIONS, NgAnnotationLocationsLoader, NgPassthroughSource, ngLocationsAnnotationSchema),
 
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -645,6 +648,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.PIXEL_HIGHLIGHT, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.TOOLTIP_OBS_SETS_MODE, 'all', z.enum(['all', 'selected'])),
   new PluginCoordinationType(CoordinationType.LEGEND_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
