@@ -1,0 +1,50 @@
+{
+  "name": "@vitessce/radiology",
+  "version": "4.1.2",
+  "author": "HIDIVE Lab at HMS",
+  "homepage": "http://vitessce.io",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitessce/vitessce.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist-tsc/index.js",
+  "publishConfig": {
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "exports": {
+      ".": {
+        "types": "./dist-tsc/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "dist-tsc"
+  ],
+  "scripts": {
+    "bundle": "pnpm exec vite build -c ../../../scripts/vite.config.mjs",
+    "test": "pnpm exec vitest --run"
+  },
+  "dependencies": {
+    "@vitessce/abstract": "workspace:*",
+    "@vitessce/config": "workspace:*",
+    "@vitessce/globals": "workspace:*",
+    "@vitessce/image-utils": "workspace:*",
+    "@vitessce/radiology-workers": "workspace:*",
+    "@vitessce/types": "workspace:*",
+    "@vitessce/utils": "workspace:*",
+    "dicom-parser": "catalog:",
+    "nifti-reader-js": "catalog:"
+  },
+  "devDependencies": {
+    "@cornerstonejs/codec-charls": "catalog:",
+    "@cornerstonejs/codec-openjpeg": "catalog:",
+    "@cornerstonejs/codec-openjph": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

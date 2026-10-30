@@ -1677,6 +1677,63 @@ options={`{
 }`}
 />
 
+## Radiology images
+
+The `image.nifti`, `image.dicomweb`, and `image.dicom` file types load single-channel radiology volumes (such as CT and MR) for the `spatialBeta` and `layerControllerBeta` views.
+
+- Values are rescaled to physical units (for example, Hounsfield units for CT) using the NIfTI `scl_slope`/`scl_inter` or DICOM `RescaleSlope`/`RescaleIntercept`.
+- The initial window comes from the DICOM `WindowCenter`/`WindowWidth` or NIfTI `cal_min`/`cal_max`. When these are missing, the 2nd to 98th percentile of the values is used.
+- Volumes are placed in patient coordinates and displayed in the radiological convention (the patient's right on the left of the screen). Rotation of oblique acquisitions is ignored.
+- Uncompressed DICOM data is supported, as well as these compressed transfer syntaxes: JPEG Lossless, JPEG-LS, JPEG 2000, HTJ2K, and RLE Lossless. Compressed frames are decoded in web workers. The decoders for JPEG-LS, JPEG 2000, and HTJ2K are WebAssembly modules that are downloaded from [jsDelivr](https://www.jsdelivr.com/) the first time they are needed.
+- Images that do not match the rest of a DICOM series (such as localizers) are skipped.
+- Not yet supported: lossy JPEG (Baseline and Extended) and big-endian DICOM transfer syntaxes, multi-frame DICOM images, `MONOCHROME1` and color images, and big-endian NIfTI files.
+
+### `image.nifti`
+
+Points to a NIfTI-1 or NIfTI-2 file (`.nii` or gzip-compressed `.nii.gz`).
+The whole file is downloaded and decompressed in the browser.
+The volume is positioned using its qform or sform. The time points of 4D files are available along the T dimension.
+
+<FileDefTabs
+fileName="my_volume.nii.gz"
+fileType="image.nifti"
+fileConst="IMAGE_NIFTI"
+/>
+
+### `image.dicomweb`
+
+Points to a DICOM series on a [DICOMweb](https://www.dicomstandard.org/using/dicomweb) server.
+The URL is the series URL: `<DICOMweb root>/studies/<StudyInstanceUID>/series/<SeriesInstanceUID>`.
+The series metadata is loaded first, and then each slice is loaded when it is displayed.
+
+Frames are requested uncompressed. Servers that cannot transcode return frames as stored, and supported compressed frames are decoded in the browser.
+For servers that require authentication, set the `Authorization` header with `requestInit`.
+
+<FileDefTabs
+fileName="dicomweb/studies/1.2.3/series/1.2.3.4"
+fileType="image.dicomweb"
+fileConst="IMAGE_DICOMWEB"
+/>
+
+### `image.dicom`
+
+Points to the DICOM files (`.dcm`) of one series, with one image per file, listed in `options.urls` in any order.
+Only the start of each file is read when the series loads; the pixel data of each slice is read when it is displayed.
+This requires a server that supports HTTP range requests and allows the `Range` header for cross-origin requests. Otherwise, whole files are downloaded.
+For compressed files, the pixel data is read from its start to the end of the file.
+
+<FileDefTabs
+fileType="image.dicom"
+fileConst="IMAGE_DICOM"
+options={`{
+    "urls": [
+      "https://example.com/my_series/slice_001.dcm",
+      "https://example.com/my_series/slice_002.dcm",
+      "https://example.com/my_series/slice_003.dcm"
+    ]
+}`}
+/>
+
 ## `obsSegmentations.ng-precomputed`
 
 Points to "precomputed" **multi-resolution chunked meshes**.

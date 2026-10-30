@@ -43,6 +43,9 @@ import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinOop2019Zip, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
+import { niftiCtAbdomen, niftiMni152 } from './view-configs/radiology/nifti.js';
+import { dicomwebNlstCt, dicomwebJpegLsCt } from './view-configs/radiology/dicomweb.js';
+import { dicomNlstCt, dicomJpeg2000Mr, dicomJpegLosslessCt } from './view-configs/radiology/dicom.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
@@ -214,6 +217,13 @@ export const configs = {
   'blin-2019-3': blinSideBySide2019,
   'codex-2023': codexOop2023,
   'visium-2023-image-only': visiumImageOop2023,
+  'nifti-ct-abdomen': niftiCtAbdomen,
+  'nifti-mni152': niftiMni152,
+  'dicomweb-nlst-ct': dicomwebNlstCt,
+  'dicom-nlst-ct': dicomNlstCt,
+  'dicomweb-jpegls-ct': dicomwebJpegLsCt,
+  'dicom-jpeg2000-mr': dicomJpeg2000Mr,
+  'dicom-jpeg-lossless-ct': dicomJpegLosslessCt,
   'visium-2023': visiumSpotsOop2023,
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,

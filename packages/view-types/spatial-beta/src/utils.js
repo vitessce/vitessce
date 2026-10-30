@@ -78,10 +78,11 @@ export function getInitialSpatialTargets({
       const viewStateModelMatrix = use3d
         ? getVolumeModelMatrix(imageLayerLoader, modelMatrix)
         : new Matrix4(modelMatrix);
+      // No backoff here: it is applied once to the combined extent below.
       const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
         imageLayerLoader,
         viewSize,
-        zoomBackoff,
+        0,
         use3d,
         viewStateModelMatrix,
       );
@@ -148,10 +149,11 @@ export function getInitialSpatialTargets({
           const modelMatrix = layerData?.obsSegmentations?.instance.getModelMatrix();
           if (imageLayerLoader) {
             const viewSize = { height, width };
+            // No backoff here: it is applied once to the combined extent below.
             const { target, zoom: newViewStateZoom } = viv.getDefaultInitialViewState(
               imageLayerLoader,
               viewSize,
-              zoomBackoff,
+              0,
               use3d,
               new Matrix4(modelMatrix),
             );

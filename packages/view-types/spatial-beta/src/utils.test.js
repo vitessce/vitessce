@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { Matrix4 } from 'math.gl';
 import { viv } from '@vitessce/gl';
 import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
-import { getVolumeModelMatrix, isLayerVisible, getLayerLoaderTuple } from './utils.js';
+import {
+  getVolumeModelMatrix, isLayerVisible, getLayerLoaderTuple, getInitialSpatialTargets,
+} from './utils.js';
 
 /**
  * Stand-in for a viv PixelSource. Only `meta.physicalSizes` is read.
@@ -143,6 +145,30 @@ describe('view-types/spatial-beta/utils', () => {
       const [Layer, loader] = getLayerLoaderTuple(data, false);
       expect(Layer).toBe(viv.ImageLayer);
       expect(loader).toBe(data[0]);
+    });
+  });
+
+  describe('getInitialSpatialTargets', () => {
+    // A 100 x 100 x 10 image in a 100 x 100 view.
+    const images = {
+      layer: {
+        image: {
+          instance: {
+            getData: () => [{ labels: ['t', 'c', 'z', 'y', 'x'], shape: [1, 1, 10, 100, 100] }],
+            getModelMatrix: () => new Matrix4().identity(),
+          },
+        },
+      },
+    };
+
+    it.each([
+      [false, 0.1],
+      [true, 1.5],
+    ])('applies the zoom backoff once (3D: %s)', (is3dMode, zoomBackoff) => {
+      const { initialZoom } = getInitialSpatialTargets({
+        width: 100, height: 100, images, is3dMode, isReady: true,
+      });
+      expect(initialZoom).toBeCloseTo(-zoomBackoff);
     });
   });
 });

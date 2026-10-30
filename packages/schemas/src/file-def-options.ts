@@ -177,6 +177,12 @@ export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
     .optional(),
 });
 
+// DICOM Part 10 files, one per image of a series.
+export const imageDicomSchema = z.object({
+  urls: z.array(z.string())
+    .describe('URL of each .dcm file in the series, in any order.'),
+});
+
 // OME-Zarr (NGFF)
 export const imageOmeZarrSchema = z.object({
   coordinateTransformations: omeCoordinateTransformations
