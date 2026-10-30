@@ -24,6 +24,7 @@ describe('volume info', () => {
           { source: 1, dataShape: [32, 512, 256], zFactor: 2, zMode: 'sample' },
         ],
         firstSource: 1,
+        maxShape: [4096, 1024, 1024],
         spacing: [2, 0.5, 0.5],
         spacingUnit: 'micrometer',
       });
@@ -31,6 +32,9 @@ describe('volume info', () => {
       expect(info.channelCount).toBe(4);
       expect(info.spacingUnit).toBe('µm');
       expect(info.sourceLevels.map(level => level.isRendered)).toEqual([false, true, true]);
+      // Source 0 is 2048 voxels high; every source is 64 planes deep.
+      expect(info.sourceLevels.map(level => level.isOverMaxXY)).toEqual([true, false, false]);
+      expect(info.sourceLevels.map(level => level.isOverMaxZ)).toEqual([false, false, false]);
       expect(info.sourceLevels[0].shape).toEqual([64, 2048, 1024]);
       expect(info.sourceLevels[0].chunks).toEqual([1, 512, 512]);
       // One timepoint, 2 bytes per voxel: one channel, and all four.
@@ -51,6 +55,20 @@ describe('volume info', () => {
       expect(info.channelCount).toBe(1);
       expect(info.spacingUnit).toBe('');
       expect(info.sourceLevels[0].bytes).toBe(512 * 64 * 64);
+      expect(info.sourceLevels[0].isOverMaxZ).toBe(false);
+    });
+
+    it('flags a source deeper than the limit', () => {
+      const info = getVolumeInfo({
+        sourceArrays: [{ shape: [5000, 64, 64], chunks: [1, 64, 64], dtype: 'uint8' }],
+        labels: ['z', 'y', 'x'],
+        levels: [{ source: 0, dataShape: [2500, 64, 64], zFactor: 2, zMode: 'sample' }],
+        firstSource: 0,
+        maxShape: [4096, 16384, 16384],
+        spacing: [1, 1, 1],
+      });
+      expect(info.sourceLevels[0]).toMatchObject({ isOverMaxXY: false, isOverMaxZ: true });
+      expect(info.renderLevels[0]).toMatchObject({ source: 0, zFactor: 2 });
     });
   });
 

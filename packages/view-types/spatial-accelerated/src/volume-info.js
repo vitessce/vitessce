@@ -33,14 +33,17 @@ export function formatDtype(dtype) {
  * @param {string[]} options.labels Axis labels of the arrays.
  * @param {object[]} options.levels Render levels from _planLevelsWithinPageTable.
  * @param {number} options.firstSource The finest source level that is rendered.
+ * @param {number[]} [options.maxShape] Largest loadable level, ZYX voxels.
  * @param {number[]} options.spacing Level-0 voxel size, ZYX.
  * @param {string} [options.spacingUnit] Unit of the voxel size, as in the metadata.
  * @returns {object} sourceLevels and renderLevels with ZYX shapes; render level
  * sources index sourceLevels. Sizes in bytes are for the one timepoint the view
- * shows: channelBytes for one channel, bytes for all channels.
+ * shows: channelBytes for one channel, bytes for all channels. A source level
+ * isOverMaxXY (dropped) or isOverMaxZ (binned in Z) when larger than maxShape.
  */
 export function getVolumeInfo({
-  sourceArrays, labels, levels, firstSource, spacing, spacingUnit,
+  sourceArrays, labels, levels, firstSource, maxShape = [Infinity, Infinity, Infinity],
+  spacing, spacingUnit,
 }) {
   const zyx = values => ['z', 'y', 'x'].map(axis => (
     labels.includes(axis) ? values[labels.indexOf(axis)] : 1
@@ -54,6 +57,7 @@ export function getVolumeInfo({
     spacing,
     spacingUnit: formatUnit(spacingUnit),
     firstSource,
+    maxShape,
     sourceLevels: sourceArrays.map((array, index) => {
       const shape = zyx(array.shape);
       const channelBytes = shape.reduce((product, size) => product * size, 1) * bytesPerElement;
@@ -63,6 +67,8 @@ export function getVolumeInfo({
         channelBytes,
         bytes: channelBytes * channelCount,
         isRendered: index >= firstSource,
+        isOverMaxXY: shape[1] > maxShape[1] || shape[2] > maxShape[2],
+        isOverMaxZ: shape[0] > maxShape[0],
       };
     }),
     renderLevels: levels.map(level => ({

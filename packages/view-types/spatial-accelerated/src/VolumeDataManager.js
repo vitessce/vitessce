@@ -53,9 +53,14 @@ const BRICK_CACHE_ADDRESS_SIZE = 'uint16';
 
 const MAX_RESOLUTION_LEVELS = 10; // [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const MAX_CHANNELS = 7; // [0, 1, 2, 3, 4, 5, 6]
-// Page table extents (XYZ) that brick requests can address: the fragment shader
-// packs request coordinates into 32 bits as x:10 | y:10 | z:12 (packPTCoordToRGBA8).
-const PAGE_TABLE_MAX_EXTENT = [1024, 1024, 4096];
+// Bits per axis (XYZ) of a brick request: the fragment shader packs page table
+// coordinates into 32 bits as x:10 | y:10 | z:12 (packPTCoordToRGBA8).
+const PT_REQUEST_BITS = [10, 10, 12];
+// Page table extents (XYZ, in bricks) that brick requests can address.
+const PAGE_TABLE_MAX_EXTENT = PT_REQUEST_BITS.map(bits => 2 ** bits);
+// Largest level (ZYX, in voxels) whose page table addresses can be encoded:
+// 16k × 16k × 4k (X × Y × Z). Finer source levels are not loaded.
+export const MAX_LEVEL_SHAPE = [4096, 16384, 16384];
 // Bricks fetched at once. Each keeps at most 32 source planes in flight.
 const BRICK_FETCH_CONCURRENCY = 6;
 // Requested bricks beyond the top k that a batch also loads when all their source
@@ -282,9 +287,11 @@ export function _getPageTableLayout(brickLayout, channelCount) {
 
 /**
  * Volume levels whose page table fits what brick requests can address and the
- * GPU allows. When the full pyramid does not fit, the finest source levels are
+ * GPU allows, and whose finest level is within MAX_LEVEL_SHAPE. When the full
+ * pyramid does not fit, the finest source levels are
  * dropped and the levels are planned as if the pyramid started at the first
  * source that fits, with its voxel spacing, so the physical size is unchanged.
+ * A source deeper than the Z limit is not dropped: level 0 bins its planes.
  * @param {object} options planVolumeLevels options, plus:
  * @param {number} options.channelCount Channel slots in the page table.
  * @param {number} [options.max3DTextureSize] GPU limit for the page table texture.
@@ -299,6 +306,8 @@ export function _planLevelsWithinPageTable({
   let sourceSpacing = spacing;
   for (let firstSource = 0; firstSource < arrays.length; firstSource++) {
     const sourceArrays = arrays.slice(firstSource);
+    const depth = sourceArrays[0].shape[labels.indexOf('z')];
+    const minZFactor = Math.max(1, Math.ceil(depth / MAX_LEVEL_SHAPE[0]));
     const levels = planVolumeLevels({
       arrays: sourceArrays,
       labels,
@@ -306,21 +315,29 @@ export function _planLevelsWithinPageTable({
       spacing: sourceSpacing,
       mode,
       maxLevels,
+      minZFactor,
     });
     const brickLayout = levels.map(level => level.shape.map(size => Math.ceil(size / BRICK_SIZE)));
     const { xExtent, yExtent, zTotal } = _getPageTableLayout(brickLayout, channelCount);
-    if ([xExtent, yExtent, zTotal].every((extent, axis) => extent <= maxExtent[axis])) {
+    const isWithinMaxShape = levels[0].dataShape
+      .every((size, axis) => size <= MAX_LEVEL_SHAPE[axis]);
+    if (isWithinMaxShape
+      && [xExtent, yExtent, zTotal].every((extent, axis) => extent <= maxExtent[axis])) {
       return {
-        levels, arrays: sourceArrays, spacing: sourceSpacing, firstSource,
+        levels,
+        arrays: sourceArrays,
+        // Level-0 voxels span minZFactor planes.
+        spacing: [sourceSpacing[0] * minZFactor, sourceSpacing[1], sourceSpacing[2]],
+        firstSource,
       };
     }
     // The next source's voxels, relative to this one's, before any Z binning.
     const next = levels.find(level => level.source === 1);
     if (!next) break;
     sourceSpacing = sourceSpacing.map((size, axis) => size
-      * (axis === 0 ? next.ratio[0] / next.zFactor : next.ratio[axis]));
+      * (axis === 0 ? (next.ratio[0] * minZFactor) / next.zFactor : next.ratio[axis]));
   }
-  throw new Error(`Even the coarsest level needs a page table larger than ${maxExtent.join(' x ')} bricks`);
+  throw new Error(`Even the coarsest level is larger than ${MAX_LEVEL_SHAPE[2]} x ${MAX_LEVEL_SHAPE[1]} voxels in XY or needs a page table larger than ${maxExtent.join(' x ')} bricks`);
 }
 
 export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
@@ -1097,6 +1114,7 @@ export class VolumeDataManager {
           labels,
           levels,
           firstSource,
+          maxShape: MAX_LEVEL_SHAPE,
           spacing: sourceSpacing,
           // NGFF axes, or the OME-XML of an OME-TIFF.
           spacingUnit: this.ngffMetadata?.multiscales?.[0]?.axes

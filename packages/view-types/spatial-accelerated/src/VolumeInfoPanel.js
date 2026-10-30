@@ -52,6 +52,15 @@ const useStyles = makeStyles()(theme => ({
   volumeInfoWarning: {
     color: theme.palette.error.main,
   },
+  // Level 0 binned in Z: shown, at less than full Z resolution.
+  volumeInfoZWarning: {
+    color: theme.palette.warning.main,
+  },
+  volumeInfoZWarningCell: {
+    '&&': {
+      color: theme.palette.warning.main,
+    },
+  },
   // Source levels too large to render. Set on the cells, since MUI gives
   // table cells their own text color.
   volumeInfoDroppedCell: {
@@ -112,6 +121,9 @@ export function VolumeInfoPanel({ dataManager }) {
     'Queued',
   ];
   const droppedClass = `${cellClass} ${classes.volumeInfoDroppedCell}`;
+  const zWarningClass = `${cellClass} ${classes.volumeInfoZWarningCell}`;
+  const finestLevel = renderLevels[0];
+  const isZBinned = sourceLevels[finestLevel.source].isOverMaxZ && finestLevel.zFactor > 1;
   const sizeCells = (sourceLevel, isShown, className = cellClass) => (hasChannels
     ? [sourceLevel.channelBytes, sourceLevel.bytes] : [sourceLevel.bytes]
   ).map((bytes, i) => (
@@ -141,12 +153,26 @@ export function VolumeInfoPanel({ dataManager }) {
       </div>
       {firstSource > 0 ? (
         <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoWarning}`}>
-          {`Too large for full resolution: finest shown is source level ${firstSource}`
+          {`${sourceLevels[0].isOverMaxXY
+            ? `Level 0 is over the ${info.maxShape[2]} × ${info.maxShape[1]} XY address limit`
+            : 'Too large for full resolution'
+          }: finest shown is source level ${firstSource}`
             + ` (${formatExtent(sourceLevels[firstSource].shape)})`}
+        </Typography>
+      ) : null}
+      {isZBinned ? (
+        <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoZWarning}`}>
+          {`Z is over the ${info.maxShape[0]}-plane limit: finest level has Z ÷${finestLevel.zFactor}`
+            + ` (${finestLevel.zMode}, ${formatExtent(finestLevel.shape)})`}
         </Typography>
       ) : null}
       {isExpanded ? (
         <>
+          {info.maxShape.every(Number.isFinite) ? (
+            <Typography className={classes.volumeInfoText}>
+              {`Largest loadable level: ${formatExtent(info.maxShape)}`}
+            </Typography>
+          ) : null}
           {hasSpacing ? (
             <Typography className={classes.volumeInfoText}>
               {`Voxel size (level 0): ${formatSpacing(info.spacing, info.spacingUnit)}`}
@@ -169,7 +195,9 @@ export function VolumeInfoPanel({ dataManager }) {
                   <TableCell className={droppedClass}>{source}</TableCell>
                   <TableCell className={droppedClass}>{formatExtent(sourceLevel.chunks)}</TableCell>
                   {sizeCells(sourceLevel, true, droppedClass)}
-                  <TableCell className={droppedClass}>too large</TableCell>
+                  <TableCell className={droppedClass}>
+                    {sourceLevel.isOverMaxXY ? 'over limit' : 'too large'}
+                  </TableCell>
                 </TableRow>
               ))}
               {renderLevels.map((renderLevel, level) => {
@@ -177,6 +205,8 @@ export function VolumeInfoPanel({ dataManager }) {
                 const isFirstOfSource = !seenSources.has(renderLevel.source);
                 seenSources.add(renderLevel.source);
                 const isQueued = queuedByLevel[level] > 0;
+                // The binned finest level: its extent and source show the Z reduction.
+                const levelClass = level === 0 && isZBinned ? zWarningClass : cellClass;
                 return (
                   <TableRow
                     // eslint-disable-next-line react/no-array-index-key
@@ -184,8 +214,8 @@ export function VolumeInfoPanel({ dataManager }) {
                     className={isQueued ? classes.volumeInfoQueuedRow : undefined}
                   >
                     <TableCell className={cellClass}>{`L${level}`}</TableCell>
-                    <TableCell className={cellClass}>{formatExtent(renderLevel.shape)}</TableCell>
-                    <TableCell className={cellClass}>
+                    <TableCell className={levelClass}>{formatExtent(renderLevel.shape)}</TableCell>
+                    <TableCell className={levelClass}>
                       {renderLevel.zFactor > 1
                         ? `${renderLevel.source}, Z ÷${renderLevel.zFactor} (${renderLevel.zMode})`
                         : renderLevel.source}

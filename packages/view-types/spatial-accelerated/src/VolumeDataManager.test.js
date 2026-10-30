@@ -5,6 +5,7 @@ import {
   _initMRMCPT,
   _getPageTableLayout,
   _planLevelsWithinPageTable,
+  MAX_LEVEL_SHAPE,
   _resolutionStatsToBrickLayout,
   _packPT,
   _ptToZarr,
@@ -254,35 +255,72 @@ describe('spatial-accelerated data utils', () => {
       return [xExtent, yExtent, zTotal];
     };
 
-    it('keeps every level when the page table fits (idr0048A 9846152)', () => {
-      const arrays = pyramid(91, 13350, 19120, 9);
+    it('keeps every level when level 0 is within the address limit', () => {
+      const arrays = pyramid(91, 13350, 16384, 9);
       const { levels, firstSource, spacing } = _planLevelsWithinPageTable({
         arrays, labels, channelCount: 3,
       });
       expect(firstSource).toBe(0);
       expect(spacing).toEqual([1, 1, 1]);
       expect(levels).toEqual(planVolumeLevels({ arrays, labels }));
-      expect(extentsOf(levels)).toEqual([602, 423, 27]);
+    });
+
+    it('drops level 0 when it is over the 16k x 16k x 4k address limit (idr0048A 9846152)', () => {
+      expect([...MAX_LEVEL_SHAPE].reverse()).toEqual([16384, 16384, 4096]);
+      const arrays = pyramid(91, 13350, 19120, 9);
+      const { levels, firstSource, spacing } = _planLevelsWithinPageTable({
+        arrays, labels, channelCount: 3,
+      });
+      expect(firstSource).toBe(1);
+      expect(spacing).toEqual([1, 2, 2]);
+      expect(levels[0]).toMatchObject({ source: 0, dataShape: [91, 6675, 9560] });
     });
 
     it('drops the finest levels of an image wider than requests can address', () => {
-      // 40000 voxels is 1250 bricks; request coordinates have 10 bits for x and y.
+      // Sources 0 and 1 are wider than 16384 voxels.
       const arrays = pyramid(64, 30000, 40000, 6);
       const {
         levels, arrays: planned, firstSource, spacing,
       } = _planLevelsWithinPageTable({
         arrays, labels, spacing: [2, 0.5, 0.5], channelCount: 3,
       });
-      expect(firstSource).toBe(1);
-      expect(planned).toEqual(arrays.slice(1));
-      expect(levels[0]).toMatchObject({ source: 0, zFactor: 1, shape: [64, 15000, 20000] });
-      // Level 0 is now source 1, with twice the XY voxel size: same physical extent.
-      expect(spacing).toEqual([2, 1, 1]);
-      expect(levels[0].shape.map((size, axis) => size * spacing[axis]))
+      expect(firstSource).toBe(2);
+      expect(planned).toEqual(arrays.slice(2));
+      expect(levels[0]).toMatchObject({ source: 0, zFactor: 1, dataShape: [64, 7500, 10000] });
+      // Level 0 is now source 2, with four times the XY voxel size: same physical extent.
+      expect(spacing).toEqual([2, 2, 2]);
+      expect(levels[0].dataShape.map((size, axis) => size * spacing[axis]))
         .toEqual([128, 15000, 20000]);
       extentsOf(levels).forEach((extent, axis) => {
         expect(extent).toBeLessThanOrEqual([1024, 1024, 4096][axis]);
       });
+    });
+
+    it('bins Z at full XY resolution when a stack is deeper than 4096 planes', () => {
+      const arrays = pyramid(5000, 1024, 1024, 3);
+      const { levels, firstSource, spacing } = _planLevelsWithinPageTable({
+        arrays, labels, spacing: [1, 0.5, 0.5], channelCount: 3,
+      });
+      expect(firstSource).toBe(0);
+      expect(levels[0]).toMatchObject({
+        source: 0, zFactor: 2, zMode: 'sample', dataShape: [2500, 1024, 1024], ratio: [1, 1, 1],
+      });
+      // Level-0 voxels span two planes: same physical extent.
+      expect(spacing).toEqual([2, 0.5, 0.5]);
+      expect(levels[0].dataShape[0] * spacing[0]).toBe(5000);
+      // Coarser levels are never finer in Z than level 0.
+      levels.forEach((level, i) => {
+        expect(level.ratio[0]).toBeGreaterThanOrEqual(i === 0 ? 1 : levels[i - 1].ratio[0]);
+        expect(level.shape[0]).toBeLessThanOrEqual(4096);
+      });
+    });
+
+    it('bins Z of a deep stack even without Z reduction', () => {
+      const { levels } = _planLevelsWithinPageTable({
+        arrays: pyramid(5000, 1024, 1024, 3), labels, channelCount: 3, mode: 'none',
+      });
+      expect(levels.map(level => level.zFactor).slice(0, 3)).toEqual([2, 2, 2]);
+      expect(levels.map(level => level.ratio[0]).slice(0, 3)).toEqual([1, 1, 1]);
     });
 
     it('also respects the GPU 3D texture size', () => {

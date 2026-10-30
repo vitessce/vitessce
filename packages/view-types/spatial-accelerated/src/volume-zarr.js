@@ -39,8 +39,11 @@ function planOverviewLevel(coarsest, shape0, chunkZ, mode) {
 
 // Logical voxels cover integer bins of source planes. In particular, the last
 // partial bin must not change the scale used by the shader (extent / scale).
+// With minZFactor > 1, level 0 is binned in Z too (a stack too deep to address),
+// and ratios are relative to its binned voxels.
 export function planVolumeLevels({
   arrays, labels, datasets = [], spacing = [1, 1, 1], mode = 'auto', maxLevels = 10,
+  minZFactor = 1,
 }) {
   if (!['auto', 'none', 'sample', 'mean', 'max'].includes(mode)) {
     throw new Error(`Unknown volumeZReduction: ${mode}`);
@@ -58,27 +61,35 @@ export function planVolumeLevels({
     value => Number.isFinite(value) && value > 0,
   ));
   const isXYOnly = shapes.every(shape => shape[0] === shapes[0][0]);
+  const isReducingZ = mode !== 'none' && (mode !== 'auto' || isXYOnly);
   let previousRatioZ = 1;
   const levels = shapes.slice(0, maxLevels).map((shape, source) => {
+    // Relative to source 0 voxels, unbinned.
     const ratio = shape.map((size, axis) => (hasScales
       ? scales[source][axis] / scales[0][axis] : shapes[0][axis] / size));
-    let zFactor = 1;
-    if (source > 0 && mode !== 'none' && (mode !== 'auto' || isXYOnly)) {
-      const physicalRatio = Math.min(spacing[1] * ratio[1], spacing[2] * ratio[2])
-        / (spacing[0] * ratio[0]);
-      // Shape ratios can be just below an integer, e.g. 4045 / 2023.
-      const rounded = Math.round(physicalRatio);
-      const factor = Math.abs(physicalRatio - rounded) < 0.05
-        ? rounded : Math.floor(physicalRatio);
+    let zFactor = source === 0 ? minZFactor : 1;
+    if (source > 0) {
+      // Never finer in Z than the previous level, which a binned level 0 can be.
+      const coarserFactor = Math.ceil(previousRatioZ / ratio[0] - 1e-9);
+      let factor = 1;
+      if (isReducingZ) {
+        const physicalRatio = Math.min(spacing[1] * ratio[1], spacing[2] * ratio[2])
+          / (spacing[0] * ratio[0]);
+        // Shape ratios can be just below an integer, e.g. 4045 / 2023.
+        const rounded = Math.round(physicalRatio);
+        factor = Math.abs(physicalRatio - rounded) < 0.05
+          ? rounded : Math.floor(physicalRatio);
+      }
       zFactor = Math.min(
         Math.max(1, Math.floor(shape[0] / BRICK_SIZE)),
-        Math.max(1, factor, Math.ceil(previousRatioZ / ratio[0] - 1e-9)),
+        Math.max(1, factor, coarserFactor),
       );
     }
     // Auto filters with mean only when the source chunk already spans the bin.
+    // Without Z reduction, only a binned level 0 (and coarser) bins, the same way.
     let zMode = mode;
     if (zFactor === 1) zMode = 'native';
-    else if (mode === 'auto') {
+    else if (mode === 'auto' || mode === 'none') {
       zMode = arrays[source].chunks[labels.indexOf('z')] >= zFactor ? 'mean' : 'sample';
     }
     ratio[0] *= zFactor;
@@ -95,7 +106,8 @@ export function planVolumeLevels({
       shape: dataShape.map((size, axis) => Math.max(
         size, Math.ceil(shapes[0][axis] / ratio[axis] - 1e-6),
       )),
-      ratio, // ZYX; reverse only when setting the shader's XYZ scales.
+      // ZYX, relative to level 0; reverse only when setting the shader's XYZ scales.
+      ratio: [ratio[0] / minZFactor, ratio[1], ratio[2]],
       zFactor,
       yFactor: 1,
       xFactor: 1,
@@ -105,7 +117,9 @@ export function planVolumeLevels({
   const coarsest = levels[levels.length - 1];
   if (levels.length < maxLevels && coarsest.shape.some(size => size > BRICK_SIZE)) {
     const chunkZ = arrays[coarsest.source].chunks[labels.indexOf('z')];
-    levels.push(planOverviewLevel(coarsest, shapes[0], chunkZ, mode));
+    // Level-0 extent in its own (binned) voxels.
+    const extent0 = [shapes[0][0] / minZFactor, shapes[0][1], shapes[0][2]];
+    levels.push(planOverviewLevel(coarsest, extent0, chunkZ, mode));
   }
   return levels;
 }
