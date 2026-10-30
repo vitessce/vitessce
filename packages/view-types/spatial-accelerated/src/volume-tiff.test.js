@@ -1,0 +1,354 @@
+import { describe, it, expect } from 'vitest';
+import * as zarr from 'zarrita';
+import {
+  createVolumeBrickSource,
+  planVolumeLevels,
+  decodedBytesPerBrick,
+  getBytesPerElement,
+} from './volume-zarr.js';
+import { getTiffLevelArrays, createTiffRegionReader, getTiffSampleRange } from './volume-tiff.js';
+import { _getVolumeSources } from './VolumeDataManager.js';
+
+const value = (c, z, y, x) => (z * 7 + y * 3 + x + c * 100) % 4000;
+
+// Mimics viv's TiffPixelSource: _indexer gives the TIFF directory of one plane,
+// and _readRasters decodes a window of it. tileSize is what viv reports (level
+// 0's for every level); tileShape [height, width] is the level's real TIFF tile.
+function createMockPixelSource({
+  labels, shape, tileSize, tileShape = [tileSize, tileSize],
+}) {
+  const size = axis => shape[labels.indexOf(axis)];
+  const pixelSource = {
+    labels,
+    shape,
+    tileSize,
+    dtype: 'Uint16',
+    tileReads: 0,
+    windows: [],
+    // eslint-disable-next-line no-underscore-dangle
+    async _indexer(selection) {
+      return {
+        selection,
+        getTileHeight: () => tileShape[0],
+        getTileWidth: () => tileShape[1],
+      };
+    },
+    // eslint-disable-next-line no-underscore-dangle
+    async _readRasters(image, { window: [x0, y0, x1, y1], width, height }) {
+      pixelSource.tileReads += 1;
+      pixelSource.windows.push([x0, y0, x1, y1]);
+      expect(x1 <= size('x') && y1 <= size('y')).toBe(true);
+      expect([x1 - x0, y1 - y0]).toEqual([width, height]);
+      const { c = 0, z } = image.selection;
+      const data = new Uint16Array(width * height);
+      for (let row = 0; row < height; row++) {
+        for (let column = 0; column < width; column++) {
+          data[row * width + column] = value(c, z, y0 + row, x0 + column);
+        }
+      }
+      return { data, width, height };
+    },
+  };
+  return pixelSource;
+}
+
+// The same voxels as a zarrita array (TCZYX).
+async function createZarrArray(shape, chunkShape) {
+  const array = await zarr.create(zarr.root(new Map()).resolve('a'), { shape, chunkShape, dtype: 'uint16' });
+  const [, nc, nz, ny, nx] = shape;
+  const data = new Uint16Array(nc * nz * ny * nx);
+  let i = 0;
+  for (let c = 0; c < nc; c++) {
+    for (let z = 0; z < nz; z++) {
+      for (let y = 0; y < ny; y++) {
+        for (let x = 0; x < nx; x++) data[i++] = value(c, z, y, x);
+      }
+    }
+  }
+  const stride = shape.map((_, axis) => shape.slice(axis + 1).reduce((a, b) => a * b, 1));
+  await zarr.set(array, null, { data, shape, stride });
+  return array;
+}
+
+const withDataShape = level => ({ ...level, dataShape: level.shape });
+
+describe('volume-tiff', () => {
+  describe('getTiffLevelArrays', () => {
+    it('describes each level with its tiles as chunks, in label order', async () => {
+      const pixelSources = [
+        createMockPixelSource({ labels: ['t', 'z', 'c', 'y', 'x'], shape: [1, 1955, 2, 2048, 1758], tileSize: 256 }),
+        createMockPixelSource({ labels: ['t', 'z', 'c', 'y', 'x'], shape: [1, 1955, 2, 1024, 879], tileSize: 256 }),
+      ];
+      const arrays = await getTiffLevelArrays(pixelSources);
+      expect(arrays[0]).toMatchObject({ shape: [1, 1955, 2, 2048, 1758], chunks: [1, 1, 1, 256, 256], dtype: 'Uint16' });
+      expect(arrays[1].pixelSource).toBe(pixelSources[1]);
+    });
+
+    it('rejects interleaved RGB images', async () => {
+      const rgb = createMockPixelSource({ labels: ['t', 'c', 'z', 'y', 'x'], shape: [1, 1, 1, 64, 64, 3], tileSize: 64 });
+      await expect(getTiffLevelArrays([rgb])).rejects.toThrow(/Interleaved/);
+    });
+
+    describe('levels whose tiles differ from viv\'s tileSize', () => {
+      // As in LS_20x_5_Stitched.pyramid.ome.tiff, coarse levels have smaller
+      // tiles, while viv reports level 0's 64 for all. Level 2 has non-square tiles.
+      const labels = ['t', 'c', 'z', 'y', 'x'];
+      const createPixelSources = () => [
+        { yx: [128, 100], tileShape: [64, 64] },
+        { yx: [64, 50], tileShape: [48, 48] },
+        { yx: [32, 25], tileShape: [20, 12] },
+      ].map(({ yx, tileShape }) => createMockPixelSource({
+        labels, shape: [1, 2, 40, ...yx], tileSize: 64, tileShape,
+      }));
+
+      it('plans with each level\'s own tiles', async () => {
+        const arrays = await getTiffLevelArrays(createPixelSources());
+        expect(arrays.map(array => array.chunks)).toEqual([
+          [1, 1, 1, 64, 64],
+          [1, 1, 1, 48, 48],
+          [1, 1, 1, 20, 12],
+        ]);
+        const levels = planVolumeLevels({ arrays, labels, mode: 'none' });
+        // A 32^3 brick covers 32 planes of up to 1, 2 x 2, and 2 x 3 tiles.
+        expect(levels.slice(0, 3).map(level => decodedBytesPerBrick(
+          level, arrays[level.source], labels, 2,
+        ))).toEqual([
+          32 * 64 * 64 * 2,
+          32 * 4 * 48 * 48 * 2,
+          32 * 6 * 20 * 12 * 2,
+        ]);
+      });
+
+      it('reads windows on each level\'s own tile grid', async () => {
+        const pixelSources = createPixelSources();
+        const arrays = await getTiffLevelArrays(pixelSources);
+        const readRegion = createTiffRegionReader({
+          arrays, labels, cache: { load: (key, loader) => loader() },
+        });
+        // Level 1: y [10, 60) and x [40, 50) cross the 48-voxel tile edges.
+        const region = await readRegion(1, {
+          t: 0, c: 1, z: [3, 5], y: [10, 60], x: [40, 50],
+        });
+        // The same four tiles for planes 3 and 4.
+        const level1Tiles = [[0, 0, 48, 48], [48, 0, 50, 48], [0, 48, 48, 64], [48, 48, 50, 64]];
+        expect(pixelSources[1].windows).toEqual([...level1Tiles, ...level1Tiles]);
+        expect(region.stride).toEqual([50 * 10, 10, 1]);
+        const mismatch = region.data.findIndex((v, i) => {
+          const z = 3 + Math.floor(i / 500);
+          const y = 10 + Math.floor((i % 500) / 10);
+          const x = 40 + (i % 10);
+          return v !== value(1, z, y, x);
+        });
+        expect(mismatch).toBe(-1);
+        // Level 2: 20 x 12 tiles, clipped at the 32 x 25 edge.
+        await readRegion(2, {
+          t: 0, c: 0, z: [0, 1], y: [0, 32], x: [0, 25],
+        });
+        expect(pixelSources[2].windows).toEqual([
+          [0, 0, 12, 20], [12, 0, 24, 20], [24, 0, 25, 20],
+          [0, 20, 12, 32], [12, 20, 24, 32], [24, 20, 25, 32],
+        ]);
+        expect(pixelSources[0].windows).toEqual([]);
+      });
+    });
+  });
+
+  describe('bricks from TIFF tiles', () => {
+    const levels = [
+      { zFactor: 1, zMode: 'native' },
+      { zFactor: 3, zMode: 'sample' },
+      { zFactor: 3, zMode: 'mean' },
+      { zFactor: 3, zMode: 'max' },
+      { zFactor: 3, zMode: 'mean', yFactor: 2, xFactor: 2 }, // overview-style XY reduction
+    ].map(({ zFactor, yFactor = 1, xFactor = 1, ...level }) => withDataShape({
+      ...level,
+      source: 0,
+      sourceDepth: 70,
+      zFactor,
+      yFactor,
+      xFactor,
+      shape: [Math.ceil(70 / zFactor), Math.ceil(45 / yFactor), Math.ceil(50 / xFactor)],
+    }));
+    // Interior and edge bricks of every level, for both channels.
+    const reads = levels.flatMap((level, levelIndex) => [
+      [0, 0, 0], level.shape.map(size => Math.ceil(size / 32) - 1),
+    ].flatMap(([bz, by, bx]) => [0, 1].map(c => ({
+      level: levelIndex, c, bx, by, bz,
+    }))));
+
+    it.each([
+      ['tczyx', ['t', 'c', 'z', 'y', 'x'], [1, 2, 70, 45, 50]],
+      ['tzcyx (XYCZT)', ['t', 'z', 'c', 'y', 'x'], [1, 70, 2, 45, 50]],
+    ])('match bricks read from the same voxels as Zarr (%s)', async (name, labels, shape) => {
+      // Tiles of 20 do not align with 32-voxel bricks, and edge tiles are clipped.
+      const pixelSource = createMockPixelSource({ labels, shape, tileSize: 20 });
+      const tiffSource = createVolumeBrickSource({
+        arrays: await getTiffLevelArrays([pixelSource]),
+        levels,
+        labels,
+        createRegionReader: createTiffRegionReader,
+      });
+      const zarrLabels = ['t', 'c', 'z', 'y', 'x'];
+      const zarrSource = createVolumeBrickSource({
+        arrays: [await createZarrArray([1, 2, 70, 45, 50], [1, 1, 16, 16, 16])],
+        levels,
+        labels: zarrLabels,
+      });
+      const [tiffBricks, zarrBricks] = await Promise.all([tiffSource, zarrSource].map(
+        source => Promise.all(reads.map(read => source.readBrick(read))),
+      ));
+      reads.forEach((read, i) => {
+        expect(tiffBricks[i].data).toBeInstanceOf(Uint16Array);
+        expect(tiffBricks[i].valid).toEqual(zarrBricks[i].valid);
+        const mismatch = tiffBricks[i].data.findIndex((v, j) => v !== zarrBricks[i].data[j]);
+        expect({ ...read, mismatch }).toEqual({ ...read, mismatch: -1 });
+      });
+    });
+
+    it('decodes each tile once for neighboring bricks', async () => {
+      const labels = ['t', 'c', 'z', 'y', 'x'];
+      // One 64 x 64 tile per plane holds 2 x 2 bricks.
+      const pixelSource = createMockPixelSource({
+        labels, shape: [1, 1, 32, 64, 64], tileSize: 64,
+      });
+      const source = createVolumeBrickSource({
+        arrays: await getTiffLevelArrays([pixelSource]),
+        levels: [withDataShape({
+          source: 0, sourceDepth: 32, zFactor: 1, zMode: 'native', shape: [32, 64, 64],
+        })],
+        labels,
+        createRegionReader: createTiffRegionReader,
+      });
+      await Promise.all([[0, 0], [1, 0], [0, 1], [1, 1]].map(
+        ([bx, by]) => source.readBrick({ level: 0, bx, by, bz: 0 }),
+      ));
+      expect(pixelSource.tileReads).toBe(32);
+    });
+
+    it('lists exactly the chunks a brick reads, for TIFF tiles and Zarr chunks', async () => {
+      const labels = ['t', 'c', 'z', 'y', 'x'];
+      const createSources = async () => [
+        createVolumeBrickSource({
+          arrays: await getTiffLevelArrays([
+            createMockPixelSource({ labels, shape: [1, 2, 70, 45, 50], tileSize: 20 }),
+          ]),
+          levels,
+          labels,
+          createRegionReader: createTiffRegionReader,
+        }),
+        createVolumeBrickSource({
+          arrays: [await createZarrArray([1, 2, 70, 45, 50], [1, 1, 16, 16, 16])],
+          levels,
+          labels,
+        }),
+      ];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const read of reads) {
+        // eslint-disable-next-line no-await-in-loop
+        const sources = await createSources();
+        // eslint-disable-next-line no-await-in-loop
+        await Promise.all(sources.map(async (source) => {
+          const keys = source.brickChunkKeys(read);
+          expect(keys.some(source.isChunkCached)).toBe(false);
+          await source.readBrick(read);
+          // Every listed chunk is now decoded, and nothing else was.
+          expect(keys.every(source.isChunkCached)).toBe(true);
+          expect(source.cache.stats().entries).toBe(new Set(keys).size);
+        }));
+      }
+    });
+  });
+
+  describe('planning OME-TIFF pyramids', () => {
+    it('plans brain.pyramid.ome.tif with an affordable level 0 and a one-brick overview', async () => {
+      // XYCZT, 1758 x 2048 x 1955, 2 channels, 256 x 256 tiles, 4 levels.
+      const labels = ['t', 'z', 'c', 'y', 'x'];
+      const pixelSources = [[2048, 1758], [1024, 879], [512, 440], [256, 220]].map(
+        ([y, x]) => createMockPixelSource({ labels, shape: [1, 1955, 2, y, x], tileSize: 256 }),
+      );
+      const arrays = await getTiffLevelArrays(pixelSources);
+      // XY 4.47 um, Z 2.58 um: Z reduction starts at level 1.
+      const levels = planVolumeLevels({ arrays, labels, spacing: [2.58, 4.47, 4.47] });
+      expect(levels.map(l => l.zFactor)).toEqual([1, 3, 6, 13, 62]);
+      expect(levels.at(-1)).toMatchObject({ isOverview: true });
+      expect(levels.at(-1).shape.every(size => size <= 32)).toBe(true);
+      const bytesPerElement = getBytesPerElement(arrays[0].dtype);
+      // 32 planes of one 256 x 256 uint16 tile.
+      expect(decodedBytesPerBrick(levels[0], arrays[0], labels, bytesPerElement))
+        .toBe(32 * 256 * 256 * 2);
+    });
+  });
+
+  describe('getTiffSampleRange', () => {
+    const labels = ['t', 'z', 'c', 'y', 'x'];
+    const withDirectory = fileDirectory => ({
+      labels,
+      // eslint-disable-next-line no-underscore-dangle
+      _indexer: async selection => (
+        Object.values(selection).every(v => v === 0) ? { fileDirectory } : null
+      ),
+    });
+
+    it('reads the SMinSampleValue / SMaxSampleValue tags', async () => {
+      const source = withDirectory({ SMinSampleValue: [0, 2], SMaxSampleValue: [50, 66] });
+      expect(await getTiffSampleRange(source)).toEqual([0, 66]);
+    });
+
+    it('falls back to the same keys in the OME-XML original metadata', async () => {
+      // As in LuCa-7color_3x3component_data.ome.tif.
+      const xml = '<OME><StructuredAnnotations><XMLAnnotation><Value><OriginalMetadata>'
+        + '<Key>SMinSampleValue</Key><Value>0</Value></OriginalMetadata></Value></XMLAnnotation>'
+        + '<XMLAnnotation><Value><OriginalMetadata><Key>SMaxSampleValue</Key><Value>66</Value>'
+        + '</OriginalMetadata></Value></XMLAnnotation></StructuredAnnotations></OME>';
+      expect(await getTiffSampleRange(withDirectory({ ImageDescription: xml }))).toEqual([0, 66]);
+    });
+
+    it('returns null when no range is recorded or reading fails', async () => {
+      expect(await getTiffSampleRange(withDirectory({ ImageDescription: '<OME/>' }))).toBeNull();
+      expect(await getTiffSampleRange({
+        labels,
+        _indexer: async () => { throw new Error('network'); },
+      })).toBeNull();
+    });
+  });
+
+  describe('getBytesPerElement', () => {
+    it('reads v2 Zarr dtype strings and viv TIFF dtype names', () => {
+      expect(['|u1', '<u2', '>u2', '<f4', '<f8', 'Uint8', 'Uint16', 'Float32'].map(getBytesPerElement))
+        .toEqual([1, 2, 2, 4, 8, 1, 2, 4]);
+    });
+  });
+
+  describe('_getVolumeSources', () => {
+    it('reads OME-TIFF levels from the viv pixel sources', async () => {
+      const labels = ['t', 'c', 'z', 'y', 'x'];
+      const pixelSource = createMockPixelSource({
+        labels, shape: [1, 3, 401, 4255, 4992], tileSize: 512,
+      });
+      const sources = await _getVolumeSources({
+        getType: () => 'ome-tiff',
+        vivLoader: { data: [pixelSource], metadata: { Pixels: {} } },
+      });
+      expect(sources.labels).toEqual(labels);
+      expect(sources.datasets).toEqual([]);
+      expect(sources.arrays[0].chunks).toEqual([1, 1, 1, 512, 512]);
+      expect(sources.createRegionReader).toBe(createTiffRegionReader);
+    });
+
+    it('reads OME-Zarr levels from the zarrita arrays', async () => {
+      const array = { shape: [1, 1, 32, 32, 32], chunks: [1, 1, 32, 32, 32] };
+      const datasets = [{ path: '0' }];
+      const sources = await _getVolumeSources({
+        getType: () => 'ome-zarr',
+        getData: () => [{ labels: ['t', 'c', 'z', 'y', 'x'], _data: array }],
+        vivLoader: { metadata: { multiscales: [{ datasets }], omero: {} } },
+      });
+      expect(sources.arrays).toEqual([array]);
+      expect(sources.datasets).toBe(datasets);
+    });
+
+    it('rejects other image types', async () => {
+      await expect(_getVolumeSources(undefined)).rejects.toThrow(/OME-Zarr or OME-TIFF/);
+    });
+  });
+});

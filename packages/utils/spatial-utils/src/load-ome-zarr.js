@@ -29,6 +29,31 @@ function isAxis(axisOrLabel) {
   return typeof axisOrLabel[0] !== 'string';
 }
 
+/**
+ * Lowercase the axis names of every multiscale, since downstream code
+ * (viv selections, transforms, volume planning) expects t, c, z, y, x.
+ * Some writers use T, C, Z, Y, X (e.g. Zebrahub ZSNS003). Names that would
+ * collide once lowercased are left unchanged.
+ * @param {object} rootAttrs Flattened root attributes.
+ * @returns {object} Root attributes with lowercased axis names.
+ */
+export function lowercaseAxisNames(rootAttrs) {
+  if (!Array.isArray(rootAttrs?.multiscales)) return rootAttrs;
+  const multiscales = rootAttrs.multiscales.map((multiscale) => {
+    const { axes } = multiscale;
+    if (!Array.isArray(axes)) return multiscale;
+    const names = axes.map(axis => (typeof axis === 'string' ? axis : axis.name));
+    const lowerNames = names.map(name => (typeof name === 'string' ? name.toLowerCase() : name));
+    if (new Set(lowerNames).size !== new Set(names).size) return multiscale;
+    return {
+      ...multiscale,
+      axes: axes.map((axis, i) => (typeof axis === 'string'
+        ? lowerNames[i] : { ...axis, name: lowerNames[i] })),
+    };
+  });
+  return { ...rootAttrs, multiscales };
+}
+
 async function loadMultiscales(root) {
   let rootAttrs;
   try {
@@ -43,7 +68,7 @@ async function loadMultiscales(root) {
 
   // OME-NGFF v0.5 nests OME metadata under an `ome` key.
   // Hoist it to the root so downstream consumers see the flat v0.4 shape.
-  rootAttrs = flattenOmeAttrs(rootAttrs);
+  rootAttrs = lowercaseAxisNames(flattenOmeAttrs(rootAttrs));
 
   let paths = ['0'];
   // Default axes used for v0.1 and v0.2.

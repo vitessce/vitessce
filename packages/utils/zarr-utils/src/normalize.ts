@@ -1,5 +1,5 @@
 // Adapted from https://github.com/hms-dbmi/vizarr/blob/5b0e3ea6fbb42d19d0e38e60e49bb73d1aca0693/src/utils.ts#L26
-import { root as zarrRoot, FetchStore, type Readable, type AsyncReadable, type AbsolutePath, type RangeQuery, extendStore, defineStoreExtension } from 'zarrita';
+import { root as zarrRoot, FetchStore, type Readable, type AsyncReadable, type AbsolutePath, type RangeQuery, extendStore, defineStoreExtension, withRangeCoalescing } from 'zarrita';
 import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
@@ -212,6 +212,10 @@ export function applyStoreExtensions(
   return extendStore(
     store,
     withGetRange,
+    // Merge range reads of the same file issued in one microtask, such as the
+    // inner chunks of a shard that one selection reads, into one request per
+    // run of nearby byte ranges. Below the cache, so each range is still cached.
+    withRangeCoalescing,
     // Wrap remote stores in a read-through cache, so that concurrent reads of the
     // same chunk (e.g. multiple embedding dims within one chunk column-block) share
     // one request instead of downloading it once per reader.

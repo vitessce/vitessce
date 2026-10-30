@@ -99,7 +99,15 @@ import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-ne
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
-import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
+import {
+  saGloria, saKingsnake, saLsp1, saLsp2, saLsp3,
+  saIdr0062A, saIdr0101A, saIdr0048A, saIdr0048ANone, saIdr0048AMean, saIdr0106,
+  saIdr0106Tiff, saBrainTiff, saLucaTiff,
+  saWashuKidneyTiff, saIdr0048A9846152, saHubmapLymphNodeTiff, saIdr0066, saIdr0044A,
+  saHubmapThymusTiff, saIdr0157, saHubmapSpleenTiff, saIdr0062A6001257, saIdr0077Angles,
+  saHubmapLymphNodeImcTiff, saKiemenHeTiff, saHubmapSample1620xTiff, saHubmapSample165xTiff,
+  saZebrahub, saScivis, saRandom,
+} from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
@@ -266,6 +274,32 @@ export const configs = {
   's-a-lsp3': saLsp3,
   's-a-kingsnake': saKingsnake,
   's-a-gloria': saGloria,
+  's-a-idr0062A': saIdr0062A,
+  's-a-idr0101A': saIdr0101A,
+  's-a-idr0048A': saIdr0048A,
+  's-a-idr0048A-none': saIdr0048ANone,
+  's-a-idr0048A-mean': saIdr0048AMean,
+  's-a-idr0106': saIdr0106,
+  's-a-idr0106-tiff': saIdr0106Tiff,
+  's-a-brain-tiff': saBrainTiff,
+  's-a-luca-tiff': saLucaTiff,
+  's-a-washu-kidney-tiff': saWashuKidneyTiff,
+  's-a-idr0048A-9846152': saIdr0048A9846152,
+  's-a-hubmap-lymph-node-tiff': saHubmapLymphNodeTiff,
+  's-a-idr0066': saIdr0066,
+  's-a-idr0044A': saIdr0044A,
+  's-a-hubmap-thymus-tiff': saHubmapThymusTiff,
+  's-a-idr0157': saIdr0157,
+  's-a-hubmap-spleen-tiff': saHubmapSpleenTiff,
+  's-a-idr0062A-6001257': saIdr0062A6001257,
+  ...saIdr0077Angles,
+  's-a-hubmap-lymph-node-imc-tiff': saHubmapLymphNodeImcTiff,
+  's-a-kiemen-he-tiff': saKiemenHeTiff,
+  's-a-hubmap-sample16-20x-tiff': saHubmapSample1620xTiff,
+  's-a-hubmap-sample16-5x-tiff': saHubmapSample165xTiff,
+  ...saZebrahub,
+  ...saScivis,
+  's-a-random': saRandom,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

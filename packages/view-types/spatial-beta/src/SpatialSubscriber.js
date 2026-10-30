@@ -153,6 +153,9 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    // Z reduction of coarse levels in the accelerated 3D view:
+    // 'auto' | 'none' | 'sample' | 'mean' | 'max'. Read once when the volume loads.
+    volumeZReduction = 'auto',
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
@@ -1092,6 +1095,7 @@ export function SpatialSubscriber(props) {
               delegateHover={delegateHover}
               onEntitySelected={onEntitySelected}
               onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
+              volumeZReduction={volumeZReduction}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}
