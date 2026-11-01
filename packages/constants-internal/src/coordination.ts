@@ -35,6 +35,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.FEATURE_AGGREGATION_STRATEGY,
   // Annotation shapes are specific to a view's coordinate system.
   CoordinationType.ANNOTATION_SHAPES,
+  CoordinationType.SPATIAL_BACKGROUND_THEME,
 ];
 
 /**
@@ -95,6 +96,12 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.LEGEND_VISIBLE,
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_RADIUS,
+    CoordinationType.SPATIAL_AXIS_LINES_VISIBLE,
+    CoordinationType.SPATIAL_BOUNDS_VISIBLE,
+    CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
+    CoordinationType.SPATIAL_SCALE_BAR_VISIBLE,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -361,6 +368,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    CoordinationType.SPATIAL_POINT_RADIUS,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.ANNOTATION_CONTROLLER]: [
     CoordinationType.DATASET,
@@ -525,6 +535,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_SEGMENTATION_FILLED,
     CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_RADIUS,
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,

@@ -474,6 +474,34 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // Viewer-level toggles. Applied directly (not via restoreState) because updates
+  // after mount only re-apply camera and layers.
+  applyViewerToggles = () => {
+    const { viewer } = this;
+    if (!viewer) return;
+    const {
+      axisLinesVisible, boundsVisible, orthographic, scaleBarVisible,
+    } = this.props;
+    this.withoutEmitting(() => {
+      if (typeof axisLinesVisible === 'boolean' && viewer.showAxisLines.value !== axisLinesVisible) {
+        viewer.showAxisLines.value = axisLinesVisible;
+      }
+      if (typeof boundsVisible === 'boolean' && viewer.showDefaultAnnotations.value !== boundsVisible) {
+        viewer.showDefaultAnnotations.value = boundsVisible;
+      }
+      // Orthographic lives on the layout spec, not the viewer:
+      // SingletonLayerGroupViewer -> LayerGroupViewer.layout (DataPanelLayoutContainer) -> specification.
+      const layoutSpec = viewer.layout?.container?.component?.layerGroupViewer?.layout?.specification;
+      if (typeof orthographic === 'boolean' && layoutSpec?.orthographicProjection
+        && layoutSpec.orthographicProjection.value !== orthographic) {
+        layoutSpec.orthographicProjection.value = orthographic;
+      }
+      if (typeof scaleBarVisible === 'boolean' && viewer.showScaleBar.value !== scaleBarVisible) {
+        viewer.showScaleBar.value = scaleBarVisible;
+      }
+    });
+  };
+
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
@@ -503,6 +531,14 @@ export default class Neuroglancer extends React.Component {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return b * 65536 + g * 256 + r; // BGR format
+  };
+
+
+  // Neuroglancer paints its own 3D canvas; match it to the view's background.
+  applyBackgroundTheme = () => {
+    if (!this.viewer) return;
+    const hex = this.props.backgroundTheme === 'light' ? '#ffffff' : '#000000';
+    this.viewer.perspectiveViewBackgroundColor.restoreState(hex);
   };
 
   /* To add colors to the segments, turning unselected to grey  */
@@ -686,6 +722,14 @@ export default class Neuroglancer extends React.Component {
         this.viewer.state.restoreState(viewerState);
       });
 
+      // Home camera for recenter: the camera as initially loaded.
+      const s = this.viewer.state.toJSON();
+      this.homeCamera = {
+        position: s.position,
+        projectionScale: s.projectionScale,
+        projectionOrientation: s.projectionOrientation,
+      };
+
       // Far clip plane fitted to the data bounds (relative depth, never below NG's default).
       // An absolute far plane prevents clipping but fixes the frustum volume, which NG uses to pick
       // annotation density -- so points stop increasing on zoom-in. Fitting keeps both behaviors.
@@ -717,6 +761,7 @@ export default class Neuroglancer extends React.Component {
       this.disposers.push(this.viewer.coordinateSpace.changed.add(fitDepthToData));
       this.disposers.push(() => { if (depthRaf !== null) cancelAnimationFrame(depthRaf); });
       fitDepthToData();
+      this.applyViewerToggles();
     }
     /* ** Vitessce Integration update end ** */
 
@@ -860,6 +905,7 @@ export default class Neuroglancer extends React.Component {
         }
       }),
     );
+    this.applyBackgroundTheme();
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
@@ -867,6 +913,17 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
+    if (prevProps.backgroundTheme !== this.props.backgroundTheme) {
+      this.applyBackgroundTheme();
+    }
+
+    if (prevProps.axisLinesVisible !== this.props.axisLinesVisible
+      || prevProps.boundsVisible !== this.props.boundsVisible
+      || prevProps.orthographic !== this.props.orthographic
+      || prevProps.scaleBarVisible !== this.props.scaleBarVisible) {
+      this.applyViewerToggles();
+    }
+
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -1042,6 +1099,12 @@ export default class Neuroglancer extends React.Component {
       // Re-apply colors immediately after restoreState clears segmentStatedColors
       // this is useful when culling is activated to avoid randomcolor assignment by NG
       this.applyColorsAndVisibility(cellColorMappingByLayer);
+    }
+
+    // Recenter: camera-only restore (no `layers`, so zoom isn't corrupted). Emitting on purpose,
+    // so the snapshot sync moves linked views (spatialBeta, zoom view) to the same home.
+    if (prevProps.cameraResetRequest !== this.props.cameraResetRequest && this.homeCamera) {
+      this.viewer.state.restoreState(this.homeCamera);
     }
 
     /* ** Vitessce Integration update end ** */

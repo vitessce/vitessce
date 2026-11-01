@@ -91,6 +91,10 @@ export class NeuroglancerComp extends PureComponent {
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
+        // World (global-space) position under the cursor, like spatialBeta's hoverInfo.coordinate.
+        const hoverCoord = ms.active && ms.position?.length >= 3
+          ? [ms.position[0], ms.position[1], ms.position[2]]
+          : null;
         // Read props at hover time (not at mount) so URLs that resolve later are used.
         const {
           getMeshIdToCellId, centroidAnnotationUrlsByLayerName, decodeCentroidById,
@@ -120,7 +124,7 @@ export class NeuroglancerComp extends PureComponent {
                 return;
               }
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
-              this.latestOnSelectHoveredCoords?.(cellId);
+              this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
             })
             .catch(() => {});
           return;
@@ -129,7 +133,7 @@ export class NeuroglancerComp extends PureComponent {
         if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
           const meshId = String(ms.pickedValue?.low);
           const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
-          this.latestOnSelectHoveredCoords?.(cellId);
+          this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
           return;
         }
         this.latestOnSelectHoveredCoords?.(null);
@@ -181,6 +185,12 @@ export class NeuroglancerComp extends PureComponent {
       onAnnotationSourceReady,
       onViewerReady,
       allowEmptySegments,
+      axisLinesVisible,
+      boundsVisible,
+      orthographic,
+      scaleBarVisible,
+      cameraResetRequest,
+      backgroundTheme,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -200,6 +210,12 @@ export class NeuroglancerComp extends PureComponent {
                 onAnnotationSourceReady={onAnnotationSourceReady}
                 onViewerReady={onViewerReady}
                 allowEmptySegments={allowEmptySegments}
+                axisLinesVisible={axisLinesVisible}
+                boundsVisible={boundsVisible}
+                orthographic={orthographic}
+                scaleBarVisible={scaleBarVisible}
+                cameraResetRequest={cameraResetRequest}
+                backgroundTheme={backgroundTheme}
               />
             )}
           </Suspense>

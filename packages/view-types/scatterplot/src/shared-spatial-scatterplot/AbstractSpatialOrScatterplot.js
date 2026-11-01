@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
-import { deck, DEFAULT_GL_OPTIONS } from '@vitessce/gl';
+import { deck, DEFAULT_GL_OPTIONS, ToolMenu } from '@vitessce/gl';
 import { Matrix4 } from 'math.gl';
 import { OrbitControls, PerspectiveCamera } from '../vendor/index.js';
 import { RawView } from './rawView.js';
-import ToolMenu from './ToolMenu.js';
 import { getCursor, getCursorWithTool } from './cursor.js';
 
 const ROTATION_THRESHOLD = 1;
