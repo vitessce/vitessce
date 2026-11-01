@@ -21,6 +21,7 @@ export { default as ContourLayerWithText } from './ContourLayerWithText.js';
 export { default as AnnotationLayer } from './AnnotationLayer.js';
 export { default as SpotLayer } from './SpotLayer.js';
 
+export { default as ToolMenu, IconTool, IconButton } from './ToolMenu.js';
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,

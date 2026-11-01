@@ -1,8 +1,17 @@
 /* eslint-disable no-console */
 import React, {
   useEffect, useRef, useState, useMemo,
+  useCallback,
 } from 'react';
-import { Vitessce } from 'vitessce';
+import {
+  Vitessce,
+  hasAnnotationControllerView,
+  addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
+  enableAnnotationEditing,
+  disableAnnotationEditing,
+} from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
 import { fetchConfigFromGist } from '@vitessce/config';
@@ -111,6 +120,54 @@ function validateLogLevel(logLevel) {
   return DEFAULT_LOG_LEVEL;
 }
 
+function AnnotatableVitessce(props) {
+  const {
+    config: initialConfig,
+  } = props;
+
+  const [config, setConfig] = useState(initialConfig);
+  const [areAnnotationsEditable, setAreAnnotationsEditable] = useState(false);
+
+  const handleAnnotating = useCallback(() => {
+    const configWithController = hasAnnotationControllerView(config)
+      ? config
+      : addAnnotationControllerView(config, { closeButtonVisible: false });
+    const nextConfig = enableAnnotationEditing(configWithController);
+    // Set a new uid so that Vitessce detects the updated config.
+    setConfig({ ...nextConfig, uid: `annotating-${Date.now()}` });
+    setAreAnnotationsEditable(true);
+  }, [config]);
+
+  const handleEditing = useCallback(() => {
+    let nextConfig = config;
+    if (hasAnnotationControllerView(nextConfig)) {
+      nextConfig = disableAnnotationEditing(nextConfig);
+      if (!hasAnyAnnotationStory(nextConfig)) {
+        nextConfig = removeAnnotationControllerView(nextConfig);
+      }
+    }
+    if (nextConfig !== config) {
+      // Set a new uid so that Vitessce detects the updated config.
+      setConfig({ ...nextConfig, uid: `editing-${Date.now()}` });
+    }
+    setAreAnnotationsEditable(false);
+  }, [config]);
+
+  return (
+    <>
+      <Vitessce
+        {...props}
+        config={config}
+        onConfigChange={setConfig}
+        remountOnUidChange={false}
+        areAnnotationsEditable={areAnnotationsEditable}
+      />
+      <button type="button" onClick={handleAnnotating}>Annotating</button>
+      <button type="button" onClick={handleEditing}>Editing</button>
+    </>
+  );
+}
+
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};
@@ -128,6 +185,10 @@ export function VitessceDemo() {
     const pageMode = urlParams.get('pageMode') === 'true';
     const debugMode = urlParams.get('debugMode')?.toLowerCase() === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
+    // When isAnnotating is true, we "simulate" the usage of the cvh-utils
+    // functions by rendering a toggle between "Editing" and "Annotating" modes,
+    // which use the functions in cvh-utils.
+    const isAnnotating = urlParams.get('isAnnotating') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
@@ -172,22 +233,35 @@ export function VitessceDemo() {
             `}
             </style>
           ) : null}
-          <Vitessce
-            config={config}
-            rowHeight={rowHeight}
-            theme={theme}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            validateOnConfigChange={debug}
-            isBounded={isBounded}
-            stores={stores}
-            {...pluginProps}
-            pageMode={pageMode}
-            debugMode={debugMode}
-            logLevel={logLevel}
-          >
-            {pageMode ? <PageComponent /> : null}
-          </Vitessce>
+          {isAnnotating ? (
+            <AnnotatableVitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            />
+          ) : (
+            <Vitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              onConfigChange={debug ? console.log : undefined}
+              onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+              validateOnConfigChange={debug}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              pageMode={pageMode}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            >
+              {pageMode ? <PageComponent /> : null}
+            </Vitessce>
+          )}
         </ContainerComponent>
       );
     }

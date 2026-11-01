@@ -12,7 +12,18 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     name: 'Sorger MIS',
   });
 
-  const dataset = config.addDataset('My dataset');
+  const dataset = config.addDataset('Melanoma dataset from Sorger lab');
+
+  dataset.addFile({
+    fileType: 'image.ome-tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/melanoma_mask.ome.tiff',
+    options: {
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/melanoma_mask.offsets.json',
+    },
+    coordinationValues: {
+      fileUid: 'melanoma-mask',
+    },
+  });
 
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
@@ -20,13 +31,6 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     coordinationValues: {
       fileUid: 'sorger-meshes',
       obsType: 'cell',
-    },
-    options: {
-      dimensions: {
-        x: [0.000001, 'm'],
-        y: [0.000001, 'm'],
-        z: [0.000001, 'm'],
-      },
     },
   });
 
@@ -71,12 +75,12 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   });
 
 
+  // Cell centroids: rendered implicitly with the segmentation layer of the same obsType.
   dataset.addFile({
-    fileType: 'obsPoints.ng-annotations',
+    fileType: 'obsLocations.ng-annotations',
     url: 'https://data-2.vitessce.io/data/sorger/3dtm/MIS_cells_corrected/cells',
     options: {
       projectionAnnotationSpacing: 1,
-      featureIndexProp: 'mx1spots',
       transform: {
         matrix: [
           [7148.09960682, 0, 0, 0],
@@ -102,16 +106,14 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
       quantitativeColorMax: 58,
     },
     coordinationValues: {
-      fileUid: 'sorger-cells',
       obsType: 'cell',
-      featureType: 'gene',
     },
   });
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
     initialNgCameraState: {
-      position: [2870.94, 929.11, 117.25],
-      projectionScale: 1331.4,
+      position: [2825, 1731, 117.25],
+      projectionScale: 5200,
       projectionOrientation: [
         -0.6668370366096497,
         0.5911841988563538,
@@ -125,11 +127,13 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     meshLoadProjectionScaleThreshold: 1200,
   });
 
+  const spatialView = config.addView(dataset, 'spatialBeta');
   const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
-  config.linkViewsByObject([neuroglancerView, layerController], {
+
+  config.linkViewsByObject([spatialView, neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
     spatialZoom: 0,
     spatialTargetT: 0,
@@ -142,6 +146,24 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
     spatialRotationOrbit: 0,
 
   }, { meta: false });
+
+  config.linkViewsByObject([spatialView, layerController], {
+    imageLayer: CL([
+      {
+        fileUid: 'melanoma-mask',
+        spatialLayerOpacity: 1,
+        spatialTargetResolution: null,
+        imageChannel: CL([
+          {
+            spatialTargetC: 0,
+            spatialChannelColor: [255, 0, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+          },
+        ]),
+      },
+    ]),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
     segmentationLayer: CL([
@@ -156,6 +178,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,
+            spatialChannelOpacity: 0.6,
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'geneSelection',
@@ -165,32 +188,16 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             // ends at cyan (#69fcea). Use 'plasma' colormap for consistent colors.
             featureValueColormap: 'plasma',
             featureValueColormapRange: [0.0, 1.0],
+            spatialSegmentationStrokeWidth: 1.0,
+            spatialSegmentationFilled: false,
           },
         ]),
       },
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  config.linkViewsByObject([neuroglancerView, layerController], {
-    pointLayer: CL([
-      {
-        fileUid: 'sorger-cells',
-        obsType: 'cell',
-        spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
-        spatialLayerColor: [0, 255, 0],
-        spatialPointStrokeWidth: 0.2,
-        obsColorEncoding: 'geneSelection',
-        featureValueColormap: 'plasma',
-        featureSelection: ['MX1_SPOTS'],
-        featureValueColormapRange: [0.0, 1.0],
-        spatialLayerLabel: 'Centroids',
-        featureFilterMode: 'featureSelection',
-      },
-    ]),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
-
-  config.layout(hconcat(neuroglancerView, vconcat(layerController, obsSets, scatterView)));
+  config.layout(hconcat(vconcat(neuroglancerView, spatialView),
+    vconcat(layerController, obsSets, scatterView)));
   const configJSON = config.toJSON();
   return configJSON;
 }

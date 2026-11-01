@@ -18,8 +18,8 @@ describe('useAnnotationFrameTransition', () => {
     rerender({ viewState: { zoom: -2, targetX: 5, targetY: 6 } });
     expect(result.current.transitionDuration).toEqual(250);
     expect(result.current.transitionInterpolator).toBeDefined();
-    // Unrelated re-renders keep the transition props, which deck.gl
-    // ignores since the zoom/target have not changed.
+    // Unrelated re-renders keep the transition props, which
+    // AbstractSpatialOrScatterplot omits once the transition has ended.
     rerender({ viewState: { zoom: -2, targetX: 5, targetY: 6 } });
     expect(result.current.transitionDuration).toEqual(250);
   });

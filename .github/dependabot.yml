@@ -1,0 +1,14 @@
+# Keeps GitHub Actions pinned versions from silently going stale.
+# Dependabot rewrites both the commit SHA and the trailing "# vX.Y.Z" comment
+# on the pinned entries in release.yml.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # One pull request for all action bumps instead of one per action.
+      actions:
+        patterns:
+          - '*'

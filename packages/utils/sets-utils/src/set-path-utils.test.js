@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { filterPathsByExpansionAndSelection, findChangedHierarchy } from './set-path-utils.js';
+import {
+  filterPathsByExpansionAndSelection,
+  findChangedHierarchy,
+  filterObsMembershipForTooltip,
+} from './set-path-utils.js';
 
 describe('Tests for findChangedHierarchy', () => {
   it('Computes correct new hierarchy after new selection', () => {
@@ -254,5 +258,37 @@ describe('Tests for filterPathsByExpansionAndSelection', () => {
       ['Louvain Clustering', 'Cluster 3'],
       ['Louvain Clustering', 'Cluster 4'],
     ]);
+  });
+});
+
+describe('Tests for filterObsMembershipForTooltip', () => {
+  const obsMembership = [
+    ['Louvain Clustering', 'Cluster 3'],
+    ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+    ['Leiden Clustering', 'Cluster 1'],
+  ];
+
+  it('Keeps all paths in the all mode', () => {
+    const selection = [['Louvain Clustering', 'Cluster 1']];
+    expect(filterObsMembershipForTooltip(obsMembership, selection, 'all'))
+      .toEqual(obsMembership);
+    expect(filterObsMembershipForTooltip(obsMembership, selection, undefined))
+      .toEqual(obsMembership);
+  });
+
+  it('Keeps only paths in the selected groups in the selected mode', () => {
+    const selection = [
+      ['Louvain Clustering', 'Cluster 1'],
+      ['Cell Type Annotations', 'Vasculature', 'Endothelial'],
+    ];
+    expect(filterObsMembershipForTooltip(obsMembership, selection, 'selected')).toEqual([
+      ['Louvain Clustering', 'Cluster 3'],
+      ['Cell Type Annotations', 'Vasculature', 'Pericytes'],
+    ]);
+  });
+
+  it('Keeps no paths in the selected mode when nothing is selected', () => {
+    expect(filterObsMembershipForTooltip(obsMembership, null, 'selected')).toEqual([]);
+    expect(filterObsMembershipForTooltip(obsMembership, [], 'selected')).toEqual([]);
   });
 });

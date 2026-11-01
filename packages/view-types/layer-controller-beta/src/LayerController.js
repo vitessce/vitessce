@@ -4,7 +4,6 @@ import PointLayerController from './PointLayerController.js';
 import SegmentationLayerController from './SegmentationLayerController.js';
 import ImageLayerController from './ImageLayerController.js';
 import GlobalDimensionSlider from './GlobalDimensionSlider.js';
-import SegmentationCentroidsController from './SegmentationCentroidsController.js';
 
 export default function LayerController(props) {
   const {
@@ -41,15 +40,15 @@ export default function LayerController(props) {
     tiledPointsLoadingProgress,
     layerPerFeatureForPoints,
     globalDisable3d,
-    centroidSegmentationPairs = [],
-    pairedSegScopes = new Set(),
-    pairedPointScopes = new Set(),
-
+    forceEnable3d,
   } = props;
 
   const anyLayerHasT = Object.values(images || {})
     .some(image => image?.image?.instance.hasTStack());
-  const anyLayerHasZ = Object.values(images || {})
+  // forceEnable3d lets a config show the switch with no Z-stack image at all (e.g. a
+  // Neuroglancer-only view with just segmentation meshes and/or points, which is always
+  // 3D-capable)
+  const anyLayerHasZ = forceEnable3d || Object.values(images || {})
     .some(image => image?.image?.instance.hasZStack());
 
   const maxT = Object.values(images || {})
@@ -64,19 +63,13 @@ export default function LayerController(props) {
   const reversedSpotLayerScopes = useMemo(() => (
     [...(spotLayerScopes || [])].reverse()
   ), [spotLayerScopes]);
-  // Filter out point scopes that are already rendered inside a combined row
   const reversedPointLayerScopes = useMemo(() => (
-    [...(pointLayerScopes || [])]
-      .filter(scope => !pairedPointScopes.has(scope))
-      .reverse()
-  ), [pointLayerScopes, pairedPointScopes]);
+    [...(pointLayerScopes || [])].reverse()
+  ), [pointLayerScopes]);
 
-  // Filter out segmentation scopes that are already rendered inside a combined row
   const reversedSegmentationLayerScopes = useMemo(() => (
-    [...(segmentationLayerScopes || [])]
-      .filter(scope => !pairedSegScopes.has(scope))
-      .reverse()
-  ), [segmentationLayerScopes, pairedSegScopes]);
+    [...(segmentationLayerScopes || [])].reverse()
+  ), [segmentationLayerScopes]);
 
 
   return (
@@ -101,20 +94,6 @@ export default function LayerController(props) {
           max={maxT}
         />
       ) : null}
-      {/* Combined Centroids and Segmentation layers: */}
-      {centroidSegmentationPairs.map(({ pointScope, segScope }) => (
-        <SegmentationCentroidsController
-          key={`combined-${segScope}-${pointScope}`}
-          theme={theme}
-          segScope={segScope}
-          segLayerCoordination={segmentationLayerCoordination}
-          segChannelScopesByLayer={segmentationChannelScopesByLayer}
-          segChannelCoordination={segmentationChannelCoordination}
-          pointScope={pointScope}
-          pointLayerCoordination={pointLayerCoordination}
-        />
-      ))}
-
       {/* Point layers: */}
       {pointLayerScopes && reversedPointLayerScopes.map(layerScope => (
         <PointLayerController

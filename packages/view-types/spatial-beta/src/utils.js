@@ -4,7 +4,6 @@ import { viv, BitmaskLayerBeta as BitmaskLayer } from '@vitessce/gl';
 import { getPhysicalSizeScalingMatrix } from '@vitessce/spatial-utils';
 import { extent } from 'd3-array';
 
-
 /**
  * Get the modelMatrix to pass to viv's VolumeLayer for a given image.
  *

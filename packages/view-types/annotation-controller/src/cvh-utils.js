@@ -44,6 +44,7 @@ function getUniqueViewUid(layout, baseUid) {
 /**
  * Get the coordination scope that existing views use for a coordination type,
  * so that the annotationController is linked to the same annotation story state.
+ * Only single (string) scope mappings are considered; array-valued mappings are ignored.
  * @param {object[]} layout The layout array.
  * @param {string} coordinationType The coordination type.
  * @returns {string|undefined} The first scope found, if any.
@@ -56,20 +57,42 @@ function getExistingScope(layout, coordinationType) {
 }
 
 /**
+ * Get the height of the tallest column of views in the layout,
+ * i.e., the maximum bottom edge (y + h) of any view.
+ * Falls back to the full grid height if the layout has no views with valid dimensions.
+ * @param {object[]} layout The layout array.
+ * @returns {number} The height in grid rows.
+ */
+function getMaxColumnHeight(layout) {
+  const bottoms = layout
+    .map(view => view.y + view.h)
+    .filter(bottom => Number.isFinite(bottom) && bottom >= 1);
+  return bottoms.length > 0 ? Math.max(...bottoms) : NUM_GRID_ROWS;
+}
+
+/**
  * Append an annotationController view to a view config.
- * The annotationController is placed in a full-height column on the right side of the grid,
+ * The annotationController is placed in a column on the right side of the grid,
+ * with a height equal to that of the tallest column of existing views,
  * and the existing views are scaled horizontally to fit into the remaining columns.
  * The left and right edges of each view (rather than widths) are rounded to whole columns,
  * so that views which were adjacent remain adjacent (no gaps or overlaps are introduced).
+ * If existing views are mapped to annotationStory, annotationFrameIndex, or
+ * annotationOverlayVisible coordination scopes, the annotationController
+ * is mapped to the same scopes.
  * The input config is not modified.
  * @param {object} config A view config object (JSON).
- * @param {object} options
- * @param {number} options.width The width (in grid columns) of the annotationController.
- * @param {string} options.uid The preferred uid for the annotationController view.
- * @param {boolean} options.closeButtonVisible The value of the new view's
- * props.closeButtonVisible value. Optional. If not provided, props.closeButtonVisible
- * is not defined for the new view (i.e., the default is used).
+ * @param {object} [options] Optional parameters.
+ * @param {number} [options.width=3] The width (in grid columns) of the annotationController.
+ * Must be a whole number between 1 and 11.
+ * @param {string} [options.uid='annotation-controller'] The preferred uid for the
+ * annotationController view. If this uid is already used by another view,
+ * a numeric suffix is appended (e.g., 'annotation-controller-1').
+ * @param {boolean} [options.closeButtonVisible] The value of the new view's
+ * props.closeButtonVisible. If not provided, props.closeButtonVisible
+ * is not defined for the new view (i.e., the view's default is used).
  * @returns {object} The new view config.
+ * @throws {Error} If options.width is not a whole number between 1 and 11.
  */
 export function addAnnotationControllerView(config, options = {}) {
   const {
@@ -115,7 +138,7 @@ export function addAnnotationControllerView(config, options = {}) {
     x: remainingColumns,
     y: 0,
     w: width,
-    h: NUM_GRID_ROWS,
+    h: getMaxColumnHeight(layout),
   });
 
   return {
@@ -124,6 +147,78 @@ export function addAnnotationControllerView(config, options = {}) {
   };
 }
 
+/**
+ * Remove all annotationController views from a view config.
+ * The remaining views are scaled horizontally to take up all of the available
+ * horizontal space: grid columns that are no longer occupied by any view
+ * (e.g., the column previously occupied by the annotationController) are removed,
+ * and the views are stretched to fill the full width of the grid.
+ * The left and right edges of each view (rather than widths) are rounded to whole columns,
+ * so that views which were adjacent remain adjacent (no gaps or overlaps are introduced).
+ * Coordination scopes and values are not modified.
+ * The input config is not modified.
+ * @param {object} config A view config object (JSON).
+ * @returns {object} The new view config.
+ */
+export function removeAnnotationControllerView(config) {
+  const layout = (config?.layout || [])
+    .filter(view => view.component !== ViewType.ANNOTATION_CONTROLLER);
+  const clampX = value => Math.min(Math.max(value, 0), NUM_GRID_COLUMNS);
+
+  // Determine which grid columns are occupied by at least one of the remaining views.
+  const isColumnOccupied = Array.from(
+    { length: NUM_GRID_COLUMNS },
+    (_, col) => layout.some(view => clampX(view.x) <= col && col < clampX(view.x + view.w)),
+  );
+  const numOccupiedColumns = isColumnOccupied.filter(Boolean).length;
+  if (numOccupiedColumns === 0) {
+    return {
+      ...config,
+      layout,
+    };
+  }
+
+  // Map an edge position to its position after removing unoccupied columns,
+  // and then stretch to the full width of the grid.
+  const scaleX = (value) => {
+    const edge = clampX(value);
+    const numOccupiedBefore = isColumnOccupied.filter((isOccupied, col) => isOccupied && col < edge)
+      .length;
+    return Math.round((numOccupiedBefore * NUM_GRID_COLUMNS) / numOccupiedColumns);
+  };
+
+  const newLayout = layout.map((view) => {
+    const x = Math.min(scaleX(view.x), NUM_GRID_COLUMNS - 1);
+    // Ensure every view keeps a width of at least one column.
+    const right = Math.min(Math.max(scaleX(view.x + view.w), x + 1), NUM_GRID_COLUMNS);
+    return {
+      ...view,
+      x,
+      w: right - x,
+    };
+  });
+
+  return {
+    ...config,
+    layout: newLayout,
+  };
+}
+
+/**
+ * Detect whether a view config contains a non-empty annotation story,
+ * i.e., whether any annotationStory coordination value contains at least one frame
+ * (in any coordination scope, or defined directly by any view).
+ * @param {object} config A view config object (JSON).
+ * @returns {boolean} True if any annotationStory value is non-empty.
+ */
+export function hasAnyAnnotationStory(config) {
+  const type = CoordinationType.ANNOTATION_STORY;
+  const scopeValues = Object.values(config?.coordinationSpace?.[type] || {});
+  const viewValues = (config?.layout || [])
+    .map(view => view.coordinationValues?.[type]);
+  return [...scopeValues, ...viewValues]
+    .some(value => Array.isArray(value?.frames) && value.frames.length > 0);
+}
 
 /**
  * Detect whether annotation editing is enabled anywhere in a view config,
@@ -183,9 +278,16 @@ function getUnusedScopeName(config, coordinationType) {
 
 /**
  * Set all annotationEditable coordination values in a view config.
- * @param {object} config A view config object (JSON).
+ * Views which support annotationEditable (including the annotationController)
+ * but are not mapped to an annotationEditable scope (directly or via meta-coordination),
+ * and do not define the value directly, are mapped to a shared scope.
+ * The scope of the annotationController is reused for this, if it has one;
+ * otherwise, a new scope is created.
+ * The input config is not modified.
+ * @param {object} config A view config object (JSON), which must contain an annotationController.
  * @param {boolean} value The value to set.
  * @returns {object} The new view config.
+ * @throws {Error} If the config does not contain an annotationController view.
  */
 function setAnnotationEditing(config, value) {
   if (!hasAnnotationControllerView(config)) {
@@ -247,8 +349,10 @@ function setAnnotationEditing(config, value) {
 
 /**
  * Enable annotation editing, by setting all annotationEditable coordination values
- * in the view config to true. Defines an annotationEditable coordination scope
- * for the annotationController view if needed.
+ * in the view config to true (in all coordination scopes, and in values defined
+ * directly by views). Views which support annotationEditable but are not yet
+ * mapped to a scope for it (including the annotationController) are mapped
+ * to a shared annotationEditable scope.
  * The input config is not modified.
  * @param {object} config A view config object (JSON), which must contain an annotationController.
  * @returns {object} The new view config.
@@ -260,8 +364,10 @@ export function enableAnnotationEditing(config) {
 
 /**
  * Disable annotation editing, by setting all annotationEditable coordination values
- * in the view config to false. Defines an annotationEditable coordination scope
- * for the annotationController view if needed.
+ * in the view config to false (in all coordination scopes, and in values defined
+ * directly by views). Views which support annotationEditable but are not yet
+ * mapped to a scope for it (including the annotationController) are mapped
+ * to a shared annotationEditable scope.
  * The input config is not modified.
  * @param {object} config A view config object (JSON), which must contain an annotationController.
  * @returns {object} The new view config.

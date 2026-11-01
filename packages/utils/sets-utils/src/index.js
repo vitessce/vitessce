@@ -41,6 +41,7 @@ export {
   findLongestCommonPath,
   filterPathsByExpansionAndSelection,
   findChangedHierarchy,
+  filterObsMembershipForTooltip,
 } from './set-path-utils.js';
 export {
   isEqualOrPrefix,

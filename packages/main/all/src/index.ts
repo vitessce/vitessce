@@ -10,6 +10,8 @@ export { z } from '@vitessce/schemas';
 export {
   hasAnnotationControllerView,
   addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
   isAnyAnnotationEditing,
   enableAnnotationEditing,
   disableAnnotationEditing,

@@ -204,6 +204,7 @@ export const FileType = {
   // Precomputed (mesh) format
   OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
   OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
+  OBS_LOCATIONS_NG_ANNOTATIONS: 'obsLocations.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -338,6 +339,8 @@ export const CoordinationType = {
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
   SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
+  SPATIAL_POINT_RADIUS: 'spatialPointRadius',
+  SPATIAL_POINT_PROJECTION_SPACING: 'spatialPointProjectionSpacing',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
@@ -349,6 +352,10 @@ export const CoordinationType = {
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
   SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
   SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
+  SPATIAL_AXIS_LINES_VISIBLE: 'spatialAxisLinesVisible', // axisLines' visibility in  Neuroglancer View
+  SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
+  SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
+  SPATIAL_BACKGROUND_THEME: 'spatialBackgroundTheme',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
@@ -363,6 +370,7 @@ export const CoordinationType = {
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
   TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  TOOLTIP_OBS_SETS_MODE: 'tooltipObsSetsMode',
   LEGEND_VISIBLE: 'legendVisible',
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',

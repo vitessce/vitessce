@@ -10,6 +10,31 @@ function createWorker() {
   worker.AsyncComputationWorker = AsyncComputationWorker;
   return worker;
 }
+
+/**
+ * Resolve the NG managed-layer name of the currently picked annotation.
+ * mouseState.pickedAnnotationLayer is the AnnotationLayerState set by the
+ * annotation render layer (this.base.state), which is one of the user layer's
+ * annotationStates.states; fall back to matching pickedRenderLayer.
+ */
+function getPickedAnnotationLayerName(viewer, mouseState) {
+  const { pickedAnnotationLayer, pickedRenderLayer } = mouseState;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const managedLayer of viewer.layerManager.managedLayers) {
+    const userLayer = managedLayer.layer;
+    if (userLayer) {
+      if (pickedAnnotationLayer
+        && userLayer.annotationStates?.states?.includes(pickedAnnotationLayer)) {
+        return managedLayer.name;
+      }
+      if (pickedRenderLayer && userLayer.renderLayers?.includes(pickedRenderLayer)) {
+        return managedLayer.name;
+      }
+    }
+  }
+  return null;
+}
+
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
@@ -62,30 +87,53 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
-      const { getMeshIdToCellId, onViewerReady, cellsUrl } = this.props;
+      const { onViewerReady } = this.props;
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
-        // For point hover: pickedAnnotationId is a by_id lookup key (not MeshID).
-        // Fetch by_id record to get actual MeshID (at offset 12),
-        // then convert MeshID to CellID for scatterplot highlight.
+        // World (global-space) position under the cursor, like spatialBeta's hoverInfo.coordinate.
+        const hoverCoord = ms.active && ms.position?.length >= 3
+          ? [ms.position[0], ms.position[1], ms.position[2]]
+          : null;
+        // Read props at hover time (not at mount) so URLs that resolve later are used.
+        const {
+          getMeshIdToCellId, centroidAnnotationUrlsByLayerName, decodeCentroidById,
+        } = this.props;
         if (ms.pickedAnnotationId != null) {
+          // Resolve which annotation layer was picked. Only centroid layers
+          // (from obsLocations.ng-annotations) carry a MeshID in their by_id records;
+          // transcript/standalone point layers must not be mapped to cell meshes.
+          const layerName = getPickedAnnotationLayerName(viewer, ms);
+          const annotationUrl = layerName
+            ? centroidAnnotationUrlsByLayerName?.[layerName]
+            : null;
+          if (!annotationUrl) {
+            this.latestOnSelectHoveredCoords?.(null);
+            return;
+          }
+          // For centroid hover: pickedAnnotationId is a by_id lookup key (not MeshID).
+          // Fetch by_id record and decode the mesh segment ID by property name
+          // (from the annotation info), then convert MeshID to CellID.
           const byIdKey = String(ms.pickedAnnotationId);
-          fetch(`${cellsUrl}/by_id/${byIdKey}`)
+          fetch(`${annotationUrl}/by_id/${byIdKey}`)
             .then(r => r.arrayBuffer())
             .then((buf) => {
-              const dv = new DataView(buf);
-              const actualMeshId = String(dv.getInt32(12, true));
+              const actualMeshId = decodeCentroidById?.(layerName, buf);
+              if (!actualMeshId) {
+                this.latestOnSelectHoveredCoords?.(null);
+                return;
+              }
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
-              this.latestOnSelectHoveredCoords?.(cellId);
-            });
+              this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
+            })
+            .catch(() => {});
           return;
         }
         // TODO: Undo if meshes and cells have same id
         if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
           const meshId = String(ms.pickedValue?.low);
           const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
-          this.latestOnSelectHoveredCoords?.(cellId);
+          this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
           return;
         }
         this.latestOnSelectHoveredCoords?.(null);
@@ -136,7 +184,13 @@ export class NeuroglancerComp extends PureComponent {
       onLayerLoadingChange,
       onAnnotationSourceReady,
       onViewerReady,
-      meshOpacity,
+      allowEmptySegments,
+      axisLinesVisible,
+      boundsVisible,
+      orthographic,
+      scaleBarVisible,
+      cameraResetRequest,
+      backgroundTheme,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -155,7 +209,13 @@ export class NeuroglancerComp extends PureComponent {
                 ref={this.onRef}
                 onAnnotationSourceReady={onAnnotationSourceReady}
                 onViewerReady={onViewerReady}
-                meshOpacity={meshOpacity}
+                allowEmptySegments={allowEmptySegments}
+                axisLinesVisible={axisLinesVisible}
+                boundsVisible={boundsVisible}
+                orthographic={orthographic}
+                scaleBarVisible={scaleBarVisible}
+                cameraResetRequest={cameraResetRequest}
+                backgroundTheme={backgroundTheme}
               />
             )}
           </Suspense>

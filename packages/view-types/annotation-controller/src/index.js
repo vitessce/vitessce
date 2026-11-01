@@ -2,6 +2,8 @@ export { AnnotationControllerSubscriber } from './AnnotationControllerSubscriber
 export {
   hasAnnotationControllerView,
   addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
   isAnyAnnotationEditing,
   enableAnnotationEditing,
   disableAnnotationEditing,

@@ -24,10 +24,14 @@ import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglanc
 /* eslint-disable max-len */
 // import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
 
-import { diffCameraState, GREY_HEX } from './utils.js';
+import { diffCameraState, applyQuat, GREY_HEX } from './utils.js';
 
 const viewersKeyed = {};
 let viewerNoKey;
+const MIN_PROJECTION_SCALE_M = 1e-9;
+
+const FOV_F = 1 / Math.tan(Math.PI / 8); // NG perspective fovy = 45°
+const MIN_RELATIVE_DEPTH = 50; // NG default projectionDepth (-50)
 
 /**
  * @typedef {Object} NgProps
@@ -470,6 +474,34 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // Viewer-level toggles. Applied directly (not via restoreState) because updates
+  // after mount only re-apply camera and layers.
+  applyViewerToggles = () => {
+    const { viewer } = this;
+    if (!viewer) return;
+    const {
+      axisLinesVisible, boundsVisible, orthographic, scaleBarVisible,
+    } = this.props;
+    this.withoutEmitting(() => {
+      if (typeof axisLinesVisible === 'boolean' && viewer.showAxisLines.value !== axisLinesVisible) {
+        viewer.showAxisLines.value = axisLinesVisible;
+      }
+      if (typeof boundsVisible === 'boolean' && viewer.showDefaultAnnotations.value !== boundsVisible) {
+        viewer.showDefaultAnnotations.value = boundsVisible;
+      }
+      // Orthographic lives on the layout spec, not the viewer:
+      // SingletonLayerGroupViewer -> LayerGroupViewer.layout (DataPanelLayoutContainer) -> specification.
+      const layoutSpec = viewer.layout?.container?.component?.layerGroupViewer?.layout?.specification;
+      if (typeof orthographic === 'boolean' && layoutSpec?.orthographicProjection
+        && layoutSpec.orthographicProjection.value !== orthographic) {
+        layoutSpec.orthographicProjection.value = orthographic;
+      }
+      if (typeof scaleBarVisible === 'boolean' && viewer.showScaleBar.value !== scaleBarVisible) {
+        viewer.showScaleBar.value = scaleBarVisible;
+      }
+    });
+  };
+
   // Only consider actual changes in camera settings, i.e., position/rotation/zoom
   didLayersChange = (prevVS, nextVS) => {
     const stripColors = layers => (layers || []).map((l) => {
@@ -499,6 +531,14 @@ export default class Neuroglancer extends React.Component {
     const g = parseInt(hex.slice(3, 5), 16);
     const b = parseInt(hex.slice(5, 7), 16);
     return b * 65536 + g * 256 + r; // BGR format
+  };
+
+
+  // Neuroglancer paints its own 3D canvas; match it to the view's background.
+  applyBackgroundTheme = () => {
+    if (!this.viewer) return;
+    const hex = this.props.backgroundTheme === 'light' ? '#ffffff' : '#000000';
+    this.viewer.perspectiveViewBackgroundColor.restoreState(hex);
   };
 
   /* To add colors to the segments, turning unselected to grey  */
@@ -652,6 +692,27 @@ export default class Neuroglancer extends React.Component {
     this.disposers.push(this.viewer.projectionScale.changed.add(emit));
     this.disposers.push(this.viewer.projectionOrientation.changed.add(emit));
     this.disposers.push(this.viewer.position.changed.add(emit));
+    // // Prevent zooming in past MIN_PROJECTION_SCALE: at large absolute coords (~1e6 nm),
+    // // float32 GPU matrices can't resolve sub-nm offsets, so axis lines/meshes jitter.
+    // Clamp after NG's linked-zoom dispatch completes; writing projectionScale re-entrantly
+    // (inside zoomBy → handleSelfUpdate → setPhysicalScale) desyncs panel vs viewer zoom → jitter.
+    let clampRaf = null;
+    const clampZoom = () => {
+      if (clampRaf !== null) return;
+      clampRaf = requestAnimationFrame(() => {
+        clampRaf = null;
+        const ps = this.viewer?.projectionScale;
+        if (!ps) return;
+        const minScale = MIN_PROJECTION_SCALE_M / ps.canonicalVoxelPhysicalSize; // meters per canonical unit
+        if (Number.isFinite(minScale) && ps.value < minScale) {
+          // eslint-disable-next-line no-console
+          console.trace('[NG] clamp projectionScale', ps.value, '→', minScale);
+          ps.value = minScale;
+        }
+      });
+    };
+    this.disposers.push(this.viewer.projectionScale.changed.add(clampZoom));
+    this.disposers.push(() => { if (clampRaf !== null) cancelAnimationFrame(clampRaf); });
 
     // Initial restore ONLY if provided
     if (viewerState) {
@@ -660,6 +721,47 @@ export default class Neuroglancer extends React.Component {
       this.withoutEmitting(() => {
         this.viewer.state.restoreState(viewerState);
       });
+
+      // Home camera for recenter: the camera as initially loaded.
+      const s = this.viewer.state.toJSON();
+      this.homeCamera = {
+        position: s.position,
+        projectionScale: s.projectionScale,
+        projectionOrientation: s.projectionOrientation,
+      };
+
+      // Far clip plane fitted to the data bounds (relative depth, never below NG's default).
+      // An absolute far plane prevents clipping but fixes the frustum volume, which NG uses to pick
+      // annotation density -- so points stop increasing on zoom-in. Fitting keeps both behaviors.
+      let depthRaf = null;
+      const fitDepthToData = () => {
+        if (depthRaf !== null) return;
+        depthRaf = requestAnimationFrame(() => {
+          depthRaf = null;
+          const v = this.viewer;
+          const bounds = v?.coordinateSpace.value?.bounds;
+          const pos = v?.position.value;
+          const ps = v?.projectionScale.value;
+          if (!bounds || !pos || pos.length < 3 || !(ps > 0)) return;
+          const { lowerBounds: lo, upperBounds: hi } = bounds;
+          const axis = applyQuat(Array.from(v.projectionOrientation.orientation), [0, 0, 1]);
+          // Max distance of any bbox corner from the pivot along the view axis.
+          let reach = 0;
+          for (let i = 0; i < 3; i += 1) {
+            reach += Math.abs(axis[i]) * Math.max(Math.abs(lo[i] - pos[i]), Math.abs(hi[i] - pos[i]));
+          }
+          const d = (ps * FOV_F) / 2; // camera distance from pivot (canonical units)
+          const r = Number.isFinite(reach) ? FOV_F * (((d + reach) * 1.05) / d - 1) : 0;
+          v.projectionDepthRange.value = -Math.max(MIN_RELATIVE_DEPTH, r);
+        });
+      };
+      this.disposers.push(this.viewer.position.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.projectionScale.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.projectionOrientation.changed.add(fitDepthToData));
+      this.disposers.push(this.viewer.coordinateSpace.changed.add(fitDepthToData));
+      this.disposers.push(() => { if (depthRaf !== null) cancelAnimationFrame(depthRaf); });
+      fitDepthToData();
+      this.applyViewerToggles();
     }
     /* ** Vitessce Integration update end ** */
 
@@ -709,9 +811,35 @@ export default class Neuroglancer extends React.Component {
 
     const { visibleChunksChanged } = this.viewer.chunkQueueManager;
     let firstChunkLoaded = false;
+    // Annotation layers whose source transform has already been reported.
+    // Each annotation layer (centroids, transcripts, ...) reports once, independently
+    // of the first-chunk-loaded signal, so multiple point layers all get a transform.
+    const reportedAnnotationLayers = new Set();
 
+    const reportAnnotationSources = () => {
+      if (!this.viewer) return;
+      for (const layer of this.viewer.layerManager.managedLayers) {
+        if (layer.layer instanceof AnnotationUserLayer && !reportedAnnotationLayers.has(layer.name)) {
+          const annotState = layer.layer.annotationStates?.states[0];
+          const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
+          const serializers = annotState?.source?.annotationPropertySerializers;
+          if (t && serializers) {
+            reportedAnnotationLayers.add(layer.name);
+            this.props.onAnnotationSourceReady?.({
+              layerName: layer.name,
+              x: t[0],
+              y: t[5],
+              z: t[10],
+              serializers, // pass all serializers
+              serializer: serializers[0], // keep default for backward compat
+            });
+          }
+        }
+      }
+    };
 
     const checkAndMarkLoaded = () => {
+      reportAnnotationSources();
       if (firstChunkLoaded || !this.viewer) return false;
 
       for (const layer of this.viewer.layerManager.managedLayers) {
@@ -741,18 +869,6 @@ export default class Neuroglancer extends React.Component {
             requestAnimationFrame(() => requestAnimationFrame(() => {
               this.props.onLayerLoadingChange?.(true);
             }));
-            const annotState = layer.layer.annotationStates?.states[0];
-            const t = annotState?.chunkTransform?.value?.layerToChunkTransform;
-            const serializers = annotState?.source?.annotationPropertySerializers;
-            if (t && serializers) {
-              this.props.onAnnotationSourceReady?.({
-                x: t[0],
-                y: t[5],
-                z: t[10],
-                serializers, // pass all serializers
-                serializer: serializers[0], // keep default for backward compat
-              });
-            }
             return true;
           }
         }
@@ -765,12 +881,8 @@ export default class Neuroglancer extends React.Component {
 
     // To fix infinite loading loop on subsequent page refresh due to cache
     // Also check immediately in case chunks already loaded (cached)
-    const timeoutId1 = setTimeout(() => {
-      if (!firstChunkLoaded) checkAndMarkLoaded();
-    }, 100);
-    const timeoutId2 = setTimeout(() => {
-      if (!firstChunkLoaded) checkAndMarkLoaded();
-    }, 1000);
+    const timeoutId1 = setTimeout(checkAndMarkLoaded, 100);
+    const timeoutId2 = setTimeout(checkAndMarkLoaded, 1000);
     this.disposers.push(() => clearTimeout(timeoutId1));
     this.disposers.push(() => clearTimeout(timeoutId2));
 
@@ -793,6 +905,7 @@ export default class Neuroglancer extends React.Component {
         }
       }),
     );
+    this.applyBackgroundTheme();
 
     // TODO: This is purely for debugging - exposes the NG viewer to be tested via console
     window.viewer = this.viewer;
@@ -800,6 +913,17 @@ export default class Neuroglancer extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { viewerState, cellColorMapping: cellColorMappingByLayer } = this.props;
+    if (prevProps.backgroundTheme !== this.props.backgroundTheme) {
+      this.applyBackgroundTheme();
+    }
+
+    if (prevProps.axisLinesVisible !== this.props.axisLinesVisible
+      || prevProps.boundsVisible !== this.props.boundsVisible
+      || prevProps.orthographic !== this.props.orthographic
+      || prevProps.scaleBarVisible !== this.props.scaleBarVisible) {
+      this.applyViewerToggles();
+    }
+
     // The restoreState() call clears the 'selected' (hovered on) segment, which is needed
     // by Neuroglancer's code to toggle segment visibilty on a mouse click.  To free the user
     // from having to move the mouse before clicking, save the selected segment and restore
@@ -850,12 +974,8 @@ export default class Neuroglancer extends React.Component {
           scope => layer.name?.includes(scope),
         );
         if (layerScope) {
-          // meshOpacity prop takes precedence over coordination opacity
-          // when on-demand mesh loading is active
-          const opacity = this.props.meshOpacity !== undefined
-            ? this.props.meshOpacity
-            : (cellColorMappingByLayer[layerScope]?.opacity ?? 1.0);
-          layer.layer.displayState.objectAlpha.value = opacity;
+          layer.layer.displayState.objectAlpha.value = cellColorMappingByLayer[layerScope]
+            ?.opacity ?? 1.0;
         }
       }
       // Update annotation layer shaders from viewerState config,
@@ -958,9 +1078,9 @@ export default class Neuroglancer extends React.Component {
     const segIdsChangedForLayer = (name) => {
       const prevIds = prevSegLayers.find(l => l.name === name)?.segments ?? [];
       const nextIds = nextSegLayers.find(l => l.name === name)?.segments ?? [];
-      return prevIds.length !== nextIds.length
-        || prevIds[0] !== nextIds[0]
-        || prevIds[prevIds.length - 1] !== nextIds[nextIds.length - 1];
+      if (prevIds.length !== nextIds.length) return true;
+      // Full comparison: the detail view can swap a middle id at equal length.
+      return prevIds.some((id, i) => String(id) !== String(nextIds[i]));
     };
     const allSegLayerNames = new Set([
       ...prevSegLayers.map(l => l.name),
@@ -970,7 +1090,8 @@ export default class Neuroglancer extends React.Component {
     const segmentsChanged = [...allSegLayerNames].some(segIdsChangedForLayer);
     const nextSegIds = nextSegLayers.flatMap(l => l.segments ?? []);
 
-    if (segmentsChanged && nextSegIds.length > 0) {
+    // allowEmptySegments: the detail view must be able to clear to zero meshes.
+    if (segmentsChanged && (nextSegIds.length > 0 || this.props.allowEmptySegments)) {
       this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
@@ -978,6 +1099,12 @@ export default class Neuroglancer extends React.Component {
       // Re-apply colors immediately after restoreState clears segmentStatedColors
       // this is useful when culling is activated to avoid randomcolor assignment by NG
       this.applyColorsAndVisibility(cellColorMappingByLayer);
+    }
+
+    // Recenter: camera-only restore (no `layers`, so zoom isn't corrupted). Emitting on purpose,
+    // so the snapshot sync moves linked views (spatialBeta, zoom view) to the same home.
+    if (prevProps.cameraResetRequest !== this.props.cameraResetRequest && this.homeCamera) {
+      this.viewer.state.restoreState(this.homeCamera);
     }
 
     /* ** Vitessce Integration update end ** */

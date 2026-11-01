@@ -61,8 +61,10 @@ export function LayerControllerSubscriber(props) {
     uuid,
     layerPerFeatureForPoints = false,
     globalDisable3d = false,
+    forceEnable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
+    showViewerOptions = false,
   } = props;
 
   const loaders = useLoaders();
@@ -78,6 +80,8 @@ export function LayerControllerSubscriber(props) {
       spatialTargetT: targetT,
       spatialTargetZ: targetZ,
       spatialRenderingMode,
+      spatialAxisLinesVisible,
+      spatialBoundsVisible,
     },
     {
       setSpatialTargetX: setTargetX,
@@ -88,6 +92,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
       setSpatialRenderingMode,
+      setSpatialAxisLinesVisible,
+      setSpatialBoundsVisible,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
@@ -284,50 +290,13 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
     CoordinationType.POINT_LAYER,
   );
-
-  // Pair point layers (centroids) with their matching segmentation layers
-  // by matching obsType between the two coordination objects.
-  const centroidSegmentationPairs = React.useMemo(() => {
-    const pairs = [];
-    const pairedSegScopes = new Set();
-    const pairedPointScopes = new Set();
-
-    pointLayerScopes.forEach((pointScope) => {
-      const pointCoord = pointLayerCoordination[0][pointScope];
-      if (!pointCoord) return;
-      const pointObsType = pointCoord[CoordinationType.OBS_TYPE];
-      if (!pointObsType) return;
-
-      const matchingSegScope = segmentationLayerScopes.find((segScope) => {
-        if (pairedSegScopes.has(segScope)) return false;
-        const channelScopes = segmentationChannelScopesByLayer[segScope] || [];
-        return channelScopes.some((chanScope) => {
-          const chanCoord = segmentationChannelCoordination[0]?.[segScope]?.[chanScope];
-          return chanCoord?.[CoordinationType.OBS_TYPE] === pointObsType;
-        });
-      });
-
-      if (matchingSegScope) {
-        pairs.push({ pointScope, segScope: matchingSegScope });
-        pairedSegScopes.add(matchingSegScope);
-        pairedPointScopes.add(pointScope);
-      }
-    });
-
-    return { pairs, pairedSegScopes, pairedPointScopes };
-  }, [
-    pointLayerScopes,
-    pointLayerCoordination,
-    segmentationLayerScopes,
-    segmentationChannelScopesByLayer,
-    segmentationChannelCoordination,
-  ]);
-
 
   // Get volume loading status from auxiliary coordination (shared with Spatial view)
   const [
@@ -451,12 +420,9 @@ export function LayerControllerSubscriber(props) {
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
         globalDisable3d={globalDisable3d}
+        forceEnable3d={forceEnable3d}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
-
-        centroidSegmentationPairs={centroidSegmentationPairs.pairs}
-        pairedSegScopes={centroidSegmentationPairs.pairedSegScopes}
-        pairedPointScopes={centroidSegmentationPairs.pairedPointScopes}
       />
     </TitleInfo>
   );

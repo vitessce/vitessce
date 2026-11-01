@@ -21,8 +21,9 @@ import {
   getStatsForResolution,
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
-import { VIEWER_PALETTE } from '@vitessce/utils';
+import { VIEWER_PALETTE, UNIT_TO_METERS } from '@vitessce/utils';
 import { log } from '@vitessce/globals';
+
 /**
  * A wrapper around the Viv loader, to provide a common interface for
  * all image file types.
@@ -456,6 +457,17 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return shape[labels.indexOf('z')];
   }
 
+  /**
+   * Clamp a z target to a valid plane index.
+   * spatialTargetZ can hold a 3D camera target in scene units, which may
+   * exceed the number of planes; geotiff throws on out-of-range indices.
+  */
+  getClampedZIndex(targetZ: number | null | undefined): number {
+    const numZ = this.getNumZ();
+    if (!Number.isFinite(numZ) || !Number.isFinite(targetZ)) return 0;
+    return Math.min(Math.max(Math.floor(targetZ as number), 0), numZ - 1);
+  }
+
   getNumT(): number {
     const loader = this.vivLoader;
     const { labels, shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
@@ -587,5 +599,27 @@ export default class ImageWrapper implements AbstractImageWrapper {
       }
     }
     return 'BlackIsZero';
+  }
+
+  /**
+   * Meters per 3D scene unit, i.e. the unit of getModelMatrix().
+   * OME-TIFF: physicalSizeToMatrix divides by 1 um, so the scene is in µm
+   * (only when physical sizes exist; otherwise pixels, unit unknown → null).
+   * OME-Zarr: the model matrix is in the units of the NGFF axes.
+   */
+
+  getSceneMetersPerUnit(): number | null {
+    const { metadata } = this.vivLoader as any;
+    if (!metadata) return null;
+    if ('Pixels' in metadata) {
+      return this.hasPhysicalSize() ? 1e-6 : null;
+    }
+    if ('multiscales' in metadata) {
+      const axes = metadata.multiscales?.[0]?.axes ?? [];
+      const xAxis = axes.find((a: any) => (typeof a === 'string' ? a : a?.name) === 'x');
+      const unit = typeof xAxis === 'object' ? xAxis?.unit : null;
+      return unit ? UNIT_TO_METERS[unit.normalize('NFKC')] ?? null : null;
+    }
+    return null;
   }
 }

@@ -6,35 +6,35 @@ import {
   vconcat,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
+import { makeIdsCsvDataUrl, makeColorsCsvDataUrl } from '../../utils.js';
 
-function generateNeuroglancerMinimalConfiguration() {
+function generateNeuroglancerTissueClasses() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: 'Melanoma',
+    name: 'Pancreas (Kiemen et al.)',
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/kiemenetal/5xLabelled.ome.tiff',
     options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/Dataset1-LSP13626-melanoma-in-situ.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xLabelled.offsets.json',
     },
     coordinationValues: {
-      fileUid: 'melanoma',
+      fileUid: 'tissue-classes',
     },
   });
 
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_meshes',
+    url: 'https://data-2.vitessce.io/data/kiemenetal/3dtm-outputs-sep-2026/5xLabelled_precomputed/',
     coordinationValues: {
-      fileUid: 'melanom-meshes',
-      obsType: 'cell',
+      fileUid: 'tissue-classes-mesh',
     },
   });
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+    url: makeIdsCsvDataUrl([1, 2, 3, 4, 5, 6, 8, 9, 10]),
     coordinationValues: {
       obsType: 'cell',
       featureType: 'feature',
@@ -43,21 +43,31 @@ function generateNeuroglancerMinimalConfiguration() {
   });
 
   dataset.addFile({
-    fileType: 'obsEmbedding.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+    fileType: 'obsColors.csv',
+    url: makeColorsCsvDataUrl({
+      1: '#cc6677',
+      2: '#332288',
+      3: '#ddcc77',
+      4: '#117733',
+      5: '#88ccee',
+      6: '#882255',
+      // 7: '#44aa99', //This is the tissue background
+      8: '#999933',
+      9: '#aa4499',
+      10: '#dddddd',
+    }),
     options: {
       obsIndex: 'id',
-      obsEmbedding: ['tSNE1', 'tSNE2'],
+      obsColors: 'color',
     },
     coordinationValues: {
       obsType: 'cell',
-      embeddingType: 'TSNE',
     },
   });
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/melanoma_with_embedding_red.csv',
+    url: 'https://data-2.vitessce.io/data/kiemenetal/3dtm-outputs-sep-2026/5xLabelled.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -65,8 +75,8 @@ function generateNeuroglancerMinimalConfiguration() {
       obsIndex: 'id',
       obsSets: [
         {
-          name: 'Clusters',
-          column: 'cluster',
+          name: 'Tissue Classes',
+          column: 'id',
         },
       ],
     },
@@ -75,42 +85,43 @@ function generateNeuroglancerMinimalConfiguration() {
   const spatialView = config.addView(dataset, 'spatialBeta');
   const lcView = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
-  const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
+
 
   const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // The mehses here are neuroglancer_multilod_draco format and does not have raster volume to comptue the camera state
     initialNgCameraState: {
-      position: [
-        -342.5,
-        1358.5,
-        2506.5,
-      ],
-      projectionScale: 1024,
-      projectionOrientation: [
-        -0.636204183101654,
-        -0.5028395652770996,
-        0.5443811416625977,
-        0.2145828753709793,
-      ],
+      position: [15921000, 12177000, 2448000],
+      projectionScale: 40000000,
+      projectionOrientation: [0, 0, 0, 1],
     },
   });
 
-  config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
-
-  // Initialize the image properties
-  config.linkViewsByObject([spatialView, lcView], {
+  config.linkViewsByObject([spatialView, lcView, neuroglancerView], {
     spatialRenderingMode: '3D',
+    spatialZoom: 0,
+    spatialTargetT: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
+    spatialTargetZ: 0,
+    spatialRotationX: 0,
+    spatialRotationY: 0,
+    spatialRotationOrbit: 0,
+  }, { meta: false });
+
+  config.linkViewsByObject([spatialView, lcView], {
     imageLayer: CL([
       {
-        fileUid: 'melanoma',
+        fileUid: 'tissue-classes',
         spatialLayerOpacity: 1,
-        spatialTargetResolution: null,
+        spatialTargetResolution: 5,
+        photometricInterpretation: 'BlackIsZero',
+        volumetricRenderingAlgorithm: 'additive',
         imageChannel: CL([
           {
             spatialTargetC: 0,
             spatialChannelColor: [255, 0, 0],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [0, 10],
           },
         ]),
       },
@@ -120,15 +131,13 @@ function generateNeuroglancerMinimalConfiguration() {
   config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
-        fileUid: 'melanom-meshes',
+        fileUid: 'tissue-classes-mesh',
         spatialLayerOpacity: 1,
         spatialTargetResolution: null,
         spatialLayerVisible: true,
         segmentationChannel: CL([
           {
             obsType: 'cell',
-            featureType: 'feature',
-            featureValueType: 'value',
             spatialChannelVisible: true,
           },
         ]),
@@ -137,9 +146,10 @@ function generateNeuroglancerMinimalConfiguration() {
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
 
-  config.layout(hconcat(neuroglancerView, spatialView, vconcat(lcView, obsSets, scatterView)));
+  config.layout(hconcat(neuroglancerView, spatialView, vconcat(lcView, obsSets)));
+
   const configJSON = config.toJSON();
   return configJSON;
 }
 
-export const melanomaNeuroglancer = generateNeuroglancerMinimalConfiguration();
+export const neuroglancerKiemenTissueClasses = generateNeuroglancerTissueClasses();

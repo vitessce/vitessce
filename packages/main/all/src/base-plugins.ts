@@ -76,6 +76,7 @@ import {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  ngLocationsAnnotationSchema,
   annotationStoryObj,
   annotationShapesArray,
 } from '@vitessce/schemas';
@@ -194,6 +195,7 @@ import {
   NgPassthroughSource,
   NgPrecomputedMeshLoader,
   NgAnnotationPointsLoader,
+  NgAnnotationLocationsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -361,6 +363,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
   makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+  makeFileType(FileType.OBS_LOCATIONS_NG_ANNOTATIONS, DataType.OBS_LOCATIONS, NgAnnotationLocationsLoader, NgPassthroughSource, ngLocationsAnnotationSchema),
 
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -631,7 +634,17 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
+  // null = fall back to the neuroglancer view's showAxisLines prop / NG default.
+  new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_LINES_VISIBLE, null, z.boolean().nullable()),
+  // Neuroglancer default annotations (data-source bounding boxes).
+  new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
+  // null = use the file's projectionAnnotationSpacing option. NG valid range [0.0625, 65536].
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
+  // Default matches Neuroglancer's own default point marker diameter
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_RADIUS, 2.5, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
@@ -649,6 +662,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.PIXEL_HIGHLIGHT, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.TOOLTIP_OBS_SETS_MODE, 'all', z.enum(['all', 'selected'])),
   new PluginCoordinationType(CoordinationType.LEGEND_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),

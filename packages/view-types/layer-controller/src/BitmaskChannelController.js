@@ -11,11 +11,13 @@ import { ChannelSelectionDropdown, ChannelVisibilityCheckbox } from './shared-ch
  * @prop {function} handleChannelRemove When a channel is removed, this is called.
  * @prop {number} selectionIndex The current numeric index of the selection.
  * @prop {boolean} disableOptions Whether or not channel options are be disabled (default: false).
+ * @prop {string} channelsSortOrder Either 'original' or 'alphabetical'.
  */
 function BitmaskChannelController({
   visibility = false,
   dimName,
   channelOptions,
+  channelsSortOrder,
   handlePropertyChange,
   handleChannelRemove,
   selectionIndex,
@@ -53,6 +55,7 @@ function BitmaskChannelController({
           selectionIndex={selectionIndex}
           disableOptions={disableOptions}
           channelOptions={channelOptions}
+          channelsSortOrder={channelsSortOrder}
         />
       </Grid>
       <Grid size={1}>

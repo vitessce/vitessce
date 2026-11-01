@@ -38,9 +38,12 @@ export default function SpatialOptions(props) {
     spatialAxisFixed,
     setSpatialAxisFixed,
     use3d,
+    spatialBackgroundTheme,
+    setSpatialBackgroundTheme,
   } = props;
 
   const toggleAxisId = useId();
+  const backgroundId = useId();
   const { classes } = useStyles();
 
   return (
@@ -59,6 +62,25 @@ export default function SpatialOptions(props) {
             slotProps={{ input: {
               'aria-label': 'Fix or not fix spatial camera axis',
               id: `spatial-camera-axis-${toggleAxisId}`,
+            } }}
+          />
+        </TableCell>
+      </TableRow>
+      <TableRow>
+        <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+          <label htmlFor={`spatial-background-${backgroundId}`}>
+            Light Background
+          </label>
+        </TableCell>
+        <TableCell className={classes.spatialBetaToggleBox} variant="body">
+          <Checkbox
+            onClick={() => setSpatialBackgroundTheme(
+              spatialBackgroundTheme === 'light' ? 'dark' : 'light',
+            )}
+            checked={spatialBackgroundTheme === 'light'}
+            slotProps={{ input: {
+              'aria-label': 'Toggle light or dark background',
+              id: `spatial-background-${backgroundId}`,
             } }}
           />
         </TableCell>

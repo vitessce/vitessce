@@ -64,6 +64,7 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
               'featureValueColormap',
               'featureValueColormapRange',
               'featureSelection',
+              'spatialLayerOpacityUnselected',
             ])
             || curriedShallowDiffByChannel('segmentationMultiIndicesData', layerScope, channelScope)
             || curriedShallowDiffByChannel('segmentationMultiExpressionNormData', layerScope, channelScope)
@@ -93,7 +94,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
   const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
 
-  if (['theme', 'showAxisLines'].some(curriedShallowDiff)) {
+  if (['theme', 'showAxisLines', 'viewerDimensionsOverride'].some(curriedShallowDiff)) {
     forceUpdate = true;
   }
 
@@ -117,8 +118,34 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
           curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
             'spatialChannelVisible',
           ])
+          || curriedShallowDiffByChannel('obsSegmentationsLocationsData', layerScope, channelScope)
         ) {
           forceUpdate = true;
+        }
+        // The implicit centroids layer (if any) derives its shader from the
+        // segmentation layer/channel coordination values.
+        const hasCentroids = nextDeps.obsSegmentationsLocationsData
+          ?.[layerScope]?.[channelScope]?.obsLocationsTilingType === 'neuroglancer';
+        if (hasCentroids) {
+          const getOpacity = deps => (
+            (deps?.segmentationLayerCoordination?.[0]?.[layerScope]?.spatialLayerOpacity ?? 1.0)
+            * (deps?.segmentationChannelCoordination?.[0]?.[layerScope]?.[channelScope]
+              ?.spatialChannelOpacity ?? 1.0)
+          );
+          const keysChanged = curriedShallowDiffByChannelCoordinationWithKeys('segmentationChannelCoordination', layerScope, channelScope, [
+            'spatialChannelColor',
+            'obsColorEncoding',
+            'featureValueColormap',
+            'featureValueColormapRange',
+            'obsSetColor',
+            'obsSetSelection',
+            'additionalObsSets',
+            'spatialSegmentationStrokeWidth',
+          ]);
+          const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
+          if (keysChanged || opacityChanged) {
+            forceUpdate = true;
+          }
         }
       });
     });
@@ -149,6 +176,8 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
         'obsSetColor',
         'obsSetSelection',
         'additionalObsSets',
+        'spatialPointProjectionSpacing',
+        'spatialPointRadius',
       ]);
       const opacityChanged = Math.abs(
         (prevLayer?.spatialLayerOpacity ?? 1.0) - (nextLayer?.spatialLayerOpacity ?? 1.0),

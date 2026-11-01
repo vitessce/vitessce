@@ -3,8 +3,8 @@ import {
   makeStyles,
   NativeSelect,
 } from '@vitessce/styles';
+import { getSortedChannelOptions } from '@vitessce/layer-controller';
 import { useSelectStyles } from './styles.js';
-
 
 const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
@@ -38,20 +38,10 @@ export default function ChannelSelectionDropdown(props) {
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
 
-  const sortedOptions = useMemo(() => {
-    if (!Array.isArray(featureIndex)) return [];
-    const options = featureIndex
-      .map((channelName, channelIndex) => ({ channelName, channelIndex }));
-    if (channelsSortOrder === 'alphabetical') {
-      // numeric: true ensures m/z-style numeric labels sort as 1, 2, 3, 10
-      // rather than lexicographically as 1, 10, 2, 3.
-      return options.sort((a, b) => a.channelName.localeCompare(
-        b.channelName, undefined, { numeric: true, sensitivity: 'base' },
-      ));
-    }
-    return options;
-  }, [featureIndex, channelsSortOrder]);
-
+  const sortedOptions = useMemo(
+    () => getSortedChannelOptions(featureIndex, channelsSortOrder),
+    [featureIndex, channelsSortOrder],
+  );
   return (Array.isArray(featureIndex) ? (
     <NativeSelect
       classes={{ root: selectClasses.selectRoot }}

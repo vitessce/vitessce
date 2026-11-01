@@ -35,6 +35,7 @@ export const AUTO_INDEPENDENT_COORDINATION_TYPES = [
   CoordinationType.FEATURE_AGGREGATION_STRATEGY,
   // Annotation shapes are specific to a view's coordinate system.
   CoordinationType.ANNOTATION_SHAPES,
+  CoordinationType.SPATIAL_BACKGROUND_THEME,
 ];
 
 /**
@@ -61,6 +62,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.SPATIAL_ZOOM,
     CoordinationType.SPATIAL_CAMERA_SNAPSHOT,
+    CoordinationType.SPATIAL_RENDERING_MODE,
     CoordinationType.OBS_FILTER,
     CoordinationType.OBS_HIGHLIGHT,
     CoordinationType.OBS_SET_SELECTION,
@@ -94,6 +96,12 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_CHANNEL_VISIBLE,
     CoordinationType.LEGEND_VISIBLE,
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_RADIUS,
+    CoordinationType.SPATIAL_AXIS_LINES_VISIBLE,
+    CoordinationType.SPATIAL_BOUNDS_VISIBLE,
+    CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
+    CoordinationType.SPATIAL_SCALE_BAR_VISIBLE,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.SCATTERPLOT]: [
     CoordinationType.DATASET,
@@ -128,6 +136,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.TOOLTIP_OBS_SETS_MODE,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
     CoordinationType.SAMPLE_SET_FILTER,
@@ -179,6 +188,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.TOOLTIP_OBS_SETS_MODE,
     CoordinationType.SAMPLE_TYPE,
     CoordinationType.SAMPLE_SET_SELECTION,
     CoordinationType.SAMPLE_SET_FILTER,
@@ -260,6 +270,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.TOOLTIP_OBS_SETS_MODE,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
     CoordinationType.ANNOTATION_STORY,
     CoordinationType.ANNOTATION_SHAPES,
@@ -268,6 +279,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
   ],
   [ViewType.SPATIAL_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -309,6 +321,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.MOLECULE_HIGHLIGHT,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.TOOLTIP_OBS_SETS_MODE,
     CoordinationType.FILE_UID,
     CoordinationType.SPATIAL_TARGET_C,
     CoordinationType.SPATIAL_LAYER_VISIBLE,
@@ -356,6 +369,9 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.ANNOTATION_TRANSITION_DURATION,
     CoordinationType.ANNOTATION_EDITABLE,
     CoordinationType.ANNOTATION_SEMANTIC_ZOOM,
+    CoordinationType.SPATIAL_POINT_RADIUS,
+    CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_BACKGROUND_THEME,
   ],
   [ViewType.ANNOTATION_CONTROLLER]: [
     CoordinationType.DATASET,
@@ -394,6 +410,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_COLOR_ENCODING,
     CoordinationType.ADDITIONAL_OBS_SETS,
     CoordinationType.TOOLTIPS_VISIBLE,
+    CoordinationType.TOOLTIP_OBS_SETS_MODE,
   ],
   [ViewType.OBS_SETS]: [
     CoordinationType.DATASET,
@@ -485,6 +502,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_ROTATION_ORBIT,
     CoordinationType.SPATIAL_ORBIT_AXIS,
     CoordinationType.PHOTOMETRIC_INTERPRETATION,
+    CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
   ],
   [ViewType.LAYER_CONTROLLER_BETA]: [
     CoordinationType.META_COORDINATION_SCOPES,
@@ -518,6 +536,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.SPATIAL_SEGMENTATION_FILLED,
     CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
     CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+    CoordinationType.SPATIAL_POINT_RADIUS,
     CoordinationType.IMAGE_CHANNEL,
     CoordinationType.IMAGE_LAYER,
     CoordinationType.SEGMENTATION_CHANNEL,

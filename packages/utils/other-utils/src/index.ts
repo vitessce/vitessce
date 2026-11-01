@@ -58,3 +58,4 @@ export {
   getAnnotationFrameCoordinationValues,
   isAnnotationFrameViewStateChange,
 } from './annotation.js';
+export { UNIT_TO_METERS } from './units.js';
