@@ -7,7 +7,16 @@ const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'))
 
 function createWorker() {
   const worker = new ChunkWorker();
-  worker.AsyncComputationWorker = AsyncComputationWorker;
+  // NG's DataManagementContext spawns async-computation workers on the main thread
+  // via `new bundleRoot.AsyncComputationWorker()` and never keeps or terminates them.
+  // Track them so componentWillUnmount can free them (and their Draco WASM heaps).
+  const asyncWorkers = [];
+  worker.AsyncComputationWorker = function TrackedAsyncComputationWorker() {
+    const w = new AsyncComputationWorker();
+    asyncWorkers.push(w);
+    return w; // returning an object from a constructor makes `new` yield it
+  };
+  worker.asyncWorkers = asyncWorkers;
   return worker;
 }
 
@@ -173,6 +182,9 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.bundleRoot?.asyncWorkers?.forEach((w) => {
+      try { w.terminate(); } catch { /* already gone */ }
+    });
     this.bundleRoot?.terminate();
     this.bundleRoot = null;
   }
