@@ -51,6 +51,8 @@ export {
   aggregateFeatureArrays,
   normalizeAggregatedFeatureArray,
   filterValidExpressionArrays,
+  resolveFeatureAggregationStrategy,
+  RESERVED_FEATURE_AGGREGATION_STRATEGIES,
 } from './expr.js';
 export {
   getAnnotationFrameCoordinationValues,
