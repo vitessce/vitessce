@@ -16,6 +16,27 @@ function isSameZoomAndTarget(viewStateA, viewStateB) {
 }
 
 /**
+ * Wrap a deck.gl transition interpolator so that each intermediate
+ * step of the transition is reported via a callback.
+ * DeckGL calls interpolateProps immediately before emitting the step via
+ * onViewStateChange, which allows the step to be distinguished from
+ * user interactions (e.g., panning or zooming during or after the transition).
+ * The wrapper delegates all other methods to the original interpolator.
+ * @param {object} interpolator The deck.gl transition interpolator to wrap.
+ * @param {function} onStep Called with the interpolated props of each step.
+ * @returns {object} The wrapped interpolator.
+ */
+export function createStepMarkingInterpolator(interpolator, onStep) {
+  const wrapper = Object.create(interpolator);
+  wrapper.interpolateProps = (startProps, endProps, t) => {
+    const stepProps = interpolator.interpolateProps(startProps, endProps, t);
+    onStep(stepProps);
+    return stepProps;
+  };
+  return wrapper;
+}
+
+/**
  * Abstract class component intended to be inherited by
  * the Spatial and Scatterplot class components.
  * Contains a common constructor, common DeckGL callbacks,
@@ -41,6 +62,13 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     // The end viewState of the most recently ended or interrupted transition,
     // until the viewState prop changes to different values.
     this.finishedTransitionEndViewState = null;
+    // The interpolated props of the most recent step of the current transition,
+    // used to distinguish transition steps from user interactions.
+    this.lastTransitionStep = null;
+    // The transitionInterpolator from the viewState prop, and its
+    // step-marking wrapper (cached so that the wrapper is stable across renders).
+    this.sourceTransitionInterpolator = null;
+    this.stepMarkingInterpolator = null;
     this.viewport = null;
     this.threeCamera = null;
     this.orbitControls = null;
@@ -76,17 +104,28 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     const {
       setViewState, viewState, spatialAxisFixed,
     } = this.props;
-    if (this.transitionEndViewState) {
+    if (this.isTransitionStep(nextViewState)) {
       // The viewState prop (from the coordination space) already holds the
       // end values of the transition, so the intermediate values are only
       // rendered, rather than being emitted via setViewState.
-      this.setState({
-        transitionViewState: {
-          viewState: nextViewState,
-          endViewState: this.transitionEndViewState,
-        },
-      });
+      if (this.transitionEndViewState) {
+        this.setState({
+          transitionViewState: {
+            viewState: nextViewState,
+            endViewState: this.transitionEndViewState,
+          },
+        });
+      }
       return;
+    }
+    if (this.transitionEndViewState) {
+      // The user interacted during the transition, which ends the transition.
+      // The user's view state is emitted below. Once DeckGL receives a viewState
+      // without the transition props, it interrupts the transition.
+      this.finishedTransitionEndViewState = this.transitionEndViewState;
+      this.transitionEndViewState = null;
+      this.lastTransitionStep = null;
+      this.setState({ transitionViewState: null });
     }
     const use3d = this.use3d();
     // Begin changes for neuroglancer.
@@ -135,8 +174,7 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * Called by DeckGL when a viewState transition ends.
    */
   onTransitionEnd() {
-    this.finishedTransitionEndViewState = this.transitionEndViewState;
-    this.transitionEndViewState = null;
+    this.markTransitionFinished();
     this.setState({ transitionViewState: null });
   }
 
@@ -147,8 +185,49 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
    * Instead, the stale transitionViewState is ignored by getDeckViewState.
    */
   onTransitionInterrupt() {
-    this.finishedTransitionEndViewState = this.transitionEndViewState;
+    this.markTransitionFinished();
+  }
+
+  /**
+   * Record that the current transition has ended or been interrupted.
+   * If the transition was already ended by a user interaction,
+   * the record of its end values is kept.
+   */
+  markTransitionFinished() {
+    if (this.transitionEndViewState) {
+      this.finishedTransitionEndViewState = this.transitionEndViewState;
+    }
     this.transitionEndViewState = null;
+    this.lastTransitionStep = null;
+  }
+
+  /**
+   * Determine whether a viewState emitted by DeckGL is a step of the
+   * current transition (marked by the step-marking interpolator),
+   * as opposed to the result of a user interaction.
+   * @param {object} nextViewState The viewState emitted by DeckGL.
+   * @returns {boolean} Whether the viewState is a transition step.
+   */
+  isTransitionStep(nextViewState) {
+    return Boolean(this.lastTransitionStep)
+      && isSameZoomAndTarget(nextViewState, this.lastTransitionStep);
+  }
+
+  /**
+   * Get a wrapper of the transition interpolator which marks
+   * each transition step (see createStepMarkingInterpolator).
+   * @param {object} transitionInterpolator The interpolator from the viewState prop.
+   * @returns {object} The step-marking interpolator.
+   */
+  getStepMarkingInterpolator(transitionInterpolator) {
+    if (this.sourceTransitionInterpolator !== transitionInterpolator) {
+      this.sourceTransitionInterpolator = transitionInterpolator;
+      this.stepMarkingInterpolator = createStepMarkingInterpolator(
+        transitionInterpolator,
+        (stepProps) => { this.lastTransitionStep = stepProps; },
+      );
+    }
+    return this.stepMarkingInterpolator;
   }
 
   /**
@@ -187,6 +266,9 @@ export default class AbstractSpatialOrScatterplot extends PureComponent {
     if (viewState.transitionDuration) {
       return {
         ...viewState,
+        transitionInterpolator: this.getStepMarkingInterpolator(
+          viewState.transitionInterpolator,
+        ),
         onTransitionStart: this.onTransitionStart,
         onTransitionEnd: this.onTransitionEnd,
         onTransitionInterrupt: this.onTransitionInterrupt,
