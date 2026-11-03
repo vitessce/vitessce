@@ -6,8 +6,11 @@ import { Canvas } from '@react-three/fiber';
 import { VolumeView } from './VolumeView.js';
 import { VolumeInfoPanel } from './VolumeInfoPanel.js';
 
+// Vitessce themes with a white background (see muiTheme in @vitessce/vit-s).
+const LIGHT_THEMES = ['light', 'light2'];
+
 export function SpatialWrapper(props) {
-  const { spatialRenderingMode } = props;
+  const { spatialRenderingMode, theme, viewState } = props;
   // Set by VolumeView once the data manager is initialized.
   const [dataManager, setDataManager] = useState(null);
 
@@ -40,7 +43,9 @@ export function SpatialWrapper(props) {
           height: '100%',
           padding: 0,
           margin: 0,
-        // backgroundColor: 'white',
+          // Shows through where the volume is transparent. Unset in the dark
+          // theme, which keeps the dark background of the view.
+          backgroundColor: LIGHT_THEMES.includes(theme) ? 'white' : undefined,
         }}
         camera={{
           fov: 50,
@@ -64,7 +69,7 @@ export function SpatialWrapper(props) {
         </Suspense>
       </Canvas>
       {dataManager && spatialRenderingMode === '3D' ? (
-        <VolumeInfoPanel dataManager={dataManager} />
+        <VolumeInfoPanel dataManager={dataManager} viewState={viewState} />
       ) : null}
     </>
   );

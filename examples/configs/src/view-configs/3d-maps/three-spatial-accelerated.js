@@ -73,8 +73,9 @@ const idToUrl = {
   'hubmap-lymph-node-tiff': 'https://assets.hubmapconsortium.org/1f99c0bc4fd3a60bb569410878e4a817/ometiff-pyramids/Level0/Channel1/UFL0006-LY09-1-1.ome.tif',
   'hubmap-thymus-tiff': 'https://assets.hubmapconsortium.org/bc875d49ed4aaa112398aa32160d88c8/ometiff-pyramids/Level0/Channel1/UFL0002-TH-1-4-1.ome.tif',
   'hubmap-spleen-tiff': 'https://assets.hubmapconsortium.org/71b3fdd770de565e5d48a73060b72189/ometiff-pyramids/Level0/Channel1/UFL0007-SP-2-3-1.ome.tif',
-  // Kiemen et al. H&E, color-deconvolved: 2 channels (hematoxylin, eosin), uint8, 408 planes.
-  'kiemen-he-tiff': 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE.ome.tiff',
+  // Kiemen et al. H&E, color-deconvolved and normalized: 2 channels (hematoxylin, eosin),
+  // uint8, 15921 x 12177 x 408.
+  'kiemen-he-tiff': 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE_norm.ome.tiff',
   // HuBMAP lymph node 3D IMC, HBM475.RQSB.723.
   'hubmap-lymph-node-imc-tiff': 'https://assets.hubmapconsortium.org/21221d689913ae19e0cc92f532738c44/ometiff-pyramids/data/3D_image_stack.ome.tif',
   // 3702 x 3675 x 2207, 4 channels, uint16.
@@ -112,16 +113,40 @@ const idToOptions = {
   'idr0106-tiff': { offsetsUrl: 'https://viv-demo.storage.googleapis.com/idr0106.pyramid.offsets.json' },
   'brain-tiff': { offsetsUrl: 'https://viv-demo.storage.googleapis.com/brain.pyramid.offsets.json' },
   'washu-kidney-tiff': { offsetsUrl: 'https://data-2.vitessce.io/data/washu-kidney/LS_20x_5_Stitched.pyramid.offsets.json' },
-  'kiemen-he-tiff': { offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE.offsets.json' },
+  'kiemen-he-tiff': { offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE_norm.offsets.json' },
   'hubmap-sample16-20x-tiff': { offsetsUrl: `${hubmapSample16Urls['20x']}/output_offsets/lab_processed/images/Sample_16_20x_7-Stitched.offsets.json` },
   'hubmap-sample16-5x-tiff': { offsetsUrl: `${hubmapSample16Urls['5x']}/output_offsets/lab_processed/images/Sample16_5x_stitched.offsets.json` },
 };
 
-// volumeZReduction: 'auto' | 'none' | 'sample' | 'mean' | 'max'
-function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'auto') {
+const defaultChannels = [{ spatialTargetC: 0, spatialChannelColor: [255, 0, 0] }];
+
+// The camera of the 3D view, in the units of its scene (the volume box is about 1 wide):
+// the initial camera looks at the center of the volume from the front.
+// The info panel of the view shows the current camera, with a button to copy it.
+const defaultCamera = {
+  zoom: 0,
+  target: [0, 0, 0],
+  rotationX: 0,
+  rotationOrbit: 0,
+};
+
+/**
+ * @param {string} imageId A key of idToUrl.
+ * @param {'auto'|'none'|'sample'|'mean'|'max'} volumeZReduction
+ * @param {object} [preset] Initial view settings (see three-spatial-accelerated-figures.js).
+ * @param {string} [preset.name] The config name.
+ * @param {object[]} [preset.channels] Coordination values per channel: spatialTargetC,
+ * spatialChannelColor, and optionally spatialChannelWindow, spatialChannelVisible.
+ * @param {object} [preset.camera] { zoom, target: [x, y, z], rotationX, rotationOrbit }.
+ */
+export function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'auto', {
+  name = `Spatial Accelerated: ${imageId}`,
+  channels = defaultChannels,
+  camera = defaultCamera,
+} = {}) {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
-    name: `Spatial Accelerated: ${imageId}`,
+    name,
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: idToFileType[imageId] ?? 'image.ome-zarr',
@@ -158,22 +183,28 @@ function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'au
   //   .setProps({ three: true, accelerated: false });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
   config.linkViewsByObject([spatialAcceleratedView, lcView], {
-    spatialTargetZ: 0,
+    // Kept up to date by the 3D view, so the camera is saved with the config.
+    spatialZoom: camera.zoom,
+    spatialTargetX: camera.target[0],
+    spatialTargetY: camera.target[1],
+    spatialTargetZ: camera.target[2],
+    spatialRotationX: camera.rotationX,
+    spatialRotationOrbit: camera.rotationOrbit,
+    spatialOrbitAxis: 'Y',
     spatialTargetT: 0,
     spatialRenderingMode: '3D',
     imageLayer: CL([
       {
         spatialLayerOpacity: 1,
         // spatialTargetResolution: 5,
-        imageChannel: CL([
-          {
-            spatialTargetC: 0,
-            spatialChannelColor: [255, 0, 0],
-            spatialChannelVisible: true,
-            spatialChannelOpacity: 1.0,
-            // spatialChannelWindow: [0, 4095],
-          },
-        ]),
+        imageChannel: CL(channels.map(channel => ({
+          spatialChannelVisible: true,
+          spatialChannelOpacity: 1.0,
+          // Its own scope per channel, set from the data when null. Without it,
+          // the channels fall back to one view-level window and share a slider.
+          spatialChannelWindow: null,
+          ...channel,
+        }))),
       },
     ]),
   });

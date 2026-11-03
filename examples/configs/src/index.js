@@ -108,6 +108,7 @@ import {
   saHubmapLymphNodeImcTiff, saKiemenHeTiff, saHubmapSample1620xTiff, saHubmapSample165xTiff,
   saZebrahub, saScivis, saRandom,
 } from './view-configs/3d-maps/three-spatial-accelerated.js';
+import { saFigures } from './view-configs/3d-maps/three-spatial-accelerated-figures.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
 import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
@@ -300,6 +301,7 @@ export const configs = {
   ...saZebrahub,
   ...saScivis,
   's-a-random': saRandom,
+  ...saFigures,
   // Nature Methods figures
   'figure-cite-seq': citeSeq,
   'figure-codex': codex,

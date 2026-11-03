@@ -9,8 +9,10 @@ import {
   TableCell,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  ContentCopy as ContentCopyIcon,
 } from '@vitessce/styles';
 import { formatBytes, formatExtent } from './volume-info.js';
+import { roundViewState } from './camera-utils.js';
 
 const useStyles = makeStyles()(theme => ({
   volumeInfoPanel: {
@@ -48,6 +50,11 @@ const useStyles = makeStyles()(theme => ({
     margin: 0,
     fontSize: '11px',
     lineHeight: 1.4,
+  },
+  volumeInfoCopyButton: {
+    padding: 0,
+    marginLeft: '4px',
+    fontSize: '11px',
   },
   volumeInfoWarning: {
     color: theme.palette.error.main,
@@ -91,8 +98,9 @@ function formatSpacing(spacing, unit) {
  * waiting to load. Collapsed to a summary; expanded to a table of levels.
  * @param {object} props
  * @param {object} props.dataManager An initialized VolumeDataManager.
+ * @param {object} [props.viewState] The camera, as in the coordination space.
  */
-export function VolumeInfoPanel({ dataManager }) {
+export function VolumeInfoPanel({ dataManager, viewState }) {
   const { classes } = useStyles();
   const cellClass = classes.volumeInfoCell;
   const [isExpanded, setIsExpanded] = useState(false);
@@ -120,6 +128,8 @@ export function VolumeInfoPanel({ dataManager }) {
     ...(hasChannels ? ['Per channel', 'Total'] : ['Data']),
     'Queued',
   ];
+  // The camera of a view config: zoom, target, rotationX, rotationOrbit.
+  const camera = viewState ? roundViewState(viewState) : null;
   const droppedClass = `${cellClass} ${classes.volumeInfoDroppedCell}`;
   const zWarningClass = `${cellClass} ${classes.volumeInfoZWarningCell}`;
   const finestLevel = renderLevels[0];
@@ -176,6 +186,21 @@ export function VolumeInfoPanel({ dataManager }) {
           {hasSpacing ? (
             <Typography className={classes.volumeInfoText}>
               {`Voxel size (level 0): ${formatSpacing(info.spacing, info.spacingUnit)}`}
+            </Typography>
+          ) : null}
+          {camera ? (
+            <Typography className={classes.volumeInfoText}>
+              {`Camera: zoom ${camera.zoom} · target ${camera.target.join(', ')}`
+                + ` · rotation ${camera.rotationX}°, orbit ${camera.rotationOrbit}°`}
+              <IconButton
+                size="small"
+                className={classes.volumeInfoCopyButton}
+                onClick={() => navigator.clipboard?.writeText(JSON.stringify(camera))}
+                aria-label="Copy camera for a view config"
+                title="Copy camera for a view config"
+              >
+                <ContentCopyIcon fontSize="inherit" />
+              </IconButton>
             </Typography>
           ) : null}
           <Table size="small">

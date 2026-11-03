@@ -21,6 +21,12 @@ import {
   DEFAULT_SIGMA_NORMALIZED,
 } from './VolumeDataManager.js';
 import { VolumeRenderManager, getScreenLodFactor } from './VolumeRenderManager.js';
+import {
+  viewStateToCamera,
+  cameraToViewState,
+  isVolumeViewState,
+  DEFAULT_VOLUME_VIEW_STATE,
+} from './camera-utils.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
 import { gaussianFragmentShader } from './shaders/GaussianFragmentShader.js';
@@ -222,17 +228,25 @@ export function VolumeView(props) {
     onVolumeLoadingUpdate,
     onDataManagerReady,
     volumeZReduction = 'auto',
+    viewState,
+    setViewState,
   } = props;
   const {
     gl,
     // scene,
-    // camera
+    camera,
   } = useThree();
 
   // Request a new render.
   const invalidate = useThree(state => state.invalidate);
 
   const orbitRef = useRef(null);
+  // OrbitControls of the volume, once rendered. State rather than a ref, so the
+  // camera from the coordination space is applied as soon as they mount.
+  const [volumeOrbitControls, setVolumeOrbitControls] = useState(null);
+  // The viewState last written to the coordination space, to tell it apart
+  // from changes made elsewhere (the view config, linked views).
+  const lastViewStateRef = useRef(null);
   const meshRef = useRef(null);
   const bufRequest = useRef(null);
   const bufUsage = useRef(null);
@@ -693,9 +707,48 @@ export function VolumeView(props) {
     startInteraction();
   });
 
+  // Write the camera to the coordination space when an orbit, pan or zoom ends
+  // (OrbitControls also sends start and end for each wheel event), rather than
+  // on every frame, which would re-render the view while dragging.
   const onOrbitControlsEnd = useEventCallback((e) => {
     endInteraction();
+    if (!volumeOrbitControls || !setViewState) return;
+    const nextViewState = cameraToViewState(camera.position, volumeOrbitControls.target);
+    lastViewStateRef.current = nextViewState;
+    setViewState(nextViewState);
   });
+
+  // The viewState object is new on every render of the parent, so the effect
+  // below depends on its values.
+  const {
+    zoom: viewZoom, rotationX: viewRotationX, rotationOrbit: viewRotationOrbit, target: viewTarget,
+  } = viewState ?? {};
+  const [viewTargetX, viewTargetY, viewTargetZ] = viewTarget ?? [];
+
+  // Apply the camera from the coordination space: the view config, a linked view.
+  useEffect(() => {
+    if (!volumeOrbitControls || !viewState) return;
+    if (isEqual(viewState, lastViewStateRef.current)) return;
+    const boxExtent = renderState.geometrySize.map((size, axis) => size * renderState.meshScale[axis]);
+    const isShowable = isVolumeViewState(viewState, boxExtent);
+    const nextViewState = isShowable ? viewState : DEFAULT_VOLUME_VIEW_STATE;
+    logWithColor(`apply viewState ${JSON.stringify(viewState)}${isShowable ? '' : ' (out of view, reset)'}`);
+
+    const { position, target } = viewStateToCamera(nextViewState);
+    camera.position.set(...position);
+    volumeOrbitControls.target.set(...target);
+    volumeOrbitControls.update();
+    if (!isShowable && setViewState) {
+      // Replace values in other units, so the coordination space holds this camera.
+      lastViewStateRef.current = DEFAULT_VOLUME_VIEW_STATE;
+      setViewState(DEFAULT_VOLUME_VIEW_STATE);
+    }
+    // Redraw and request the bricks for the new view, also when settled.
+    startInteraction();
+    endInteraction();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volumeOrbitControls, viewZoom, viewRotationX, viewRotationOrbit,
+    viewTargetX, viewTargetY, viewTargetZ]);
 
   // Interact while the user is sliding the channel slider
   // for smooth updates.
@@ -784,7 +837,7 @@ export function VolumeView(props) {
   return (
     <group>
       <OrbitControls
-        // ref={mainOrbitControlsRef}
+        ref={setVolumeOrbitControls}
         enableDamping={false}
         onStart={onOrbitControlsStart}
         onEnd={onOrbitControlsEnd}
