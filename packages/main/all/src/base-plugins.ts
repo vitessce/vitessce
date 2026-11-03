@@ -58,6 +58,7 @@ import {
   imageOmeZarrSchema,
   imageOmeTiffSchema,
   imageDicomSchema,
+  imageRadiologySchema,
   imageSpatialdataSchema,
   obsSegmentationsOmeTiffSchema,
   obsSegmentationsOmeZarrSchema,
@@ -357,8 +358,8 @@ export const baseFileTypes = [
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
   // Radiology file types
-  makeFileType(FileType.IMAGE_NIFTI, DataType.IMAGE, NiftiLoader, RadiologySource, z.null()),
-  makeFileType(FileType.IMAGE_DICOMWEB, DataType.IMAGE, DicomWebLoader, RadiologySource, z.null()),
+  makeFileType(FileType.IMAGE_NIFTI, DataType.IMAGE, NiftiLoader, RadiologySource, imageRadiologySchema),
+  makeFileType(FileType.IMAGE_DICOMWEB, DataType.IMAGE, DicomWebLoader, RadiologySource, imageRadiologySchema),
   makeFileType(FileType.IMAGE_DICOM, DataType.IMAGE, DicomLoader, RadiologySource, imageDicomSchema),
   // SpatialData file types
   ...makeZarrFileTypes(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),

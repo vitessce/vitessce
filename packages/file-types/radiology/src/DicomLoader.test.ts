@@ -9,8 +9,19 @@ import { CODEC_FIXTURES } from './codecs.test.fixtures.js';
 
 const LONG_VRS = ['OB', 'OW', 'SQ', 'UN', 'UT'];
 
+function concat(parts: Uint8Array[]) {
+  const out = new Uint8Array(parts.reduce((sum, p) => sum + p.length, 0));
+  parts.reduce((offset, p) => {
+    out.set(p, offset);
+    return offset + p.length;
+  }, 0);
+  return out;
+}
+
 /** Encode one Explicit VR Little Endian data element. */
-function element(group: number, elem: number, vr: string, value: string | number | Uint16Array) {
+function element(
+  group: number, elem: number, vr: string, value: string | number | Uint16Array | Uint8Array,
+) {
   let bytes: Uint8Array;
   if (typeof value === 'string') {
     // Values have even length, padded with a space (or a null byte for UIDs).
@@ -33,6 +44,36 @@ function element(group: number, elem: number, vr: string, value: string | number
     header.setUint16(6, bytes.length, true);
   }
   return [new Uint8Array(header.buffer), bytes];
+}
+
+/** Encode a sequence whose items are lists of encoded elements. */
+function sequence(group: number, elem: number, items: Uint8Array[][]) {
+  const encodedItems = items.map((elements) => {
+    const content = concat(elements);
+    const header = new DataView(new ArrayBuffer(8));
+    header.setUint16(0, 0xFFFE, true);
+    header.setUint16(2, 0xE000, true);
+    header.setUint32(4, content.length, true);
+    return concat([new Uint8Array(header.buffer), content]);
+  });
+  return element(group, elem, 'SQ', concat(encodedItems));
+}
+
+/**
+ * Multi-frame attributes: frame positions in per-frame functional groups,
+ * orientation and pixel spacing in the shared functional groups.
+ */
+function multiFrameElements(frameZs: number[]) {
+  return [
+    ...element(0x0028, 0x0008, 'IS', String(frameZs.length)),
+    ...sequence(0x5200, 0x9229, [[
+      ...sequence(0x0020, 0x9116, [element(0x0020, 0x0037, 'DS', '1\\0\\0\\0\\1\\0')]),
+      ...sequence(0x0028, 0x9110, [element(0x0028, 0x0030, 'DS', '0.5\\0.5')]),
+    ]]),
+    ...sequence(0x5200, 0x9230, frameZs.map(z => (
+      sequence(0x0020, 0x9113, [element(0x0020, 0x0032, 'DS', `-10\\-20\\${z}`)])
+    ))),
+  ];
 }
 
 /**
@@ -64,20 +105,24 @@ function encapsulatedPixelData(fragment: Uint8Array) {
 /**
  * A DICOM file for an axial CT slice at height z (12-bit unsigned, rescale intercept -1024).
  * By default, it has 3 x 2 uncompressed pixels set to 1000 + z.
+ * With frameZs, it is a multi-frame image with a frame at each height.
  */
 function makeFile(z: number, {
   transferSyntax = '1.2.840.10008.1.2.1',
   rows = 2,
   columns = 3,
   fragment = undefined as Uint8Array | undefined,
+  frameZs = undefined as number[] | undefined,
 } = {}) {
-  const parts = [
+  const pixels = (frameZs ?? [z]).flatMap(frameZ => new Array(rows * columns).fill(1000 + frameZ));
+  return concat([
     new Uint8Array(128),
     new TextEncoder().encode('DICM'),
     ...element(0x0002, 0x0010, 'UI', transferSyntax),
     ...element(0x0008, 0x0060, 'CS', 'CT'),
     ...element(0x0020, 0x0032, 'DS', `-10\\-20\\${z}`),
     ...element(0x0020, 0x0037, 'DS', '1\\0\\0\\0\\1\\0'),
+    ...(frameZs ? multiFrameElements(frameZs) : []),
     ...element(0x0028, 0x0002, 'US', 1),
     ...element(0x0028, 0x0004, 'CS', 'MONOCHROME2'),
     ...element(0x0028, 0x0010, 'US', rows),
@@ -92,14 +137,8 @@ function makeFile(z: number, {
     ...element(0x0028, 0x1053, 'DS', '1'),
     ...(fragment
       ? encapsulatedPixelData(fragment)
-      : element(0x7FE0, 0x0010, 'OW', new Uint16Array(rows * columns).fill(1000 + z))),
-  ];
-  const file = new Uint8Array(parts.reduce((sum, p) => sum + p.length, 0));
-  parts.reduce((offset, p) => {
-    file.set(p, offset);
-    return offset + p.length;
-  }, 0);
-  return file;
+      : element(0x7FE0, 0x0010, 'OW', new Uint16Array(pixels))),
+  ]);
 }
 
 function mockServer({ supportsRange = true, ...fileOptions }: {
@@ -173,6 +212,23 @@ describe('DicomLoader', () => {
     expect(Array.from(raster.data)).toEqual(
       Array.from({ length: 35 }, (_, i) => ((i * 97) % 4096) - 1024),
     );
+  });
+
+  it('reads a multi-frame file with a frame per slice', async () => {
+    mockServer({ frameZs: [10, 0, 5] });
+    const loader = new DicomLoader(new RadiologySource({}), {
+      type: 'image', fileType: 'image.dicom', options: { urls: ['https://example.com/z0.dcm'] },
+    });
+    const image = (await loader.load()).data.image.instance;
+    expect(image.getNumZ()).toEqual(3);
+    expect(image.getModelMatrix()[10]).toEqual(5000);
+
+    // Superior is drawn first (display z points inferior).
+    const [source] = image.getData();
+    const first = await source.getRaster({ selection: { t: 0, c: 0, z: 0 } });
+    expect(Array.from(first.data)).toEqual(new Array(6).fill(1000 + 10 - 1024));
+    const middle = await source.getRaster({ selection: { t: 0, c: 0, z: 1 } });
+    expect(Array.from(middle.data)).toEqual(new Array(6).fill(1000 + 5 - 1024));
   });
 
   it('rejects unsupported transfer syntaxes', async () => {

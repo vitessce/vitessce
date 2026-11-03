@@ -25,7 +25,10 @@ export abstract class VolumeLoader extends AbstractTwoStepLoader<RadiologySource
 
   async load() {
     if (!this.result) {
-      this.result = this.loadVolume().then(volume => this.toLoaderResult(volume));
+      this.result = this.loadVolume().then(volume => this.toLoaderResult({
+        ...volume,
+        name: this.options?.name ?? volume.name,
+      }));
       // Allow a failed load to be retried.
       this.result.catch(() => { this.result = undefined; });
     }

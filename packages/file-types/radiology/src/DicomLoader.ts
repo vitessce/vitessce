@@ -10,8 +10,9 @@ import {
 import type { Volume } from './volume.js';
 
 const PIXEL_DATA = 'x7fe00010';
-// Headers are usually a few kilobytes. Try small reads before reading the whole file.
-const HEADER_READ_SIZES = [16_384, 262_144];
+// Headers are usually a few kilobytes, but multi-frame headers grow with the number of frames.
+// Try small reads before reading the whole file.
+const HEADER_READ_SIZES = [16_384, 262_144, 4_194_304];
 
 /**
  * @param range First and last byte to read. Without a last byte, reads to the end.
@@ -97,6 +98,60 @@ function fromDataSet(dataSet: DataSet, url: string): DicomImage & { transferSynt
   };
 }
 
+// Functional group sequences of multi-frame images (DICOM PS3.3 C.7.6.16).
+const PER_FRAME_GROUPS = 'x52009230';
+const SHARED_GROUPS = 'x52009229';
+
+/**
+ * Get the first item of a functional group sequence for a frame.
+ * A per-frame group takes precedence over the shared group.
+ */
+function getFunctionalGroup(dataSet: DataSet, frameIndex: number, sequenceTag: string) {
+  const perFrame = dataSet.elements[PER_FRAME_GROUPS]?.items?.[frameIndex]?.dataSet;
+  const shared = dataSet.elements[SHARED_GROUPS]?.items?.[0]?.dataSet;
+  const groups = perFrame?.elements[sequenceTag] ? perFrame : shared;
+  return groups?.elements[sequenceTag]?.items?.[0]?.dataSet;
+}
+
+/**
+ * Split a multi-frame image into one image per frame, with the geometry and
+ * rescaling of each frame from its functional groups (falling back to the
+ * attributes of the whole image).
+ */
+function getFrames<T extends DicomImage & { transferSyntax: string }>(
+  dataSet: DataSet, image: T, url: string,
+) {
+  if (image.numberOfFrames === 1) {
+    return [{ ...image, frameIndex: 0 }];
+  }
+  if (!UNCOMPRESSED_TRANSFER_SYNTAXES.includes(image.transferSyntax)) {
+    throw new Error(`${url} is a compressed multi-frame image, which is not supported yet.`);
+  }
+  if (!dataSet.elements[PER_FRAME_GROUPS]) {
+    throw new Error(`${url} is a multi-frame image without per-frame positions, which is not supported.`);
+  }
+  return Array.from({ length: image.numberOfFrames }, (_, frameIndex) => {
+    const position = getFunctionalGroup(dataSet, frameIndex, 'x00209113');
+    const orientation = getFunctionalGroup(dataSet, frameIndex, 'x00209116');
+    const measures = getFunctionalGroup(dataSet, frameIndex, 'x00289110');
+    const rescale = getFunctionalGroup(dataSet, frameIndex, 'x00289145');
+    const window = getFunctionalGroup(dataSet, frameIndex, 'x00289132');
+    return {
+      ...image,
+      numberOfFrames: 1,
+      frameIndex,
+      position: (position && getNumbers(position, 'x00200032')) ?? image.position,
+      orientation: (orientation && getNumbers(orientation, 'x00200037')) ?? image.orientation,
+      pixelSpacing: (measures && getNumbers(measures, 'x00280030')) ?? image.pixelSpacing,
+      sliceThickness: (measures && getNumbers(measures, 'x00180050')?.[0]) ?? image.sliceThickness,
+      intercept: (rescale && getNumbers(rescale, 'x00281052')?.[0]) ?? image.intercept,
+      slope: (rescale && getNumbers(rescale, 'x00281053')?.[0]) ?? image.slope,
+      windowCenter: (window && getNumbers(window, 'x00281050')?.[0]) ?? image.windowCenter,
+      windowWidth: (window && getNumbers(window, 'x00281051')?.[0]) ?? image.windowWidth,
+    };
+  });
+}
+
 /**
  * Join the fragments of encapsulated (compressed) pixel data: a sequence of items,
  * starting with a basic offset table, ended by a sequence delimiter.
@@ -129,7 +184,8 @@ export function readFragments(bytes: Uint8Array) {
 }
 
 /**
- * Loads a series of DICOM Part 10 (.dcm) files, one image per file.
+ * Loads a series of DICOM Part 10 (.dcm) files: one image per file,
+ * or one multi-frame image with a frame per slice.
  * Only headers are read up front; pixel data is read per slice with range requests.
  */
 export class DicomLoader extends VolumeLoader {
@@ -139,23 +195,24 @@ export class DicomLoader extends VolumeLoader {
     if (urls.length === 0) {
       throw new Error('The image.dicom file type requires options.urls.');
     }
-    const images = await Promise.all(urls.map(async (url) => {
+    const files = await Promise.all(urls.map(async (url) => {
       const { dataSet, file } = await readHeader(url, requestInit);
-      return {
+      const image = {
         ...fromDataSet(dataSet, url),
         url,
         file,
         pixelDataOffset: dataSet.elements[PIXEL_DATA].dataOffset,
       };
+      return getFrames(dataSet, image, url);
     }));
+    const images = files.flat();
 
     return toVolume(images, async (image) => {
       const isCompressed = !UNCOMPRESSED_TRANSFER_SYNTAXES.includes(image.transferSyntax);
-      const start = image.pixelDataOffset;
+      const frameLength = image.rows * image.columns * (image.bitsAllocated / 8);
+      const start = image.pixelDataOffset + image.frameIndex * frameLength;
       // The length of compressed pixel data is not known up front, so read to the end.
-      const end = isCompressed
-        ? undefined
-        : start + image.rows * image.columns * (image.bitsAllocated / 8);
+      const end = isCompressed ? undefined : start + frameLength;
       let bytes: Uint8Array;
       if (image.file) {
         bytes = new Uint8Array(image.file).subarray(start, end);

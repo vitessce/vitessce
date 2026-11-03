@@ -43,11 +43,11 @@ function gzip(buffer: ArrayBuffer) {
   return new Response(stream).arrayBuffer();
 }
 
-function makeLoader(body: ArrayBuffer | Uint8Array) {
+function makeLoader(body: ArrayBuffer | Uint8Array, options?: { name: string }) {
   vi.stubGlobal('fetch', vi.fn(async () => new Response(body)));
   const url = 'https://example.com/ct.nii.gz';
   return new NiftiLoader(new RadiologySource({ url }), {
-    type: 'image', fileType: 'image.nifti', url,
+    type: 'image', fileType: 'image.nifti', url, options,
   });
 }
 
@@ -90,6 +90,12 @@ describe('NiftiLoader', () => {
     const [source] = image.getData();
     const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 1 } });
     expect(raster.data[0]).toEqual(11 * 0.5 - 1);
+  });
+
+  it('uses the name from the options', async () => {
+    const loader = makeLoader(makeNifti(), { name: 'Abdomen' });
+    const image = (await loader.load()).data.image.instance;
+    expect(image.getName()).toEqual('Abdomen');
   });
 
   it('rejects files that are not NIfTI', async () => {
