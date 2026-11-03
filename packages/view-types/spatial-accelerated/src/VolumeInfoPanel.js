@@ -37,6 +37,7 @@ const useStyles = makeStyles()(theme => ({
   // One line next to the expand button, rather than wrapping under it.
   volumeInfoHeaderText: {
     whiteSpace: 'nowrap',
+    marginBottom: '0 !important',
   },
   // No taller than a line of text, so the box fits its text.
   volumeInfoExpandButton: {
