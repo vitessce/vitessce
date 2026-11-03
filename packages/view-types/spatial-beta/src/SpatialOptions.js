@@ -43,7 +43,9 @@ function getMaxConcurrentBrickRequestOptions(value) {
  * gets its own scope for it, and a control living in the layer controller would
  * write to a scope the spatial view never reads.
  *
- * It is read in AbstractSpatialOrScatterplot.onViewStateChange.
+ * It is read in AbstractSpatialOrScatterplot.onViewStateChange, so it only
+ * applies to the DeckGL renderer. The three.js-based renderers ignore it, so
+ * the toggle is hidden (hasCameraAxisOption: false) while they are in use.
  *
  * With the accelerated 3D view (hasVolumeLoadingOptions), also its brick loading
  * options: the maximum number of bricks fetched at once, and progressive
@@ -55,6 +57,7 @@ export default function SpatialOptions(props) {
     spatialAxisFixed,
     setSpatialAxisFixed,
     use3d,
+    hasCameraAxisOption = true,
     hasVolumeLoadingOptions = false,
     volumeMaxConcurrentBrickRequests,
     setVolumeMaxConcurrentBrickRequests,
@@ -73,26 +76,46 @@ export default function SpatialOptions(props) {
 
   return (
     <OptionsContainer>
-      <TableRow>
-        <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
-          <label htmlFor={`spatial-camera-axis-${optionsId}`}>
-            Fix Camera Axis
-          </label>
-        </TableCell>
-        <TableCell className={classes.spatialBetaToggleBox} variant="body">
-          <Checkbox
-            onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
-            disabled={!use3d}
-            checked={Boolean(spatialAxisFixed)}
-            slotProps={{ input: {
-              'aria-label': 'Fix or not fix spatial camera axis',
-              id: `spatial-camera-axis-${optionsId}`,
-            } }}
-          />
-        </TableCell>
-      </TableRow>
+      {hasCameraAxisOption ? (
+        <TableRow>
+          <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+            <label htmlFor={`spatial-camera-axis-${optionsId}`}>
+              Fix Camera Axis
+            </label>
+          </TableCell>
+          <TableCell className={classes.spatialBetaToggleBox} variant="body">
+            <Checkbox
+              onClick={() => setSpatialAxisFixed(!spatialAxisFixed)}
+              disabled={!use3d}
+              checked={Boolean(spatialAxisFixed)}
+              slotProps={{ input: {
+                'aria-label': 'Fix or not fix spatial camera axis',
+                id: `spatial-camera-axis-${optionsId}`,
+              } }}
+            />
+          </TableCell>
+        </TableRow>
+      ) : null}
       {hasVolumeLoadingOptions ? (
         <>
+          <TableRow>
+            <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+              <label htmlFor={`spatial-volume-progressive-loading-${optionsId}`}>
+                Skip Intermediate Resolutions
+              </label>
+            </TableCell>
+            <TableCell className={classes.spatialBetaToggleBox} variant="body">
+              <Checkbox
+                onChange={event => setVolumeProgressiveLoading(!event.target.checked)}
+                disabled={!use3d}
+                checked={Boolean(!volumeProgressiveLoading)}
+                slotProps={{ input: {
+                  'aria-label': 'Load coarser volume resolutions before finer ones',
+                  id: `spatial-volume-progressive-loading-${optionsId}`,
+                } }}
+              />
+            </TableCell>
+          </TableRow>
           <TableRow>
             <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
               <label htmlFor={`spatial-volume-max-concurrent-bricks-${optionsId}`}>
@@ -117,24 +140,6 @@ export default function SpatialOptions(props) {
                     </option>
                   ))}
               </OptionSelect>
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
-              <label htmlFor={`spatial-volume-progressive-loading-${optionsId}`}>
-                Progressive Loading
-              </label>
-            </TableCell>
-            <TableCell className={classes.spatialBetaToggleBox} variant="body">
-              <Checkbox
-                onChange={event => setVolumeProgressiveLoading(event.target.checked)}
-                disabled={!use3d}
-                checked={Boolean(volumeProgressiveLoading)}
-                slotProps={{ input: {
-                  'aria-label': 'Load coarser volume resolutions before finer ones',
-                  id: `spatial-volume-progressive-loading-${optionsId}`,
-                } }}
-              />
             </TableCell>
           </TableRow>
         </>

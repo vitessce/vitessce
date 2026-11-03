@@ -43,6 +43,17 @@ describe('SpatialOptions.js', () => {
       expect(screen.getByLabelText(LABEL).disabled).toBe(true);
     });
 
+    it('is hidden when the camera axis option does not apply (three.js renderers)', () => {
+      render(<SpatialOptions
+        spatialAxisFixed={false}
+        use3d
+        setSpatialAxisFixed={() => {}}
+        hasCameraAxisOption={false}
+      />);
+      expect(screen.queryByLabelText(LABEL)).toBeNull();
+      expect(screen.queryByText('Fix Camera Axis')).toBeNull();
+    });
+
     describe('volume loading options', () => {
       const MAX_LABEL = 'Maximum number of volume bricks fetched at once';
       const PROGRESSIVE_LABEL = 'Load coarser volume resolutions before finer ones';
@@ -75,8 +86,8 @@ describe('SpatialOptions.js', () => {
       it('set the maximum number of concurrent brick requests, including no limit', () => {
         const setMax = vi.fn();
         renderOptions({ setVolumeMaxConcurrentBrickRequests: setMax });
-        fireEvent.change(screen.getByLabelText(MAX_LABEL), { target: { value: '32' } });
-        expect(setMax).toHaveBeenLastCalledWith(32);
+        fireEvent.change(screen.getByLabelText(MAX_LABEL), { target: { value: '24' } });
+        expect(setMax).toHaveBeenLastCalledWith(24);
         fireEvent.change(screen.getByLabelText(MAX_LABEL), { target: { value: 'Infinity' } });
         expect(setMax).toHaveBeenLastCalledWith(Infinity);
         expect(screen.getByText('No limit')).toBeTruthy();

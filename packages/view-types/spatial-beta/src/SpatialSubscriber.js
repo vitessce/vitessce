@@ -468,6 +468,9 @@ export function SpatialSubscriber(props) {
 
   const is3dMode = spatialRenderingMode === '3D';
   const shouldUseThree = threeFor3d && is3dMode;
+  // spatialAxisFixed is only read by the DeckGL renderer.
+  const hasCameraAxisOption = !shouldUseThree;
+  const hasVolumeLoadingOptions = threeFor3d && acceleratedFor3d;
 
   // Brick loading options of the accelerated 3D view. The props set the initial
   // values; the options menu changes them for this view (until the props change).
@@ -1078,18 +1081,19 @@ export function SpatialSubscriber(props) {
       isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
-      options={(
+      options={(hasCameraAxisOption || hasVolumeLoadingOptions) ? (
         <SpatialOptions
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
           use3d={is3dMode}
-          hasVolumeLoadingOptions={threeFor3d && acceleratedFor3d}
+          hasCameraAxisOption={hasCameraAxisOption}
+          hasVolumeLoadingOptions={hasVolumeLoadingOptions}
           volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
           setVolumeMaxConcurrentBrickRequests={setMaxConcurrentBrickRequests}
           volumeProgressiveLoading={isProgressiveLoadingEnabled}
           setVolumeProgressiveLoading={setIsProgressiveLoadingEnabled}
         />
-      )}
+      ) : null}
     >
       {
         shouldUseThree ? (
