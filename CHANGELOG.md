@@ -1,4 +1,11 @@
 
+## 4.1.4
+
+### Patch Changes
+
+- Fix on-demand mesh loading in the docs build, where Docusaurus’s Babel transform broke Set spread ([...set] -> [set]). (`@vitessce/example-configs`, `docs`) ([#2689](https://github.com/vitessce/vitessce/pull/2689))
+
+
 ## 4.1.3
 
 ### Patch Changes
