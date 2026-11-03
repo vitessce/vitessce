@@ -613,13 +613,17 @@ describe('spatial-accelerated data utils', () => {
         manager.bc2pt[slot.bcIndex] = ptCoord;
         return true;
       };
-      const pixels = [_zarrToPt(0, 0, 4, 5, 3, PT), _zarrToPt(0, 0, 5, 5, 3, PT)];
-      const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
-      pixels.forEach(({ x, y, z }, i) => {
-        buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
-      });
+      // Requests as the shader packs them: x:10 | y:10 | z:12, big-endian RGBA8.
+      const bufferOf = (pixels) => {
+        const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+        pixels.forEach(({ x, y, z }, i) => {
+          buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+        });
+        return new Uint8Array(buffer.buffer);
+      };
+      const buffer = bufferOf([_zarrToPt(0, 0, 4, 5, 3, PT), _zarrToPt(0, 0, 5, 5, 3, PT)]);
       return {
-        manager, brickLayout, reads, buffer: new Uint8Array(buffer.buffer),
+        manager, PT, brickLayout, reads, buffer, bufferOf,
       };
     }
 
@@ -647,6 +651,63 @@ describe('spatial-accelerated data utils', () => {
       expect(levelsLoaded).toEqual(
         Array.from({ length: brickLayout.length }, (_, i) => [coarsest - i]),
       );
+    });
+
+    it('when enabled, loads no finer level while a coarser one is missing anywhere in view', async () => {
+      const {
+        manager, PT, brickLayout, reads, bufferOf,
+      } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      const coarsest = brickLayout.length - 1;
+      // Region A refines down to level 1 while it is the only one in view.
+      const regionA = _zarrToPt(0, 0, 4, 5, 3, PT);
+      for (let i = 0; i < coarsest; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        await manager.processRequestData(bufferOf([regionA]), {});
+      }
+      // Then region B, in the opposite corner, comes into view as well. Region A
+      // is weighted higher (more pixels), yet waits until region B has caught up.
+      const regionB = _zarrToPt(0, 0, 8, 8, 7, PT);
+      const view = bufferOf([regionA, regionA, regionA, regionB]);
+      const readsPerStep = [];
+      for (let i = 0; i < coarsest; i++) {
+        reads.length = 0;
+        // eslint-disable-next-line no-await-in-loop
+        await manager.processRequestData(view, {});
+        readsPerStep.push([...reads]);
+      }
+      // Region B steps down from the level below the shared overview, while
+      // region A's level-0 brick waits.
+      expect(readsPerStep.slice(0, -1).map(levels => [...new Set(levels)])).toEqual(
+        Array.from({ length: coarsest - 1 }, (_, i) => [coarsest - 1 - i]),
+      );
+      // Once region B has caught up, both regions load level 0 together.
+      expect(readsPerStep.at(-1)).toEqual([0, 0]);
+    });
+
+    it('when enabled, stops waiting for a coarser brick that keeps failing', async () => {
+      const {
+        manager, brickLayout, reads, buffer,
+      } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      const { readBrick } = manager.brickSource;
+      // Every brick of level 1 fails.
+      manager.brickSource.readBrick = async (brick) => {
+        if (brick.level === 1) {
+          reads.push(1);
+          throw new Error('network');
+        }
+        return readBrick(brick);
+      };
+      const levelsLoaded = [];
+      // Down to level 1, then three failed loads of it, then level 0.
+      for (let i = 0; i < brickLayout.length + 2; i++) {
+        reads.length = 0;
+        // eslint-disable-next-line no-await-in-loop
+        await manager.processRequestData(buffer, {});
+        levelsLoaded.push([...new Set(reads)]);
+      }
+      expect(levelsLoaded.slice(-4)).toEqual([[1], [1], [1], [0]]);
     });
   });
 

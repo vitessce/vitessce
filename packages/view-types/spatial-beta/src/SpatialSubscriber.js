@@ -162,7 +162,7 @@ export function SpatialSubscriber(props) {
     volumeMaxConcurrentBrickRequests,
     // Opt in to the accelerated 3D view loading the missing coarser levels of a
     // region before the requested level, so that zooming in refines gradually.
-    volumeProgressiveLoading = false,
+    volumeProgressiveLoading = true,
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,

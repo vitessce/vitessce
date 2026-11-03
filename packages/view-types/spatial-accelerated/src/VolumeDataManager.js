@@ -93,6 +93,9 @@ const MAX_CACHED_BRICKS_PER_BATCH = 256;
 // Loads of a channel's overview before its missing bricks are left to the
 // regular requests, so that a brick that keeps failing cannot block them.
 const MAX_OVERVIEW_ATTEMPTS = 3;
+// With progressive loading, failed loads of a brick before finer levels stop
+// waiting for it, so that a brick that keeps failing cannot block them.
+const MAX_PROGRESSIVE_BRICK_FAILURES = 3;
 
 // const manualChannelSelection = 0;
 
@@ -717,6 +720,19 @@ export function _getProgressiveRequests(ptCoord, {
 }
 
 /**
+ * The bricks of the coarsest level among the given ones, in their order.
+ * @param {{ x: number, y: number, z: number }[]} ptCoords
+ * @param {object} PT Page table layout.
+ * @returns {{ x: number, y: number, z: number }[]}
+ */
+export function _getCoarsestLevelBricks(ptCoords, PT) {
+  const ptInfo = { PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors };
+  const levels = ptCoords.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfo).resolution);
+  const coarsest = Math.max(...levels);
+  return ptCoords.filter((_, i) => levels[i] === coarsest);
+}
+
+/**
  * Order requests so that bricks reading the same source chunk are adjacent and
  * fetched together, sharing one download and decode. Groups keep the order of
  * their first request, and requests keep their order within a group.
@@ -932,6 +948,8 @@ export class VolumeDataManager {
     // Whether requested bricks wait for their missing coarser-level ancestors
     // (see setProgressiveLoading).
     this.isProgressiveLoadingEnabled = false;
+    // Failed loads per page table key, until the brick loads.
+    this.brickFailures = new Map();
 
     // Dataset description for the info panel, set by init.
     this.volumeInfo = null;
@@ -1062,7 +1080,12 @@ export class VolumeDataManager {
       PT: this.PT,
       scales: this.zarrStore.scales,
       brickLayout: this.zarrStore.brickLayout,
-      isLoaded: ptCoord => residentKeys.has(_ptKey(ptCoord)),
+      // A brick that keeps failing counts as loaded, so that it blocks no finer level.
+      isLoaded: (ptCoord) => {
+        const key = _ptKey(ptCoord);
+        return residentKeys.has(key)
+          || (this.brickFailures.get(key) ?? 0) >= MAX_PROGRESSIVE_BRICK_FAILURES;
+      },
     };
     const seen = new Set();
     return requests
@@ -1829,17 +1852,21 @@ export class VolumeDataManager {
     if (shaderRequests.length === 0) {
       this.noNewRequests = true;
     }
-    // With progressive loading, missing coarser levels load first, so that regions
-    // refine one level at a time. Each takes the place of the highest-weighted
-    // request it refines.
+    // With progressive loading, missing coarser levels load first, so that the
+    // view refines one level at a time: each batch takes only bricks of the
+    // coarsest level missing anywhere in view, so that no finer brick loads
+    // (in this or a later batch) while a coarser one is missing. Each takes the
+    // place of the highest-weighted request it refines.
     const requested = [...shaderRequests, ...shaderRemaining];
     const progressive = this.isProgressiveLoadingEnabled
       ? this._getProgressiveRequests(requested) : requested;
-    const requests = progressive.slice(0, this.k);
-    const remaining = progressive.slice(this.k);
+    const batchable = this.isProgressiveLoadingEnabled && progressive.length > 0
+      ? _getCoarsestLevelBricks(progressive, this.PT) : progressive;
+    const requests = batchable.slice(0, this.k);
+    const remaining = batchable.slice(this.k);
     // Bricks still loading from a batch that bailed out, e.g. because the camera
     // moved, are aborted once the current view stops requesting them (or the
-    // coarser bricks those requests wait for).
+    // coarser bricks those requests wait for, at any level).
     this._abortUnrequestedBrickLoads([...requested, ...progressive]);
     // Requests past the top k whose source chunks are already decoded come along.
     const cachedRequests = [];
@@ -1956,6 +1983,8 @@ export class VolumeDataManager {
     // them later cannot clear page table entries of the next channel in this slot.
     this.overviewBricks.delete(ptChannelIndex);
     this.overviewAttempts.delete(ptChannelIndex);
+    // The slot's page table keys now stand for another channel's bricks.
+    this.brickFailures.clear();
     const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
     this.bc2pt.forEach((pt, bcIndex) => {
       if (pt && _ptToZarr(pt.x, pt.y, pt.z, ptInfo).channel === ptChannelIndex) {
@@ -2357,6 +2386,11 @@ export class VolumeDataManager {
       if (controller.signal.aborted) {
         log.debug('brick load aborted', ptCoord);
       } else {
+        if (result) {
+          this.brickFailures.delete(key);
+        } else {
+          this.brickFailures.set(key, (this.brickFailures.get(key) ?? 0) + 1);
+        }
         const loadedCount = this.bricksEverLoaded.size;
         this.bricksEverLoaded.add(key);
         if (loadedCount === this.bricksEverLoaded.size) {
