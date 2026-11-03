@@ -1,5 +1,3 @@
-// jsdom's Headers drops the Range header, which browsers and Node keep.
-// @vitest-environment node
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
@@ -169,6 +167,8 @@ describe('DicomLoader', () => {
   beforeEach(() => {
     // Decode on this thread: the jsdom-worker test polyfill cannot run inline workers.
     vi.stubGlobal('Worker', undefined);
+    // jsdom's Headers drops the Range header, which browsers keep. Use Node's Headers.
+    vi.stubGlobal('Headers', new Response().headers.constructor);
   });
 
   afterEach(() => {
