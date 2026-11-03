@@ -46,6 +46,7 @@ import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js'
 import { niftiCtAbdomen, niftiMni152 } from './view-configs/radiology/nifti.js';
 import { dicomwebNlstCt, dicomwebJpegLsCt } from './view-configs/radiology/dicomweb.js';
 import { dicomNlstCt, dicomJpeg2000Mr, dicomJpegLosslessCt } from './view-configs/radiology/dicom.js';
+import { syntheaBrainMri, syntheaBrainMriComparison } from './view-configs/radiology/synthea.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
@@ -224,6 +225,8 @@ export const configs = {
   'dicomweb-jpegls-ct': dicomwebJpegLsCt,
   'dicom-jpeg2000-mr': dicomJpeg2000Mr,
   'dicom-jpeg-lossless-ct': dicomJpegLosslessCt,
+  'synthea-brain-mri': syntheaBrainMri,
+  'synthea-brain-mri-comparison': syntheaBrainMriComparison,
   'visium-2023': visiumSpotsOop2023,
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,

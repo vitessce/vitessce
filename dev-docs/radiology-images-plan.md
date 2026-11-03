@@ -182,3 +182,13 @@ Measured in Chromium on a 32-core desktop: time to load the whole volume after s
 | JPEG Lossless CT, 32 slices (`.dcm`) | 750 ms; 1 long task, 65 ms | 1136 ms; 1 long task, 59 ms |
 
 Workers load volumes about 30% faster. On this machine, main-thread decoding caused little blocking, since each 512 x 512 frame decodes in milliseconds; the remaining long task, present either way, is assembling the volume. Slower machines should benefit more. Decoded pixel values are identical on both paths.
+
+## Synthea demos
+
+Demos `synthea-brain-mri` and `synthea-brain-mri-comparison` use the [Synthea Coherent Data Set](https://registry.opendata.aws/synthea-coherent-data/) (The MITRE Corporation, CC BY 4.0), read directly from its public S3 bucket, which allows CORS and range requests.
+
+- Each of the 298 imaged patients has one brain MRI: a multi-frame Secondary Capture `.dcm` (256 x 256 x 256, 1 mm voxels, uint16 with a rescale slope that normalizes values to 0 to 1, `WindowWidth` 0). `image.dicom` now splits multi-frame files into one slice per frame, using the per-frame and shared functional groups for geometry and rescaling, and reads each frame with a range request. Compressed multi-frame files and multi-frame instances over DICOMweb are not supported yet.
+- Every MRI is dated at a diagnosis of "silent micro-hemorrhage of brain". Alzheimer's disease and stroke are always diagnosed later, so the comparison demo pairs a patient later diagnosed with Alzheimer's disease (Meredith572) with one who was not (Betty470). The two synthetic brains look nearly identical. Patient histories come from the data set's CSV tables and are shown in the description views.
+- The series descriptions are the placeholder `UNKNOWN`, so the file types gained an optional `name` option.
+- To link the slice and camera across the two views, the comparison config uses a meta-coordination scope. Plain coordination scopes are overridden by the meta-coordination scopes that image loaders add for their initial values, such as `spatialTargetZ`.
+- Validation: slice 128 of Meredith572's MRI matches an independent decode of the same frame (slice sum 12787.020).
