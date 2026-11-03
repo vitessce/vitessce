@@ -269,7 +269,7 @@ describe('volume-tiff', () => {
       const arrays = await getTiffLevelArrays(pixelSources);
       // XY 4.47 um, Z 2.58 um: Z reduction starts at level 1.
       const levels = planVolumeLevels({ arrays, labels, spacing: [2.58, 4.47, 4.47] });
-      expect(levels.map(l => l.zFactor)).toEqual([1, 3, 6, 13, 62]);
+      expect(levels.map(l => l.zFactor)).toEqual([1, 3, 6, 13, 26, 52, 104]);
       expect(levels.at(-1)).toMatchObject({ isOverview: true });
       expect(levels.at(-1).shape.every(size => size <= 32)).toBe(true);
       const bytesPerElement = getBytesPerElement(arrays[0].dtype);

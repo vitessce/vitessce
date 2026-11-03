@@ -76,6 +76,8 @@ export function getVolumeInfo({
       shape: level.dataShape,
       zFactor: level.zFactor,
       zMode: level.zMode,
+      // Block mean in XY, for virtual levels below the coarsest stored one.
+      xyFactor: Math.max(level.yFactor ?? 1, level.xFactor ?? 1),
     })),
   };
 }

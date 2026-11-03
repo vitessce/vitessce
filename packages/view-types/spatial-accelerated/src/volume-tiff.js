@@ -111,7 +111,7 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
     const tiles = regionTiles(source, region);
     const loaded = await Promise.all(tiles.map(({ z, tileY, tileX, key }) => cache.load(
       key,
-      async () => {
+      async (signal) => {
         const selection = Object.fromEntries(planeLabels.map(
           axis => [axis, { t, c, z }[axis] ?? 0],
         ));
@@ -125,6 +125,7 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
           window: [tileX, tileY, tileEndX, tileEndY],
           width: tileEndX - tileX,
           height: tileEndY - tileY,
+          signal,
         });
       },
     )));

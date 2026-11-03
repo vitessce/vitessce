@@ -63,12 +63,29 @@ const PAGE_TABLE_MAX_EXTENT = PT_REQUEST_BITS.map(bits => 2 ** bits);
 export const MAX_LEVEL_SHAPE = [4096, 16384, 16384];
 // Bricks fetched at once. Each keeps at most 32 source planes in flight.
 const BRICK_FETCH_CONCURRENCY = 6;
+// Source chunks that bricks in flight may download at once: about one brick's
+// worth with one-plane chunks (32 planes). Six such bricks would share the six
+// connections a browser opens to an HTTP/1.1 server (e.g. the IDR), so none
+// would finish until almost all of their chunks arrived. One at a time, it
+// finishes sooner and the bricks reading the same planes follow from the cache.
+// With one chunk per brick (e.g. 32^3 chunks), all six still fetch at once.
+const MAX_CHUNK_DOWNLOADS = 32;
 // Requested bricks beyond the top k that a batch also loads when all their source
 // chunks are already decoded: they cost a copy and an upload, but no fetch.
 const MAX_CACHED_BRICKS_PER_BATCH = 256;
 // Loads of a channel's overview before its missing bricks are left to the
 // regular requests, so that a brick that keeps failing cannot block them.
 const MAX_OVERVIEW_ATTEMPTS = 3;
+// Right after its overview, each channel loads every brick of one coarse level
+// (the warm-up level) in the same turn, before the request loop starts: the finest
+// level whose bricks read at most WARM_UP_MAX_CHUNK_READS source chunks (about one
+// request each). Counting chunks rather than bricks favors levels whose bricks
+// share chunks, e.g. one-plane chunks spanning a whole coarse plane. About 2-4
+// times what the overview reads (e.g. idr0077: 17 planes, then 65 for 12 bricks).
+const WARM_UP_MAX_CHUNK_READS = 80;
+// Bricks are cheap once their chunks are decoded, but each takes a cache slot.
+// Without a warm-up under volumeZReduction mean or max (see init).
+const WARM_UP_MAX_BRICKS = 512;
 
 // const manualChannelSelection = 0;
 
@@ -167,6 +184,34 @@ export function _getDataRange(data) {
   }
   if (!Number.isFinite(min) || !Number.isFinite(max)) return [0, 1];
   return max > min ? [min, max] : [min, min + 1];
+}
+
+// Margin added on each side of a value range measured from the overview brick,
+// as a fraction of the range: its block means and sampled planes leave out the
+// extremes of finer levels, which would otherwise be clipped.
+const DATA_RANGE_MARGIN = 0.25;
+
+// Value limits of integer typed arrays, which a widened range must stay within.
+const INTEGER_LIMITS = new Map([
+  [Int8Array, [-128, 127]],
+  [Uint8Array, [0, 255]],
+  [Int16Array, [-32768, 32767]],
+  [Uint16Array, [0, 65535]],
+  [Int32Array, [-(2 ** 31), (2 ** 31) - 1]],
+  [Uint32Array, [0, (2 ** 32) - 1]],
+]);
+
+/**
+ * A value range measured from the overview brick, widened by DATA_RANGE_MARGIN
+ * on each side, within the limits of the data type.
+ * @param {[number, number]} range [min, max] of the overview brick.
+ * @param {TypedArray} data The overview brick, for its data type.
+ * @returns {[number, number]}
+ */
+export function _widenDataRange([min, max], data) {
+  const margin = (max - min) * DATA_RANGE_MARGIN;
+  const [lowest, highest] = INTEGER_LIMITS.get(data.constructor) ?? [-Infinity, Infinity];
+  return [Math.max(lowest, min - margin), Math.min(highest, max + margin)];
 }
 
 /**
@@ -588,6 +633,20 @@ export function _forEachSampledPixel(buffer, width, callback) {
   }
 }
 
+/**
+ * Whether a request buffer asks for any brick, sampled like the request reads.
+ * @param {Uint8Array} buffer The request buffer, RGBA per pixel.
+ * @param {number} width The width of the render target.
+ * @returns {boolean}
+ */
+export function _hasBrickRequests(buffer, width) {
+  let hasRequests = false;
+  _forEachSampledPixel(buffer, width, (i) => {
+    if ((buffer[i] | buffer[i + 1] | buffer[i + 2] | buffer[i + 3]) !== 0) hasRequests = true;
+  });
+  return hasRequests;
+}
+
 export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   const counts = new Map();
 
@@ -645,6 +704,39 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
  * @param {(item: object) => string[]|null} chunkKeysOf Source chunk keys of an item.
  * @returns {object[]}
  */
+/**
+ * The warm-up level: the finest level, short of the coarsest (the overview),
+ * whose bricks all load within the budgets.
+ * @param {number[][]} brickLayout Bricks per level, ZYX.
+ * @param {function} chunkKeysOf (level, bx, by, bz) => keys of the chunks a brick reads.
+ * @param {object} [budgets]
+ * @param {number} [budgets.maxBricks]
+ * @param {number} [budgets.maxChunkReads]
+ * @returns {number|null} The level index, or null when no level fits.
+ */
+export function _pickWarmUpLevel(brickLayout, chunkKeysOf, {
+  maxBricks = WARM_UP_MAX_BRICKS,
+  maxChunkReads = WARM_UP_MAX_CHUNK_READS,
+} = {}) {
+  let warmUpLevel = null;
+  // Finer levels have more bricks and chunks, so stop at the first that does not fit.
+  for (let level = brickLayout.length - 2; level >= 0; level--) {
+    const [zBricks, yBricks, xBricks] = brickLayout[level];
+    if (zBricks * yBricks * xBricks > maxBricks) break;
+    const keys = new Set();
+    for (let z = 0; z < zBricks; z++) {
+      for (let y = 0; y < yBricks; y++) {
+        for (let x = 0; x < xBricks; x++) {
+          chunkKeysOf(level, x, y, z).forEach(key => keys.add(key));
+        }
+      }
+    }
+    if (keys.size > maxChunkReads) break;
+    warmUpLevel = level;
+  }
+  return warmUpLevel;
+}
+
 export function _groupBySourceChunk(items, chunkKeysOf) {
   const groups = new Map();
   items.forEach((item, i) => {
@@ -815,6 +907,12 @@ export class VolumeDataManager {
     // channel and are never evicted, so each channel always has something to show.
     this.overviewBricks = new Map(); // slot -> brick cache indices
     this.overviewAttempts = new Map(); // slot -> overview loads tried
+    // The warm-up level (see WARM_UP_MAX_CHUNK_READS): undefined until picked,
+    // null when no level fits. Slots that loaded it are not loaded again.
+    this.warmUpLevel = undefined;
+    this.warmedUpSlots = new Set();
+    // Whether the batch in flight loads overview bricks (see updateChannels).
+    this.isLoadingOverviews = false;
 
     // top k unused brick cache addresses
     this.LRUStack = [];
@@ -827,6 +925,10 @@ export class VolumeDataManager {
     this.manuallyStopped = false; // Flag to track if user manually stopped loading
 
     this.needsBailout = false; // Flag to indicate if we need to bail out of processing requests
+    // Incremented by stopLoading: a batch stops starting bricks once it changes,
+    // even if loading restarts before any of its bricks in flight finished
+    // (restartLoading clears needsBailout).
+    this.loadingGeneration = 0;
 
     // Add initialization status
     this.initStatus = INIT_STATUS.NOT_STARTED;
@@ -892,6 +994,8 @@ export class VolumeDataManager {
     this.noNewRequests = true;
     this.manuallyStopped = true;
     this.needsBailout = true;
+    // The batch starts no more bricks; those in flight finish, so their data is kept.
+    this.loadingGeneration += 1;
     // Reset progress counters to reflect stopped state
     this.currentRequestCount = 0;
     this.totalBricksRequested = 0;
@@ -906,6 +1010,12 @@ export class VolumeDataManager {
     this.manuallyStopped = false;
     this.needsBailout = false;
     this.triggerUsage = true;
+    // A batch still finishing after stopLoading would hold back the new requests
+    // until its downloads arrive: fail them, so it ends now.
+    if (this.isBusy) {
+      this.loadingGeneration += 1;
+      this.brickSource?.abortReads?.();
+    }
     // Reset progress counters
     this.currentRequestCount = 0;
     this.totalBricksRequested = 0;
@@ -1155,6 +1265,10 @@ export class VolumeDataManager {
         this.brickSource = createVolumeBrickSource({
           arrays, levels, labels, createRegionReader,
         });
+        // A mean or max read covers every source plane of a bin: no warm-up level.
+        if (['mean', 'max'].includes(loadingOptions.zReduction)) {
+          this.warmUpLevel = null;
+        }
 
         // initializing channel mappings and slots as empty
         this.channels.colorMappings = new Array(Math.min(this.zarrStore.channelCount, 7)).fill(-1);
@@ -1280,7 +1394,58 @@ export class VolumeDataManager {
     logWithColor('initTexture - loading the overview brick of each channel');
     this.isBusy = true;
     await this._loadOverviews();
+    await this._loadWarmUps();
     this.isBusy = false;
+  }
+
+  /**
+   * Page table requests for every brick of the warm-up level, for the given
+   * channel slots. Picks the warm-up level on the first call.
+   * @param {number[]} slots Mapped channel slots.
+   */
+  _warmUpRequests(slots) {
+    const { brickLayout } = this.zarrStore;
+    if (this.warmUpLevel === undefined) {
+      // The same for every channel, which share the chunk layout.
+      const zarrChannel = this.channels.zarrMappings[slots[0]];
+      this.warmUpLevel = _pickWarmUpLevel(brickLayout, (level, bx, by, bz) => this.brickSource
+        .brickChunkKeys({
+          level, t: 0, c: zarrChannel, bx, by, bz,
+        }));
+      log.debug('warm-up level', this.warmUpLevel);
+    }
+    if (this.warmUpLevel === null) return [];
+    const [zBricks, yBricks, xBricks] = brickLayout[this.warmUpLevel];
+    return slots.flatMap((slot) => {
+      const requests = [];
+      for (let z = 0; z < zBricks; z++) {
+        for (let y = 0; y < yBricks; y++) {
+          for (let x = 0; x < xBricks; x++) {
+            requests.push(_zarrToPt(slot, this.warmUpLevel, x, y, z, this.PT));
+          }
+        }
+      }
+      return requests;
+    });
+  }
+
+  /**
+   * Load the warm-up level of mapped channels that have not loaded it yet.
+   * Tried once per channel slot: bricks that fail are left to the regular requests.
+   * @returns {Promise<boolean>} Whether any warm-up requests were made.
+   */
+  async _loadWarmUps() {
+    if (!this.brickSource?.brickChunkKeys) return false;
+    const slots = this.channels.zarrMappings
+      .map((zarrChannel, slot) => ((zarrChannel === undefined || zarrChannel === -1) ? null : slot))
+      .filter(slot => slot !== null && !this.warmedUpSlots.has(slot));
+    if (slots.length === 0) return false;
+    slots.forEach(slot => this.warmedUpSlots.add(slot));
+    const requests = this._warmUpRequests(slots);
+    if (requests.length === 0) return false;
+    logWithColor(`loading ${requests.length} bricks of warm-up level ${this.warmUpLevel}`);
+    await this.handleBrickRequests(requests, { canBailOut: false });
+    return true;
   }
 
   /**
@@ -1340,7 +1505,9 @@ export class VolumeDataManager {
       this.overviewBricks.get(slotOf(ptCoord)).push(bcIndex);
       return false;
     });
+    this.isLoadingOverviews = true;
     const uploaded = await this.handleBrickRequests(toFetch, { canBailOut: false });
+    this.isLoadingOverviews = false;
     uploaded.forEach(({ ptCoord, bcIndex }) => {
       this.overviewBricks.get(slotOf(ptCoord))?.push(bcIndex);
     });
@@ -1454,10 +1621,19 @@ export class VolumeDataManager {
     this.channels.colorMappings = newColorMappings;
 
     // Resume requests so that newly mapped channels load their overview bricks,
-    // and stop the batch in flight early so that the overview goes next.
+    // and end the batch in flight so that the overview goes next: its downloads
+    // in flight (a slab of large chunks, or a warm-up level, which cannot bail
+    // out) would otherwise hold the overview back until they arrive. They are
+    // requested again later. A batch of overviews is left to finish.
     if (this._overviewRequests().length > 0 && !this.manuallyStopped) {
       this.noNewRequests = false;
-      if (this.isBusy) this.needsBailout = true;
+      if (this.isBusy) {
+        this.needsBailout = true;
+        if (!this.isLoadingOverviews) {
+          this.loadingGeneration += 1;
+          this.brickSource?.abortReads?.();
+        }
+      }
     }
 
     log.debug('updatedChannels', this.channels);
@@ -1616,8 +1792,10 @@ export class VolumeDataManager {
     this.isBusy = true;
     this.triggerRequest = false;
 
-    // A channel without its overview loads that first, e.g. one added after init.
+    // A channel without its overview loads that first, e.g. one added after init,
+    // and its warm-up level in the same turn.
     if (await this._loadOverviews()) {
+      await this._loadWarmUps();
       this.triggerUsage = true;
       this.isBusy = false;
       return;
@@ -1745,6 +1923,7 @@ export class VolumeDataManager {
     // them later cannot clear page table entries of the next channel in this slot.
     this.overviewBricks.delete(ptChannelIndex);
     this.overviewAttempts.delete(ptChannelIndex);
+    this.warmedUpSlots.delete(ptChannelIndex);
     const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
     this.bc2pt.forEach((pt, bcIndex) => {
       if (pt && _ptToZarr(pt.x, pt.y, pt.z, ptInfo).channel === ptChannelIndex) {
@@ -1948,7 +2127,8 @@ export class VolumeDataManager {
       if (this.channels.downsampleMin[channel] === undefined) {
         // Without a range from the metadata, the channel's overview brick sets it.
         const isOverview = resolution === this.zarrStore.resolutions - 1;
-        const range = this._getStorageRange(zarrChannel) ?? (isOverview ? _getDataRange(chunk) : null);
+        const range = this._getStorageRange(zarrChannel)
+          ?? (isOverview ? _widenDataRange(_getDataRange(chunk), chunk) : null);
         if (!range) {
           log.debug('No storage range yet for channel slot; waiting for its overview', channel);
           return null;
@@ -2131,24 +2311,59 @@ export class VolumeDataManager {
     log.debug('Handling brick requests:', { requestCount: pending.length });
 
     // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once. A brick whose source
-    // chunks are already decoded goes first, since it needs no fetch. Each brick
-    // takes a cache slot and is uploaded as soon as its fetch completes, so a
-    // bail-out evicts nothing for bricks that were never fetched.
+    // chunks are already decoded goes first, since it needs no fetch. Otherwise the
+    // next brick whose new chunk downloads fit within MAX_CHUNK_DOWNLOADS, or else
+    // wait for a download to finish. Each brick takes a cache slot and is uploaded
+    // as soon as its fetch completes, so a bail-out evicts nothing for bricks that
+    // were never fetched.
     const uploaded = [];
     let isBailingOut = false;
+    const generation = this.loadingGeneration;
+    const isStopped = () => isBailingOut || generation !== this.loadingGeneration;
+    // Chunks that bricks in flight download, and those bricks: settled, never
+    // rejecting, and done only once their chunks are no longer counted.
+    const downloadingKeys = new Set();
+    const downloads = new Set();
+    const newChunkKeys = ptCoord => (chunkKeys.get(ptCoord) ?? []).filter(
+      key => !this.brickSource.isChunkCached(key) && !downloadingKeys.has(key),
+    );
+    const canDownload = keys => keys.length === 0 || downloadingKeys.size === 0
+      || downloadingKeys.size + keys.length <= MAX_CHUNK_DOWNLOADS;
     const fetchNext = async () => {
-      while (pending.length > 0 && !isBailingOut) {
+      while (pending.length > 0 && !isStopped()) {
         const cachedIndex = pending.findIndex(
           ptCoord => this._areChunksCached(chunkKeys.get(ptCoord)),
         );
-        const [ptCoord] = pending.splice(Math.max(0, cachedIndex), 1);
+        const index = cachedIndex !== -1
+          ? cachedIndex : pending.findIndex(ptCoord => canDownload(newChunkKeys(ptCoord)));
+        if (index === -1) {
+          // eslint-disable-next-line no-await-in-loop
+          await Promise.race(downloads);
+          // eslint-disable-next-line no-continue
+          continue;
+        }
+        const [ptCoord] = pending.splice(index, 1);
+        const keys = newChunkKeys(ptCoord);
+        keys.forEach(key => downloadingKeys.add(key));
         this.bricksInFlight.add(ptCoord);
+        const fetching = this._fetchBrick(ptCoord);
+        if (keys.length > 0) {
+          const settled = fetching.then(() => {}, () => {}).then(() => {
+            keys.forEach(key => downloadingKeys.delete(key));
+            downloads.delete(settled);
+          });
+          downloads.add(settled);
+        }
         let brick;
         try {
           // eslint-disable-next-line no-await-in-loop
-          brick = await this._fetchBrick(ptCoord);
+          brick = await fetching;
         } catch (error) {
-          log.error('Failed to fetch brick', ptCoord, error);
+          if (generation === this.loadingGeneration) {
+            log.error('Failed to fetch brick', ptCoord, error);
+          } else {
+            log.debug('Brick read stopped', ptCoord, error);
+          }
         }
         this.bricksInFlight.delete(ptCoord);
         if (brick) {

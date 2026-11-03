@@ -19,6 +19,7 @@ import {
   VolumeDataManager,
   INIT_STATUS,
   DEFAULT_SIGMA_NORMALIZED,
+  _hasBrickRequests,
 } from './VolumeDataManager.js';
 import { VolumeRenderManager, getScreenLodFactor } from './VolumeRenderManager.js';
 import {
@@ -60,7 +61,9 @@ function performBlitPass(_gl, { screenSceneRef, screenCameraRef }) {
   _gl.render(screenSceneRef.current, screenCameraRef.current);
 }
 
-function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage }) {
+function handleRequests(_gl, {
+  frameRef, dataManager, mrtRef, bufRequest, bufUsage, geometryPassRef, requestReadPassRef,
+}) {
   // logWithColor('handleRequests');
   // log.debug('handleRequests', frameRef.current);
   const ctx = _gl.getContext();
@@ -78,12 +81,17 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
   if (dataManager.isBusy) {
     return;
   }
-  if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
-    // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
+  const readRequestBuffer = () => {
     ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
     ctx.readBuffer(ctx.COLOR_ATTACHMENT1);
     ctx.readPixels(0, 0, mrtRef.current.width, mrtRef.current.height,
       ctx.RGBA, ctx.UNSIGNED_BYTE, bufRequest.current);
+    // eslint-disable-next-line no-param-reassign
+    requestReadPassRef.current = geometryPassRef.current;
+  };
+  if (dataManager.triggerRequest === true && dataManager.noNewRequests === false) {
+    // Read the pixels of the request buffer into the width*height*RGBA bufRequest.current array.
+    readRequestBuffer();
     // Based on the request buffer contents, process the requests
     // (e.g., start loading the brick data and upload to the brick cache).
     // Pass width/height so the data manager can compute Gaussian weighting.
@@ -109,6 +117,19 @@ function handleRequests(_gl, { frameRef, dataManager, mrtRef, bufRequest, bufUsa
     dataManager.processUsageData(bufUsage.current, {
       width: mrtRef?.current?.width,
     });
+  } else if (dataManager.noNewRequests === true && !dataManager.manuallyStopped
+    && geometryPassRef.current !== requestReadPassRef.current) {
+    // Loading stopped after a read found no requests. Frames drawn since, e.g. the
+    // one at best quality before the view goes still, can still ask for bricks:
+    // read each once, and resume loading if it does. Resuming on a timer instead
+    // would blur the still view (the interactive Gaussian) every time.
+    readRequestBuffer();
+    if (_hasBrickRequests(bufRequest.current, mrtRef.current.width)) {
+      // eslint-disable-next-line no-param-reassign
+      dataManager.noNewRequests = false;
+      // eslint-disable-next-line no-param-reassign
+      dataManager.triggerUsage = true;
+    }
   }
 }
 
@@ -285,6 +306,9 @@ export function VolumeView(props) {
   // const [renderSpeed, setRenderSpeed] = useState(dataManager.PT.lowestDataRes);
   const stillRef = useRef(false); // skip geometry pass when true
   const frameRef = useRef(0); // frame counter
+  // Geometry passes drawn, and the one whose request buffer was last read.
+  const geometryPassRef = useRef(0);
+  const requestReadPassRef = useRef(0);
   const lastSampleRef = useRef(0);
   const lastFrameCountRef = useRef(0); // For more stable FPS calculation
 
@@ -623,10 +647,13 @@ export function VolumeView(props) {
 
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
+      geometryPassRef.current += 1;
     }
 
     performBlitPass(frameGl, { screenSceneRef, screenCameraRef });
-    handleRequests(frameGl, { frameRef, dataManager, mrtRef, bufRequest, bufUsage });
+    handleRequests(frameGl, {
+      frameRef, dataManager, mrtRef, bufRequest, bufUsage, geometryPassRef, requestReadPassRef,
+    });
     handleAdaptiveQuality(clock, {
       invalidate,
       isInteracting: isInteractingRef.current,

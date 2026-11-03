@@ -3,6 +3,7 @@ import * as zarr from 'zarrita';
 import {
   planVolumeLevels,
   decodedBytesPerBrick,
+  createChunkCache,
   createVolumeBrickSource,
 } from './volume-zarr.js';
 
@@ -74,16 +75,58 @@ function expectedValue(level, c, z, y, x) {
 }
 
 describe('volume-zarr', () => {
+  describe('createChunkCache', () => {
+    const chunk = { data: new Uint8Array(4) };
+
+    it('fails stalled loads, and loads them again on the next read', async () => {
+      const cache = createChunkCache(1024, { stallMs: 20 });
+      let calls = 0;
+      const hanging = () => {
+        calls += 1;
+        return new Promise(() => {});
+      };
+      await expect(cache.load('a', hanging)).rejects.toThrow('No chunk loaded');
+      expect(cache.isReady('a')).toBe(false);
+      await expect(cache.load('a', async () => chunk)).resolves.toBe(chunk);
+      expect(calls).toBe(1);
+      expect(cache.isReady('a')).toBe(true);
+    });
+
+    it('fails and aborts the loads in flight on abortAll', async () => {
+      const cache = createChunkCache(1024);
+      let loaderSignal;
+      const loading = cache.load('a', (signal) => {
+        loaderSignal = signal;
+        return new Promise(() => {});
+      });
+      cache.abortAll();
+      await expect(loading).rejects.toThrow('Loading stopped');
+      expect(loaderSignal.aborted).toBe(true);
+      // Later loads get a fresh signal.
+      await expect(cache.load('a', async signal => ({ ...chunk, aborted: signal.aborted })))
+        .resolves.toMatchObject({ aborted: false });
+    });
+
+    it('does not fail slow loads while other chunks keep arriving', async () => {
+      const cache = createChunkCache(1024, { stallMs: 30 });
+      const after = ms => new Promise((resolve) => { setTimeout(() => resolve(chunk), ms); });
+      const slow = cache.load('slow', () => after(50));
+      // A chunk arrives every 15 ms, within the stall time.
+      await Promise.all([10, 25, 40].map(ms => cache.load(`fast-${ms}`, () => after(ms))));
+      await expect(slow).resolves.toBe(chunk);
+    });
+  });
+
   describe('planVolumeLevels', () => {
     it('reduces Z of an XY-only pyramid down to at least 32 slices', () => {
       const shapes = xyOnlyShapes(194, 3181, 4045, 6);
       const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX });
-      // The last level is the one-brick overview (194 / 7 = 28 slices).
-      expect(levels.map(l => l.shape[0])).toEqual([194, 97, 49, 33, 33, 33, 28]);
-      expect(levels.map(l => l.zFactor)).toEqual([1, 2, 4, 6, 6, 6, 7]);
-      expect(levels.map(l => l.zMode)).toEqual(['native', 'sample', 'sample', 'sample', 'sample', 'sample', 'sample']);
+      // Then two virtual levels halving each axis over one brick, the last a single brick.
+      expect(levels.map(l => l.shape[0])).toEqual([194, 97, 49, 33, 33, 33, 17, 17]);
+      expect(levels.map(l => l.zFactor)).toEqual([1, 2, 4, 6, 6, 6, 12, 12]);
+      expect(levels.map(l => l.zMode)).toEqual(['native', ...Array(7).fill('sample')]);
       // The shader scale includes the reduction factor; XY keeps shape ratios.
-      expect(levels.map(l => l.ratio[0])).toEqual([1, 2, 4, 6, 6, 6, 7]);
+      expect(levels.map(l => l.ratio[0])).toEqual([1, 2, 4, 6, 6, 6, 12, 12]);
       expect(levels[1].ratio[2]).toBeCloseTo(4045 / 2023);
     });
 
@@ -92,7 +135,7 @@ describe('volume-zarr', () => {
       const levels = planVolumeLevels({
         arrays: mockArrays(shapes), labels: TCZYX, spacing: [2, 0.36, 0.36],
       });
-      expect(levels.map(l => l.shape[0])).toEqual([194, 194, 194, 194, 97, 39, 28]);
+      expect(levels.map(l => l.shape[0])).toEqual([194, 194, 194, 194, 97, 39, 20, 20]);
     });
 
     it('keeps a pyramid that already downsamples Z under auto, and with none', () => {
@@ -116,10 +159,70 @@ describe('volume-zarr', () => {
       const levels = planVolumeLevels({
         arrays: mockArrays(shapes), labels: TCZYX, datasets, spacing: [0.4, 0.108335, 0.108335],
       });
-      // Fewer than 64 slices: no reduction above the 32-slice floor, except
-      // for the one-brick overview appended after the coarsest level.
-      expect(levels.map(l => l.shape[0])).toEqual([35, 35, 35, 18]);
+      // Fewer than 64 slices: no reduction above the 32-slice floor, except for
+      // the virtual levels appended after the coarsest level, which halve Z once.
+      expect(levels.map(l => l.shape[0])).toEqual([35, 35, 35, 18, 18, 18, 18]);
       [1, 4, 4].forEach((ratio, axis) => expect(levels[2].ratio[axis]).toBeCloseTo(ratio));
+    });
+
+    it('samples Z of virtual levels whatever the reduction, unless a chunk spans the bin', () => {
+      // idr0048A: one-plane chunks, so a mean or max overview would read all 1402 planes.
+      const shapes = xyOnlyShapes(1402, 5192, 2947, 6);
+      ['none', 'sample', 'mean', 'max'].forEach((mode) => {
+        const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX, mode });
+        expect(levels.at(-1)).toMatchObject({ isOverview: true, zMode: 'sample' });
+        expect(levels.filter(l => l.isVirtual).every(l => l.zMode === 'sample')).toBe(true);
+      });
+      // Chunks of 64 planes span the 62-plane bins: the mean costs no extra reads.
+      const thick = mockArrays(shapes, shapes.map(([, y, x]) => [64, y, x]));
+      const levels = planVolumeLevels({ arrays: thick, labels: TCZYX, mode: 'max' });
+      expect(levels.at(-1)).toMatchObject({ isOverview: true, zMode: 'mean' });
+    });
+
+    it('halves every axis over one brick below the coarsest stored level (idr0077)', () => {
+      const shapes = [[259, 1920, 1920], [259, 960, 960], [259, 480, 480], [259, 240, 240]];
+      const levels = planVolumeLevels({
+        arrays: mockArrays(shapes), labels: TCZYX, spacing: [1.633, 0.2696, 0.2696],
+      });
+      expect(levels.slice(4).map(l => l.shape)).toEqual([
+        [130, 120, 120], [65, 60, 60], [33, 30, 30], [17, 30, 30],
+      ]);
+      expect(levels.slice(4).map(l => [l.zFactor, l.yFactor, l.xFactor])).toEqual([
+        [2, 2, 2], [4, 4, 4], [8, 8, 8], [16, 8, 8],
+      ]);
+      expect(levels.slice(4).every(l => l.source === 3 && l.isVirtual)).toBe(true);
+      expect(levels.at(-1).isOverview).toBe(true);
+    });
+
+    it('samples planes that nest across virtual levels', async () => {
+      const shapes = [[259, 240, 240]];
+      const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX });
+      const source = createVolumeBrickSource({ arrays: mockArrays(shapes), levels, labels: TCZYX });
+      // Source planes read by the bricks of a level.
+      const planesOf = (level) => {
+        const planes = new Set();
+        const [zBricks, yBricks, xBricks] = levels[level].shape.map(n => Math.ceil(n / 32));
+        for (let bz = 0; bz < zBricks; bz++) {
+          for (let by = 0; by < yBricks; by++) {
+            for (let bx = 0; bx < xBricks; bx++) {
+              source.brickChunkKeys({ level, bx, by, bz }).forEach(key => planes.add(key));
+            }
+          }
+        }
+        return planes;
+      };
+      for (let level = levels.length - 1; level > 0; level--) {
+        const finer = planesOf(level - 1);
+        expect([...planesOf(level)].every(key => finer.has(key))).toBe(true);
+      }
+    });
+
+    it('keeps the overview when the virtual levels exceed maxLevels', () => {
+      const shapes = xyOnlyShapes(1402, 5192, 2947, 6);
+      const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX, mode: 'none' });
+      expect(levels).toHaveLength(10);
+      expect(levels.at(-1)).toMatchObject({ isOverview: true });
+      expect(levels.at(-1).shape.every(size => size <= 32)).toBe(true);
     });
 
     it('appends a one-brick overview that covers the shader extent', () => {

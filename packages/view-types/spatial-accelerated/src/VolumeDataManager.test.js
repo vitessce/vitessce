@@ -13,6 +13,9 @@ import {
   _pixelStride,
   _forEachSampledPixel,
   _groupBySourceChunk,
+  _pickWarmUpLevel,
+  _widenDataRange,
+  _hasBrickRequests,
   _getVoxelSpacing,
   _getDataRange,
   _toUint8,
@@ -370,6 +373,21 @@ describe('spatial-accelerated data utils', () => {
         || y + h > PT.yExtent || z + d > PT.zTotal)).toHaveLength(0);
     });
 
+    it('ends the batch in flight for a new channel overview, unless it loads overviews', () => {
+      const { manager } = createManager();
+      let aborts = 0;
+      manager.brickSource = { abortReads: () => { aborts += 1; } };
+      manager.overviewAttempts.set(0, 3); // slot 0 is done with its overview
+      manager.isBusy = true;
+      manager.isLoadingOverviews = true;
+      manager.updateChannels({ A: { spatialTargetC: 0 }, B: { spatialTargetC: 5 } });
+      expect(aborts).toBe(0);
+      manager.isLoadingOverviews = false;
+      manager.updateChannels({ A: { spatialTargetC: 0 }, B: { spatialTargetC: 6 } });
+      expect(aborts).toBe(1);
+      expect(manager.needsBailout).toBe(true);
+    });
+
     it('maps the new channel when all slots are in use', () => {
       const { manager } = createManager();
       // Both slots are used; channel 5 replaces channel 1, which is no longer requested.
@@ -416,12 +434,30 @@ describe('spatial-accelerated data utils', () => {
       expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).toBeNull();
       // eslint-disable-next-line no-underscore-dangle
       const brick = await manager._fetchBrick(_zarrToPt(1, overview, 0, 0, 0, PT));
-      expect(manager.channels.downsampleMin[1]).toBe(0);
-      expect(manager.channels.downsampleMax[1]).toBe(66);
+      // Widened by a quarter of the range on each side: finer levels reach further.
+      expect(manager.channels.downsampleMin[1]).toBe(-16.5);
+      expect(manager.channels.downsampleMax[1]).toBe(82.5);
       expect(brick.chunk).toBeInstanceOf(Uint8Array);
-      expect([brick.min, brick.max]).toEqual([0, 255]);
+      expect([brick.min, brick.max]).toEqual([42, 212]);
       // eslint-disable-next-line no-underscore-dangle
       expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).not.toBeNull();
+    });
+  });
+
+  describe('_hasBrickRequests', () => {
+    it('finds a request among empty pixels', () => {
+      const buffer = new Uint8Array(4 * 16);
+      expect(_hasBrickRequests(buffer, 4)).toBe(false);
+      buffer.set([0, 0, 0, 7], 0);
+      expect(_hasBrickRequests(buffer, 4)).toBe(true);
+    });
+  });
+
+  describe('_widenDataRange', () => {
+    it('widens by a quarter of the range on each side, within integer limits', () => {
+      expect(_widenDataRange([0, 66], new Float32Array(1))).toEqual([-16.5, 82.5]);
+      expect(_widenDataRange([100, 900], new Uint16Array(1))).toEqual([0, 1100]);
+      expect(_widenDataRange([200, 65000], new Uint16Array(1))).toEqual([0, 65535]);
     });
   });
 
@@ -544,6 +580,54 @@ describe('spatial-accelerated data utils', () => {
       return { reads };
     }
 
+    describe('_pickWarmUpLevel', () => {
+      // Halving levels of 32^3 bricks: 16^3, 8^3, 4^3, 2^3, 1.
+      const brickLayout = [16, 8, 4, 2, 1].map(n => [n, n, n]);
+
+      it('picks the finest level within the chunk reads, short of the overview', () => {
+        // One chunk per brick, as with 32^3 chunks: 4^3 = 64 bricks fit.
+        const perBrick = (level, x, y, z) => [`${level}:${x},${y},${z}`];
+        expect(_pickWarmUpLevel(brickLayout, perBrick)).toBe(2);
+        expect(_pickWarmUpLevel(brickLayout, perBrick, { maxChunkReads: 63 })).toBe(3);
+      });
+
+      it('counts chunks that bricks share once', () => {
+        // One chunk per z slab of bricks, as with one-plane chunks spanning a coarse plane.
+        const perSlab = (level, x, y, z) => [`${level}:${z}`];
+        expect(_pickWarmUpLevel(brickLayout, perSlab)).toBe(1); // 512 bricks, 8 chunks
+        expect(_pickWarmUpLevel(brickLayout, perSlab, { maxBricks: 64 })).toBe(2);
+      });
+
+      it('returns null when no level fits', () => {
+        const manyChunks = (level, x, y, z) => Array.from({ length: 100 }, (_, i) => `${level}:${x},${y},${z}:${i}`);
+        expect(_pickWarmUpLevel(brickLayout, manyChunks)).toBe(null);
+        expect(_pickWarmUpLevel([[1, 1, 1]], manyChunks)).toBe(null);
+      });
+    });
+
+    it('loads every brick of the warm-up level once per channel', async () => {
+      const { manager, brickLayout } = createManager();
+      const { reads } = withBrickSource(manager);
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._loadWarmUps()).toBe(true);
+      // Level 0 has more than 512 bricks, so level 1 (one chunk per z slab here).
+      expect(manager.warmUpLevel).toBe(1);
+      const [zBricks, yBricks, xBricks] = brickLayout[1];
+      expect(reads).toHaveLength(2 * zBricks * yBricks * xBricks);
+      expect(reads.every(read => read.startsWith('1:'))).toBe(true);
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._loadWarmUps()).toBe(false);
+    });
+
+    it('loads no warm-up level when init ruled it out (volumeZReduction mean or max)', async () => {
+      const { manager } = createManager();
+      const { reads } = withBrickSource(manager);
+      manager.warmUpLevel = null;
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._loadWarmUps()).toBe(false);
+      expect(reads).toHaveLength(0);
+    });
+
     it('_groupBySourceChunk puts requests for the same chunk next to each other', () => {
       const keys = { a: ['s0'], b: ['s1'], c: ['s0'], d: null, e: ['s1', 's2'] };
       expect(_groupBySourceChunk(['a', 'b', 'c', 'd', 'e'], item => keys[item]))
@@ -630,6 +714,71 @@ describe('spatial-accelerated data utils', () => {
       await handled;
       const { queuedByLevel } = manager.getQueueStatus();
       expect(queuedByLevel.every(count => count === 0)).toBe(true);
+    });
+
+    it('downloads one slab of one-plane chunks at a time, then its bricks from the cache', async () => {
+      const { manager, PT } = createManager();
+      // Each brick reads 32 one-plane chunks, shared by the bricks of its z slab.
+      const ready = new Set();
+      const inFlight = new Set();
+      let maxInFlight = 0;
+      const reads = [];
+      const planesOf = ({ level, bz }) => Array.from({ length: 32 }, (_, z) => `${level}:${bz * 32 + z}`);
+      manager.brickSource = {
+        brickChunkKeys: planesOf,
+        isChunkCached: key => ready.has(key),
+        async readBrick(brick) {
+          reads.push(`${brick.bz}:${brick.bx}`);
+          const missing = planesOf(brick).filter(key => !ready.has(key));
+          missing.forEach(key => inFlight.add(key));
+          maxInFlight = Math.max(maxInFlight, inFlight.size);
+          if (missing.length > 0) await new Promise((resolve) => { setTimeout(resolve, 1); });
+          missing.forEach((key) => { inFlight.delete(key); ready.add(key); });
+          return { data: new Uint8Array(32 ** 3).fill(9) };
+        },
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      manager._writeBrick = () => true;
+      const requests = [0, 1, 2].flatMap(bz => [0, 1, 2].map(bx => _zarrToPt(0, 0, bx, 0, bz, PT)));
+      const uploaded = await manager.handleBrickRequests(requests);
+      expect(uploaded).toHaveLength(9);
+      // Never more than one slab of planes downloading; each slab's first brick, then the rest.
+      expect(maxInFlight).toBe(32);
+      expect(reads.slice(0, 3)).toEqual(['0:0', '0:1', '0:2']);
+    });
+
+    it('stops a batch on stopLoading, even when loading restarts right away', async () => {
+      const { manager, PT } = createManager();
+      const { reads } = withBrickSource(manager);
+      const requests = Array.from({ length: 8 }, (_, bz) => _zarrToPt(0, 0, 0, 0, bz, PT));
+      const handled = manager.handleBrickRequests(requests);
+      manager.stopLoading();
+      manager.restartLoading(); // clears needsBailout before any brick finished
+      const uploaded = await handled;
+      // Only the bricks already in flight finish.
+      expect(reads).toHaveLength(6);
+      expect(uploaded).toHaveLength(6);
+    });
+
+    it('lets bricks in flight finish after stopLoading, and fails them on restartLoading', async () => {
+      const { manager, PT } = createManager();
+      let aborted = false;
+      let finish;
+      manager.brickSource = {
+        brickChunkKeys: ({ bz }) => [`0:${bz}`],
+        isChunkCached: () => false,
+        abortReads: () => { aborted = true; finish(new Error('Loading stopped')); },
+        readBrick: () => new Promise((resolve, reject) => { finish = reject; }),
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      manager._writeBrick = () => true;
+      manager.isBusy = true; // as in processRequestData
+      const handled = manager.handleBrickRequests([_zarrToPt(0, 0, 0, 0, 0, PT)]);
+      manager.stopLoading();
+      expect(aborted).toBe(false);
+      manager.restartLoading();
+      expect(aborted).toBe(true);
+      expect(await handled).toEqual([]);
     });
 
     it('takes no cache slots for bricks a bail-out never fetched', async () => {

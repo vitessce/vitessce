@@ -3,38 +3,57 @@ import { get, slice } from 'zarrita';
 const BRICK_SIZE = 32;
 const SPATIAL_AXES = ['z', 'y', 'x'];
 
-// A virtual level holding the whole volume in a single brick, appended when the
-// coarsest stored level spans several bricks. It is loaded first for every
-// channel, so something is on screen after one read per channel. XY is reduced
-// by block mean (whole chunks are decoded anyway); Z follows the zMode rules.
-function planOverviewLevel(coarsest, shape0, chunkZ, mode) {
+// Virtual levels appended when the coarsest stored level spans several bricks:
+// each halves every axis that still spans more than one brick, since the shader
+// picks levels as if each were twice as coarse as the one before. The last is a
+// single brick (the overview), loaded first for every channel, so something is
+// on screen after one read per channel. All read the coarsest stored level's
+// source. XY is reduced by block mean (whole chunks are decoded anyway). Z is
+// sampled whatever the volumeZReduction, since they are only shown until finer
+// bricks load: a mean or max over every source plane takes one request per plane
+// with one-plane chunks (1402 for idr0048A). Mean is used only when a chunk
+// already spans each bin. Sampled planes nest: each level reads the plane of the
+// first coarsest-level voxel of its bins, so finer levels reuse what coarser ones
+// downloaded (planes 0, 16, 32 are among 0, 8, 16, which are among 0, 4, 8).
+function planVirtualLevels(coarsest, shape0, chunkZ) {
   const sourceShape = [coarsest.sourceDepth, coarsest.dataShape[1], coarsest.dataShape[2]];
-  const sourceRatio = [coarsest.ratio[0] / coarsest.zFactor, coarsest.ratio[1], coarsest.ratio[2]];
-  // Factors come from the shader extent (level-0 size / ratio), which can exceed
-  // the data, so that the level is exactly one brick.
-  const [zFactor, yFactor, xFactor] = sourceRatio.map((r, axis) => Math.max(
-    1, Math.ceil((shape0[axis] / r - 1e-6) / BRICK_SIZE),
-  ));
-  const factors = [zFactor, yFactor, xFactor];
-  const ratio = sourceRatio.map((r, axis) => r * factors[axis]);
-  const dataShape = sourceShape.map((size, axis) => Math.ceil(size / factors[axis]));
-  let zMode = ['auto', 'none'].includes(mode) ? 'sample' : mode;
-  if (zFactor === 1) zMode = 'native';
-  else if (zMode === 'sample' && chunkZ >= zFactor) zMode = 'mean';
-  return {
-    source: coarsest.source,
-    sourceDepth: coarsest.sourceDepth,
-    dataShape,
-    shape: dataShape.map((size, axis) => Math.max(
+  const sourceFactors = [coarsest.zFactor, coarsest.yFactor ?? 1, coarsest.xFactor ?? 1];
+  // The source plane of the first coarsest-level voxel in a bin.
+  const zSampleOffset = coarsest.zMode === 'sample' ? Math.floor(coarsest.zFactor / 2) : 0;
+  const halvings = [0, 0, 0];
+  const levels = [];
+  let { shape } = coarsest;
+  while (shape.some(size => size > BRICK_SIZE)) {
+    shape.forEach((size, axis) => {
+      if (size > BRICK_SIZE) halvings[axis] += 1;
+    });
+    const scales = halvings.map(count => 2 ** count);
+    const [zFactor, yFactor, xFactor] = sourceFactors.map((factor, axis) => factor * scales[axis]);
+    const ratio = coarsest.ratio.map((r, axis) => r * scales[axis]);
+    const factors = [zFactor, yFactor, xFactor];
+    const dataShape = sourceShape.map((size, axis) => Math.ceil(size / factors[axis]));
+    // The shader extent (level-0 size / ratio) can exceed the data.
+    shape = dataShape.map((size, axis) => Math.max(
       size, Math.ceil(shape0[axis] / ratio[axis] - 1e-6),
-    )),
-    ratio,
-    zFactor,
-    yFactor,
-    xFactor,
-    zMode,
-    isOverview: true,
-  };
+    ));
+    let zMode = chunkZ >= zFactor ? 'mean' : 'sample';
+    if (zFactor === 1) zMode = 'native';
+    levels.push({
+      source: coarsest.source,
+      sourceDepth: coarsest.sourceDepth,
+      dataShape,
+      shape,
+      ratio,
+      zFactor,
+      yFactor,
+      xFactor,
+      zMode,
+      zSampleOffset,
+      isVirtual: true,
+    });
+  }
+  levels[levels.length - 1].isOverview = true;
+  return levels;
 }
 
 // Logical voxels cover integer bins of source planes. In particular, the last
@@ -119,7 +138,12 @@ export function planVolumeLevels({
     const chunkZ = arrays[coarsest.source].chunks[labels.indexOf('z')];
     // Level-0 extent in its own (binned) voxels.
     const extent0 = [shapes[0][0] / minZFactor, shapes[0][1], shapes[0][2]];
-    levels.push(planOverviewLevel(coarsest, extent0, chunkZ, mode));
+    const virtualLevels = planVirtualLevels(coarsest, extent0, chunkZ);
+    // Within maxLevels, the finest virtual levels and the overview.
+    const room = maxLevels - levels.length;
+    levels.push(...(virtualLevels.length > room
+      ? [...virtualLevels.slice(0, room - 1), virtualLevels[virtualLevels.length - 1]]
+      : virtualLevels));
   }
   return levels;
 }
@@ -137,7 +161,9 @@ export function decodedBytesPerBrick(level, array, labels, bytesPerElement) {
       if (axis === 'z' && level.zMode === 'sample') {
         const chunks = new Set();
         for (let z = start; z < end; z++) {
-          const plane = Math.min(sourceSize - 1, z * factor + Math.floor(factor / 2));
+          const plane = Math.min(
+            sourceSize - 1, z * factor + (level.zSampleOffset ?? Math.floor(factor / 2)),
+          );
           chunks.add(Math.floor(plane / chunkSize));
         }
         count = chunks.size;
@@ -166,12 +192,53 @@ export function getBytesPerElement(dtype) {
 // can reuse a stack before it is evicted.
 const DECODED_CHUNK_CACHE_BYTES = 512 * (2 ** 20);
 
+// When no chunk finishes loading for this long while some are loading, those
+// loads count as stalled (e.g. requests a server never answers) and fail. Their
+// bricks fail and are requested again later, with new requests, and the bricks
+// waiting for them can go ahead. The stalled requests themselves are not cancelled.
+const CHUNK_STALL_MS = 30000;
+
 // Decoded-chunk LRU shared by all levels and neighboring bricks (Zarr chunks
 // or TIFF tiles). Entries hold promises, so concurrent reads of the same chunk
-// share one decode. Failures are retryable.
-export function createChunkCache(maxBytes = DECODED_CHUNK_CACHE_BYTES) {
+// share one decode. Failures, including stalls and aborts, are retryable.
+// Loaders get an AbortSignal, which abortAll and stalls abort.
+export function createChunkCache(
+  maxBytes = DECODED_CHUNK_CACHE_BYTES, { stallMs = CHUNK_STALL_MS } = {},
+) {
   const cache = new Map();
   let bytes = 0;
+  // Entries loading, with a function that fails them.
+  const loading = new Map();
+  let controller = new AbortController();
+  let lastLoadTime = Date.now();
+  let watchdog = null;
+  // Fail every load in flight and abort its requests, where the reader passes the
+  // signal on. The loads fail right away either way, so their bricks do too.
+  function failLoading(error) {
+    loading.forEach(fail => fail(error));
+    loading.clear();
+    controller.abort(error);
+    controller = new AbortController();
+  }
+  function checkStalled() {
+    watchdog = null;
+    if (loading.size === 0) return;
+    const idle = Date.now() - lastLoadTime;
+    if (idle < stallMs) {
+      watchdog = setTimeout(checkStalled, stallMs - idle);
+      return;
+    }
+    failLoading(new Error(`No chunk loaded for ${stallMs / 1000} s`));
+  }
+  // A chunk finished loading, or failed: either way, the server answered.
+  function loaded(entry) {
+    loading.delete(entry);
+    lastLoadTime = Date.now();
+    if (loading.size === 0 && watchdog) {
+      clearTimeout(watchdog);
+      watchdog = null;
+    }
+  }
   function load(key, loader) {
     if (cache.has(key)) {
       const entry = cache.get(key);
@@ -180,7 +247,14 @@ export function createChunkCache(maxBytes = DECODED_CHUNK_CACHE_BYTES) {
       return entry.promise;
     }
     const entry = { bytes: 0, isReady: false };
-    entry.promise = loader().then((chunk) => {
+    // Idle time before this load is not a stall.
+    if (loading.size === 0) lastLoadTime = Date.now();
+    const stalled = new Promise((resolve, reject) => {
+      loading.set(entry, reject);
+    });
+    if (!watchdog) watchdog = setTimeout(checkStalled, stallMs);
+    entry.promise = Promise.race([loader(controller.signal), stalled]).then((chunk) => {
+      loaded(entry);
       if (cache.get(key) === entry) {
         entry.isReady = true;
         entry.bytes = chunk.data.byteLength;
@@ -198,7 +272,8 @@ export function createChunkCache(maxBytes = DECODED_CHUNK_CACHE_BYTES) {
       }
       return chunk;
     }, (error) => {
-      cache.delete(key);
+      if (loading.has(entry)) loaded(entry);
+      if (cache.get(key) === entry) cache.delete(key);
       throw error;
     });
     cache.set(key, entry);
@@ -208,6 +283,10 @@ export function createChunkCache(maxBytes = DECODED_CHUNK_CACHE_BYTES) {
     load,
     // Whether a chunk is decoded and retained, without touching its recency.
     isReady: key => cache.get(key)?.isReady === true,
+    // Fail the loads in flight, e.g. when the user stops loading.
+    abortAll: () => {
+      if (loading.size > 0) failLoading(new Error('Loading stopped'));
+    },
     stats: () => ({ entries: cache.size, bytes }),
     clear: () => { cache.clear(); bytes = 0; },
   };
@@ -232,9 +311,9 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
   const cachedArrays = arrays.map((array, source) => new Proxy(array, {
     get(target, property) {
       if (property !== 'getChunk') return Reflect.get(target, property);
-      return (coordinates, ...options) => cache.load(
+      return (coordinates, options, ...rest) => cache.load(
         `${source}:${coordinates.join(',')}`,
-        () => target.getChunk(coordinates, ...options),
+        signal => target.getChunk(coordinates, { ...options, signal }, ...rest),
       );
     },
   }));
@@ -311,7 +390,8 @@ export function createVolumeBrickSource({
     const ranges = [];
     for (let start = z0 * zFactor; start < sourceEnd; start += step) {
       const readStart = isSample
-        ? Math.min(sourceDepth - 1, start + Math.floor(zFactor / 2)) : start;
+        ? Math.min(sourceDepth - 1, start + (level.zSampleOffset ?? Math.floor(zFactor / 2)))
+        : start;
       ranges.push([readStart, isSample ? readStart + 1 : Math.min(sourceEnd, start + step)]);
     }
     return {
@@ -425,6 +505,8 @@ export function createVolumeBrickSource({
     brickChunkKeys,
     // Whether a chunk from brickChunkKeys is decoded, so reading it fetches nothing.
     isChunkCached: cache.isReady,
+    // Fail the chunk loads in flight, cancelling their requests where possible.
+    abortReads: cache.abortAll,
     cache: { stats: cache.stats, clear: cache.clear },
   };
 }

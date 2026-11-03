@@ -241,9 +241,12 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
                     <TableCell className={cellClass}>{`L${level}`}</TableCell>
                     <TableCell className={levelClass}>{formatExtent(renderLevel.shape)}</TableCell>
                     <TableCell className={levelClass}>
-                      {renderLevel.zFactor > 1
-                        ? `${renderLevel.source}, Z ÷${renderLevel.zFactor} (${renderLevel.zMode})`
-                        : renderLevel.source}
+                      {[
+                        renderLevel.source,
+                        ...(renderLevel.xyFactor > 1 ? [`XY ÷${renderLevel.xyFactor}`] : []),
+                        ...(renderLevel.zFactor > 1
+                          ? [`Z ÷${renderLevel.zFactor} (${renderLevel.zMode})`] : []),
+                      ].join(', ')}
                     </TableCell>
                     <TableCell className={cellClass}>{formatExtent(sourceLevel.chunks)}</TableCell>
                     {sizeCells(sourceLevel, isFirstOfSource)}
