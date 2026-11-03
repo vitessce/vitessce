@@ -637,11 +637,122 @@ describe('spatial-accelerated data utils', () => {
       const { reads } = withBrickSource(manager);
       const requests = Array.from({ length: 8 }, (_, bz) => _zarrToPt(0, 0, 0, 0, bz, PT));
       const handled = manager.handleBrickRequests(requests);
-      manager.needsBailout = true; // as when usage data arrives mid-batch
-      const uploaded = await handled;
+      manager.requestBailout(); // as when the camera moves mid-batch
+      // The batch ends without waiting for the bricks in flight, which still upload.
+      expect(await handled).toEqual([]);
+      await Promise.all(Array.from(manager.brickLoads.values(), ({ promise }) => promise));
       expect(reads).toHaveLength(6);
-      expect(uploaded).toHaveLength(6);
       expect(manager.BCUnusedIndex).toBe(6);
+    });
+
+    describe('aborting bricks that are no longer requested', () => {
+      // Reads that wait until released or aborted.
+      function withPendingBrickSource(manager) {
+        const reads = new Map(); // brick -> { signal, release }
+        // eslint-disable-next-line no-param-reassign
+        manager.brickSource = {
+          brickChunkKeys: () => null,
+          isChunkCached: () => false,
+          readBrick(brick, { signal } = {}) {
+            return new Promise((resolve, reject) => {
+              reads.set(brick.bz, {
+                signal,
+                release: () => resolve({ data: new Uint8Array(32 ** 3) }),
+              });
+              signal?.addEventListener('abort', () => reject(signal.reason));
+            });
+          },
+        };
+        // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+        manager._writeBrick = (ptCoord, slot) => {
+          // eslint-disable-next-line no-param-reassign
+          manager.bc2pt[slot.bcIndex] = ptCoord;
+          return true;
+        };
+        const settled = () => Promise.all(
+          Array.from(manager.brickLoads.values(), ({ promise }) => promise),
+        );
+        return { reads, settled };
+      }
+
+      it('aborts bricks of a bailed-out batch that the next request reads omit', async () => {
+        const { manager, PT } = createManager();
+        const { reads, settled } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const handled = manager.handleBrickRequests([pt(0), pt(1), pt(2)]);
+        manager.requestBailout();
+        expect(await handled).toEqual([]);
+        expect(manager.brickLoads.size).toBe(3);
+        // The view has changed and requests brick 0 only. Requests are sampled,
+        // so the first read that omits a brick does not abort it yet.
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([pt(0)]);
+        expect([0, 1, 2].map(bz => reads.get(bz).signal.aborted)).toEqual([false, false, false]);
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([pt(0), pt(2)]);
+        expect([0, 1, 2].map(bz => reads.get(bz).signal.aborted)).toEqual([false, true, false]);
+        reads.get(0).release();
+        reads.get(2).release();
+        await settled();
+        expect(manager.brickLoads.size).toBe(0);
+        // The aborted brick took no cache slot and is not counted as loaded.
+        expect(manager.BCUnusedIndex).toBe(2);
+        expect(manager.bricksEverLoaded.has(`${pt(1).x},${pt(1).y},${pt(1).z}`)).toBe(false);
+      });
+
+      it('joins a brick still loading from a bailed-out batch instead of fetching it again', async () => {
+        const { manager, PT } = createManager();
+        const { reads } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const first = manager.handleBrickRequests([pt(0)]);
+        manager.requestBailout();
+        await first;
+        const firstSignal = reads.get(0).signal;
+        const second = manager.handleBrickRequests([pt(0), pt(1)]);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.get(0).signal).toBe(firstSignal);
+        reads.get(0).release();
+        reads.get(1).release();
+        expect((await second).map(({ ptCoord }) => ptCoord)).toEqual([pt(0), pt(1)]);
+        expect(manager.BCUnusedIndex).toBe(2);
+      });
+
+      it('keeps overview bricks loading, and stopLoading aborts the others', async () => {
+        const { manager, PT } = createManager();
+        const { reads, settled } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const overview = manager.handleBrickRequests([pt(0)], { canBailOut: false });
+        const regular = manager.handleBrickRequests([pt(1)]);
+        manager.stopLoading();
+        await regular;
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([]);
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([]);
+        expect(reads.get(0).signal.aborted).toBe(false);
+        expect(reads.get(1).signal.aborted).toBe(true);
+        reads.get(0).release();
+        await settled();
+        expect(await overview).toEqual([{ ptCoord: pt(0), bcIndex: 0 }]);
+      });
+
+      it('starts no more fetches than the limit while bricks of earlier batches load', async () => {
+        const { manager, PT } = createManager();
+        const { reads } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const first = manager.handleBrickRequests([0, 1, 2, 3, 4, 5].map(pt));
+        manager.requestBailout();
+        await first;
+        const second = manager.handleBrickRequests([6, 7].map(pt));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.size).toBe(6);
+        // A free fetch slot goes to the next batch.
+        reads.get(0).release();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.size).toBe(7);
+        manager.requestBailout();
+        await second;
+      });
     });
 
     it('also loads requests beyond the top k whose chunks are cached', async () => {

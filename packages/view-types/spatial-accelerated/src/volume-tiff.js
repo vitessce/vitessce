@@ -99,7 +99,7 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
     }
     return tiles;
   }
-  async function readRegion(source, region) {
+  async function readRegion(source, region, { signal } = {}) {
     const {
       t, c, z: [z0, z1], y: [y0, y1], x: [x0, x1],
     } = region;
@@ -111,22 +111,27 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
     const tiles = regionTiles(source, region);
     const loaded = await Promise.all(tiles.map(({ z, tileY, tileX, key }) => cache.load(
       key,
-      async () => {
+      async (sharedSignal) => {
         const selection = Object.fromEntries(planeLabels.map(
           axis => [axis, { t, c, z }[axis] ?? 0],
         ));
         // eslint-disable-next-line no-underscore-dangle
         const image = await pixelSource._indexer(selection);
+        sharedSignal?.throwIfAborted();
         // Edge tiles are clipped to the image.
         const tileEndY = Math.min(tileY + tileHeight, shape[yIndex]);
         const tileEndX = Math.min(tileX + tileWidth, shape[xIndex]);
+        // geotiff aborts the tile's byte-range requests with the signal.
+        // viv then throws its SIGNAL_ABORTED string, not an Error.
         // eslint-disable-next-line no-underscore-dangle
         return pixelSource._readRasters(image, {
           window: [tileX, tileY, tileEndX, tileEndY],
           width: tileEndX - tileX,
           height: tileEndY - tileY,
+          signal: sharedSignal,
         });
       },
+      { signal },
     )));
     const data = new loaded[0].data.constructor((z1 - z0) * height * width);
     loaded.forEach((tile, i) => {

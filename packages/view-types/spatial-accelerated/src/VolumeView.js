@@ -141,9 +141,10 @@ function handleAdaptiveQuality(clock, params) {
       dataManager.noNewRequests = false;
       dataManager.triggerUsage = true;
       // A batch in flight was requested for the previous view: stop it early,
-      // so that the buffers are read again for the current one.
+      // so that the buffers are read again for the current one. Its bricks still
+      // loading are aborted once the current view no longer requests them.
       if (dataManager.isBusy) {
-        dataManager.needsBailout = true;
+        dataManager.requestBailout();
       }
     }
     return;

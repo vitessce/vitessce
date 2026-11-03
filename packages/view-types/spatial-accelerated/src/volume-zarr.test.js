@@ -350,5 +350,65 @@ describe('volume-zarr', () => {
       expect(store.reads).toBe(256);
       expect(maxInFlight).toBeLessThanOrEqual(32);
     });
+
+    it('aborts the chunk requests of an aborted brick that no other brick waits for', async () => {
+      const store = createCountingStore();
+      // Bricks x = 0 and 1 share chunk 0; brick x = 2 alone reads chunk 1.
+      const array = await createTestArray(store, 'a', [1, 1, 32, 32, 96], [1, 1, 32, 32, 64]);
+      const signals = new Map();
+      let release;
+      const gate = new Promise((resolve) => { release = resolve; });
+      const { get } = store;
+      store.get = async (key, options) => {
+        if (!key.includes('/c/')) return get(key);
+        signals.set(key.split('/c/')[1], options?.signal);
+        await gate;
+        return get(key);
+      };
+      const source = createVolumeBrickSource({
+        arrays: [array],
+        levels: [withDataShape({
+          source: 0, sourceDepth: 32, zFactor: 1, zMode: 'native', shape: [32, 32, 96],
+        })],
+        labels: TCZYX,
+      });
+      const controller = new AbortController();
+      const brick = bx => ({
+        level: 0, bx, by: 0, bz: 0,
+      });
+      const aborted = [1, 2].map(bx => source.readBrick(brick(bx), { signal: controller.signal }));
+      const kept = source.readBrick(brick(0), { signal: new AbortController().signal });
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(Array.from(signals.keys()).sort()).toEqual(['0/0/0/0/0', '0/0/0/0/1']);
+      controller.abort();
+      // The aborted bricks stop waiting at once, without the gated reads.
+      await Promise.all(aborted.map(read => expect(read).rejects.toThrow(/abort/i)));
+      expect(signals.get('0/0/0/0/1').aborted).toBe(true);
+      // Chunk 0 is still needed by brick x = 0.
+      expect(signals.get('0/0/0/0/0').aborted).toBe(false);
+      release();
+      const { data } = await kept;
+      expect(data[(5 * 32 + 7) * 32 + 3]).toBe(value(0, 5, 7, 3));
+      // Only the completed chunk is retained; the aborted one is read again next time.
+      expect(source.isChunkCached('0:0,0,0,0,0')).toBe(true);
+      expect(source.isChunkCached('0:0,0,0,0,1')).toBe(false);
+    });
+
+    it('rejects a brick whose signal is already aborted without reading', async () => {
+      const store = createCountingStore();
+      const array = await createTestArray(store, 'a', [1, 1, 32, 32, 32], [1, 1, 32, 32, 32]);
+      const source = createVolumeBrickSource({
+        arrays: [array],
+        levels: [withDataShape({
+          source: 0, sourceDepth: 32, zFactor: 1, zMode: 'native', shape: [32, 32, 32],
+        })],
+        labels: TCZYX,
+      });
+      store.reads = 0;
+      await expect(source.readBrick(
+        { level: 0, bx: 0, by: 0, bz: 0 }, { signal: AbortSignal.abort() },
+      )).rejects.toThrow(/abort/i);
+      expect(store.reads).toBe(0);
+    });
   });
 });

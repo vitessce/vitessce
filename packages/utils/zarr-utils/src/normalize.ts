@@ -4,6 +4,9 @@ import type { ZipInfo } from 'unzipit';
 import ZipFileStore from '@zarrita/storage/zip';
 import ReferenceStore from '@zarrita/storage/ref';
 import { withGetRange } from './base-getrange.js';
+import {
+  createSharedAbort, isAbortError, raceAbortSignal, type SharedAbort,
+} from './abort.js';
 
 
 // This allows returning `undefined` for 403 responses,
@@ -49,10 +52,24 @@ const CHUNK_GC_TIME = 30_000;
 // `undefined` for missing keys, so a sentinel stands in for it inside the cache.
 const UNDEFINED_SENTINEL = null;
 
+// Reads that fail with an AbortError although their own caller did not abort are
+// retried this many times. A shared read is aborted only when all of its callers
+// abort, but zarrita's withRangeCoalescing merges the signals of the ranges it
+// coalesces with AbortSignal.any, so one aborted range fails its neighbors too.
+const MAX_ABORT_RETRIES = 2;
+
 type CacheFetchFn = (
   cacheKey: unknown[],
-  fn: () => Promise<Uint8Array | undefined>,
+  // Reads with the shared signal: aborted once every caller of the key has aborted.
+  fn: (signal: AbortSignal) => Promise<Uint8Array | undefined>,
+  // The caller's own signal.
+  signal?: AbortSignal,
 ) => Promise<Uint8Array | undefined>;
+
+type InflightRead = {
+  shared: SharedAbort,
+  promise: Promise<Uint8Array | undefined>,
+};
 
 /**
  * Request-option marker that makes CachedStore read straight through to the
@@ -88,34 +105,81 @@ function splitReadOptions(opts?: ReadOptions): [boolean, any] {
  * the cache lives on the client rather than the store instance, is shared across
  * store instances for the same URL. Without one: a local in-flight map that
  * coalesces concurrent requests and retains nothing.
+ * Either way, a read shared by several callers is aborted only once all of them
+ * have aborted; a caller that aborts stops waiting right away.
  */
 function makeCacheFetch(queryClient?: QueryClientLike): CacheFetchFn {
-  if (queryClient) {
-    return async (cacheKey, fn) => {
+  // Reads in flight per key, counting the callers that share them.
+  const inflight = new Map<string, InflightRead>();
+
+  function read(
+    cacheKey: unknown[],
+    fn: (signal: AbortSignal) => Promise<Uint8Array | undefined>,
+  ): (signal: AbortSignal) => Promise<Uint8Array | undefined> {
+    if (!queryClient) {
+      // Stores are only required to return a value that can be awaited, not
+      // necessarily a native Promise (e.g. test fixture stores return synchronously).
+      return signal => Promise.resolve(fn(signal));
+    }
+    return async (signal) => {
       const result = await queryClient.fetchQuery({
         queryKey: cacheKey,
-        queryFn: async () => (await fn()) ?? UNDEFINED_SENTINEL,
+        queryFn: async () => (await fn(signal)) ?? UNDEFINED_SENTINEL,
         staleTime: Infinity,
         gcTime: CHUNK_GC_TIME,
       });
       return (result === UNDEFINED_SENTINEL ? undefined : result) as Uint8Array | undefined;
     };
   }
-  const inflight = new Map<string, Promise<Uint8Array | undefined>>();
-  return (cacheKey, fn) => {
+
+  function readShared(
+    cacheKey: unknown[],
+    fn: (sharedSignal: AbortSignal) => Promise<Uint8Array | undefined>,
+    signal?: AbortSignal,
+  ): Promise<Uint8Array | undefined> {
     const key = JSON.stringify(cacheKey);
-    let promise = inflight.get(key);
-    if (!promise) {
-      // Stores are only required to return a value that can be awaited, not
-      // necessarily a native Promise (e.g. test fixture stores return synchronously),
-      // so wrap with Promise.resolve before relying on `.finally`.
-      promise = Promise.resolve(fn()).finally(() => {
-        inflight.delete(key);
-      });
-      inflight.set(key, promise);
+    let entry = inflight.get(key);
+    if (!entry) {
+      // Once aborted, the read is forgotten, so that later callers start a new one.
+      const forget = () => {
+        if (inflight.get(key) === entry) inflight.delete(key);
+      };
+      const shared = createSharedAbort(forget);
+      const newEntry: InflightRead = {
+        shared,
+        promise: read(cacheKey, fn)(shared.signal).finally(() => {
+          shared.release();
+          forget();
+        }),
+      };
+      entry = newEntry;
+      inflight.set(key, newEntry);
     }
-    return promise;
+    entry.shared.attach(signal);
+    return raceAbortSignal(entry.promise, signal);
+  }
+
+  return async (cacheKey, fn, signal) => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        return await readShared(cacheKey, fn, signal);
+      } catch (error) {
+        if (signal?.aborted || !isAbortError(error) || attempt >= MAX_ABORT_RETRIES) {
+          throw error;
+        }
+      }
+    }
   };
+}
+
+/**
+ * Split the caller's signal from the other request options, since a cached read
+ * is shared and uses a signal of its own.
+ */
+function splitSignal(opts?: RequestInit): [AbortSignal | undefined, RequestInit] {
+  const { signal, ...init } = opts ?? {};
+  return [signal ?? undefined, init];
 }
 
 /**
@@ -138,9 +202,11 @@ export const withQueryClientCache = defineStoreExtension(
         if (uncached) {
           return innerStore.get(key, rest);
         }
+        const [signal, init] = splitSignal(rest);
         return cacheFetch(
           ['zarrStore', cacheKeyPrefix, key],
-          () => innerStore.get(key, rest),
+          sharedSignal => innerStore.get(key, { ...init, signal: sharedSignal }),
+          signal,
         );
       },
       async getRange(...args: Parameters<NonNullable<typeof innerStore['getRange']>>): Promise<Uint8Array | undefined> {
@@ -155,14 +221,16 @@ export const withQueryClientCache = defineStoreExtension(
         if (uncached) {
           return innerStore.getRange(key, range, rest);
         }
+        const [signal, init] = splitSignal(rest);
         return cacheFetch(
           ['zarrStore', cacheKeyPrefix, key, range],
-          () => {
+          (sharedSignal) => {
             if (typeof innerStore.getRange !== 'function') {
               throw new Error('innerStore does not implement getRange');
             }
-            return innerStore.getRange(key, range, rest);
+            return innerStore.getRange(key, range, { ...init, signal: sharedSignal });
           },
+          signal,
         );
       },
     };

@@ -62,7 +62,12 @@ const PAGE_TABLE_MAX_EXTENT = PT_REQUEST_BITS.map(bits => 2 ** bits);
 // 16k × 16k × 4k (X × Y × Z). Finer source levels are not loaded.
 export const MAX_LEVEL_SHAPE = [4096, 16384, 16384];
 // Bricks fetched at once. Each keeps at most 32 source planes in flight.
+// Bricks still loading from a batch that bailed out count toward this limit.
 const BRICK_FETCH_CONCURRENCY = 6;
+// Consecutive request buffer reads that may omit a brick still loading from an
+// earlier batch before its load is aborted. Requests are sampled (one channel and
+// one brick per pixel and frame), so a single read can miss a brick in view.
+const MISSED_REQUESTS_BEFORE_ABORT = 2;
 // Requested bricks beyond the top k that a batch also loads when all their source
 // chunks are already decoded: they cost a copy and an upload, but no fetch.
 const MAX_CACHED_BRICKS_PER_BATCH = 256;
@@ -637,6 +642,11 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   return { requests, remaining, origRequestCount: counts.size };
 }
 
+// Key of a page table coordinate, for sets and maps of bricks.
+function _ptKey({ x, y, z }) {
+  return `${x},${y},${z}`;
+}
+
 /**
  * Order requests so that bricks reading the same source chunk are adjacent and
  * fetched together, sharing one download and decode. Groups keep the order of
@@ -838,9 +848,15 @@ export class VolumeDataManager {
     // Track loading progress
     this.currentRequestCount = 0; // Number of requests currently being processed
     this.totalBricksRequested = 0; // Total number of bricks requested in current batch
-    // Page table coordinates of the current batch: not started, and being fetched.
+    // Page table coordinates of the current batch that have not started loading.
     this.brickQueue = [];
-    this.bricksInFlight = new Set();
+    // Bricks being fetched, by page table key, including those of earlier batches
+    // that bailed out: { ptCoord, controller, isAbortable, missedRequests, promise }.
+    this.brickLoads = new Map();
+    // Ends the current batch's wait early; set while a batch that can bail out runs.
+    this._onBailout = null;
+    // Batches started, so that bricks of earlier batches do not count as progress.
+    this.batchCount = 0;
 
     // Dataset description for the info panel, set by init.
     this.volumeInfo = null;
@@ -878,7 +894,8 @@ export class VolumeDataManager {
     if (this.initStatus !== INIT_STATUS.COMPLETE) return null;
     const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
     const queuedByLevel = new Array(this.zarrStore.resolutions).fill(0);
-    [...this.brickQueue, ...this.bricksInFlight].forEach(({ x, y, z }) => {
+    const loading = Array.from(this.brickLoads.values(), ({ ptCoord }) => ptCoord);
+    [...this.brickQueue, ...loading].forEach(({ x, y, z }) => {
       queuedByLevel[_ptToZarr(x, y, z, ptInfo).resolution] += 1;
     });
     return { queuedByLevel };
@@ -891,10 +908,58 @@ export class VolumeDataManager {
     log.debug('Manually stopping data loading');
     this.noNewRequests = true;
     this.manuallyStopped = true;
-    this.needsBailout = true;
+    this.requestBailout();
+    // Overview loads are kept, so that every channel still has something to show.
+    this._abortBrickLoads(() => true);
     // Reset progress counters to reflect stopped state
     this.currentRequestCount = 0;
     this.totalBricksRequested = 0;
+  }
+
+  /**
+   * Stop the batch in flight early, e.g. when the view has changed: it starts
+   * no further bricks and stops waiting for those still loading, so that the
+   * buffers are read again for the current view. Bricks still loading finish
+   * and upload, unless the next request read finds that they are no longer
+   * needed (see _abortUnrequestedBrickLoads).
+   */
+  requestBailout() {
+    this.needsBailout = true;
+    this._onBailout?.();
+  }
+
+  /**
+   * Abort the loads of bricks from batches that can bail out (not overviews).
+   * @param {(load: object) => boolean} shouldAbort
+   */
+  _abortBrickLoads(shouldAbort) {
+    this.brickLoads.forEach((load) => {
+      if (load.isAbortable && shouldAbort(load)) {
+        log.debug('aborting brick load', load.ptCoord);
+        load.controller.abort();
+      }
+    });
+  }
+
+  /**
+   * Abort loads of bricks that the current view no longer requests, once the
+   * request buffer has omitted them MISSED_REQUESTS_BEFORE_ABORT times in a row,
+   * so that their downloads stop taking bandwidth and fetch slots.
+   * @param {{ x: number, y: number, z: number }[]} requested Page table
+   * coordinates of all bricks in the current request buffer.
+   */
+  _abortUnrequestedBrickLoads(requested) {
+    const requestedKeys = new Set(requested.map(_ptKey));
+    this._abortBrickLoads((load) => {
+      if (requestedKeys.has(_ptKey(load.ptCoord))) {
+        // eslint-disable-next-line no-param-reassign
+        load.missedRequests = 0;
+        return false;
+      }
+      // eslint-disable-next-line no-param-reassign
+      load.missedRequests += 1;
+      return load.missedRequests >= MISSED_REQUESTS_BEFORE_ABORT;
+    });
   }
 
   /**
@@ -1457,7 +1522,7 @@ export class VolumeDataManager {
     // and stop the batch in flight early so that the overview goes next.
     if (this._overviewRequests().length > 0 && !this.manuallyStopped) {
       this.noNewRequests = false;
-      if (this.isBusy) this.needsBailout = true;
+      if (this.isBusy) this.requestBailout();
     }
 
     log.debug('updatedChannels', this.channels);
@@ -1630,6 +1695,9 @@ export class VolumeDataManager {
     if (requests.length === 0) {
       this.noNewRequests = true;
     }
+    // Bricks still loading from a batch that bailed out, e.g. because the camera
+    // moved, are aborted once the current view stops requesting them.
+    this._abortUnrequestedBrickLoads([...requests, ...remaining]);
     // Requests past the top k whose source chunks are already decoded come along.
     const cachedRequests = [];
     for (let i = 0; i < remaining.length
@@ -1655,7 +1723,7 @@ export class VolumeDataManager {
   async processUsageData(buffer, { width } = {}) {
     if (this.isBusy) {
       log.debug('processUsageData: already busy, skipping');
-      this.needsBailout = true; // Set a flag to indicate we need to bail out of processing requests
+      this.requestBailout();
       return;
     }
 
@@ -1857,10 +1925,12 @@ export class VolumeDataManager {
  * ------------------------------------------------------------- */
   /**
    * Read and convert one brick. Safe to run concurrently.
+   * @param {{ x: number, y: number, z: number }} ptCoord
+   * @param {{ signal?: AbortSignal }} options Aborts the brick's source reads.
    * @returns {Promise<{ chunk: Uint8Array, min: number, max: number, channel: number }|null>}
    * The brick, or null if it cannot be loaded.
    */
-  async _fetchBrick(ptCoord) {
+  async _fetchBrick(ptCoord, { signal } = {}) {
     log.debug('fetching brick', ptCoord);
 
     // Check for context loss before proceeding
@@ -1939,7 +2009,7 @@ export class VolumeDataManager {
     // A logical brick: padded to 32^3 by edge replication, Z reduced per level.
     let { data: chunk } = await this.brickSource.readBrick({
       level: resolution, t: 0, c: zarrChannel, bx: x, by: y, bz: z,
-    });
+    }, { signal });
     log.debug('chunk', chunk);
 
     // The brick cache is uint8: map other dtypes (uint16, float32, ...) from the
@@ -2098,101 +2168,172 @@ export class VolumeDataManager {
  * 5. Public: handle a batch of PT requests (array of {x,y,z})   *
  * ------------------------------------------------------------- */
   /**
+   * Fetch one brick, then upload it to a brick cache slot. The load stays in
+   * brickLoads until it settles, so that later batches join it instead of
+   * fetching the brick again, and can abort it once it is no longer requested.
+   * @param {{ x: number, y: number, z: number }} ptCoord
+   * @param {object} options
+   * @param {boolean} options.isAbortable Whether the load may be aborted when the
+   * view no longer requests the brick; overview bricks are not.
+   * @returns {object} The load. Its promise never rejects: it resolves to
+   * { ptCoord, bcIndex } once uploaded, or null.
+   */
+  _startBrickLoad(ptCoord, { isAbortable }) {
+    const key = _ptKey(ptCoord);
+    const controller = new AbortController();
+    const load = {
+      ptCoord,
+      controller,
+      isAbortable,
+      missedRequests: 0,
+      batch: this.batchCount,
+      result: undefined,
+    };
+    this.brickLoads.set(key, load);
+    load.promise = (async () => {
+      let result = null;
+      try {
+        const brick = await this._fetchBrick(ptCoord, { signal: controller.signal });
+        // A brick that arrived although aborted meanwhile is still worth keeping.
+        if (brick) {
+          const [slot] = this._allocateBCSlots(1);
+          if (slot && this._writeBrick(ptCoord, slot, brick)) {
+            result = { ptCoord, bcIndex: slot.bcIndex };
+          }
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) log.error('Failed to fetch brick', ptCoord, error);
+      }
+      // A load that was aborted may already have been replaced by a new one.
+      if (this.brickLoads.get(key) === load) this.brickLoads.delete(key);
+      // Bricks of earlier batches do not count toward the progress of this one.
+      // stopLoading zeroes the count while fetches are in flight.
+      if (load.batch === this.batchCount) {
+        this.currentRequestCount = Math.max(0, this.currentRequestCount - 1);
+      }
+      if (controller.signal.aborted) {
+        log.debug('brick load aborted', ptCoord);
+      } else {
+        const loadedCount = this.bricksEverLoaded.size;
+        this.bricksEverLoaded.add(key);
+        if (loadedCount === this.bricksEverLoaded.size) {
+          log.debug('DUPLICATE BRICK LOADED', ptCoord);
+        }
+      }
+      load.result = result;
+      return result;
+    })();
+    return load;
+  }
+
+  /**
    * @param {{ x: number, y: number, z: number }[]} requests Page table coordinates.
    * @param {object} options
-   * @param {boolean} options.canBailOut Whether needsBailout may stop the batch early.
-   * @returns {Promise<{ ptCoord: object, bcIndex: number }[]>} The uploaded bricks.
+   * @param {boolean} options.canBailOut Whether a bail-out (requestBailout or
+   * needsBailout) may end the batch early. Its bricks still loading then keep
+   * loading, but may be aborted once no longer requested. Bricks of batches that
+   * cannot bail out, the overviews, are never aborted.
+   * @returns {Promise<{ ptCoord: object, bcIndex: number }[]>} The bricks
+   * uploaded before the batch ended.
    */
   async handleBrickRequests(requests, { canBailOut = true } = {}) {
-    // log.debug('handleBrickRequests');
-    // Skip duplicates and bricks that are already resident.
-    const ptKey = ({ x, y, z }) => `${x},${y},${z}`;
-    const skipped = new Set(this.bc2pt.filter(Boolean).map(ptKey));
+    // Skip duplicates and bricks that are already resident. Bricks still loading,
+    // from a batch that bailed out, are joined instead of fetched again.
+    const skipped = new Set(this.bc2pt.filter(Boolean).map(_ptKey));
+    const joined = [];
     const unique = requests.filter((ptCoord) => {
-      const key = ptKey(ptCoord);
+      const key = _ptKey(ptCoord);
       if (skipped.has(key)) return false;
       skipped.add(key);
+      const load = this.brickLoads.get(key);
+      if (load && !load.controller.signal.aborted) {
+        load.missedRequests = 0;
+        if (!canBailOut) load.isAbortable = false;
+        joined.push(load);
+        return false;
+      }
       return true;
     });
-    if (unique.length === 0) return [];
+    if (unique.length === 0 && joined.length === 0) return [];
     // A bail-out asked for while an earlier batch ran was meant for that batch,
     // e.g. one that could not bail out; this batch comes from the current view.
     if (canBailOut) this.needsBailout = false;
+
+    this.batchCount += 1;
+    joined.forEach((load) => {
+      // eslint-disable-next-line no-param-reassign
+      load.batch = this.batchCount;
+    });
 
     // Bricks that read the same source chunk run together and share its download.
     const chunkKeys = new Map(unique.map(ptCoord => [ptCoord, this._requestChunkKeys(ptCoord)]));
     const pending = _groupBySourceChunk(unique, ptCoord => chunkKeys.get(ptCoord));
 
     // Track loading progress
-    this.totalBricksRequested = pending.length;
-    this.currentRequestCount = pending.length;
+    this.totalBricksRequested = pending.length + joined.length;
+    this.currentRequestCount = this.totalBricksRequested;
     this.brickQueue = pending;
 
-    log.debug('Handling brick requests:', { requestCount: pending.length });
+    log.debug('Handling brick requests:', { requestCount: pending.length, joined: joined.length });
+
+    // A bail-out ends every wait of the batch at once, including waits for
+    // fetches in flight, so that the next request read is not held up by them.
+    let isBailingOut = false;
+    let onBailout = null;
+    const bailedOut = new Promise((resolve) => {
+      if (!canBailOut) return; // Never settles.
+      onBailout = () => {
+        log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
+        isBailingOut = true;
+        this.needsBailout = false;
+        resolve();
+      };
+      this._onBailout = onBailout;
+    });
 
     // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once. A brick whose source
     // chunks are already decoded goes first, since it needs no fetch. Each brick
     // takes a cache slot and is uploaded as soon as its fetch completes, so a
     // bail-out evicts nothing for bricks that were never fetched.
-    const uploaded = [];
-    let isBailingOut = false;
+    const loads = [...joined];
     const fetchNext = async () => {
       while (pending.length > 0 && !isBailingOut) {
-        const cachedIndex = pending.findIndex(
-          ptCoord => this._areChunksCached(chunkKeys.get(ptCoord)),
-        );
-        const [ptCoord] = pending.splice(Math.max(0, cachedIndex), 1);
-        this.bricksInFlight.add(ptCoord);
-        let brick;
-        try {
+        if (this.brickLoads.size >= BRICK_FETCH_CONCURRENCY) {
+          // Wait for a free fetch slot, e.g. one held by a brick of an earlier batch.
           // eslint-disable-next-line no-await-in-loop
-          brick = await this._fetchBrick(ptCoord);
-        } catch (error) {
-          log.error('Failed to fetch brick', ptCoord, error);
+          await Promise.race([
+            ...Array.from(this.brickLoads.values(), ({ promise }) => promise),
+            bailedOut,
+          ]);
+        } else {
+          const cachedIndex = pending.findIndex(
+            ptCoord => this._areChunksCached(chunkKeys.get(ptCoord)),
+          );
+          const [ptCoord] = pending.splice(Math.max(0, cachedIndex), 1);
+          const load = this._startBrickLoad(ptCoord, { isAbortable: canBailOut });
+          loads.push(load);
+          // eslint-disable-next-line no-await-in-loop
+          await Promise.race([load.promise, bailedOut]);
         }
-        this.bricksInFlight.delete(ptCoord);
-        if (brick) {
-          const [slot] = this._allocateBCSlots(1);
-          if (slot && this._writeBrick(ptCoord, slot, brick)) {
-            uploaded.push({ ptCoord, bcIndex: slot.bcIndex });
-          }
-        }
-
-        // Update progress. stopLoading zeroes the count while fetches are in flight.
-        this.currentRequestCount = Math.max(0, this.currentRequestCount - 1);
-
-        const rlength = this.bricksEverLoaded.size;
-        this.bricksEverLoaded.add(ptKey(ptCoord));
-        if (rlength === this.bricksEverLoaded.size) {
-          log.debug('DUPLICATE BRICK LOADED', ptCoord);
-        }
-
-        if (canBailOut && this.needsBailout) {
-          // Stop starting new fetches; those in flight still finish and upload.
-          log.debug('Bailing out of handleBrickRequests early due to needsBailout flag');
-          this.needsBailout = false; // Reset the flag
-          isBailingOut = true;
-        }
+        // Also bail out when needsBailout was set directly.
+        if (canBailOut && this.needsBailout && !isBailingOut) onBailout();
       }
     };
     await Promise.all(Array.from(
       { length: Math.min(BRICK_FETCH_CONCURRENCY, pending.length) },
       fetchNext,
     ));
+    // Bricks still loading, including those joined from earlier batches.
+    await Promise.race([Promise.all(loads.map(({ promise }) => promise)), bailedOut]);
+    if (this._onBailout === onBailout) this._onBailout = null;
 
     // Reset progress when complete
     this.currentRequestCount = 0;
     // After a bail-out, the bricks never started are no longer queued.
     this.brickQueue = [];
 
-    // log.debug('this.bricksAllocated', this.bricksAllocated);
     log.debug('this.bricksEverLoaded', this.bricksEverLoaded);
-    // log.debug('uploaded bricks');
-
-    /* let Three.js know textures changed */
-    // this.bcTHREE.needsUpdate = true;
-    // this.ptTHREE.needsUpdate = true;
-    return uploaded;
+    return loads.map(({ result }) => result).filter(Boolean);
   }
 
   /* --------------------------------------------------------- *
