@@ -56,7 +56,7 @@ describe('SpatialOptions.js', () => {
 
     describe('volume loading options', () => {
       const MAX_LABEL = 'Maximum number of volume bricks fetched at once';
-      const PROGRESSIVE_LABEL = 'Load coarser volume resolutions before finer ones';
+      const SKIP_LABEL = 'Skip intermediate volume resolutions instead of loading coarser ones before finer ones';
       function renderOptions(props = {}) {
         render(<SpatialOptions
           spatialAxisFixed={false}
@@ -74,23 +74,18 @@ describe('SpatialOptions.js', () => {
       it('are shown only for the accelerated 3D view', () => {
         renderOptions({ hasVolumeLoadingOptions: false });
         expect(screen.queryByLabelText(MAX_LABEL)).toBeNull();
-        expect(screen.queryByLabelText(PROGRESSIVE_LABEL)).toBeNull();
+        expect(screen.queryByLabelText(SKIP_LABEL)).toBeNull();
       });
 
       it('reflect the current values', () => {
         renderOptions({ volumeProgressiveLoading: true });
         expect(screen.getByLabelText(MAX_LABEL).value).toBe('10');
-        expect(screen.getByLabelText(PROGRESSIVE_LABEL).checked).toBe(true);
+        expect(screen.getByLabelText(SKIP_LABEL).checked).toBe(false);
       });
 
-      it('set the maximum number of concurrent brick requests, including no limit', () => {
-        const setMax = vi.fn();
-        renderOptions({ setVolumeMaxConcurrentBrickRequests: setMax });
-        fireEvent.change(screen.getByLabelText(MAX_LABEL), { target: { value: '24' } });
-        expect(setMax).toHaveBeenLastCalledWith(24);
-        fireEvent.change(screen.getByLabelText(MAX_LABEL), { target: { value: 'Infinity' } });
-        expect(setMax).toHaveBeenLastCalledWith(Infinity);
-        expect(screen.getByText('No limit')).toBeTruthy();
+      it('check skip intermediate resolutions when progressive loading is off', () => {
+        renderOptions({ volumeProgressiveLoading: false });
+        expect(screen.getByLabelText(SKIP_LABEL).checked).toBe(true);
       });
 
       it('offer a maximum set by the view config that is not among the choices', () => {
@@ -98,17 +93,30 @@ describe('SpatialOptions.js', () => {
         expect(screen.getByLabelText(MAX_LABEL).value).toBe('12');
       });
 
-      it('toggle progressive loading', () => {
+      it('enable progressive loading when skip intermediate resolutions is unchecked', () => {
         const setProgressive = vi.fn();
-        renderOptions({ setVolumeProgressiveLoading: setProgressive });
-        fireEvent.click(screen.getByLabelText(PROGRESSIVE_LABEL));
+        renderOptions({
+          volumeProgressiveLoading: false,
+          setVolumeProgressiveLoading: setProgressive,
+        });
+        fireEvent.click(screen.getByLabelText(SKIP_LABEL));
         expect(setProgressive).toHaveBeenCalledWith(true);
+      });
+
+      it('disable progressive loading when skip intermediate resolutions is checked', () => {
+        const setProgressive = vi.fn();
+        renderOptions({
+          volumeProgressiveLoading: true,
+          setVolumeProgressiveLoading: setProgressive,
+        });
+        fireEvent.click(screen.getByLabelText(SKIP_LABEL));
+        expect(setProgressive).toHaveBeenCalledWith(false);
       });
 
       it('are disabled outside of 3D', () => {
         renderOptions({ use3d: false });
         expect(screen.getByLabelText(MAX_LABEL).disabled).toBe(true);
-        expect(screen.getByLabelText(PROGRESSIVE_LABEL).disabled).toBe(true);
+        expect(screen.getByLabelText(SKIP_LABEL).disabled).toBe(true);
       });
     });
   });

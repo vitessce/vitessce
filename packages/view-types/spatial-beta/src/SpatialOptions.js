@@ -48,9 +48,12 @@ function getMaxConcurrentBrickRequestOptions(value) {
  * the toggle is hidden (hasCameraAxisOption: false) while they are in use.
  *
  * With the accelerated 3D view (hasVolumeLoadingOptions), also its brick loading
- * options: the maximum number of bricks fetched at once, and progressive
- * (coarse-to-fine) loading. They correspond to the volumeMaxConcurrentBrickRequests
- * and volumeProgressiveLoading props of the view.
+ * options: whether to skip intermediate resolutions, and the maximum number of
+ * bricks fetched at once. They correspond to the volumeProgressiveLoading and
+ * volumeMaxConcurrentBrickRequests props of the view. The "Skip Intermediate
+ * Resolutions" checkbox is the inverse of volumeProgressiveLoading: when it is
+ * checked, the view jumps from the overview to full resolution instead of
+ * refining one level at a time (coarse-to-fine).
  */
 export default function SpatialOptions(props) {
   const {
@@ -110,7 +113,7 @@ export default function SpatialOptions(props) {
                 disabled={!use3d}
                 checked={Boolean(!volumeProgressiveLoading)}
                 slotProps={{ input: {
-                  'aria-label': 'Load coarser volume resolutions before finer ones',
+                  'aria-label': 'Skip intermediate volume resolutions instead of loading coarser ones before finer ones',
                   id: `spatial-volume-progressive-loading-${optionsId}`,
                 } }}
               />
