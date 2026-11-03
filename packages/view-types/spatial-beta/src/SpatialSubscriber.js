@@ -156,6 +156,10 @@ export function SpatialSubscriber(props) {
     // Z reduction of coarse levels in the accelerated 3D view:
     // 'auto' | 'none' | 'sample' | 'mean' | 'max'. Read once when the volume loads.
     volumeZReduction = 'auto',
+    // Maximum number of bricks the accelerated 3D view fetches at once: a positive
+    // integer, or Infinity for no limit. Unset uses the default (6). Batches grow
+    // with it (at least 40 bricks, at most a quarter of the brick cache).
+    volumeMaxConcurrentBrickRequests = 100,
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
@@ -1096,6 +1100,7 @@ export function SpatialSubscriber(props) {
               onEntitySelected={onEntitySelected}
               onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
               volumeZReduction={volumeZReduction}
+              volumeMaxConcurrentBrickRequests={volumeMaxConcurrentBrickRequests}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}

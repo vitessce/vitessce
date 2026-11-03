@@ -61,9 +61,28 @@ const PAGE_TABLE_MAX_EXTENT = PT_REQUEST_BITS.map(bits => 2 ** bits);
 // Largest level (ZYX, in voxels) whose page table addresses can be encoded:
 // 16k × 16k × 4k (X × Y × Z). Finer source levels are not loaded.
 export const MAX_LEVEL_SHAPE = [4096, 16384, 16384];
-// Bricks fetched at once. Each keeps at most 32 source planes in flight.
-// Bricks still loading from a batch that bailed out count toward this limit.
-const BRICK_FETCH_CONCURRENCY = 6;
+// Bricks fetched at once, unless set with setMaxConcurrentBrickRequests. Each
+// keeps at most 32 source planes in flight. Bricks still loading from a batch
+// that bailed out count toward this limit.
+export const DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS = 6;
+// Bricks per batch (k): the top requests by weight. A batch must hold at least
+// as many bricks as may be fetched at once, or the fetch limit could never be
+// reached; it follows the limit above this minimum. A batch waits for all of its
+// bricks before the request buffer is read again, so smaller batches
+// reprioritize sooner.
+export const MIN_BRICKS_PER_BATCH = 40;
+// Upper bound of k, so that one batch cannot evict much of what is in view from
+// the brick cache, e.g. with no fetch limit at all.
+export const MAX_BRICKS_PER_BATCH = TOTAL_NUM_BRICKS / 4;
+
+/**
+ * Bricks per batch for a fetch limit.
+ * @param {number} maxConcurrentBrickRequests A positive integer or Infinity.
+ * @returns {number}
+ */
+export function _getBricksPerBatch(maxConcurrentBrickRequests) {
+  return Math.min(MAX_BRICKS_PER_BATCH, Math.max(MIN_BRICKS_PER_BATCH, maxConcurrentBrickRequests));
+}
 // Consecutive request buffer reads that may omit a brick still loading from an
 // earlier batch before its load is aborted. Requests are sampled (one channel and
 // one brick per pixel and frame), so a single read can miss a brick in view.
@@ -832,7 +851,9 @@ export class VolumeDataManager {
     this.triggerUsage = true;
     this.triggerRequest = false;
     this.timeStamp = 0;
-    this.k = 40;
+    // Bricks per batch, and the minimum length of LRUStack. Follows the fetch
+    // limit (see setMaxConcurrentBrickRequests and _getBricksPerBatch).
+    this.k = _getBricksPerBatch(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS);
     this.noNewRequests = false;
     this.manuallyStopped = false; // Flag to track if user manually stopped loading
 
@@ -857,6 +878,7 @@ export class VolumeDataManager {
     this._onBailout = null;
     // Batches started, so that bricks of earlier batches do not count as progress.
     this.batchCount = 0;
+    this.maxConcurrentBrickRequests = DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS;
 
     // Dataset description for the info panel, set by init.
     this.volumeInfo = null;
@@ -914,6 +936,28 @@ export class VolumeDataManager {
     // Reset progress counters to reflect stopped state
     this.currentRequestCount = 0;
     this.totalBricksRequested = 0;
+  }
+
+  /**
+   * Set how many bricks may be fetched at once, and with it the bricks per
+   * batch (k), so that a batch can use every fetch slot. Takes effect for
+   * fetches and batches not yet started. Higher limits help with servers that
+   * allow many parallel requests (e.g. over HTTP/2), at the cost of more decoded
+   * chunks held in memory at once.
+   * @param {number|null|undefined} value A positive integer, or Infinity for no
+   * limit. null or undefined restores the default.
+   */
+  setMaxConcurrentBrickRequests(value) {
+    let limit = value;
+    if (value === null || value === undefined) {
+      limit = DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS;
+    } else if (!(value === Infinity || (Number.isInteger(value) && value > 0))) {
+      log.warn('Expected a positive integer or Infinity for the maximum number of '
+        + `concurrent brick requests, got ${value}; using ${DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS}`);
+      limit = DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS;
+    }
+    this.maxConcurrentBrickRequests = limit;
+    this.k = _getBricksPerBatch(limit);
   }
 
   /**
@@ -2291,14 +2335,14 @@ export class VolumeDataManager {
       this._onBailout = onBailout;
     });
 
-    // Fetch up to BRICK_FETCH_CONCURRENCY bricks at once. A brick whose source
+    // Fetch up to maxConcurrentBrickRequests bricks at once. A brick whose source
     // chunks are already decoded goes first, since it needs no fetch. Each brick
     // takes a cache slot and is uploaded as soon as its fetch completes, so a
     // bail-out evicts nothing for bricks that were never fetched.
     const loads = [...joined];
     const fetchNext = async () => {
       while (pending.length > 0 && !isBailingOut) {
-        if (this.brickLoads.size >= BRICK_FETCH_CONCURRENCY) {
+        if (this.brickLoads.size >= this.maxConcurrentBrickRequests) {
           // Wait for a free fetch slot, e.g. one held by a brick of an earlier batch.
           // eslint-disable-next-line no-await-in-loop
           await Promise.race([
@@ -2320,7 +2364,7 @@ export class VolumeDataManager {
       }
     };
     await Promise.all(Array.from(
-      { length: Math.min(BRICK_FETCH_CONCURRENCY, pending.length) },
+      { length: Math.min(this.maxConcurrentBrickRequests, pending.length) },
       fetchNext,
     ));
     // Bricks still loading, including those joined from earlier batches.

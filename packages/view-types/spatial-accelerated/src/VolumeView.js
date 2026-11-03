@@ -223,6 +223,9 @@ export function VolumeView(props) {
     onVolumeLoadingUpdate,
     onDataManagerReady,
     volumeZReduction = 'auto',
+    // Bricks fetched at once: a positive integer, or Infinity for no limit.
+    // Unset uses DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS. Can change at any time.
+    volumeMaxConcurrentBrickRequests,
   } = props;
   const {
     gl,
@@ -284,6 +287,11 @@ export function VolumeView(props) {
   const dataManager = useMemo(() => new VolumeDataManager(gl), [gl]);
 
   const renderManager = useMemo(() => new VolumeRenderManager(), []);
+
+  // Applies to brick fetches not yet started.
+  useEffect(() => {
+    dataManager.setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
+  }, [dataManager, volumeMaxConcurrentBrickRequests]);
 
   useEffect(() => {
     logWithColor('useEffect MRT target matching canvas');

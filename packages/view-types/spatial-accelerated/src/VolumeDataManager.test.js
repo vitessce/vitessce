@@ -17,6 +17,10 @@ import {
   _getDataRange,
   _toUint8,
   _zarrToPt,
+  DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS,
+  MIN_BRICKS_PER_BATCH,
+  MAX_BRICKS_PER_BATCH,
+  _getBricksPerBatch,
   VolumeDataManager,
 } from './VolumeDataManager.js';
 
@@ -648,12 +652,14 @@ describe('spatial-accelerated data utils', () => {
     describe('aborting bricks that are no longer requested', () => {
       // Reads that wait until released or aborted.
       function withPendingBrickSource(manager) {
-        const reads = new Map(); // brick -> { signal, release }
+        const reads = new Map(); // brick bz -> { signal, release }
+        const counts = { started: 0 };
         // eslint-disable-next-line no-param-reassign
         manager.brickSource = {
           brickChunkKeys: () => null,
           isChunkCached: () => false,
           readBrick(brick, { signal } = {}) {
+            counts.started += 1;
             return new Promise((resolve, reject) => {
               reads.set(brick.bz, {
                 signal,
@@ -672,7 +678,7 @@ describe('spatial-accelerated data utils', () => {
         const settled = () => Promise.all(
           Array.from(manager.brickLoads.values(), ({ promise }) => promise),
         );
-        return { reads, settled };
+        return { reads, counts, settled };
       }
 
       it('aborts bricks of a bailed-out batch that the next request reads omit', async () => {
@@ -752,6 +758,77 @@ describe('spatial-accelerated data utils', () => {
         expect(reads.size).toBe(7);
         manager.requestBailout();
         await second;
+      });
+
+      it('fetches as many bricks at once as maxConcurrentBrickRequests allows', async () => {
+        const { manager, PT } = createManager();
+        const { counts } = withPendingBrickSource(manager);
+        // Level 0 has 9 x 9 x 8 bricks.
+        const requests = Array.from(
+          { length: 20 }, (_, i) => _zarrToPt(0, 0, i % 9, Math.floor(i / 9), 0, PT),
+        );
+        manager.setMaxConcurrentBrickRequests(10);
+        const limited = manager.handleBrickRequests(requests.slice(0, 15));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(10);
+        manager.stopLoading();
+        await limited;
+        manager.restartLoading();
+        counts.started = 0;
+        // No limit: every brick of the batch starts at once.
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        const unlimited = manager.handleBrickRequests(requests);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(20);
+        manager.stopLoading();
+        await unlimited;
+      });
+
+      it('falls back to the default limit for unset or invalid values', () => {
+        const { manager } = createManager();
+        [undefined, null, 0, -1, 2.5, Number.NaN, '8'].forEach((value) => {
+          manager.setMaxConcurrentBrickRequests(32);
+          manager.setMaxConcurrentBrickRequests(value);
+          expect(manager.maxConcurrentBrickRequests).toBe(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS);
+          expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+        });
+      });
+
+      it('sizes batches to the fetch limit, within the brick cache bounds', () => {
+        expect(_getBricksPerBatch(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS))
+          .toBe(MIN_BRICKS_PER_BATCH);
+        expect(_getBricksPerBatch(100)).toBe(100);
+        expect(_getBricksPerBatch(Infinity)).toBe(MAX_BRICKS_PER_BATCH);
+        const { manager } = createManager();
+        expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+        manager.setMaxConcurrentBrickRequests(100);
+        expect(manager.k).toBe(100);
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        expect(manager.k).toBe(MAX_BRICKS_PER_BATCH);
+        manager.setMaxConcurrentBrickRequests(undefined);
+        expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+      });
+
+      it('fetches more than the default batch at once when the limit allows', async () => {
+        const { manager, PT } = createManager();
+        const { counts } = withPendingBrickSource(manager);
+        manager.initStatus = 'complete';
+        // No overview loads left to try, so the batch goes to the regular requests.
+        manager.overviewAttempts.set(0, 3).set(1, 3);
+        // One pixel for each of 60 distinct level-0 bricks.
+        const pixels = Array.from(
+          { length: 60 }, (_, i) => _zarrToPt(0, 0, i % 9, Math.floor(i / 9), 0, PT),
+        );
+        const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+        pixels.forEach(({ x, y, z }, i) => {
+          buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+        });
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        const handled = manager.processRequestData(new Uint8Array(buffer.buffer), {});
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(60);
+        manager.stopLoading();
+        await handled;
       });
     });
 
