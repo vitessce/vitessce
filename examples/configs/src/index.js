@@ -93,8 +93,6 @@ import { humanLiver } from './view-configs/3d-maps/human-liver.js';
 import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
-import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
-import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
 import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-neuroglancer-with-segments.js';
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
@@ -123,6 +121,7 @@ import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko
 import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
 import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
+import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
 // Nature Methods figures
@@ -252,9 +251,7 @@ export const configs = {
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
   // Neuroglancer
-  'melanoma-neuroglancer': melanomaNeuroglancer,
   'melanoma-neuroglancer-segments': melanomaNeuroglancerSegments,
-  'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
   'neuroglancer-sorger': neuroglancerSorger,
@@ -266,6 +263,7 @@ export const configs = {
   'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
   'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
+  'neuroglancer-washu-kidney': neuroglancerWashuKidney,
   'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
   'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated

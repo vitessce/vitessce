@@ -116,6 +116,7 @@ export default class SpatialDataObsSegmentationsLoader extends AbstractTwoStepLo
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
       featureValueColormap: GLSL_COLORMAP_DEFAULT,
+      featureAggregationStrategy: null,
     }];
 
     const coordinationValues = {

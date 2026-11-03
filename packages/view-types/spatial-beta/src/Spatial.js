@@ -4,7 +4,7 @@ import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import { Matrix4 } from 'math.gl';
 import {
-  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer, SpotLayer,
 } from '@vitessce/gl';
 import { filterSelection } from '@vitessce/spatial-utils';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -338,6 +338,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       spatialLayerVisible,
       spatialLayerOpacity,
       spatialSpotRadius,
+      spatialSpotShape,
       spatialSpotFilled,
       spatialSpotStrokeWidth,
       obsColorEncoding,
@@ -351,7 +352,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       ? spatialLayerColor
       : getDefaultColor(theme);
 
-    return new deck.ScatterplotLayer({
+    return new SpotLayer({
       id: `${SPOT_LAYER_PREFIX}${layerScope}`,
       data: this.obsSpotsData[layerScope],
       coordinateSystem: deck.COORDINATE_SYSTEM.CARTESIAN,
@@ -363,6 +364,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       getLineWidth: !spatialSpotFilled ? spatialSpotStrokeWidth : 0,
       visible: spatialLayerVisible,
       getRadius: spatialSpotRadius,
+      spotShape: spatialSpotShape,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsSpots.data[0][index];
@@ -410,7 +412,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       featureFilterMode,
       featureColor,
       spatialLayerOpacityUnselected,
+      spatialPointRadius,
+      spatialPointStrokeWidth,
     } = layerCoordination;
+
+    const pointRadius = spatialPointRadius ?? 2.5;
+    const pointRadiusMaxPixels = pointRadius * 0.6;
+    const pointLineWidth = spatialPointStrokeWidth ?? 0.0;
+    const pointLineColor = [0, 0, 0];
+    const arePointsStroked = pointLineWidth > 0.0;
 
     // Obtain the numeric indices of the selected features, to use for filtering.
     // Note: this assumes that the feature names have been mapped to indices,
@@ -704,6 +714,21 @@ class Spatial extends AbstractSpatialOrScatterplot {
       }
     }
 
+    const getLineColor = (object, { index, data, target }) => {
+      // Here, we call getFillColor so that we can reuse its opacity logic,
+      // which also effectively filters out the un-selected points.
+      getFillColor(object, { index, data, target });
+      // Below, we give every point the same line color,
+      // to match the behavior of points in the Neuroglancer view.
+      // eslint-disable-next-line no-param-reassign
+      target[0] = pointLineColor[0];
+      // eslint-disable-next-line no-param-reassign
+      target[1] = pointLineColor[1];
+      // eslint-disable-next-line no-param-reassign
+      target[2] = pointLineColor[2];
+      return target;
+    };
+
     const {
       obsPointsModelMatrix,
       obsPoints,
@@ -752,6 +777,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         autoHighlight: true,
         onHover: info => delegateHover(info, 'point', layerScope),
         opacity: 1.0,
+        // deck.gl's TileLayer ignores changes to `renderSubLayers` itself (it's marked
+        // `compare: false` internally, since it's usually just a fresh inline function
+        // every render), so simply updating pointRadius/pointLineWidth inside this
+        // closure won't make the tiles re-render on their own. This key is a dummy
+        // value that changes whenever the point size or stroke width changes, just so
+        // TileLayer re-renders the tiles.
+        // It's separate from getTileData's updateTriggers on purpose, so we don't
+        // re-fetch tile data -- we only want the existing data to be redrawn.
+        pointStyleKey: `${pointRadius}_${pointRadiusMaxPixels}_${pointLineWidth}`,
         visible: spatialLayerVisible,
         // Since points are tiled but not multi-resolution,
         // it provides no benefit to request tiles at different zoom levels.
@@ -799,13 +833,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
         renderSubLayers: (subLayerProps) => {
           const { bbox, content: tileData } = subLayerProps.tile;
           const { left, top, right, bottom } = bbox;
-
           // Render scatterplot layer as sublayer of the TileLayer.
           return new deck.ScatterplotLayer(subLayerProps, {
             bounds: [left, top, right, bottom],
             data: tileData,
-            getRadius: 5,
-            radiusMaxPixels: 3,
+            getRadius: pointRadius,
+            radiusMaxPixels: pointRadiusMaxPixels,
+            stroked: arePointsStroked,
+            getLineWidth: pointLineWidth,
+            getLineColor,
             // getPosition: d => d,
             // getFillColor: [255, 0, 0],
             getPosition: (object, { data, index, target }) => {
@@ -881,8 +917,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
       opacity: spatialLayerOpacity,
       visible: spatialLayerVisible,
       modelMatrix,
-      getRadius: 5,
-      radiusMaxPixels: 3,
+      getRadius: pointRadius,
+      radiusMaxPixels: pointRadiusMaxPixels,
+      stroked: arePointsStroked,
+      getLineWidth: pointLineWidth,
+      getLineColor,
       getPosition: (object, { data, index, target }) => {
         // eslint-disable-next-line no-param-reassign
         target[0] = data.src.obsPoints.data[0][index];
@@ -2058,7 +2097,11 @@ class Spatial extends AbstractSpatialOrScatterplot {
   }
 
   recenter() {
-    const { originalViewState, setViewState } = this.props;
+    const { originalViewState, setViewState, onRequestCameraReset } = this.props;
+    if (onRequestCameraReset) {
+      onRequestCameraReset();
+      return;
+    }
     if (Array.isArray(originalViewState?.target) && typeof originalViewState?.zoom === 'number') {
       setViewState(originalViewState);
     }

@@ -66,9 +66,13 @@ export default function SpatialOptions(props) {
     setVolumeMaxConcurrentBrickRequests,
     volumeProgressiveLoading,
     setVolumeProgressiveLoading,
+    spatialBackgroundTheme,
+    setSpatialBackgroundTheme,
   } = props;
-
+  
   const optionsId = useId();
+  const toggleAxisId = useId();
+  const backgroundId = useId();
   const { classes } = useStyles();
   const { classes: plotOptionsClasses } = usePlotOptionsStyles();
 
@@ -147,6 +151,25 @@ export default function SpatialOptions(props) {
           </TableRow>
         </>
       ) : null}
+      <TableRow>
+        <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+          <label htmlFor={`spatial-background-${backgroundId}`}>
+            Light Background
+          </label>
+        </TableCell>
+        <TableCell className={classes.spatialBetaToggleBox} variant="body">
+          <Checkbox
+            onClick={() => setSpatialBackgroundTheme(
+              spatialBackgroundTheme === 'light' ? 'dark' : 'light',
+            )}
+            checked={spatialBackgroundTheme === 'light'}
+            slotProps={{ input: {
+              'aria-label': 'Toggle light or dark background',
+              id: `spatial-background-${backgroundId}`,
+            } }}
+          />
+        </TableCell>
+      </TableRow>
     </OptionsContainer>
   );
 }

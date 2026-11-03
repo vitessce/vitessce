@@ -200,6 +200,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialBackgroundTheme,
     spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
@@ -226,6 +227,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialBackgroundTheme,
     setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
@@ -256,6 +258,9 @@ export function SpatialSubscriber(props) {
   // A non-null camera snapshot in the coordination space indicates
   // that a neuroglancer view is present and is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
+  const requestCameraReset = useCallback(() => {
+    setSpatialCameraSnapshot(null);
+  }, [setSpatialCameraSnapshot]);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -375,6 +380,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_SHAPE,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -414,6 +420,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -573,7 +581,9 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionNormDataAggregated,
     spotMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForLayers({
-    multiExpressionData: spotMultiExpressionNormData,
+    multiExpressionData: spotMultiExpressionData,
+    multiExpressionNormData: spotMultiExpressionNormData,
+    multiExpressionExtents: spotMultiExpressionExtents,
     layerScopes: spotLayerScopes,
     layerCoordination: spotLayerCoordination,
   });
@@ -582,7 +592,9 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionNormDataAggregated,
     segmentationMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForChannels({
-    multiExpressionData: segmentationMultiExpressionNormData,
+    multiExpressionData: segmentationMultiExpressionData,
+    multiExpressionNormData: segmentationMultiExpressionNormData,
+    multiExpressionExtents: segmentationMultiExpressionExtents,
     layerScopes: segmentationLayerScopes,
     layerCoordination: segmentationLayerCoordination,
     channelScopesByLayer: segmentationChannelScopesByLayer,
@@ -1081,7 +1093,8 @@ export function SpatialSubscriber(props) {
       isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
-      options={(hasCameraAxisOption || hasVolumeLoadingOptions) ? (
+      spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+      options={(
         <SpatialOptions
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
@@ -1092,8 +1105,10 @@ export function SpatialSubscriber(props) {
           setVolumeMaxConcurrentBrickRequests={setMaxConcurrentBrickRequests}
           volumeProgressiveLoading={isProgressiveLoadingEnabled}
           setVolumeProgressiveLoading={setIsProgressiveLoadingEnabled}
+          spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+          setSpatialBackgroundTheme={setSpatialBackgroundTheme}
         />
-      ) : null}
+      )}
     >
       {
         shouldUseThree ? (
@@ -1267,7 +1282,8 @@ export function SpatialSubscriber(props) {
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            hideRecenter={hasSpatialCameraSnapshot}
+            // Synced to Neuroglancer: recenter asks NG to restore its home camera (snapshot follows).
+            onRequestCameraReset={hasSpatialCameraSnapshot ? requestCameraReset : undefined}
             {...annotationEditingProps}
           />
         )
@@ -1302,8 +1318,8 @@ export function SpatialSubscriber(props) {
         />
       )}
       <MultiLegend
-        // Fix to dark theme due to black background of spatial plot.
-        theme="dark"
+        // Match the plot background, which is configurable.
+        theme={spatialBackgroundTheme ?? 'dark'}
         maxHeight={height}
 
         // Segmentations

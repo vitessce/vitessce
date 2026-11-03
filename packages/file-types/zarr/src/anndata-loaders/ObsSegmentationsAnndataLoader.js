@@ -60,6 +60,7 @@ export default class ObsSegmentationsAnndataLoader extends AbstractTwoStepLoader
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureAggregationStrategy: null,
     }];
 
     const coordinationValues = {

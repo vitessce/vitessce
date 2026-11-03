@@ -7,7 +7,16 @@ const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'))
 
 function createWorker() {
   const worker = new ChunkWorker();
-  worker.AsyncComputationWorker = AsyncComputationWorker;
+  // NG's DataManagementContext spawns async-computation workers on the main thread
+  // via `new bundleRoot.AsyncComputationWorker()` and never keeps or terminates them.
+  // Track them so componentWillUnmount can free them (and their Draco WASM heaps).
+  const asyncWorkers = [];
+  worker.AsyncComputationWorker = function TrackedAsyncComputationWorker() {
+    const w = new AsyncComputationWorker();
+    asyncWorkers.push(w);
+    return w; // returning an object from a constructor makes `new` yield it
+  };
+  worker.asyncWorkers = asyncWorkers;
   return worker;
 }
 
@@ -91,6 +100,10 @@ export class NeuroglancerComp extends PureComponent {
 
       this.prevHoverHandler = () => {
         const ms = viewer.mouseState;
+        // World (global-space) position under the cursor, like spatialBeta's hoverInfo.coordinate.
+        const hoverCoord = ms.active && ms.position?.length >= 3
+          ? [ms.position[0], ms.position[1], ms.position[2]]
+          : null;
         // Read props at hover time (not at mount) so URLs that resolve later are used.
         const {
           getMeshIdToCellId, centroidAnnotationUrlsByLayerName, decodeCentroidById,
@@ -120,7 +133,7 @@ export class NeuroglancerComp extends PureComponent {
                 return;
               }
               const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
-              this.latestOnSelectHoveredCoords?.(cellId);
+              this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
             })
             .catch(() => {});
           return;
@@ -129,7 +142,7 @@ export class NeuroglancerComp extends PureComponent {
         if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
           const meshId = String(ms.pickedValue?.low);
           const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
-          this.latestOnSelectHoveredCoords?.(cellId);
+          this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
           return;
         }
         this.latestOnSelectHoveredCoords?.(null);
@@ -169,6 +182,9 @@ export class NeuroglancerComp extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.bundleRoot?.asyncWorkers?.forEach((w) => {
+      try { w.terminate(); } catch { /* already gone */ }
+    });
     this.bundleRoot?.terminate();
     this.bundleRoot = null;
   }
@@ -181,6 +197,12 @@ export class NeuroglancerComp extends PureComponent {
       onAnnotationSourceReady,
       onViewerReady,
       allowEmptySegments,
+      axisLinesVisible,
+      boundsVisible,
+      orthographic,
+      scaleBarVisible,
+      cameraResetRequest,
+      backgroundTheme,
     } = this.props;
     const { bundleRootReady } = this.state;
     return (
@@ -200,6 +222,12 @@ export class NeuroglancerComp extends PureComponent {
                 onAnnotationSourceReady={onAnnotationSourceReady}
                 onViewerReady={onViewerReady}
                 allowEmptySegments={allowEmptySegments}
+                axisLinesVisible={axisLinesVisible}
+                boundsVisible={boundsVisible}
+                orthographic={orthographic}
+                scaleBarVisible={scaleBarVisible}
+                cameraResetRequest={cameraResetRequest}
+                backgroundTheme={backgroundTheme}
               />
             )}
           </Suspense>
