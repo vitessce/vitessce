@@ -380,10 +380,13 @@ describe('volume-zarr', () => {
       const kept = source.readBrick(brick(0), { signal: new AbortController().signal });
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(Array.from(signals.keys()).sort()).toEqual(['0/0/0/0/0', '0/0/0/0/1']);
-      controller.abort();
+      const reason = new DOMException('no longer needed', 'AbortError');
+      controller.abort(reason);
       // The aborted bricks stop waiting at once, without the gated reads.
-      await Promise.all(aborted.map(read => expect(read).rejects.toThrow(/abort/i)));
+      await Promise.all(aborted.map(read => expect(read).rejects.toBe(reason)));
       expect(signals.get('0/0/0/0/1').aborted).toBe(true);
+      // The store request is aborted with the brick's reason.
+      expect(signals.get('0/0/0/0/1').reason).toBe(reason);
       // Chunk 0 is still needed by brick x = 0.
       expect(signals.get('0/0/0/0/0').aborted).toBe(false);
       release();

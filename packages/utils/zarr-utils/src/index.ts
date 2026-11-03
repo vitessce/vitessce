@@ -11,6 +11,7 @@ export {
 export type { QueryClientLike } from './normalize.js';
 export { createStoreFromMapContents } from './base64-store.js';
 export {
+  createAbortReason,
   createSharedAbort,
   isAbortError,
   raceAbortSignal,

@@ -10,6 +10,16 @@ export function isAbortError(error: unknown): boolean {
 }
 
 /**
+ * A reason to pass to AbortController.abort(), so that the resulting errors say
+ * why a read was aborted. It is named AbortError, like the default reason, so
+ * that isAbortError still recognizes it (fetch rejects with the reason itself).
+ * @param message Why the read was aborted.
+ */
+export function createAbortReason(message: string): DOMException {
+  return new DOMException(message, 'AbortError');
+}
+
+/**
  * Settle with the promise, or reject with the signal's reason as soon as the
  * signal aborts, whichever comes first. The promise itself keeps running.
  * @param promise The shared work.

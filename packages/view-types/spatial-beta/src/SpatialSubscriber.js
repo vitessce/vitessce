@@ -159,10 +159,10 @@ export function SpatialSubscriber(props) {
     // Maximum number of bricks the accelerated 3D view fetches at once: a positive
     // integer, or Infinity for no limit. Unset uses the default (6). Batches grow
     // with it (at least 40 bricks, at most a quarter of the brick cache).
-    volumeMaxConcurrentBrickRequests,
+    volumeMaxConcurrentBrickRequests = 10,
     // Opt in to the accelerated 3D view loading the missing coarser levels of a
     // region before the requested level, so that zooming in refines gradually.
-    volumeProgressiveLoading = true,
+    volumeProgressiveLoading = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,

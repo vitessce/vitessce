@@ -885,6 +885,11 @@ describe('spatial-accelerated data utils', () => {
         // eslint-disable-next-line no-underscore-dangle
         manager._abortUnrequestedBrickLoads([pt(0), pt(2)]);
         expect([0, 1, 2].map(bz => reads.get(bz).signal.aborted)).toEqual([false, true, false]);
+        // The abort says why, and is still an AbortError.
+        expect(reads.get(1).signal.reason).toMatchObject({
+          name: 'AbortError',
+          message: expect.stringMatching(/no longer requests this brick/),
+        });
         reads.get(0).release();
         reads.get(2).release();
         await settled();
@@ -925,6 +930,10 @@ describe('spatial-accelerated data utils', () => {
         manager._abortUnrequestedBrickLoads([]);
         expect(reads.get(0).signal.aborted).toBe(false);
         expect(reads.get(1).signal.aborted).toBe(true);
+        expect(reads.get(1).signal.reason).toMatchObject({
+          name: 'AbortError',
+          message: expect.stringMatching(/loading was stopped/),
+        });
         reads.get(0).release();
         await settled();
         expect(await overview).toEqual([{ ptCoord: pt(0), bcIndex: 0 }]);

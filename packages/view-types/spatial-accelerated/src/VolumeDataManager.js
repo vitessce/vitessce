@@ -13,6 +13,7 @@ import {
   NearestFilter,
 } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
+import { createAbortReason } from '@vitessce/zarr-utils';
 import {
   planVolumeLevels,
   decodedBytesPerBrick,
@@ -1003,7 +1004,7 @@ export class VolumeDataManager {
     this.manuallyStopped = true;
     this.requestBailout();
     // Overview loads are kept, so that every channel still has something to show.
-    this._abortBrickLoads(() => true);
+    this._abortBrickLoads(() => true, 'Brick load aborted: loading was stopped');
     // Reset progress counters to reflect stopped state
     this.currentRequestCount = 0;
     this.totalBricksRequested = 0;
@@ -1046,12 +1047,14 @@ export class VolumeDataManager {
   /**
    * Abort the loads of bricks from batches that can bail out (not overviews).
    * @param {(load: object) => boolean} shouldAbort
+   * @param {string} reason Why, for the AbortError that the brick's reads reject with.
    */
-  _abortBrickLoads(shouldAbort) {
+  _abortBrickLoads(shouldAbort, reason) {
     this.brickLoads.forEach((load) => {
       if (load.isAbortable && shouldAbort(load)) {
-        log.debug('aborting brick load', load.ptCoord);
-        load.controller.abort();
+        log.debug('aborting brick load', load.ptCoord, reason);
+        const { x, y, z } = load.ptCoord;
+        load.controller.abort(createAbortReason(`${reason} (page table ${x},${y},${z})`));
       }
     });
   }
@@ -1116,7 +1119,7 @@ export class VolumeDataManager {
       // eslint-disable-next-line no-param-reassign
       load.missedRequests += 1;
       return load.missedRequests >= MISSED_REQUESTS_BEFORE_ABORT;
-    });
+    }, 'Brick load aborted: the view no longer requests this brick');
   }
 
   /**
