@@ -159,7 +159,7 @@ export function SpatialSubscriber(props) {
     // Maximum number of bricks the accelerated 3D view fetches at once: a positive
     // integer, or Infinity for no limit. Unset uses the default (6). Batches grow
     // with it (at least 40 bricks, at most a quarter of the brick cache).
-    volumeMaxConcurrentBrickRequests = 10,
+    volumeMaxConcurrentBrickRequests = 6,
     // Opt in to the accelerated 3D view loading the missing coarser levels of a
     // region before the requested level, so that zooming in refines gradually.
     volumeProgressiveLoading = false,
@@ -468,6 +468,21 @@ export function SpatialSubscriber(props) {
 
   const is3dMode = spatialRenderingMode === '3D';
   const shouldUseThree = threeFor3d && is3dMode;
+
+  // Brick loading options of the accelerated 3D view. The props set the initial
+  // values; the options menu changes them for this view (until the props change).
+  const [maxConcurrentBrickRequests, setMaxConcurrentBrickRequests] = useState(
+    volumeMaxConcurrentBrickRequests,
+  );
+  const [isProgressiveLoadingEnabled, setIsProgressiveLoadingEnabled] = useState(
+    volumeProgressiveLoading,
+  );
+  useEffect(() => {
+    setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
+  }, [volumeMaxConcurrentBrickRequests]);
+  useEffect(() => {
+    setIsProgressiveLoadingEnabled(volumeProgressiveLoading);
+  }, [volumeProgressiveLoading]);
 
   const [deckWidth, deckHeight, deckRef] = useDeckCanvasSize();
   const [threeWidth, threeHeight, threeRef] = useGridItemSize();
@@ -1068,6 +1083,11 @@ export function SpatialSubscriber(props) {
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
           use3d={is3dMode}
+          hasVolumeLoadingOptions={threeFor3d && acceleratedFor3d}
+          volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+          setVolumeMaxConcurrentBrickRequests={setMaxConcurrentBrickRequests}
+          volumeProgressiveLoading={isProgressiveLoadingEnabled}
+          setVolumeProgressiveLoading={setIsProgressiveLoadingEnabled}
         />
       )}
     >
@@ -1103,8 +1123,8 @@ export function SpatialSubscriber(props) {
               onEntitySelected={onEntitySelected}
               onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
               volumeZReduction={volumeZReduction}
-              volumeMaxConcurrentBrickRequests={volumeMaxConcurrentBrickRequests}
-              volumeProgressiveLoading={volumeProgressiveLoading}
+              volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+              volumeProgressiveLoading={isProgressiveLoadingEnabled}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}

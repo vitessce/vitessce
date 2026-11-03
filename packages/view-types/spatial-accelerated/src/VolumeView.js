@@ -140,6 +140,8 @@ function handleAdaptiveQuality(clock, params) {
     if (!dataManager.manuallyStopped) {
       dataManager.noNewRequests = false;
       dataManager.triggerUsage = true;
+      // Newly visible regions need their coarse levels first.
+      dataManager.resetProgressiveLevel();
       // A batch in flight was requested for the previous view: stop it early,
       // so that the buffers are read again for the current one. Its bricks still
       // loading are aborted once the current view no longer requests them.
@@ -621,6 +623,11 @@ export function VolumeView(props) {
         renderManager.lodFactor, frameCamera.fov, mrtRef.current.height / frameGl.getPixelRatio(),
         dataManager.zarrStore.shapes[0],
       );
+    }
+
+    // Progressive loading: no brick finer than this level is requested.
+    if (uniforms?.minRequestRes) {
+      uniforms.minRequestRes.value = dataManager.getMinRequestLevel();
     }
 
     if (!stillRef.current) {

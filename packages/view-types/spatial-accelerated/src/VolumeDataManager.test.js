@@ -21,7 +21,6 @@ import {
   MIN_BRICKS_PER_BATCH,
   MAX_BRICKS_PER_BATCH,
   _getBricksPerBatch,
-  _getProgressiveRequests,
   VolumeDataManager,
 } from './VolumeDataManager.js';
 
@@ -528,74 +527,10 @@ describe('spatial-accelerated data utils', () => {
     });
   });
 
-  describe('loading coarser levels first', () => {
-    const ptInfoOf = PT => ({
-      PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors,
-    });
-    // Level-0 voxel range [start, end) of a brick along XYZ axis.
-    const regionOf = (brick, scales, axis) => {
-      const size = 32 * scales[brick.resolution][axis];
-      const index = [brick.x, brick.y, brick.z][axis];
-      return [index * size, (index + 1) * size];
-    };
-
-    it('steps from the overview through each level down to the requested brick', () => {
-      const { PT, brickLayout, scales } = createManager();
-      const loaded = new Set();
-      const key = ({ x, y, z }) => `${x},${y},${z}`;
-      const volume = {
-        PT, scales, brickLayout, isLoaded: ptCoord => loaded.has(key(ptCoord)),
-      };
-      // A level-0 brick of channel 1, away from the volume's edges.
-      const requested = _zarrToPt(1, 0, 4, 5, 3, PT);
-      const target = _ptToZarr(requested.x, requested.y, requested.z, ptInfoOf(PT));
-      const steps = [];
-      for (let i = 0; i < brickLayout.length; i++) {
-        const toLoad = _getProgressiveRequests(requested, volume);
-        const bricks = toLoad.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfoOf(PT)));
-        steps.push(bricks[0].resolution);
-        // One level per step, in the requested channel, covering the requested brick.
-        expect(new Set(bricks.map(({ resolution }) => resolution)).size).toBe(1);
-        bricks.forEach(brick => expect(brick.channel).toBe(1));
-        [0, 1, 2].forEach((axis) => {
-          const [start, end] = regionOf(target, scales, axis);
-          const covered = bricks.map(brick => regionOf(brick, scales, axis));
-          expect(Math.min(...covered.map(([s]) => s))).toBeLessThanOrEqual(start);
-          expect(Math.max(...covered.map(([, e]) => e))).toBeGreaterThanOrEqual(
-            Math.min(end, 32 * scales[0][axis] * brickLayout[0][2 - axis]),
-          );
-        });
-        toLoad.forEach(ptCoord => loaded.add(key(ptCoord)));
-      }
-      const coarsest = brickLayout.length - 1;
-      expect(steps).toEqual(Array.from({ length: brickLayout.length }, (_, i) => coarsest - i));
-      // Once every ancestor is loaded, the brick itself is next.
-      expect(steps.at(-1)).toBe(0);
-    });
-
-    it('skips levels whose covering bricks are already loaded', () => {
-      const { PT, brickLayout, scales } = createManager();
-      const requested = _zarrToPt(0, 0, 4, 5, 3, PT);
-      // Everything coarser than level 0 is loaded, except level 1.
-      const isLoaded = ptCoord => _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfoOf(PT))
-        .resolution !== 1;
-      const toLoad = _getProgressiveRequests(requested, {
-        PT, scales, brickLayout, isLoaded,
-      });
-      expect(toLoad.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfoOf(PT)).resolution))
-        .toEqual(toLoad.map(() => 1));
-      expect(_getProgressiveRequests(requested, {
-        PT, scales, brickLayout, isLoaded: () => true,
-      })).toEqual([requested]);
-    });
-
-    // A manager with real level ratios whose fake source records the level of
-    // each brick read, and a request buffer of two level-0 bricks.
+  describe('progressive loading', () => {
+    // A manager whose fake source records the level of each brick read.
     function setUpRequests() {
-      const {
-        manager, PT, brickLayout, scales,
-      } = createManager();
-      manager.zarrStore.scales = scales;
+      const { manager, PT, brickLayout } = createManager();
       manager.initStatus = 'complete';
       // No overview loads left to try, so the batch goes to the regular requests.
       manager.overviewAttempts.set(0, 3).set(1, 3);
@@ -621,93 +556,106 @@ describe('spatial-accelerated data utils', () => {
         });
         return new Uint8Array(buffer.buffer);
       };
-      const buffer = bufferOf([_zarrToPt(0, 0, 4, 5, 3, PT), _zarrToPt(0, 0, 5, 5, 3, PT)]);
       return {
-        manager, PT, brickLayout, reads, buffer, bufferOf,
+        manager, PT, brickLayout, reads, bufferOf,
       };
     }
 
-    it('loads the requested level directly by default', async () => {
-      const { manager, reads, buffer } = setUpRequests();
-      expect(manager.isProgressiveLoadingEnabled).toBe(false);
-      await manager.processRequestData(buffer, {});
-      expect(reads).toEqual([0, 0]);
-    });
-
-    it('when enabled, loads the missing coarser bricks of the requests first', async () => {
+    it('requests bricks of every level when disabled, and loads them directly', async () => {
       const {
-        manager, brickLayout, reads, buffer,
+        manager, PT, reads, bufferOf,
       } = setUpRequests();
-      manager.setProgressiveLoading(true);
-      // The shader keeps requesting the same two level-0 bricks.
-      const levelsLoaded = [];
-      for (let i = 0; i < brickLayout.length; i++) {
-        reads.length = 0;
-        // eslint-disable-next-line no-await-in-loop
-        await manager.processRequestData(buffer, {});
-        levelsLoaded.push([...new Set(reads)]);
-      }
-      const coarsest = brickLayout.length - 1;
-      expect(levelsLoaded).toEqual(
-        Array.from({ length: brickLayout.length }, (_, i) => [coarsest - i]),
-      );
+      expect(manager.isProgressiveLoadingEnabled).toBe(false);
+      expect(manager.getMinRequestLevel()).toBe(0);
+      await manager.processRequestData(bufferOf([_zarrToPt(0, 0, 4, 5, 3, PT)]), {});
+      expect(reads).toEqual([0]);
     });
 
-    it('when enabled, loads no finer level while a coarser one is missing anywhere in view', async () => {
+    it('starts at the coarsest level, and moves one level finer after two empty reads', async () => {
+      const { manager, brickLayout, bufferOf } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      expect(manager.getMinRequestLevel()).toBe(coarsest);
+      // One read that finds nothing missing could have missed a sampled brick.
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest);
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      // Finer levels are left, so loading is not done.
+      expect(manager.noNewRequests).toBe(false);
+    });
+
+    it('stays at a level while any brick at or above it is requested', async () => {
       const {
         manager, PT, brickLayout, reads, bufferOf,
       } = setUpRequests();
-      manager.setProgressiveLoading(true);
       const coarsest = brickLayout.length - 1;
-      // Region A refines down to level 1 while it is the only one in view.
-      const regionA = _zarrToPt(0, 0, 4, 5, 3, PT);
-      for (let i = 0; i < coarsest; i++) {
-        // eslint-disable-next-line no-await-in-loop
-        await manager.processRequestData(bufferOf([regionA]), {});
-      }
-      // Then region B, in the opposite corner, comes into view as well. Region A
-      // is weighted higher (more pixels), yet waits until region B has caught up.
-      const regionB = _zarrToPt(0, 0, 8, 8, 7, PT);
-      const view = bufferOf([regionA, regionA, regionA, regionB]);
-      const readsPerStep = [];
-      for (let i = 0; i < coarsest; i++) {
-        reads.length = 0;
-        // eslint-disable-next-line no-await-in-loop
-        await manager.processRequestData(view, {});
-        readsPerStep.push([...reads]);
-      }
-      // Region B steps down from the level below the shared overview, while
-      // region A's level-0 brick waits.
-      expect(readsPerStep.slice(0, -1).map(levels => [...new Set(levels)])).toEqual(
-        Array.from({ length: coarsest - 1 }, (_, i) => [coarsest - 1 - i]),
-      );
-      // Once region B has caught up, both regions load level 0 together.
-      expect(readsPerStep.at(-1)).toEqual([0, 0]);
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = coarsest - 1;
+      // The shader requests a brick of the current level (here, level coarsest - 1).
+      const brick = _zarrToPt(0, coarsest - 1, 0, 0, 0, PT);
+      await manager.processRequestData(bufferOf([brick]), {});
+      expect(reads).toEqual([coarsest - 1]);
+      await manager.processRequestData(bufferOf([]), {});
+      // A missing brick resets the count: two more empty reads are needed.
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 2);
     });
 
-    it('when enabled, stops waiting for a coarser brick that keeps failing', async () => {
+    it('stays at a level while a brick at or above it is still loading', async () => {
       const {
-        manager, brickLayout, reads, buffer,
+        manager, PT, brickLayout, bufferOf,
       } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
       manager.setProgressiveLoading(true);
-      const { readBrick } = manager.brickSource;
-      // Every brick of level 1 fails.
-      manager.brickSource.readBrick = async (brick) => {
-        if (brick.level === 1) {
-          reads.push(1);
-          throw new Error('network');
-        }
-        return readBrick(brick);
-      };
-      const levelsLoaded = [];
-      // Down to level 1, then three failed loads of it, then level 0.
-      for (let i = 0; i < brickLayout.length + 2; i++) {
-        reads.length = 0;
+      manager.progressiveLevel = coarsest - 1;
+      // A brick of the current level, still loading from a batch that bailed out.
+      const ptCoord = _zarrToPt(0, coarsest - 1, 0, 0, 0, PT);
+      manager.brickLoads.set(`${ptCoord.x},${ptCoord.y},${ptCoord.z}`, { ptCoord });
+      await manager.processRequestData(bufferOf([]), {});
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+    });
+
+    it('does not wait for a brick that keeps failing', async () => {
+      const {
+        manager, PT, brickLayout, bufferOf,
+      } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = coarsest - 1;
+      manager.brickSource.readBrick = async () => { throw new Error('network'); };
+      const failing = bufferOf([_zarrToPt(0, coarsest - 1, 0, 0, 0, PT)]);
+      for (let i = 0; i < 3; i++) {
         // eslint-disable-next-line no-await-in-loop
-        await manager.processRequestData(buffer, {});
-        levelsLoaded.push([...new Set(reads)]);
+        await manager.processRequestData(failing, {});
       }
-      expect(levelsLoaded.slice(-4)).toEqual([[1], [1], [1], [0]]);
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      // The shader keeps requesting it, but finer levels no longer wait for it.
+      await manager.processRequestData(failing, {});
+      await manager.processRequestData(failing, {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 2);
+    });
+
+    it('is done only once nothing is missing at level 0', async () => {
+      const { manager, bufferOf } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = 0;
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.noNewRequests).toBe(true);
+      expect(manager.getMinRequestLevel()).toBe(0);
+    });
+
+    it('starts over from the coarsest level when the view changes', () => {
+      const { manager, brickLayout } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = 0;
+      manager.resetProgressiveLevel();
+      expect(manager.getMinRequestLevel()).toBe(brickLayout.length - 1);
+      // Turning it off requests every level again.
+      manager.setProgressiveLoading(false);
+      expect(manager.getMinRequestLevel()).toBe(0);
     });
   });
 

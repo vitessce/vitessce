@@ -97,6 +97,11 @@ const MAX_OVERVIEW_ATTEMPTS = 3;
 // With progressive loading, failed loads of a brick before finer levels stop
 // waiting for it, so that a brick that keeps failing cannot block them.
 const MAX_PROGRESSIVE_BRICK_FAILURES = 3;
+// With progressive loading, consecutive request reads that must find nothing
+// missing at or above the current level before the next finer level may load.
+// Requests are sampled (one channel per pixel and frame), so one empty read
+// could miss a brick that is still needed.
+const EMPTY_READS_BEFORE_FINER_LEVEL = 2;
 
 // const manualChannelSelection = 0;
 
@@ -671,69 +676,6 @@ function _ptKey({ x, y, z }) {
 }
 
 /**
- * The bricks to load for a requested brick so that a region refines one level at
- * a time: its ancestors (the bricks of coarser levels covering the same region,
- * in the same channel) at the coarsest level where any of them is missing, or
- * the brick itself once all of its ancestors are loaded. The shader requests the
- * level it would render, so without this, zooming in jumps straight from the
- * overview to the finest level.
- * @param {{ x: number, y: number, z: number }} ptCoord The requested brick.
- * @param {object} volume
- * @param {object} volume.PT Page table layout.
- * @param {number[][]} volume.scales XYZ ratios of each level to level 0.
- * @param {number[][]} volume.brickLayout ZYX bricks of each level.
- * @param {(ptCoord: object) => boolean} volume.isLoaded Whether a brick needs no load.
- * @returns {{ x: number, y: number, z: number }[]}
- */
-export function _getProgressiveRequests(ptCoord, {
-  PT, scales, brickLayout, isLoaded,
-}) {
-  const ptInfo = { PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors };
-  const {
-    channel, resolution, x, y, z,
-  } = _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfo);
-  if (resolution < 0 || !scales[resolution]) return [ptCoord];
-  // The brick's region in level-0 voxels, per XYZ axis.
-  const regions = [x, y, z].map((brick, axis) => {
-    const size = BRICK_SIZE * scales[resolution][axis];
-    return [brick * size, (brick + 1) * size];
-  });
-  for (let level = brickLayout.length - 1; level > resolution; level--) {
-    // Bricks of this level overlapping the region; levels need not align.
-    const ranges = regions.map(([start, end], axis) => {
-      const size = BRICK_SIZE * scales[level][axis];
-      const last = brickLayout[level][2 - axis] - 1;
-      const first = Math.min(last, Math.floor(start / size));
-      return [first, Math.min(last, Math.max(first, Math.ceil(end / size) - 1))];
-    });
-    const missing = [];
-    for (let bz = ranges[2][0]; bz <= ranges[2][1]; bz++) {
-      for (let by = ranges[1][0]; by <= ranges[1][1]; by++) {
-        for (let bx = ranges[0][0]; bx <= ranges[0][1]; bx++) {
-          const ancestor = _zarrToPt(channel, level, bx, by, bz, PT);
-          if (!isLoaded(ancestor)) missing.push(ancestor);
-        }
-      }
-    }
-    if (missing.length > 0) return missing;
-  }
-  return [ptCoord];
-}
-
-/**
- * The bricks of the coarsest level among the given ones, in their order.
- * @param {{ x: number, y: number, z: number }[]} ptCoords
- * @param {object} PT Page table layout.
- * @returns {{ x: number, y: number, z: number }[]}
- */
-export function _getCoarsestLevelBricks(ptCoords, PT) {
-  const ptInfo = { PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors };
-  const levels = ptCoords.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfo).resolution);
-  const coarsest = Math.max(...levels);
-  return ptCoords.filter((_, i) => levels[i] === coarsest);
-}
-
-/**
  * Order requests so that bricks reading the same source chunk are adjacent and
  * fetched together, sharing one download and decode. Groups keep the order of
  * their first request, and requests keep their order within a group.
@@ -946,9 +888,12 @@ export class VolumeDataManager {
     // Batches started, so that bricks of earlier batches do not count as progress.
     this.batchCount = 0;
     this.maxConcurrentBrickRequests = DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS;
-    // Whether requested bricks wait for their missing coarser-level ancestors
-    // (see setProgressiveLoading).
+    // Progressive loading (see setProgressiveLoading): the finest level bricks
+    // may be requested at (the shader's minRequestRes), or null to start from the
+    // coarsest level, and the request reads in a row that found nothing missing.
     this.isProgressiveLoadingEnabled = false;
+    this.progressiveLevel = null;
+    this.emptyProgressiveReads = 0;
     // Failed loads per page table key, until the brick loads.
     this.brickFailures = new Map();
 
@@ -1060,45 +1005,70 @@ export class VolumeDataManager {
   }
 
   /**
-   * Opt in to loading the missing coarser levels of a requested brick before the
-   * brick itself, so that zoomed-in regions refine one level at a time instead of
-   * jumping from the overview to the requested level. Shows progress sooner, but
-   * reaching the requested level takes longer and loads more bricks.
-   * Takes effect with the next request read.
+   * Opt in to progressive loading: the view refines one level at a time, from
+   * the coarsest level down. No brick of a level loads until every brick the
+   * view needs at the next coarser level has loaded (or failed repeatedly).
+   * Shows progress sooner, but reaching the requested level takes longer and
+   * loads more bricks.
+   *
+   * The shader enforces this: it requests no brick finer than
+   * getMinRequestLevel(), and requests the brick at that level instead. Since
+   * the brick at that level is then resident, rays continue past it, so bricks
+   * further back are requested too, which they would not be while each pixel
+   * requests only the first brick it misses at the finest level.
    * @param {boolean} isEnabled
    */
   setProgressiveLoading(isEnabled) {
+    const isChanged = this.isProgressiveLoadingEnabled !== (isEnabled === true);
     this.isProgressiveLoadingEnabled = isEnabled === true;
+    if (isChanged) this.resetProgressiveLevel();
   }
 
   /**
-   * Replace each requested brick with the bricks to load first for it (see
-   * _getProgressiveRequests), keeping the order of the requests, without duplicates.
-   * @param {{ x: number, y: number, z: number }[]} requests Highest weight first.
-   * @returns {{ x: number, y: number, z: number }[]}
+   * Restart progressive loading from the coarsest level, e.g. when the view has
+   * changed and newly visible regions need their coarse levels first. Levels
+   * whose bricks are all resident are passed again within a few request reads.
    */
-  _getProgressiveRequests(requests) {
-    const residentKeys = new Set(this.bc2pt.filter(Boolean).map(_ptKey));
-    const volume = {
-      PT: this.PT,
-      scales: this.zarrStore.scales,
-      brickLayout: this.zarrStore.brickLayout,
-      // A brick that keeps failing counts as loaded, so that it blocks no finer level.
-      isLoaded: (ptCoord) => {
-        const key = _ptKey(ptCoord);
-        return residentKeys.has(key)
-          || (this.brickFailures.get(key) ?? 0) >= MAX_PROGRESSIVE_BRICK_FAILURES;
-      },
-    };
-    const seen = new Set();
-    return requests
-      .flatMap(ptCoord => _getProgressiveRequests(ptCoord, volume))
-      .filter((ptCoord) => {
-        const key = _ptKey(ptCoord);
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+  resetProgressiveLevel() {
+    this.progressiveLevel = null;
+    this.emptyProgressiveReads = 0;
+  }
+
+  /**
+   * The finest level that bricks may be requested at, for the shader's
+   * minRequestRes uniform.
+   * @returns {number} 0 without progressive loading.
+   */
+  getMinRequestLevel() {
+    if (!this.isProgressiveLoadingEnabled || !this.zarrStore.resolutions) return 0;
+    return this.progressiveLevel ?? this.zarrStore.resolutions - 1;
+  }
+
+  /**
+   * With progressive loading, move on to the next finer level once request
+   * reads in a row find nothing missing at or above the current level, and no
+   * brick at those levels is still loading.
+   * @param {{ x: number, y: number, z: number }[]} requested All bricks in the
+   * request buffer; the shader requests none finer than getMinRequestLevel().
+   * @returns {boolean} Whether a finer level is left to load.
+   */
+  _advanceProgressiveLevel(requested) {
+    const level = this.getMinRequestLevel();
+    if (!this.isProgressiveLoadingEnabled || level === 0) return false;
+    const ptInfo = { PT_zExtent: this.PT.zExtent, PT_z0Extent: this.PT.z0Extent, PT_anchors: this.PT.anchors };
+    const levelOf = ({ x, y, z }) => _ptToZarr(x, y, z, ptInfo).resolution;
+    // A brick that keeps failing no longer holds back finer levels.
+    const isOutstanding = ptCoord => (this.brickFailures.get(_ptKey(ptCoord)) ?? 0)
+      < MAX_PROGRESSIVE_BRICK_FAILURES;
+    const isMissing = requested.some(isOutstanding)
+      || Array.from(this.brickLoads.values()).some(({ ptCoord }) => levelOf(ptCoord) >= level);
+    this.emptyProgressiveReads = isMissing ? 0 : this.emptyProgressiveReads + 1;
+    if (this.emptyProgressiveReads >= EMPTY_READS_BEFORE_FINER_LEVEL) {
+      this.progressiveLevel = level - 1;
+      this.emptyProgressiveReads = 0;
+      log.debug('progressive loading: requesting bricks down to level', this.progressiveLevel);
+    }
+    return true;
   }
 
   /**
@@ -1852,25 +1822,18 @@ export class VolumeDataManager {
       requests: shaderRequests, remaining: shaderRemaining, origRequestCount,
     } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
-    if (shaderRequests.length === 0) {
+    const requested = [...shaderRequests, ...shaderRemaining];
+    // With progressive loading, nothing missing may only mean that the current
+    // level is done, with finer levels still to load.
+    const hasFinerLevels = this._advanceProgressiveLevel(requested);
+    if (shaderRequests.length === 0 && !hasFinerLevels) {
       this.noNewRequests = true;
     }
-    // With progressive loading, missing coarser levels load first, so that the
-    // view refines one level at a time: each batch takes only bricks of the
-    // coarsest level missing anywhere in view, so that no finer brick loads
-    // (in this or a later batch) while a coarser one is missing. Each takes the
-    // place of the highest-weighted request it refines.
-    const requested = [...shaderRequests, ...shaderRemaining];
-    const progressive = this.isProgressiveLoadingEnabled
-      ? this._getProgressiveRequests(requested) : requested;
-    const batchable = this.isProgressiveLoadingEnabled && progressive.length > 0
-      ? _getCoarsestLevelBricks(progressive, this.PT) : progressive;
-    const requests = batchable.slice(0, this.k);
-    const remaining = batchable.slice(this.k);
+    const requests = shaderRequests;
+    const remaining = shaderRemaining;
     // Bricks still loading from a batch that bailed out, e.g. because the camera
-    // moved, are aborted once the current view stops requesting them (or the
-    // coarser bricks those requests wait for, at any level).
-    this._abortUnrequestedBrickLoads([...requested, ...progressive]);
+    // moved, are aborted once the current view stops requesting them.
+    this._abortUnrequestedBrickLoads(requested);
     // Requests past the top k whose source chunks are already decoded come along.
     const cachedRequests = [];
     for (let i = 0; i < remaining.length

@@ -48,6 +48,7 @@ export const VolumeShader = {
     volumeCount: { value: 0 },
     boxSize: { value: new Vector3(1, 1, 1) },
     renderRes: { value: 1000 },
+    minRequestRes: { value: 0 },
     voxelExtents: { value: new Vector3(1, 1, 1) },
     anchor0: { value: new Vector3(0, 0, 0) },
     anchor1: { value: new Vector3(0, 0, 0) },

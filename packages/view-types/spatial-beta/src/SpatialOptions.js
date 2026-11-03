@@ -6,7 +6,7 @@ import {
   TableRow,
   makeStyles,
 } from '@vitessce/styles';
-import { OptionsContainer } from '@vitessce/vit-s';
+import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 
 const useStyles = makeStyles()(() => ({
   spatialBetaCameraLabel: {
@@ -17,11 +17,23 @@ const useStyles = makeStyles()(() => ({
   },
 }));
 
+// Choices for the number of bricks fetched at once. The current value is
+// added when it is not among them, e.g. when set by the view config.
+const MAX_CONCURRENT_BRICK_REQUEST_OPTIONS = [6, 8, 10, 12, 24, 48, 96];
+
+function getMaxConcurrentBrickRequestOptions(value) {
+  const isListed = MAX_CONCURRENT_BRICK_REQUEST_OPTIONS.includes(value);
+  const isValid = value === Infinity || (Number.isInteger(value) && value > 0);
+  return isListed || !isValid
+    ? MAX_CONCURRENT_BRICK_REQUEST_OPTIONS
+    : [...MAX_CONCURRENT_BRICK_REQUEST_OPTIONS, value].sort((a, b) => a - b);
+}
+
 /**
  * Plot options for the beta spatial view.
  *
- * Currently just the camera-axis toggle, which the legacy spatial view exposed
- * in the same place (see SpatialOptions in @vitessce/spatial). Without it,
+ * The camera-axis toggle, which the legacy spatial view exposed in the same
+ * place (see SpatialOptions in @vitessce/spatial). Without it,
  * spatialAxisFixed cannot be set: the orbit target then moves on every pan while
  * rotating a volume, and there is no way back to a previous orientation.
  *
@@ -32,22 +44,38 @@ const useStyles = makeStyles()(() => ({
  * write to a scope the spatial view never reads.
  *
  * It is read in AbstractSpatialOrScatterplot.onViewStateChange.
+ *
+ * With the accelerated 3D view (hasVolumeLoadingOptions), also its brick loading
+ * options: the maximum number of bricks fetched at once, and progressive
+ * (coarse-to-fine) loading. They correspond to the volumeMaxConcurrentBrickRequests
+ * and volumeProgressiveLoading props of the view.
  */
 export default function SpatialOptions(props) {
   const {
     spatialAxisFixed,
     setSpatialAxisFixed,
     use3d,
+    hasVolumeLoadingOptions = false,
+    volumeMaxConcurrentBrickRequests,
+    setVolumeMaxConcurrentBrickRequests,
+    volumeProgressiveLoading,
+    setVolumeProgressiveLoading,
   } = props;
 
-  const toggleAxisId = useId();
+  const optionsId = useId();
   const { classes } = useStyles();
+  const { classes: plotOptionsClasses } = usePlotOptionsStyles();
+
+  function handleMaxConcurrentBrickRequestsChange(event) {
+    // Number('Infinity') is Infinity.
+    setVolumeMaxConcurrentBrickRequests(Number(event.target.value));
+  }
 
   return (
     <OptionsContainer>
       <TableRow>
         <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
-          <label htmlFor={`spatial-camera-axis-${toggleAxisId}`}>
+          <label htmlFor={`spatial-camera-axis-${optionsId}`}>
             Fix Camera Axis
           </label>
         </TableCell>
@@ -58,11 +86,59 @@ export default function SpatialOptions(props) {
             checked={Boolean(spatialAxisFixed)}
             slotProps={{ input: {
               'aria-label': 'Fix or not fix spatial camera axis',
-              id: `spatial-camera-axis-${toggleAxisId}`,
+              id: `spatial-camera-axis-${optionsId}`,
             } }}
           />
         </TableCell>
       </TableRow>
+      {hasVolumeLoadingOptions ? (
+        <>
+          <TableRow>
+            <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+              <label htmlFor={`spatial-volume-max-concurrent-bricks-${optionsId}`}>
+                Max Concurrent Brick Requests
+              </label>
+            </TableCell>
+            <TableCell variant="body">
+              <OptionSelect
+                className={plotOptionsClasses.select}
+                value={String(volumeMaxConcurrentBrickRequests)}
+                onChange={handleMaxConcurrentBrickRequestsChange}
+                disabled={!use3d}
+                inputProps={{
+                  'aria-label': 'Maximum number of volume bricks fetched at once',
+                  id: `spatial-volume-max-concurrent-bricks-${optionsId}`,
+                }}
+              >
+                {getMaxConcurrentBrickRequestOptions(volumeMaxConcurrentBrickRequests)
+                  .map(option => (
+                    <option key={option} value={String(option)}>
+                      {option === Infinity ? 'No limit' : option}
+                    </option>
+                  ))}
+              </OptionSelect>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
+              <label htmlFor={`spatial-volume-progressive-loading-${optionsId}`}>
+                Progressive Loading
+              </label>
+            </TableCell>
+            <TableCell className={classes.spatialBetaToggleBox} variant="body">
+              <Checkbox
+                onChange={event => setVolumeProgressiveLoading(event.target.checked)}
+                disabled={!use3d}
+                checked={Boolean(volumeProgressiveLoading)}
+                slotProps={{ input: {
+                  'aria-label': 'Load coarser volume resolutions before finer ones',
+                  id: `spatial-volume-progressive-loading-${optionsId}`,
+                } }}
+              />
+            </TableCell>
+          </TableRow>
+        </>
+      ) : null}
     </OptionsContainer>
   );
 }
