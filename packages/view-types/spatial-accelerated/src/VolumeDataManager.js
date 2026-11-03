@@ -667,6 +667,56 @@ function _ptKey({ x, y, z }) {
 }
 
 /**
+ * The bricks to load for a requested brick so that a region refines one level at
+ * a time: its ancestors (the bricks of coarser levels covering the same region,
+ * in the same channel) at the coarsest level where any of them is missing, or
+ * the brick itself once all of its ancestors are loaded. The shader requests the
+ * level it would render, so without this, zooming in jumps straight from the
+ * overview to the finest level.
+ * @param {{ x: number, y: number, z: number }} ptCoord The requested brick.
+ * @param {object} volume
+ * @param {object} volume.PT Page table layout.
+ * @param {number[][]} volume.scales XYZ ratios of each level to level 0.
+ * @param {number[][]} volume.brickLayout ZYX bricks of each level.
+ * @param {(ptCoord: object) => boolean} volume.isLoaded Whether a brick needs no load.
+ * @returns {{ x: number, y: number, z: number }[]}
+ */
+export function _getProgressiveRequests(ptCoord, {
+  PT, scales, brickLayout, isLoaded,
+}) {
+  const ptInfo = { PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors };
+  const {
+    channel, resolution, x, y, z,
+  } = _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfo);
+  if (resolution < 0 || !scales[resolution]) return [ptCoord];
+  // The brick's region in level-0 voxels, per XYZ axis.
+  const regions = [x, y, z].map((brick, axis) => {
+    const size = BRICK_SIZE * scales[resolution][axis];
+    return [brick * size, (brick + 1) * size];
+  });
+  for (let level = brickLayout.length - 1; level > resolution; level--) {
+    // Bricks of this level overlapping the region; levels need not align.
+    const ranges = regions.map(([start, end], axis) => {
+      const size = BRICK_SIZE * scales[level][axis];
+      const last = brickLayout[level][2 - axis] - 1;
+      const first = Math.min(last, Math.floor(start / size));
+      return [first, Math.min(last, Math.max(first, Math.ceil(end / size) - 1))];
+    });
+    const missing = [];
+    for (let bz = ranges[2][0]; bz <= ranges[2][1]; bz++) {
+      for (let by = ranges[1][0]; by <= ranges[1][1]; by++) {
+        for (let bx = ranges[0][0]; bx <= ranges[0][1]; bx++) {
+          const ancestor = _zarrToPt(channel, level, bx, by, bz, PT);
+          if (!isLoaded(ancestor)) missing.push(ancestor);
+        }
+      }
+    }
+    if (missing.length > 0) return missing;
+  }
+  return [ptCoord];
+}
+
+/**
  * Order requests so that bricks reading the same source chunk are adjacent and
  * fetched together, sharing one download and decode. Groups keep the order of
  * their first request, and requests keep their order within a group.
@@ -879,6 +929,9 @@ export class VolumeDataManager {
     // Batches started, so that bricks of earlier batches do not count as progress.
     this.batchCount = 0;
     this.maxConcurrentBrickRequests = DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS;
+    // Whether requested bricks wait for their missing coarser-level ancestors
+    // (see setProgressiveLoading).
+    this.isProgressiveLoadingEnabled = false;
 
     // Dataset description for the info panel, set by init.
     this.volumeInfo = null;
@@ -983,6 +1036,43 @@ export class VolumeDataManager {
         load.controller.abort();
       }
     });
+  }
+
+  /**
+   * Opt in to loading the missing coarser levels of a requested brick before the
+   * brick itself, so that zoomed-in regions refine one level at a time instead of
+   * jumping from the overview to the requested level. Shows progress sooner, but
+   * reaching the requested level takes longer and loads more bricks.
+   * Takes effect with the next request read.
+   * @param {boolean} isEnabled
+   */
+  setProgressiveLoading(isEnabled) {
+    this.isProgressiveLoadingEnabled = isEnabled === true;
+  }
+
+  /**
+   * Replace each requested brick with the bricks to load first for it (see
+   * _getProgressiveRequests), keeping the order of the requests, without duplicates.
+   * @param {{ x: number, y: number, z: number }[]} requests Highest weight first.
+   * @returns {{ x: number, y: number, z: number }[]}
+   */
+  _getProgressiveRequests(requests) {
+    const residentKeys = new Set(this.bc2pt.filter(Boolean).map(_ptKey));
+    const volume = {
+      PT: this.PT,
+      scales: this.zarrStore.scales,
+      brickLayout: this.zarrStore.brickLayout,
+      isLoaded: ptCoord => residentKeys.has(_ptKey(ptCoord)),
+    };
+    const seen = new Set();
+    return requests
+      .flatMap(ptCoord => _getProgressiveRequests(ptCoord, volume))
+      .filter((ptCoord) => {
+        const key = _ptKey(ptCoord);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
   }
 
   /**
@@ -1733,15 +1823,24 @@ export class VolumeDataManager {
     }
 
     const {
-      requests, remaining, origRequestCount,
+      requests: shaderRequests, remaining: shaderRemaining, origRequestCount,
     } = _requestBufferToRequestObjects(buffer, this.k, optsForWeighting);
 
-    if (requests.length === 0) {
+    if (shaderRequests.length === 0) {
       this.noNewRequests = true;
     }
+    // With progressive loading, missing coarser levels load first, so that regions
+    // refine one level at a time. Each takes the place of the highest-weighted
+    // request it refines.
+    const requested = [...shaderRequests, ...shaderRemaining];
+    const progressive = this.isProgressiveLoadingEnabled
+      ? this._getProgressiveRequests(requested) : requested;
+    const requests = progressive.slice(0, this.k);
+    const remaining = progressive.slice(this.k);
     // Bricks still loading from a batch that bailed out, e.g. because the camera
-    // moved, are aborted once the current view stops requesting them.
-    this._abortUnrequestedBrickLoads([...requests, ...remaining]);
+    // moved, are aborted once the current view stops requesting them (or the
+    // coarser bricks those requests wait for).
+    this._abortUnrequestedBrickLoads([...requested, ...progressive]);
     // Requests past the top k whose source chunks are already decoded come along.
     const cachedRequests = [];
     for (let i = 0; i < remaining.length

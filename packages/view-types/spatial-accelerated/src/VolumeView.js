@@ -226,6 +226,8 @@ export function VolumeView(props) {
     // Bricks fetched at once: a positive integer, or Infinity for no limit.
     // Unset uses DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS. Can change at any time.
     volumeMaxConcurrentBrickRequests,
+    // Load missing coarser levels before the requested one. Can change at any time.
+    volumeProgressiveLoading = false,
   } = props;
   const {
     gl,
@@ -292,6 +294,11 @@ export function VolumeView(props) {
   useEffect(() => {
     dataManager.setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
   }, [dataManager, volumeMaxConcurrentBrickRequests]);
+
+  // Applies from the next request read.
+  useEffect(() => {
+    dataManager.setProgressiveLoading(volumeProgressiveLoading);
+  }, [dataManager, volumeProgressiveLoading]);
 
   useEffect(() => {
     logWithColor('useEffect MRT target matching canvas');

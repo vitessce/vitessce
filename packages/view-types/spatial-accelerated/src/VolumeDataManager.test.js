@@ -21,6 +21,7 @@ import {
   MIN_BRICKS_PER_BATCH,
   MAX_BRICKS_PER_BATCH,
   _getBricksPerBatch,
+  _getProgressiveRequests,
   VolumeDataManager,
 } from './VolumeDataManager.js';
 
@@ -49,7 +50,11 @@ function createManager() {
   manager.zarrStore.resolutions = brickLayout.length;
   manager.zarrStore.brickLayout = brickLayout;
   manager.channels.zarrMappings = [0, 1];
-  return { manager, writes, brickLayout, PT };
+  // XYZ ratios to level 0, as init sets them.
+  const scales = levels.map(level => [...level.ratio].reverse());
+  return {
+    manager, writes, brickLayout, PT, scales,
+  };
 }
 
 describe('spatial-accelerated data utils', () => {
@@ -520,6 +525,128 @@ describe('spatial-accelerated data utils', () => {
       });
       expect(mismatches).toEqual(0);
       expect(count).toEqual((width / 4) * (height / 4));
+    });
+  });
+
+  describe('loading coarser levels first', () => {
+    const ptInfoOf = PT => ({
+      PT_zExtent: PT.zExtent, PT_z0Extent: PT.z0Extent, PT_anchors: PT.anchors,
+    });
+    // Level-0 voxel range [start, end) of a brick along XYZ axis.
+    const regionOf = (brick, scales, axis) => {
+      const size = 32 * scales[brick.resolution][axis];
+      const index = [brick.x, brick.y, brick.z][axis];
+      return [index * size, (index + 1) * size];
+    };
+
+    it('steps from the overview through each level down to the requested brick', () => {
+      const { PT, brickLayout, scales } = createManager();
+      const loaded = new Set();
+      const key = ({ x, y, z }) => `${x},${y},${z}`;
+      const volume = {
+        PT, scales, brickLayout, isLoaded: ptCoord => loaded.has(key(ptCoord)),
+      };
+      // A level-0 brick of channel 1, away from the volume's edges.
+      const requested = _zarrToPt(1, 0, 4, 5, 3, PT);
+      const target = _ptToZarr(requested.x, requested.y, requested.z, ptInfoOf(PT));
+      const steps = [];
+      for (let i = 0; i < brickLayout.length; i++) {
+        const toLoad = _getProgressiveRequests(requested, volume);
+        const bricks = toLoad.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfoOf(PT)));
+        steps.push(bricks[0].resolution);
+        // One level per step, in the requested channel, covering the requested brick.
+        expect(new Set(bricks.map(({ resolution }) => resolution)).size).toBe(1);
+        bricks.forEach(brick => expect(brick.channel).toBe(1));
+        [0, 1, 2].forEach((axis) => {
+          const [start, end] = regionOf(target, scales, axis);
+          const covered = bricks.map(brick => regionOf(brick, scales, axis));
+          expect(Math.min(...covered.map(([s]) => s))).toBeLessThanOrEqual(start);
+          expect(Math.max(...covered.map(([, e]) => e))).toBeGreaterThanOrEqual(
+            Math.min(end, 32 * scales[0][axis] * brickLayout[0][2 - axis]),
+          );
+        });
+        toLoad.forEach(ptCoord => loaded.add(key(ptCoord)));
+      }
+      const coarsest = brickLayout.length - 1;
+      expect(steps).toEqual(Array.from({ length: brickLayout.length }, (_, i) => coarsest - i));
+      // Once every ancestor is loaded, the brick itself is next.
+      expect(steps.at(-1)).toBe(0);
+    });
+
+    it('skips levels whose covering bricks are already loaded', () => {
+      const { PT, brickLayout, scales } = createManager();
+      const requested = _zarrToPt(0, 0, 4, 5, 3, PT);
+      // Everything coarser than level 0 is loaded, except level 1.
+      const isLoaded = ptCoord => _ptToZarr(ptCoord.x, ptCoord.y, ptCoord.z, ptInfoOf(PT))
+        .resolution !== 1;
+      const toLoad = _getProgressiveRequests(requested, {
+        PT, scales, brickLayout, isLoaded,
+      });
+      expect(toLoad.map(({ x, y, z }) => _ptToZarr(x, y, z, ptInfoOf(PT)).resolution))
+        .toEqual(toLoad.map(() => 1));
+      expect(_getProgressiveRequests(requested, {
+        PT, scales, brickLayout, isLoaded: () => true,
+      })).toEqual([requested]);
+    });
+
+    // A manager with real level ratios whose fake source records the level of
+    // each brick read, and a request buffer of two level-0 bricks.
+    function setUpRequests() {
+      const {
+        manager, PT, brickLayout, scales,
+      } = createManager();
+      manager.zarrStore.scales = scales;
+      manager.initStatus = 'complete';
+      // No overview loads left to try, so the batch goes to the regular requests.
+      manager.overviewAttempts.set(0, 3).set(1, 3);
+      const reads = [];
+      manager.brickSource = {
+        brickChunkKeys: () => null,
+        isChunkCached: () => false,
+        async readBrick(brick) {
+          reads.push(brick.level);
+          return { data: new Uint8Array(32 ** 3) };
+        },
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      manager._writeBrick = (ptCoord, slot) => {
+        manager.bc2pt[slot.bcIndex] = ptCoord;
+        return true;
+      };
+      const pixels = [_zarrToPt(0, 0, 4, 5, 3, PT), _zarrToPt(0, 0, 5, 5, 3, PT)];
+      const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+      pixels.forEach(({ x, y, z }, i) => {
+        buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+      });
+      return {
+        manager, brickLayout, reads, buffer: new Uint8Array(buffer.buffer),
+      };
+    }
+
+    it('loads the requested level directly by default', async () => {
+      const { manager, reads, buffer } = setUpRequests();
+      expect(manager.isProgressiveLoadingEnabled).toBe(false);
+      await manager.processRequestData(buffer, {});
+      expect(reads).toEqual([0, 0]);
+    });
+
+    it('when enabled, loads the missing coarser bricks of the requests first', async () => {
+      const {
+        manager, brickLayout, reads, buffer,
+      } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      // The shader keeps requesting the same two level-0 bricks.
+      const levelsLoaded = [];
+      for (let i = 0; i < brickLayout.length; i++) {
+        reads.length = 0;
+        // eslint-disable-next-line no-await-in-loop
+        await manager.processRequestData(buffer, {});
+        levelsLoaded.push([...new Set(reads)]);
+      }
+      const coarsest = brickLayout.length - 1;
+      expect(levelsLoaded).toEqual(
+        Array.from({ length: brickLayout.length }, (_, i) => [coarsest - i]),
+      );
     });
   });
 
