@@ -2664,6 +2664,9 @@ importers:
       '@vitessce/vit-s':
         specifier: workspace:*
         version: link:../../vit-s
+      '@vitessce/zarr-utils':
+        specifier: workspace:*
+        version: link:../../utils/zarr-utils
       d3-array:
         specifier: 'catalog:'
         version: 2.12.1
