@@ -11,10 +11,16 @@ vi.mock('@vitessce/styles', () => ({
   Typography: ({ children }) => <span>{children}</span>,
   Dialog: () => null,
   Info: () => null,
-  SimpleAutocomplete: ({ getMatches, onChange }) => (
-    <button type="button" onClick={async () => onChange((await getMatches('pathway'))[0])}>
-      Choose result
-    </button>
+  SimpleAutocomplete: ({ getMatches, onChange, value }) => (
+    <>
+      <span data-testid="autocomplete-value">{value ? `${value.label} (${value.data.nodeType})` : ''}</span>
+      <button type="button" onClick={async () => onChange((await getMatches('pathway'))[0])}>
+        Choose result
+      </button>
+      <button type="button" onClick={() => onChange(null)}>
+        Clear
+      </button>
+    </>
   ),
 }));
 vi.mock('./styles.js', () => ({ useStyles: () => ({ classes: {} }) }));
@@ -29,11 +35,10 @@ const otherPathway = { kgId: 'other-pathway', label: 'Other pathway', nodeType: 
 
 describe('BiomarkerSelectAlt', () => {
   it.each([
-    ['pathway members', pathway, [], ['GENE_A', 'GENE_B']],
-    ['overlapping selections', pathway, [geneA, otherPathway], ['GENE_A', 'GENE_B']],
-    ['a directly selected gene', geneA, [], ['GENE_A']],
-    ['a pathway without members', { ...pathway, kgId: 'empty' }, [], []],
-  ])('selects genes for %s', async (_name, selectedItem, previousSelection, expected) => {
+    ['pathway members', pathway, ['GENE_A', 'GENE_B']],
+    ['a directly selected gene', geneA, ['GENE_A']],
+    ['a pathway without members', { ...pathway, kgId: 'empty' }, []],
+  ])('selects genes for %s', async (_name, selectedItem, expected) => {
     const queryClient = new QueryClient();
     queryClient.setQueryData(['geneNodes'], [geneA, geneB]);
     queryClient.setQueryData(['pathwayGeneEdges'], [
@@ -42,16 +47,15 @@ describe('BiomarkerSelectAlt', () => {
       { source: otherPathway.kgId, target: geneB.kgId },
     ]);
     const setFeatureSelection = vi.fn();
-    const setCurrentModalityAgnosticSelection = vi.fn();
-    const setCurrentModalitySpecificSelection = vi.fn();
+    const setBiomarkerSelection = vi.fn();
 
     render(
       <BiomarkerSelectAlt
         autocompleteNode={async () => [{ label: selectedItem.label, data: selectedItem }]}
         getEdges={(node, modality) => transformFeature({ queryClient }, node, modality)}
-        currentModalityAgnosticSelection={previousSelection}
-        setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-        setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+        biomarkerSelection={null}
+        setBiomarkerSelection={setBiomarkerSelection}
+        resolvedBiomarker={null}
         setFeatureSelection={setFeatureSelection}
       />,
     );
@@ -60,12 +64,44 @@ describe('BiomarkerSelectAlt', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Select' }));
 
     await waitFor(() => expect(setFeatureSelection).toHaveBeenCalledWith(expected));
-    expect(setCurrentModalityAgnosticSelection).toHaveBeenCalledWith([
-      ...previousSelection, selectedItem,
-    ]);
-    expect(setCurrentModalitySpecificSelection).toHaveBeenCalledWith(
-      expected.map(label => [geneA, geneB].find(node => node.label === label)),
-    );
+    expect(setBiomarkerSelection).toHaveBeenCalledWith({
+      label: selectedItem.label,
+      nodeType: selectedItem.nodeType,
+    });
     queryClient.clear();
+  });
+
+  it('displays the biomarkerSelection (e.g., from URL params) in the autocomplete', () => {
+    render(
+      <BiomarkerSelectAlt
+        autocompleteNode={async () => []}
+        getEdges={async () => []}
+        biomarkerSelection={{ label: otherPathway.label, nodeType: 'pathway' }}
+        setBiomarkerSelection={vi.fn()}
+        resolvedBiomarker={null}
+        setFeatureSelection={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId('autocomplete-value').textContent).toEqual('Other pathway (pathway)');
+    // The selection has already been confirmed.
+    expect(screen.queryByRole('button', { name: 'Select' })).toBeNull();
+  });
+
+  it('clears the selection when the autocomplete is cleared', () => {
+    const setFeatureSelection = vi.fn();
+    const setBiomarkerSelection = vi.fn();
+    render(
+      <BiomarkerSelectAlt
+        autocompleteNode={async () => []}
+        getEdges={async () => []}
+        biomarkerSelection={{ label: geneA.label, nodeType: 'gene' }}
+        setBiomarkerSelection={setBiomarkerSelection}
+        resolvedBiomarker={geneA}
+        setFeatureSelection={setFeatureSelection}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(setBiomarkerSelection).toHaveBeenCalledWith(null);
+    expect(setFeatureSelection).toHaveBeenCalledWith(null);
   });
 });

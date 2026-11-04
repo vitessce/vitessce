@@ -1411,6 +1411,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 7.1.4(jiti@1.21.7)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.4(@types/debug@4.1.12)(@vitest/ui@3.2.4)(jiti@1.21.7)(jsdom@26.1.0)(lightningcss@1.22.1)(sass@1.89.1)(terser@5.40.0)
 
   packages/main/dev:
     dependencies:
