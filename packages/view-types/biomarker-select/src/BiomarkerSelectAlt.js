@@ -11,6 +11,7 @@ export function BiomarkerSelectAlt(props) {
     setFeatureSelection,
     setSampleSetFilter,
     setSampleSetSelection,
+    sampleSetSelection,
 
     currentModalityAgnosticSelection,
     setCurrentModalityAgnosticSelection,
@@ -75,6 +76,7 @@ export function BiomarkerSelectAlt(props) {
           <BiomarkerSelectAltSampleGroups
             setSampleSetFilter={setSampleSetFilter}
             setSampleSetSelection={setSampleSetSelection}
+            sampleSetSelection={sampleSetSelection}
 
             stratifications={stratifications}
           />

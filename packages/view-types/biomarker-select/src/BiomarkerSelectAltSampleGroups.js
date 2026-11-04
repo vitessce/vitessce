@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Grid, NativeSelect } from '@vitessce/styles';
 import { isEqual } from 'lodash-es';
 
@@ -7,12 +7,10 @@ export function BiomarkerSelectAltSampleGroups(props) {
   const {
     setSampleSetFilter,
     setSampleSetSelection,
+    sampleSetSelection,
 
     stratifications,
   } = props;
-
-  const [lhsSelectedGroup, setLhsSelectedGroup] = useState(null);
-  const [rhsSelectedGroup, setRhsSelectedGroup] = useState(null);
 
   const sampleSetOptions = stratifications?.filter(s => s.stratificationType === 'sampleSet');
   const hasSampleSetOptions = sampleSetOptions && sampleSetOptions.length > 0;
@@ -58,6 +56,14 @@ export function BiomarkerSelectAltSampleGroups(props) {
     return [];
   }, [sampleSetOptions]);
 
+  // The selected groups are derived from the sampleSetSelection coordination value
+  // (rather than stored in local state), so that the dropdowns reflect selections
+  // that originate elsewhere (e.g., from URL params upon initial page load).
+  const lhsSelectedGroup = useMemo(() => {
+    const lhsPath = sampleSetSelection?.[0];
+    return lhsOptions.find(o => isEqual(o.path, lhsPath))?.name ?? null;
+  }, [lhsOptions, sampleSetSelection]);
+
   const rhsOptions = useMemo(() => {
     if (sampleSetOptions && lhsOptions && lhsSelectedGroup) {
       const lhsOption = lhsOptions.find(o => o.name === lhsSelectedGroup);
@@ -66,10 +72,13 @@ export function BiomarkerSelectAltSampleGroups(props) {
     return [];
   }, [sampleSetOptions, lhsOptions, lhsSelectedGroup]);
 
+  const rhsSelectedGroup = useMemo(() => {
+    const rhsPath = sampleSetSelection?.[1];
+    return rhsOptions.find(o => isEqual(o.path, rhsPath))?.name ?? null;
+  }, [rhsOptions, sampleSetSelection]);
+
 
   function handleFirstGroupChange(event) {
-    setLhsSelectedGroup(event.target.value);
-
     // Update the sampleSetFilter and sampleSetSelection.
     if (event.target.value === '__all__') {
       setSampleSetFilter(null);
@@ -84,8 +93,6 @@ export function BiomarkerSelectAltSampleGroups(props) {
   }
 
   function handleSecondGroupChange(event) {
-    setRhsSelectedGroup(event.target.value);
-
     // Update the sampleSetFilter and sampleSetSelection.
     if (event.target.value === '__none__') {
       const lhsOption = lhsOptions.find(o => o.name === lhsSelectedGroup);

@@ -46,30 +46,31 @@ export function BiomarkerSelect(props) {
   // Merge currentConfig with geneSelection and sampleSetSelection,
   // which may have been updated from outside Vitessce (e.g., from URL params).
   const mergedConfig = useMemo(() => {
-    if (!currentConfig) {
-      return withSelectedModality(initialConfig, selectedModality);
-    }
-    // Merge currentConfig with geneSelection and sampleSetSelection.
+    // Prior to the first onConfigChange, use the initial config as the base,
+    // so that values from outside Vitessce (e.g., URL params on initial page load)
+    // are present from the very first render.
+    const baseConfig = currentConfig ?? initialConfig;
+    // Merge baseConfig with geneSelection and sampleSetSelection.
     const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
     const isValidSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string'));
 
     const newConfig = withSelectedModality({
-      ...currentConfig,
+      ...baseConfig,
       coordinationSpace: {
-        ...currentConfig.coordinationSpace,
+        ...baseConfig.coordinationSpace,
         featureSelection: {
-          ...currentConfig.coordinationSpace?.featureSelection,
+          ...baseConfig.coordinationSpace?.featureSelection,
           __comparison__: (isValidGeneSelection
             ? geneSelection
-            : currentConfig.coordinationSpace?.featureSelection?.__comparison__
+            : baseConfig.coordinationSpace?.featureSelection?.__comparison__
           ),
         },
         sampleSetSelection: {
-          ...currentConfig.coordinationSpace?.sampleSetSelection,
+          ...baseConfig.coordinationSpace?.sampleSetSelection,
           __comparison__: (
             isValidSampleSetSelection
               ? sampleSetSelection
-              : currentConfig.coordinationSpace?.sampleSetSelection?.__comparison__
+              : baseConfig.coordinationSpace?.sampleSetSelection?.__comparison__
           ),
         },
       },

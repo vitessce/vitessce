@@ -140,6 +140,7 @@ export function BiomarkerSelectAltSubscriber(props) {
         setFeatureSelection={setFeatureSelection}
         setSampleSetFilter={setSampleSetFilter}
         setSampleSetSelection={setSampleSetSelection}
+        sampleSetSelection={sampleSetSelection}
         currentModalityAgnosticSelection={currentModalityAgnosticSelection}
         setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
         setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}

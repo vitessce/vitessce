@@ -4,4 +4,4 @@
 "demo": patch
 ---
 
-Support both single-cell and single-nucleus datasets in the comparative components. Replace the `datasetUrl` prop of `UncontrolledComparative` and `ControlledComparative` with `singleCellDatasetUrl` and `singleNucleusDatasetUrl` (at least one is required). The generated config defines one dataset per modality, and the `biomarkerSelectAlt` view renders a dropdown to switch between datasets when more than one is available.
+Support both single-cell and single-nucleus datasets in the comparative components. Replace the `datasetUrl` prop of `UncontrolledComparative` and `ControlledComparative` with `singleCellDatasetUrl` and `singleNucleusDatasetUrl` (at least one is required). The generated config defines one dataset per modality, and the `biomarkerSelectAlt` view renders a dropdown to switch between datasets when more than one is available. The sample group dropdowns of the `biomarkerSelectAlt` view now reflect the `sampleSetSelection` coordination value (e.g., from URL params upon initial page load).
