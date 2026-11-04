@@ -13,9 +13,9 @@ export function BiomarkerSelectAlt(props) {
     setSampleSetSelection,
     sampleSetSelection,
 
-    currentModalityAgnosticSelection,
-    setCurrentModalityAgnosticSelection,
-    setCurrentModalitySpecificSelection,
+    biomarkerSelection,
+    setBiomarkerSelection,
+    resolvedBiomarker,
 
     autocompleteNode,
     getEdges,
@@ -44,9 +44,9 @@ export function BiomarkerSelectAlt(props) {
             autocompleteNode={autocompleteNode}
             getEdges={getEdges}
 
-            currentModalityAgnosticSelection={currentModalityAgnosticSelection}
-            setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-            setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+            biomarkerSelection={biomarkerSelection}
+            setBiomarkerSelection={setBiomarkerSelection}
+            resolvedBiomarker={resolvedBiomarker}
           />
         </Grid>
         {hasMultipleDatasets ? (

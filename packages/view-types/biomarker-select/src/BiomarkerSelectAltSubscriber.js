@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { uniqBy } from 'lodash-es';
 import {
   useAsyncFunction,
   useViewConfigStoreApi,
@@ -19,12 +21,17 @@ import { BiomarkerSelectAlt } from './BiomarkerSelectAlt.js';
 /**
  * Alternative biomarker select UI.
  * @param {object} props
- * @param {{ name: string, stratificationType: string, sampleSets: [string[], string[]]}[]} props.stratificationOptions
+ * @param {string} props.uuid The view uid.
+ * @param {{ label: string, nodeType: string } | null} [props.biomarkerSelection] The selected
+ * modality-agnostic item (e.g., a gene or pathway), stored in the view config `props` of this view.
+ * Internally, it is transformed into the list of genes for the featureSelection coordination value.
  * @returns
  */
 export function BiomarkerSelectAltSubscriber(props) {
   const {
+    uuid,
     coordinationScopes: coordinationScopesRaw,
+    biomarkerSelection = null,
   } = props;
 
   const loaders = useLoaders();
@@ -51,6 +58,18 @@ export function BiomarkerSelectAltSubscriber(props) {
   const viewConfig = useViewConfig();
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
 
+  // Update the biomarkerSelection value in the view config props of this view.
+  const setBiomarkerSelection = useCallback((newBiomarkerSelection) => {
+    const { viewConfig: currentViewConfig } = viewConfigStoreApi.getState();
+    setViewConfig({
+      ...currentViewConfig,
+      layout: currentViewConfig.layout.map(v => (v.uid === uuid
+        ? { ...v, props: { ...v.props, biomarkerSelection: newBiomarkerSelection } }
+        : v
+      )),
+    });
+  }, [viewConfigStoreApi, setViewConfig, uuid]);
+
   // Options for the dropdown used to switch between datasets
   // (e.g., single-cell vs. single-nucleus data modalities).
   // Only rendered when multiple datasets are present in the config.
@@ -70,11 +89,6 @@ export function BiomarkerSelectAltSubscriber(props) {
   );
   const sampleSetsColumnNameMappingReversed = useColumnNameMapping(sampleSetsLoader, true);
 
-  const [mode] = useState(null);
-  const [currentModalityAgnosticSelection, setCurrentModalityAgnosticSelection] = useState(null);
-  const [currentModalitySpecificSelection, setCurrentModalitySpecificSelection] = useState(null);
-  const [currentStratificationSelection, setCurrentStratificationSelection] = useState(null);
-
   const autocompleteFeature = useAsyncFunction(AsyncFunctionType.AUTOCOMPLETE_FEATURE);
   const transformFeature = useAsyncFunction(AsyncFunctionType.TRANSFORM_FEATURE);
 
@@ -89,6 +103,31 @@ export function BiomarkerSelectAltSubscriber(props) {
     async (node, targetModality) => transformFeature(node, targetModality),
     [transformFeature],
   );
+
+  // The biomarkerSelection only contains the label and nodeType
+  // (e.g., when provided via URL params), so we look up the full knowledge graph node
+  // (containing the kgId and ontology term) and its corresponding genes.
+  const { data: resolvedBiomarker } = useQuery({
+    queryKey: ['biomarkerSelectAlt', 'resolveBiomarker', biomarkerSelection?.label, biomarkerSelection?.nodeType],
+    enabled: Boolean(biomarkerSelection),
+    staleTime: Infinity,
+    queryFn: async () => {
+      const { label, nodeType } = biomarkerSelection;
+      const matches = await autocompleteFeature(label);
+      const node = matches.find(n => n.label === label && n.nodeType === nodeType) ?? null;
+      const genes = node ? uniqBy(await transformFeature(node, 'gene'), 'label') : [];
+      return { node, genes };
+    },
+  });
+
+  // Initialize the featureSelection based on the biomarkerSelection,
+  // in the case that only the biomarkerSelection has been provided
+  // (e.g., upon initial page load with a pathway specified in the URL params).
+  useEffect(() => {
+    if (resolvedBiomarker && biomarkerSelection && featureSelection == null) {
+      setFeatureSelection(resolvedBiomarker.genes.map(d => d.label));
+    }
+  }, [resolvedBiomarker, biomarkerSelection, featureSelection, setFeatureSelection]);
 
   const [{ comparisonMetadata }, cmpMetadataStatus, cmpMetadataUrls] = useComparisonMetadata(
     loaders, dataset, false, {}, {}, { obsType, sampleType },
@@ -127,13 +166,6 @@ export function BiomarkerSelectAltSubscriber(props) {
     return null;
   }, [comparisonMetadata, sampleSetsColumnNameMappingReversed]);
 
-  // TODO: Remove mode/step logic
-  // TODO: remove currentModalityAgnostic/SpecificSelection and use featureSelection + sampleSetSelection as the source of truth.
-  // Get rid of the local state within the children components and pass down the coordination values and setters directly
-  // so that everything stays in sync.
-  // E.g., if a user selects a gene from the volcano plot, the autocomplete input should reflect that selection
-  // and allow the user to view the corresponding gene info / gene card.
-
   return (
     <>
       <BiomarkerSelectAlt
@@ -141,51 +173,15 @@ export function BiomarkerSelectAltSubscriber(props) {
         setSampleSetFilter={setSampleSetFilter}
         setSampleSetSelection={setSampleSetSelection}
         sampleSetSelection={sampleSetSelection}
-        currentModalityAgnosticSelection={currentModalityAgnosticSelection}
-        setCurrentModalityAgnosticSelection={setCurrentModalityAgnosticSelection}
-        setCurrentModalitySpecificSelection={setCurrentModalitySpecificSelection}
+        biomarkerSelection={biomarkerSelection}
+        setBiomarkerSelection={setBiomarkerSelection}
+        resolvedBiomarker={resolvedBiomarker?.node ?? null}
         autocompleteNode={autocompleteNode}
         getEdges={getEdges}
         stratifications={stratificationOptions}
         datasetOptions={datasetOptions}
         dataset={dataset}
         setDataset={setDataset}
-
-        onFinish={() => {
-          if (mode === 'exploratory') {
-            // mode is exploratory, configure accordingly.
-
-            // TODO
-
-          } else {
-            // mode is confirmatory, configure accordingly.
-
-            // TODO
-          }
-
-          const newViewConfig = {
-            ...viewConfig,
-            coordinationSpace: {
-              ...viewConfig.coordinationSpace,
-              sampleSetFilter: {
-                ...viewConfig.coordinationSpace.sampleSetFilter,
-                __comparison__: currentStratificationSelection?.sampleSets,
-              },
-              sampleSetSelection: {
-                ...viewConfig.coordinationSpace.sampleSetSelection,
-                __comparison__: currentStratificationSelection?.sampleSets,
-              },
-              featureSelection: {
-                ...viewConfig.coordinationSpace.featureSelection,
-                __comparison__: currentModalitySpecificSelection ? currentModalitySpecificSelection.map(d => d.label) : null,
-              },
-            },
-          };
-
-          // TODO: can the normal coordination value setters be used instead?
-          // (e.g., setFeatureSelection, setSampleSetSelection)
-          setViewConfig(newViewConfig);
-        }}
       />
     </>
   );
