@@ -3,11 +3,26 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Vitessce } from '@vitessce/all';
 import { isEqual } from 'lodash-es';
-import { BiomarkerSelectPageComponent, generateComparativeConfig } from './ComparativeConfig.jsx';
+import {
+  BiomarkerSelectPageComponent,
+  generateComparativeConfig,
+  getSelectedModality,
+  resolveSelectedModality,
+  withSelectedModality,
+} from './ComparativeConfig.jsx';
 
+/**
+ * Renders the biomarkerSelectAlt view, synchronizing
+ * gene selection, sample set selection, and modality selection
+ * state with its parent.
+ * See the ControlledComparative component for documentation of the props.
+ */
 export function BiomarkerSelect(props) {
   const {
-    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr',
+    singleCellDatasetUrl,
+    singleNucleusDatasetUrl,
+    selectedModality: selectedModalityProp,
+    setSelectedModality,
     geneSelection,
     sampleSetSelection,
     setGeneSelection,
@@ -17,20 +32,28 @@ export function BiomarkerSelect(props) {
     logLevel = undefined,
   } = props;
 
-  const initialConfig = useMemo(() => generateComparativeConfig(datasetUrl, true), [datasetUrl]);
+  const initialConfig = useMemo(() => generateComparativeConfig(
+    { singleCellDatasetUrl, singleNucleusDatasetUrl },
+    true,
+  ), [singleCellDatasetUrl, singleNucleusDatasetUrl]);
+  // Fall back to the first available modality if the selected one is not available.
+  const selectedModality = useMemo(() => resolveSelectedModality(
+    initialConfig.datasets.map(d => d.uid),
+    selectedModalityProp,
+  ), [initialConfig, selectedModalityProp]);
   const [currentConfig, setCurrentConfig] = useState(null);
 
   // Merge currentConfig with geneSelection and sampleSetSelection,
   // which may have been updated from outside Vitessce (e.g., from URL params).
   const mergedConfig = useMemo(() => {
     if (!currentConfig) {
-      return initialConfig;
+      return withSelectedModality(initialConfig, selectedModality);
     }
     // Merge currentConfig with geneSelection and sampleSetSelection.
     const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
     const isValidSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string'));
 
-    const newConfig = {
+    const newConfig = withSelectedModality({
       ...currentConfig,
       coordinationSpace: {
         ...currentConfig.coordinationSpace,
@@ -50,9 +73,9 @@ export function BiomarkerSelect(props) {
           ),
         },
       },
-    };
+    }, selectedModality);
     return newConfig;
-  }, [initialConfig, currentConfig, geneSelection, sampleSetSelection]);
+  }, [initialConfig, currentConfig, geneSelection, sampleSetSelection, selectedModality]);
 
   const onConfigChange = useCallback((newConfig) => {
     // Listen for changes to the config from inside vITESSCE
@@ -82,7 +105,14 @@ export function BiomarkerSelect(props) {
     if (hasNewSampleSetSelection) {
       setSampleSetSelection(newSampleSetSelection);
     }
-  }, [geneSelection, sampleSetSelection]);
+
+    // Was a different modality (i.e., dataset) selected from inside Vitessce?
+    const newModality = getSelectedModality(newConfig);
+    if (typeof newModality === 'string' && newModality !== selectedModality) {
+      setSelectedModality?.(newModality);
+    }
+  }, [geneSelection, sampleSetSelection, selectedModality,
+    setGeneSelection, setSampleSetSelection, setSelectedModality]);
 
   const didFirstValidation = currentConfig !== null;
 

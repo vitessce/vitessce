@@ -3,14 +3,27 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Vitessce } from '@vitessce/all';
 import { isEqual } from 'lodash-es';
-import { ComparativePageComponent, generateComparativeConfig } from './ComparativeConfig.jsx';
+import {
+  ComparativePageComponent,
+  generateComparativeConfig,
+  getSelectedModality,
+  resolveSelectedModality,
+  withSelectedModality,
+} from './ComparativeConfig.jsx';
 
 /**
  * A controlled component for comparative visualization that synchronizes
  * gene selection and sample set selection state with its parent.
  * @param {object} props
- * @param {string} props.datasetUrl - URL to the comparative AnnData-Zarr
- * store.
+ * At least one of singleCellDatasetUrl or singleNucleusDatasetUrl must be provided.
+ * @param {string} [props.singleCellDatasetUrl] - URL to the single-cell
+ * comparative AnnData-Zarr store.
+ * @param {string} [props.singleNucleusDatasetUrl] - URL to the single-nucleus
+ * comparative AnnData-Zarr store.
+ * @param {string} [props.selectedModality] - The modality currently being viewed
+ * (one of 'sc' or 'sn'). By default, the first modality for which a URL was provided.
+ * @param {Function} [props.setSelectedModality] - Setter function
+ * called when the selected modality has been updated from inside.
  * @param {string[]} props.geneSelection - Array of selected gene names.
  * @param {Function} props.setGeneSelection - Setter function
  * called when the gene selection has been updated from inside.
@@ -26,7 +39,10 @@ import { ComparativePageComponent, generateComparativeConfig } from './Comparati
  */
 export function ControlledComparative(props) {
   const {
-    datasetUrl = 'https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr',
+    singleCellDatasetUrl,
+    singleNucleusDatasetUrl,
+    selectedModality: selectedModalityProp,
+    setSelectedModality,
     geneSelection,
     setGeneSelection,
     sampleSetSelection,
@@ -36,13 +52,21 @@ export function ControlledComparative(props) {
     logLevel = undefined,
   } = props;
 
-  const initialConfig = useMemo(() => generateComparativeConfig(datasetUrl, false), [datasetUrl]);
+  const initialConfig = useMemo(() => generateComparativeConfig(
+    { singleCellDatasetUrl, singleNucleusDatasetUrl },
+    false,
+  ), [singleCellDatasetUrl, singleNucleusDatasetUrl]);
+  // Fall back to the first available modality if the selected one is not available.
+  const selectedModality = useMemo(() => resolveSelectedModality(
+    initialConfig.datasets.map(d => d.uid),
+    selectedModalityProp,
+  ), [initialConfig, selectedModalityProp]);
   const [currentConfig, setCurrentConfig] = useState(null);
   // Merge currentConfig with geneSelection and sampleSetSelection,
   // which may have been updated from outside Vitessce (e.g., from URL params).
   const mergedConfig = useMemo(() => {
     if (!currentConfig) {
-      return initialConfig;
+      return withSelectedModality(initialConfig, selectedModality);
     }
     // Merge currentConfig with geneSelection and sampleSetSelection.
     const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
@@ -51,13 +75,15 @@ export function ControlledComparative(props) {
     // Check if geneSelection or sampleSetSelection have changed before specifying a different config.uid value.
     const prevGeneSelection = currentConfig.coordinationSpace?.featureSelection?.__comparison__;
     const prevSampleSetSelection = currentConfig.coordinationSpace?.sampleSetSelection?.__comparison__;
+    const prevModality = getSelectedModality(currentConfig);
     if (isEqual(prevGeneSelection, geneSelection)
           && isEqual(prevSampleSetSelection, sampleSetSelection)
+          && prevModality === selectedModality
     ) {
       return currentConfig;
     }
 
-    const newConfig = {
+    const newConfig = withSelectedModality({
       ...currentConfig,
       // Note: this forces Vitessce to re-initialize the coordination space for featureSelection and sampleSetSelection,
       // but it also causes the data to be re-loaded.
@@ -80,11 +106,10 @@ export function ControlledComparative(props) {
           ),
         },
       },
-    };
+    }, selectedModality);
 
-    // console.log(geneSelection, isValidGeneSelection, newConfig);
     return newConfig;
-  }, [initialConfig, currentConfig, geneSelection, sampleSetSelection]);
+  }, [initialConfig, currentConfig, geneSelection, sampleSetSelection, selectedModality]);
 
 
   const onConfigChange = useCallback((newConfig) => {
@@ -115,7 +140,14 @@ export function ControlledComparative(props) {
     if (hasNewSampleSetSelection) {
       setSampleSetSelection(newSampleSetSelection);
     }
-  }, [geneSelection, sampleSetSelection]);
+
+    // Was a different modality (i.e., dataset) selected from inside Vitessce?
+    const newModality = getSelectedModality(newConfig);
+    if (typeof newModality === 'string' && newModality !== selectedModality) {
+      setSelectedModality?.(newModality);
+    }
+  }, [geneSelection, sampleSetSelection, selectedModality,
+    setGeneSelection, setSampleSetSelection, setSelectedModality]);
 
   const didFirstValidation = currentConfig !== null;
 

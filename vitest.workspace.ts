@@ -20,6 +20,7 @@ export default defineWorkspace([
     'packages/workers',
     // Second-level
     'packages/main/all',
+    'packages/main/comparative',
     'packages/utils/*',
     'packages/file-types/*',
     'packages/view-types/*'

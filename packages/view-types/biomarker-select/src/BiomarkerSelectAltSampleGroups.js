@@ -106,7 +106,7 @@ export function BiomarkerSelectAltSampleGroups(props) {
     <>
       <Grid container size={12}>
         <Grid container size={4}>
-          <span style={{ lineHeight: '50px' }}>in:&nbsp;</span>
+          <span style={{ lineHeight: '50px' }}>In group:&nbsp;</span>
         </Grid>
         <Grid container size={8}>
           <NativeSelect
@@ -128,7 +128,7 @@ export function BiomarkerSelectAltSampleGroups(props) {
       </Grid>
       <Grid container size={12}>
         <Grid container size={4}>
-          <span style={{ lineHeight: '50px' }}>compare to:&nbsp;</span>
+          <span style={{ lineHeight: '50px' }}>Compare to:&nbsp;</span>
         </Grid>
         <Grid container size={8}>
           <NativeSelect

@@ -1,0 +1,54 @@
+import { describe, it, expect } from 'vitest';
+import {
+  generateComparativeConfig,
+  getSelectedModality,
+  withSelectedModality,
+} from './ComparativeConfig.jsx';
+
+const singleCellDatasetUrl = 'https://example.com/sc.adata.zarr';
+const singleNucleusDatasetUrl = 'https://example.com/sn.adata.zarr';
+
+function getScatterplot(config) {
+  return config.layout.find(v => v.uid === 'scatterplot');
+}
+
+describe('generateComparativeConfig', () => {
+  it('defines one dataset per provided modality', () => {
+    const both = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
+    expect(both.datasets.map(d => d.uid)).toEqual(['sc', 'sn']);
+    expect(both.datasets[1].files.every(f => f.url.startsWith(singleNucleusDatasetUrl))).toBe(true);
+    expect(getSelectedModality(both)).toEqual('sc');
+
+    const snOnly = generateComparativeConfig({ singleNucleusDatasetUrl }, true);
+    expect(snOnly.datasets.map(d => d.uid)).toEqual(['sn']);
+    expect(getSelectedModality(snOnly)).toEqual('sn');
+  });
+
+  it('throws when no dataset URL is provided', () => {
+    expect(() => generateComparativeConfig({}, false)).toThrow();
+  });
+
+  it('links every view to the shared dataset scope', () => {
+    const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false, 'sn');
+    expect(getSelectedModality(config)).toEqual('sn');
+    expect(config.layout.every(v => v.coordinationScopes.dataset === '__comparison__')).toBe(true);
+    expect(getScatterplot(config).props.circleScaleFactor).toEqual(0.5);
+  });
+});
+
+describe('withSelectedModality', () => {
+  const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
+
+  it('switches the selected dataset and modality-specific view props', () => {
+    const newConfig = withSelectedModality(config, 'sn');
+    expect(getSelectedModality(newConfig)).toEqual('sn');
+    expect(getScatterplot(newConfig).props.circleScaleFactor).toEqual(0.5);
+    expect(getScatterplot(config).props.circleScaleFactor).toEqual(0.8);
+  });
+
+  it('ignores modalities that are not in the config', () => {
+    const scOnly = generateComparativeConfig({ singleCellDatasetUrl }, false);
+    expect(withSelectedModality(scOnly, 'sn')).toBe(scOnly);
+    expect(withSelectedModality(config, 'sc')).toBe(config);
+  });
+});

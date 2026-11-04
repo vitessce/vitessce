@@ -38,6 +38,7 @@ export function BiomarkerSelectAltSubscriber(props) {
     sampleSetSelection,
     featureSelection,
   }, {
+    setDataset,
     setSampleSetFilter,
     setSampleSetSelection,
     setFeatureSelection,
@@ -49,6 +50,14 @@ export function BiomarkerSelectAltSubscriber(props) {
   const viewConfigStoreApi = useViewConfigStoreApi();
   const viewConfig = useViewConfig();
   const setViewConfig = useSetViewConfig(viewConfigStoreApi);
+
+  // Options for the dropdown used to switch between datasets
+  // (e.g., single-cell vs. single-nucleus data modalities).
+  // Only rendered when multiple datasets are present in the config.
+  const datasetOptions = useMemo(() => (viewConfig?.datasets ?? []).map(d => ({
+    uid: d.uid,
+    name: d.name,
+  })), [viewConfig?.datasets]);
 
 
   // Need obsSets and sampleSets options to obtain mapping between
@@ -137,6 +146,9 @@ export function BiomarkerSelectAltSubscriber(props) {
         autocompleteNode={autocompleteNode}
         getEdges={getEdges}
         stratifications={stratificationOptions}
+        datasetOptions={datasetOptions}
+        dataset={dataset}
+        setDataset={setDataset}
 
         onFinish={() => {
           if (mode === 'exploratory') {
