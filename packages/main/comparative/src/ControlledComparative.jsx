@@ -69,8 +69,10 @@ export function ControlledComparative(props) {
       return withSelectedModality(initialConfig, selectedModality);
     }
     // Merge currentConfig with geneSelection and sampleSetSelection.
-    const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
-    const isValidSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string'));
+    // Note: null is a valid value, which represents a cleared selection
+    // (e.g., after selecting "All" in the "In group" dropdown of the BiomarkerSelect UI).
+    const isValidGeneSelection = geneSelection === null || (Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string'));
+    const isValidSampleSetSelection = sampleSetSelection === null || (Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string')));
 
     // Check if geneSelection or sampleSetSelection have changed before specifying a different config.uid value.
     const prevGeneSelection = currentConfig.coordinationSpace?.featureSelection?.__comparison__;

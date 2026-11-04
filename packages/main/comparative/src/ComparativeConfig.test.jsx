@@ -46,6 +46,26 @@ describe('withSelectedModality', () => {
     expect(getScatterplot(config).props.circleScaleFactor).toEqual(0.8);
   });
 
+  it('resets obsSetSelection to null upon a change of modality', () => {
+    const withSelection = {
+      ...config,
+      coordinationSpace: {
+        ...config.coordinationSpace,
+        obsSetSelection: {
+          __multi__: [['Subclass L1', 'POD'], ['Subclass L1', 'PT']],
+          __single__: [['Subclass L1', 'POD']],
+        },
+      },
+    };
+    const newConfig = withSelectedModality(withSelection, 'sn');
+    expect(newConfig.coordinationSpace.obsSetSelection).toEqual({
+      __multi__: null,
+      __single__: null,
+    });
+    // Selecting the already-selected modality does not reset obsSetSelection.
+    expect(withSelectedModality(withSelection, 'sc')).toBe(withSelection);
+  });
+
   it('ignores modalities that are not in the config', () => {
     const scOnly = generateComparativeConfig({ singleCellDatasetUrl }, false);
     expect(withSelectedModality(scOnly, 'sn')).toBe(scOnly);

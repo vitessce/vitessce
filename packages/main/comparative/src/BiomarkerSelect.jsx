@@ -51,8 +51,9 @@ export function BiomarkerSelect(props) {
     // are present from the very first render.
     const baseConfig = currentConfig ?? initialConfig;
     // Merge baseConfig with geneSelection and sampleSetSelection.
-    const isValidGeneSelection = Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string');
-    const isValidSampleSetSelection = Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string'));
+    // Note: null is a valid value, which represents a cleared selection.
+    const isValidGeneSelection = geneSelection === null || (Array.isArray(geneSelection) && geneSelection.every(g => typeof g === 'string'));
+    const isValidSampleSetSelection = sampleSetSelection === null || (Array.isArray(sampleSetSelection) && sampleSetSelection.every(s => Array.isArray(s) && s.every(t => typeof t === 'string')));
 
     const newConfig = withSelectedModality({
       ...baseConfig,
@@ -87,17 +88,16 @@ export function BiomarkerSelect(props) {
     const newSampleSetSelection = newConfig.coordinationSpace?.sampleSetSelection?.__comparison__;
 
     // Was there a new selection made from inside Vitessce?
-    // Note: this will prevent from CLEARING the selections from inside Vitessce
-    // (any clearing will need to be done from the BiomarkerSelect UI).
+    // Note: unlike in ControlledComparative, here we allow CLEARING the selections
+    // (i.e., null or empty array values), since this is the UI from which
+    // selections are cleared (e.g., selecting "All" in the "In group" dropdown).
     const hasNewGeneSelection = (
-      Array.isArray(newFeatureSelection)
-              && newFeatureSelection.length > 0
-              && !isEqual(newFeatureSelection, geneSelection)
+      newFeatureSelection !== undefined
+        && !isEqual(newFeatureSelection, geneSelection)
     );
     const hasNewSampleSetSelection = (
-      Array.isArray(newSampleSetSelection)
-          && newSampleSetSelection.length > 0
-          && !isEqual(newSampleSetSelection, sampleSetSelection)
+      newSampleSetSelection !== undefined
+        && !isEqual(newSampleSetSelection, sampleSetSelection)
     );
 
     if (hasNewGeneSelection) {
