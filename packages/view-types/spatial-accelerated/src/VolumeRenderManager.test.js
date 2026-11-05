@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { getScreenLodFactor, getClippingBounds, sliceToClip } from './VolumeRenderManager.js';
+import {
+  getScreenLodFactor, getClippingBounds, sliceToClip, windowToClim,
+} from './VolumeRenderManager.js';
 
 describe('clipping', () => {
   // Column-major 4x4 scaling by physical voxel sizes 0.2, 0.2, 0.5.
@@ -46,5 +48,15 @@ describe('getScreenLodFactor', () => {
     const factor = getScreenLodFactor(1, 50, 900, shape);
     expect(getScreenLodFactor(0.5, 50, 900, shape)).toBeCloseTo(factor / 2);
     expect(getScreenLodFactor(1, 50, 1800, shape)).toBeCloseTo(factor / 2);
+  });
+});
+
+describe('windowToClim', () => {
+  it('maps a window in data values to fractions of the stored range', () => {
+    expect(windowToClim([0, 1030], [0, 65535])).toEqual([0, 1030 / 65535]);
+    expect(windowToClim([0, 33], [-66, 132])).toEqual([1 / 3, 0.5]);
+    // Windows beyond the stored range go beyond 0-1.
+    expect(windowToClim([0, 255], [0, 255])).toEqual([0, 1]);
+    expect(windowToClim([-10, 300], [0, 100])).toEqual([-0.1, 3]);
   });
 });

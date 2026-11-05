@@ -16,13 +16,15 @@ function logWithColor(message) {
 }
 
 /**
- * Normalize a value based on the volume's min/max range
- * @param {number} value - Value to normalize
- * @param {Array} minMax - [min, max] values of the volume
- * @returns {number} Normalized value
+ * A contrast window in data values as the shader's contrast limits: fractions
+ * of the value range its channel is stored over (as 0-1) in the brick cache.
+ * @param {[number, number]} window [low, high] in data values.
+ * @param {[number, number]} storageRange [min, max] stored as 0-1.
+ * @returns {[number, number]}
  */
-function normalizeValue(value, minMax) {
-  return value / minMax[1];
+export function windowToClim([low, high], [min, max]) {
+  const range = (max - min) || 1;
+  return [(low - min) / range, (high - min) / range];
 }
 
 /**
@@ -115,9 +117,6 @@ export class VolumeRenderManager {
     this.finestRes = 0; // finest renderable level, set in setZarrUniforms
     this.lodFactor = 1.0; // spatialLodFactor; VolumeView sets the shader's factor from it
 
-    this.maxRange = 255;
-    this.maxRangeSet = false;
-
     // Additional state
     // this.mrt = null; // Single MRT reference
 
@@ -139,6 +138,7 @@ export class VolumeRenderManager {
    * @param {Object} props - Component props
    * @returns {Object} Extracted rendering settings
    */
+  // eslint-disable-next-line class-methods-use-this
   extractRenderingSettingsFromProps(props) {
     const {
       images = {},
@@ -177,8 +177,6 @@ export class VolumeRenderManager {
       // but their range will be much larger (e.g., 0-65535).
 
       // TODO(mark): the defaults should be set based on the image dtype.
-      // TODO(mark): wait for all channel IQR ranges to be computed before initializing,
-      // as we do not want this.maxRange to be incorrect.
       logWithColor('Extracting rendering settings from props - no channel window set');
       return {
         valid: false,
@@ -209,11 +207,6 @@ export class VolumeRenderManager {
       channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_WINDOW]
          || ([0, 255])
     ));
-
-    if (!this.maxRangeSet) {
-      this.maxRange = Math.max(...contrastLimits.map(limit => limit[1]));
-      this.maxRangeSet = true;
-    }
 
     // Extract channel visibility
     const channelsVisible = isRgb ? ([
@@ -378,7 +371,6 @@ export class VolumeRenderManager {
     // Collect settings for active channels
     const texturesList = [];
     const colorsSave = [];
-    const contrastLimitsList = [];
 
     // ', this);
 
@@ -392,12 +384,6 @@ export class VolumeRenderManager {
       // log.debug('id', id);
       // log.debug('this.channelsVisible', this.channelsVisible);
       if (this.channelsVisible[id] || true) { // TODO: remove true
-        // Since we don't have volume-based minMax, use fixed values
-        // or get them from your brick cache metadata if available
-        // big TODO
-        const max = this.maxRange ? this.maxRange : 255;
-        const minMax = [0, max]; // Default values
-
         // log.debug('this.colors[id]', this.colors[id]);
         // log.debug('this.channelsVisible[id]', this.channelsVisible[id]);
 
@@ -409,18 +395,6 @@ export class VolumeRenderManager {
         ]);
 
         log.debug('colorsSave', colorsSave);
-
-        if (this.contrastLimits[id][0] === 0 && this.contrastLimits[id][1] === 255) {
-          contrastLimitsList.push([
-            normalizeValue(minMax[0], minMax),
-            normalizeValue(minMax[1], minMax),
-          ]);
-        } else {
-          contrastLimitsList.push([
-            normalizeValue(this.contrastLimits[id][0], minMax),
-            normalizeValue(this.contrastLimits[id][1], minMax),
-          ]);
-        }
       }
     });
 
@@ -456,7 +430,6 @@ export class VolumeRenderManager {
       texturesList,
       dimensions, // Pass dimensions object instead of volume
       this.renderingMode,
-      contrastLimitsList,
       colorsSave,
       this.layerTransparency,
       this.xSlice, this.ySlice, this.zSlice,
@@ -478,7 +451,6 @@ export class VolumeRenderManager {
    * @param {Array} textures - List of 3D textures
    * @param {Object} dimensions - Dimensions object
    * @param {number} renderstyle - Rendering mode value
-   * @param {Array} contrastLimits - List of contrast limits for each channel
    * @param {Array} colors - List of colors for each channel
    * @param {number} layerTransparency - Overall transparency value
    * @param {number[]|null} xSlice - X clipping slider range
@@ -486,7 +458,7 @@ export class VolumeRenderManager {
    * @param {number[]|null} zSlice - Z clipping slider range
    */
   updateUniforms(
-    textures, dimensions, renderstyle, contrastLimits, colors, layerTransparency,
+    textures, dimensions, renderstyle, colors, layerTransparency,
     xSlice, ySlice, zSlice,
     brickCacheTexture, pageTableTexture,
   ) {
@@ -513,35 +485,8 @@ export class VolumeRenderManager {
       1.0 / dimensions.zLength * 2.0,
     );
 
-    // Set contrast limits (up to 6 channels)
-    this.uniforms.clim0.value.set(
-      contrastLimits.length > 0 ? contrastLimits[0][0] : null,
-      contrastLimits.length > 0 ? contrastLimits[0][1] : null,
-    );
-    this.uniforms.clim1.value.set(
-      contrastLimits.length > 1 ? contrastLimits[1][0] : null,
-      contrastLimits.length > 1 ? contrastLimits[1][1] : null,
-    );
-    this.uniforms.clim2.value.set(
-      contrastLimits.length > 2 ? contrastLimits[2][0] : null,
-      contrastLimits.length > 2 ? contrastLimits[2][1] : null,
-    );
-    this.uniforms.clim3.value.set(
-      contrastLimits.length > 3 ? contrastLimits[3][0] : null,
-      contrastLimits.length > 3 ? contrastLimits[3][1] : null,
-    );
-    this.uniforms.clim4.value.set(
-      contrastLimits.length > 4 ? contrastLimits[4][0] : null,
-      contrastLimits.length > 4 ? contrastLimits[4][1] : null,
-    );
-    this.uniforms.clim5.value.set(
-      contrastLimits.length > 5 ? contrastLimits[5][0] : null,
-      contrastLimits.length > 5 ? contrastLimits[5][1] : null,
-    );
-    this.uniforms.clim6.value.set(
-      contrastLimits.length > 6 ? contrastLimits[6][0] : null,
-      contrastLimits.length > 6 ? contrastLimits[6][1] : null,
-    );
+    // Contrast limits (clim0-6) depend on the storage range of each channel,
+    // known only once its first brick loads: VolumeView sets them every frame.
 
     // Set clipping planes. The slider values are in the units of the slider
     // range (physical when the image has physical sizes), not voxels.

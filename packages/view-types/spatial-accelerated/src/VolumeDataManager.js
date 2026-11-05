@@ -25,7 +25,7 @@ import {
   createTiffRegionReader,
   getTiffSampleRange,
 } from './volume-tiff.js';
-import { getVolumeInfo } from './volume-info.js';
+import { getVolumeInfo, formatDtype } from './volume-info.js';
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -189,7 +189,7 @@ export function _getDataRange(data) {
 // Margin added on each side of a value range measured from the overview brick,
 // as a fraction of the range: its block means and sampled planes leave out the
 // extremes of finer levels, which would otherwise be clipped.
-const DATA_RANGE_MARGIN = 0.25;
+const DATA_RANGE_MARGIN = 1;
 
 // Value limits of integer typed arrays, which a widened range must stay within.
 const INTEGER_LIMITS = new Map([
@@ -239,13 +239,13 @@ export function _toUint8(data, min, max) {
  * (min/max), which is often the whole dtype range, e.g. 0-65535 in IDR files.
  * @param {object} omero The omero metadata of the image.
  * @param {number} channel The Zarr channel index.
- * @returns {[number, number]}
+ * @returns {[number, number]|undefined} Undefined without a window in the metadata.
  */
 export function _getChannelWindow(omero, channel) {
   const window = omero?.channels?.[channel]?.window;
-  const start = window?.start ?? window?.min ?? 0;
-  const end = window?.end ?? window?.max ?? 65535;
-  return end > start ? [start, end] : [0, 65535];
+  const start = window?.start ?? window?.min;
+  const end = window?.end ?? window?.max;
+  return end > start ? [start, end] : undefined;
 }
 
 export function _resolutionStatsToShapes(multiResolutionStats) {
@@ -475,15 +475,21 @@ export function _initMRMCPT(zarrStoreBrickLayout, channelsZarrMappingsLength) {
 /* ------------------------------------------------------------- *
  * 3. Pack PT entry (flags | min | max | bcX | bcY | bcZ)        *
  * ------------------------------------------------------------- */
+// A brick's uint8 min and max, scaled to 7 bits (0-127), which the shader reads
+// as fractions of 127. The min rounds down and the max up, so its empty test
+// (max at or below the window) and constant full test (min at or above it)
+// only fire when every voxel of the brick would: with a wide storage range,
+// dim bricks have a max of 1.
+const clamp7 = v => Math.max(0, Math.min(127, v));
+const _toMin7 = v => clamp7(Math.floor((v * 127) / 255));
+const _toMax7 = v => clamp7(Math.ceil((v * 127) / 255));
+
 export function _packPT(min, max, bcX, bcY, bcZ) {
-  // Scale down to 7-bit range (0-127) by dividing by 2
-  const clamp7 = v => Math.max(0, Math.min(127, Math.floor(v / 2)));
-  // log.debug('Scaled min/max:', clamp7(min), clamp7(max));
   return (
     (1 << 31) // bit‑31 = resident
     | (1 << 30) // bit‑30 = init‑done
-    | (clamp7(min) << 23) // 7 bits
-    | (clamp7(max) << 16) // 7 bits
+    | (_toMin7(min) << 23) // 7 bits
+    | (_toMax7(max) << 16) // 7 bits
     | ((bcX & 0x3F) << 10) // 6 bits
     | ((bcY & 0x3F) << 4) // 6 bits
     | (bcZ & 0x0F) // 4 bits
@@ -1290,6 +1296,11 @@ export class VolumeDataManager {
         this.sampleRange = sourceArrays[0].pixelSource
           ? await getTiffSampleRange(sourceArrays[0].pixelSource) : null;
         log.debug('omero', this.ngffMetadata?.omero, 'sampleRange', this.sampleRange);
+        // Channels stored over a fallback range, for a warning in the info panel.
+        // uint8 is stored as is, so needs no range.
+        this.volumeInfo.channelsWithoutRange = this.volumeInfo.dtype === 'uint8' ? []
+          : Array.from({ length: this.volumeInfo.channelCount }, (_, zarrChannel) => zarrChannel)
+            .filter(zarrChannel => !this._getStorageRange(zarrChannel));
 
         Object.keys(config).forEach((key, i) => {
           const configChannel = config[key].spatialTargetC;
@@ -1351,12 +1362,28 @@ export class VolumeDataManager {
    * window (OME-Zarr), or the sample range recorded in an OME-TIFF.
    * @param {number} zarrChannel
    * @returns {[number, number]|undefined} Undefined when the metadata has no range;
-   * the channel's overview brick then provides it.
+   * the first brick then sets it (see _loadBrick).
    */
   _getStorageRange(zarrChannel) {
-    if (this.sampleRange) return this.sampleRange;
-    if (this.ngffMetadata?.omero) return _getChannelWindow(this.ngffMetadata.omero, zarrChannel);
-    return undefined;
+    return this.sampleRange ?? _getChannelWindow(this.ngffMetadata?.omero, zarrChannel);
+  }
+
+  /**
+   * The value range stored as 0-255 in the brick cache, per UI channel (in the
+   * order of channels.colorMappings), so that contrast windows in data values
+   * can be mapped to the shader's 0-1. Null while a channel's range is unknown.
+   * @returns {Array<[number, number]|null>}
+   */
+  getStorageRanges() {
+    const isUint8 = formatDtype(this.zarrStore.dtype) === 'uint8';
+    return this.channels.colorMappings.map((slot) => {
+      if (slot < 0) return null;
+      // Stored as is (see _loadBrick).
+      if (isUint8) return [0, 255];
+      const min = this.channels.downsampleMin[slot];
+      const max = this.channels.downsampleMax[slot];
+      return min === undefined ? null : [min, max];
+    });
   }
 
   /**
@@ -1896,8 +1923,8 @@ export class VolumeDataManager {
     const ptVal = (
       (0 << 31) // not-resident
         | (1 << 30) // init-done
-        | (Math.min(127, min >> 1) << 23)
-        | (Math.min(127, max >> 1) << 16)
+        | (_toMin7(min) << 23)
+        | (_toMax7(max) << 16)
     ) >>> 0;
 
     this._updatePTEntry(pt.x, pt.y, pt.z, ptVal); // ← PT coord!
@@ -2126,6 +2153,8 @@ export class VolumeDataManager {
     if (!(chunk instanceof Uint8Array)) {
       if (this.channels.downsampleMin[channel] === undefined) {
         // Without a range from the metadata, the channel's overview brick sets it.
+        // Not the full dtype range: 8 bits over 0-65535 leave most uint16 data
+        // with a few steps, and everything below 257 at 0.
         const isOverview = resolution === this.zarrStore.resolutions - 1;
         const range = this._getStorageRange(zarrChannel)
           ?? (isOverview ? _widenDataRange(_getDataRange(chunk), chunk) : null);

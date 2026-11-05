@@ -21,7 +21,7 @@ import {
   DEFAULT_SIGMA_NORMALIZED,
   _hasBrickRequests,
 } from './VolumeDataManager.js';
-import { VolumeRenderManager, getScreenLodFactor } from './VolumeRenderManager.js';
+import { VolumeRenderManager, getScreenLodFactor, windowToClim } from './VolumeRenderManager.js';
 import {
   viewStateToCamera,
   cameraToViewState,
@@ -251,6 +251,8 @@ export function VolumeView(props) {
     volumeZReduction = 'auto',
     viewState,
     setViewState,
+    isOrthographic = false,
+    isColoredByResolution = false,
   } = props;
   const {
     gl,
@@ -321,6 +323,16 @@ export function VolumeView(props) {
   const dataManager = useMemo(() => new VolumeDataManager(gl), [gl]);
 
   const renderManager = useMemo(() => new VolumeRenderManager(), []);
+
+  // The shader's debug style 4 colors each sample by the level it was read
+  // from (res_color in VolumeFragmentShader), instead of the channel colors.
+  useEffect(() => {
+    renderManager.uniforms.u_renderstyle.value = isColoredByResolution ? 4 : 2;
+  }, [renderManager, isColoredByResolution]);
+
+  useEffect(() => {
+    renderManager.uniforms.u_orthographic.value = isOrthographic;
+  }, [renderManager, isOrthographic]);
 
   useEffect(() => {
     logWithColor('useEffect MRT target matching canvas');
@@ -643,6 +655,19 @@ export function VolumeView(props) {
         renderManager.lodFactor, frameCamera.fov, mrtRef.current.height / frameGl.getPixelRatio(),
         dataManager.zarrStore.shapes[0],
       );
+    }
+
+    // Contrast windows are in data values; the brick cache stores each channel's
+    // storage range as 0-1. A range set by a channel's first brick is only
+    // known once that brick loads, so this follows it every frame.
+    if (uniforms && dataManager.zarrStore) {
+      const storageRanges = dataManager.getStorageRanges();
+      renderManager.contrastLimits.forEach((window, id) => {
+        const storageRange = storageRanges[id];
+        if (window && storageRange && uniforms[`clim${id}`]) {
+          uniforms[`clim${id}`].value.set(...windowToClim(window, storageRange));
+        }
+      });
     }
 
     if (!stillRef.current) {

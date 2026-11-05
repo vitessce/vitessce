@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getVolumeInfo, formatBytes, formatExtent, formatDtype,
+  getVolumeInfo, formatBytes, formatExtent, formatDtype, formatRangeWarning,
 } from './volume-info.js';
 
 describe('volume info', () => {
@@ -86,5 +86,16 @@ describe('volume info', () => {
     expect(formatDtype('>i2')).toBe('int16');
     expect(formatDtype('Uint16')).toBe('uint16');
     expect(formatDtype('float32')).toBe('float32');
+  });
+
+  it('warns about channels without a value range in the metadata', () => {
+    const fallback = 'stored over the range of its overview ± 100%';
+    expect(formatRangeWarning([], 4)).toBe(null);
+    expect(formatRangeWarning([0, 1, 2, 3], 4))
+      .toBe(`No value range in the metadata for any channel: ${fallback}`);
+    expect(formatRangeWarning([0], 1))
+      .toBe(`No value range in the metadata for the channel: ${fallback}`);
+    expect(formatRangeWarning([2, 5], 70))
+      .toBe(`No value range in the metadata for channel 2, 5: ${fallback}`);
   });
 });

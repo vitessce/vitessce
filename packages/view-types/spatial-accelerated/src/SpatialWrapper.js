@@ -3,6 +3,7 @@ import React, { Suspense, useState } from 'react';
 // to avoid multiple copies of RTF, since the Canvas depends on a React Context.
 // Otherwise you may see errors such as "useThree can only be used inside the Canvas component!".
 import { Canvas } from '@react-three/fiber';
+import { useViewConfigStore } from '@vitessce/vit-s';
 import { VolumeView } from './VolumeView.js';
 import { VolumeInfoPanel } from './VolumeInfoPanel.js';
 
@@ -10,7 +11,17 @@ import { VolumeInfoPanel } from './VolumeInfoPanel.js';
 const LIGHT_THEMES = ['light', 'light2'];
 
 export function SpatialWrapper(props) {
-  const { spatialRenderingMode, theme, viewState } = props;
+  const {
+    spatialRenderingMode, theme, viewState, uuid,
+  } = props;
+  // Options for figures, read from the view's props in the view config, since
+  // SpatialSubscriber only passes on the props it knows.
+  const {
+    volumeProjection = 'perspective',
+    volumeColorByResolution = false,
+  } = useViewConfigStore(
+    state => state.viewConfig?.layout?.find(view => view.uid === uuid)?.props,
+  ) ?? {};
   // Set by VolumeView once the data manager is initialized.
   const [dataManager, setDataManager] = useState(null);
 
@@ -64,6 +75,8 @@ export function SpatialWrapper(props) {
         <Suspense fallback="Initializing Volume View...">
           <VolumeView
             {...props}
+            isOrthographic={volumeProjection === 'orthographic'}
+            isColoredByResolution={volumeColorByResolution}
             onDataManagerReady={setDataManager}
           />
         </Suspense>

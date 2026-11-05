@@ -138,11 +138,17 @@ const defaultCamera = {
  * @param {object[]} [preset.channels] Coordination values per channel: spatialTargetC,
  * spatialChannelColor, and optionally spatialChannelWindow, spatialChannelVisible.
  * @param {object} [preset.camera] { zoom, target: [x, y, z], rotationX, rotationOrbit }.
+ * @param {object} [preset.layer] Coordination values of the image layer, e.g.
+ * spatialLodFactor, spatialSliceX/Y/Z.
+ * @param {object} [preset.viewProps] Props of the 3D view: volumeProjection
+ * ('perspective' | 'orthographic'), volumeColorByResolution.
  */
 export function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'auto', {
   name = `Spatial Accelerated: ${imageId}`,
   channels = defaultChannels,
   camera = defaultCamera,
+  layer = {},
+  viewProps = {},
 } = {}) {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
@@ -177,7 +183,9 @@ export function generateSpatialAcceleratedConfiguration(imageId, volumeZReductio
 
   const spatialAcceleratedView = config
     .addView(dataset, 'spatialBeta', { x: 0, y: 0, w: 9, h: 8 })
-    .setProps({ three: true, accelerated: true, volumeZReduction });
+    .setProps({
+      three: true, accelerated: true, volumeZReduction, ...viewProps,
+    });
   // const spatialThreeView = config
   //   .addView(dataset, 'spatialBeta')
   //   .setProps({ three: true, accelerated: false });
@@ -205,6 +213,7 @@ export function generateSpatialAcceleratedConfiguration(imageId, volumeZReductio
           spatialChannelWindow: null,
           ...channel,
         }))),
+        ...layer,
       },
     ]),
   });

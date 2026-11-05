@@ -11,7 +11,7 @@ import {
   ExpandLess as ExpandLessIcon,
   ContentCopy as ContentCopyIcon,
 } from '@vitessce/styles';
-import { formatBytes, formatExtent } from './volume-info.js';
+import { formatBytes, formatExtent, formatRangeWarning } from './volume-info.js';
 import { roundViewState } from './camera-utils.js';
 
 const useStyles = makeStyles()(theme => ({
@@ -134,6 +134,7 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
   const zWarningClass = `${cellClass} ${classes.volumeInfoZWarningCell}`;
   const finestLevel = renderLevels[0];
   const isZBinned = sourceLevels[finestLevel.source].isOverMaxZ && finestLevel.zFactor > 1;
+  const rangeWarning = formatRangeWarning(info.channelsWithoutRange, info.channelCount);
   const sizeCells = (sourceLevel, isShown, className = cellClass) => (hasChannels
     ? [sourceLevel.channelBytes, sourceLevel.bytes] : [sourceLevel.bytes]
   ).map((bytes, i) => (
@@ -174,6 +175,11 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
         <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoZWarning}`}>
           {`Z is over the ${info.maxShape[0]}-plane limit: finest level has Z ÷${finestLevel.zFactor}`
             + ` (${finestLevel.zMode}, ${formatExtent(finestLevel.shape)})`}
+        </Typography>
+      ) : null}
+      {rangeWarning ? (
+        <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoZWarning}`}>
+          {rangeWarning}
         </Typography>
       ) : null}
       {isExpanded ? (

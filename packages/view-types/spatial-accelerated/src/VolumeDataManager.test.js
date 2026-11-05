@@ -417,6 +417,41 @@ describe('spatial-accelerated data utils', () => {
       expect(storageRange({ sampleRange: [0, 66], ngffMetadata: { omero } })).toEqual([0, 66]);
       expect(storageRange({ sampleRange: null, ngffMetadata: { omero } })).toEqual([50, 800]);
       expect(storageRange({ sampleRange: null, ngffMetadata: { Pixels: {} } })).toBeUndefined();
+      // An OMERO block without a window has no range either.
+      const noWindow = { channels: [{}, { label: 'DAPI' }] };
+      expect(storageRange({ sampleRange: null, ngffMetadata: { omero: noWindow } }))
+        .toBeUndefined();
+    });
+
+    it('takes an integer channel range from its overview brick too, within dtype limits', async () => {
+      const { manager, brickLayout, PT } = createManager();
+      manager.ngffMetadata = { Pixels: {} }; // OME-TIFF without a recorded range
+      manager.sampleRange = null;
+      manager.channels.downsampleMin = [undefined, undefined];
+      manager.channels.downsampleMax = [undefined, undefined];
+      // Values 200-900, as a camera offset under dim uint16 signal (WashU kidney).
+      const data = Uint16Array.from({ length: 32 ** 3 }, (_, i) => 200 + (i % 701));
+      manager.brickSource = { readBrick: async () => ({ data }) };
+      // eslint-disable-next-line no-underscore-dangle
+      expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).toBeNull();
+      // eslint-disable-next-line no-underscore-dangle
+      const brick = await manager._fetchBrick(_zarrToPt(1, brickLayout.length - 1, 0, 0, 0, PT));
+      // 200-900 widened by 700 on each side, cut at 0.
+      expect([manager.channels.downsampleMin[1], manager.channels.downsampleMax[1]])
+        .toEqual([0, 1600]);
+      expect([brick.min, brick.max]).toEqual([31, 143]);
+    });
+
+    it('gives the storage range of each UI channel, uint8 as is', () => {
+      // eslint-disable-next-line no-underscore-dangle
+      const storageRanges = manager => VolumeDataManager.prototype.getStorageRanges.call(manager);
+      const channels = {
+        colorMappings: [1, 0, -1], downsampleMin: [0, undefined], downsampleMax: [66, undefined],
+      };
+      expect(storageRanges({ zarrStore: { dtype: 'float32' }, channels }))
+        .toEqual([null, [0, 66], null]);
+      expect(storageRanges({ zarrStore: { dtype: 'Uint8' }, channels }))
+        .toEqual([[0, 255], [0, 255], null]);
     });
 
     it('takes a float channel range from its overview brick, before any other brick', async () => {
@@ -434,11 +469,11 @@ describe('spatial-accelerated data utils', () => {
       expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).toBeNull();
       // eslint-disable-next-line no-underscore-dangle
       const brick = await manager._fetchBrick(_zarrToPt(1, overview, 0, 0, 0, PT));
-      // Widened by a quarter of the range on each side: finer levels reach further.
-      expect(manager.channels.downsampleMin[1]).toBe(-16.5);
-      expect(manager.channels.downsampleMax[1]).toBe(82.5);
+      // Widened by the whole range on each side: finer levels reach further.
+      expect(manager.channels.downsampleMin[1]).toBe(-66);
+      expect(manager.channels.downsampleMax[1]).toBe(132);
       expect(brick.chunk).toBeInstanceOf(Uint8Array);
-      expect([brick.min, brick.max]).toEqual([42, 212]);
+      expect([brick.min, brick.max]).toEqual([85, 170]);
       // eslint-disable-next-line no-underscore-dangle
       expect(await manager._fetchBrick(_zarrToPt(1, 0, 0, 0, 0, PT))).not.toBeNull();
     });
@@ -454,9 +489,9 @@ describe('spatial-accelerated data utils', () => {
   });
 
   describe('_widenDataRange', () => {
-    it('widens by a quarter of the range on each side, within integer limits', () => {
-      expect(_widenDataRange([0, 66], new Float32Array(1))).toEqual([-16.5, 82.5]);
-      expect(_widenDataRange([100, 900], new Uint16Array(1))).toEqual([0, 1100]);
+    it('widens by the whole range on each side, within integer limits', () => {
+      expect(_widenDataRange([0, 66], new Float32Array(1))).toEqual([-66, 132]);
+      expect(_widenDataRange([100, 900], new Uint16Array(1))).toEqual([0, 1700]);
       expect(_widenDataRange([200, 65000], new Uint16Array(1))).toEqual([0, 65535]);
     });
   });
@@ -466,9 +501,20 @@ describe('spatial-accelerated data utils', () => {
       expect(_packPT(0, 80, 1, 0, 0)).toEqual(3223847936);
       expect(_packPT(0, 56, 2, 0, 0)).toEqual(3223062528);
       expect(_packPT(0, 0, 27, 0, 0)).toEqual(3221253120);
-      expect(_packPT(0, 111, 61, 0, 0)).toEqual(3224892416);
-      expect(_packPT(0, 3, 14, 1, 0)).toEqual(3221305360);
-      expect(_packPT(0, 41, 60, 1, 0)).toEqual(3222597648);
+      expect(_packPT(0, 111, 61, 0, 0)).toEqual(3224957952);
+      expect(_packPT(0, 3, 14, 1, 0)).toEqual(3221370896);
+      expect(_packPT(0, 41, 60, 1, 0)).toEqual(3222663184);
+    });
+
+    it('rounds the 7-bit min down and max up, so empty and full tests are conservative', () => {
+      const min7 = packed => Math.floor(packed / (2 ** 23)) % 128;
+      const max7 = packed => Math.floor(packed / (2 ** 16)) % 128;
+      expect(max7(_packPT(0, 1, 0, 0, 0))).toBe(1);
+      expect(min7(_packPT(255, 255, 0, 0, 0))).toBe(127);
+      expect(min7(_packPT(3, 3, 0, 0, 0))).toBe(1);
+      expect(max7(_packPT(3, 3, 0, 0, 0))).toBe(2);
+      // 254/255 is below 127/127: a window ending at 254 is not constant full.
+      expect(min7(_packPT(254, 254, 0, 0, 0))).toBe(126);
     });
   });
   describe('_ptToZarr returns channel, res., xyz coordinates for a page table coord.', () => {

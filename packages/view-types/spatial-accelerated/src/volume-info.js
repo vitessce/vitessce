@@ -104,3 +104,18 @@ export function formatBytes(bytes) {
 export function formatExtent([z, y, x]) {
   return `${x} × ${y} × ${z}`;
 }
+
+/**
+ * Warning for channels without a value range in the metadata (OMERO window or
+ * min/max, or an OME-TIFF sample range), which the brick cache then stores over
+ * a fallback range (see VolumeDataManager._loadBrick).
+ * @param {number[]} channels Channel indices without a range.
+ * @param {number} channelCount
+ * @returns {string|null} Null when every channel has a range.
+ */
+export function formatRangeWarning(channels, channelCount) {
+  if (!channels?.length) return null;
+  let which = `channel ${channels.join(', ')}`;
+  if (channels.length === channelCount) which = channelCount === 1 ? 'the channel' : 'any channel';
+  return `No value range in the metadata for ${which}: stored over the range of its overview ± 100%`;
+}
