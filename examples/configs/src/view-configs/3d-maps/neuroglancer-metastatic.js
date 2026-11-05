@@ -19,10 +19,14 @@ function generateNeuroglancerMetastatic() {
   const dataset = config.addDataset('LSP22409 metastatic melanoma');
 
   dataset.addFile({
-    fileType: 'labels.spatialdata.zarr',
-    url: 'https://data-2.vitessce.io/data/sorger/metastatic/cell_mask_metastatic_full.zarr',
-    options: { path: 'labels/labels' },
-    coordinationValues: { fileUid: 'metastatic-mask', obsType: 'cell' },
+    fileType: 'image.ome-tiff',
+    url: 'https://data-2.vitessce.io/data/sorger/metastatic/cell_mask_metastatic.ome.tiff',
+    options: {
+      offsetsUrl: 'https://data-2.vitessce.io/data/sorger/metastatic/cell_mask_metastatic.offsets.json',
+    },
+    coordinationValues: {
+      fileUid: 'metastatic-mask',
+    },
   });
 
   dataset.addFile({
@@ -51,6 +55,7 @@ function generateNeuroglancerMetastatic() {
     },
   });
 
+  // Per-cell marker intensities + spot counts (first column CELLID = obs index)
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
     url: 'https://data-2.vitessce.io/data/sorger/metastatic/quantification_metastatic.csv',
@@ -85,13 +90,14 @@ function generateNeuroglancerMetastatic() {
     // Max projectionScale at which meshes start loading (same units as projectionScale).
     meshLoadProjectionScaleThreshold: 33600,
   });
-  const ngLayerController = config.addView(dataset, 'layerControllerBeta');
-  const spatialLayerController = config.addView(dataset, 'layerControllerBeta');
+  const spatialView = config.addView(dataset, 'spatialBeta');
+  const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList');
   const violin = config.addView(dataset, 'obsSetFeatureValueDistribution');
-  const spatialView = config.addView(dataset, 'spatialBeta');
 
+  // Shared scopes: feature list, obs sets, violin plot and the mesh/centroid
+  // channel read and write the same selection and color encoding.
   const [featureSelectionScope] = config.addCoordination('featureSelection');
   featureSelectionScope.setValue(['MX1SPOTS']);
 
@@ -103,11 +109,40 @@ function generateNeuroglancerMetastatic() {
     'obsSetColor',
   );
 
-  config.linkViewsByObject([neuroglancerView, ngLayerController], {
+  // Shared 3D camera between Neuroglancer and spatialBeta (as in the Sorger config).
+  config.linkViewsByObject([spatialView, neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
+    spatialZoom: 0,
+    spatialTargetT: 0,
+    spatialTargetX: 0,
+    spatialTargetY: 0,
+    spatialTargetZ: 0,
+    spatialRotationX: 0,
+    spatialRotationY: 0,
+    spatialRotationZ: 0,
+    spatialRotationOrbit: 0,
   }, { meta: false });
 
-  config.linkViewsByObject([neuroglancerView, ngLayerController], {
+  // Mask as an image layer in spatialBeta (no collision with NG's segmentationLayer).
+  config.linkViewsByObject([spatialView, layerController], {
+    imageLayer: CL([
+      {
+        fileUid: 'metastatic-mask',
+        spatialLayerOpacity: 1,
+        spatialTargetResolution: null,
+        imageChannel: CL([
+          {
+            spatialTargetC: 0,
+            spatialChannelColor: [255, 0, 0],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+          },
+        ]),
+      },
+    ]),
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
+
+  config.linkViewsByObject([neuroglancerView, layerController], {
     segmentationLayer: CL([
       {
         fileUid: 'metastatic-meshes',
@@ -137,37 +172,6 @@ function generateNeuroglancerMetastatic() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
-  config.linkViewsByObject([spatialView, spatialLayerController], {
-    segmentationLayer: CL([
-      {
-        fileUid: 'metastatic-mask',
-        spatialLayerOpacity: 1,
-        spatialLayerVisible: true,
-        spatialLayerLabel: 'Mask',
-        segmentationChannel: CL([
-          {
-            spatialTargetC: 0,
-            obsType: 'cell',
-            featureType: 'gene',
-            featureValueType: 'expression',
-            spatialChannelVisible: true,
-            spatialChannelOpacity: 1.0,
-            obsHighlight: null,
-            spatialChannelColor: [255, 165, 0],
-            obsColorEncoding: obsColorEncodingScope,
-            featureSelection: featureSelectionScope,
-            obsSetSelection: obsSetSelectionScope,
-            obsSetColor: obsSetColorScope,
-            featureValueColormap: 'plasma',
-            featureValueColormapRange: [0.0, 0.32],
-            spatialSegmentationStrokeWidth: 1.0,
-            spatialSegmentationFilled: true,
-          },
-        ]),
-      },
-    ]),
-  }, { scopePrefix: getInitialCoordinationScopePrefix('B', 'obsSegmentations') });
-
   config.linkViews([featureList, violin, obsSets], ['obsType', 'featureType', 'featureValueType'], ['cell', 'gene', 'expression']);
 
   featureList.useCoordination(featureSelectionScope, obsColorEncodingScope);
@@ -175,8 +179,8 @@ function generateNeuroglancerMetastatic() {
   obsSets.useCoordination(obsColorEncodingScope, obsSetSelectionScope, obsSetColorScope);
 
   config.layout(hconcat(
-    neuroglancerView, spatialView,
-    vconcat(ngLayerController, spatialLayerController, obsSets),
+    vconcat(neuroglancerView, spatialView),
+    vconcat(layerController, obsSets),
     vconcat(featureList, violin),
   ));
 
