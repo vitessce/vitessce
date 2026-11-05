@@ -83,27 +83,30 @@ export function getObsSetAnnotationColumns(
   const enumProps = (neuroglancerInfo?.properties ?? []).filter(p => (
     Array.isArray(p.enum_labels) && Array.isArray(p.enum_values)
   ));
-  return (obsSets?.tree ?? []).filter(({ name }) => selectedGroupNames.has(name)).map((groupNode) => {
-    const groupName = groupNode.name;
-    const byName = id => enumProps.find(p => p.id === id);
-    let prop = byName(obsSetColumnsByName?.[groupName]) ?? byName(groupName);
-    if (!prop) {
-      const leafNames = treeToLeafSets({ tree: [groupNode] })
-        .map(({ path }) => String(path[path.length - 1]));
-      const scores = enumProps.map(p => (
-        leafNames.filter(name => p.enum_labels.map(String).includes(name)).length
-      ));
-      const bestScore = Math.max(0, ...scores);
-      const best = enumProps.filter((p, i) => bestScore > 0 && scores[i] === bestScore);
-      if (best.length > 1) {
-        console.warn(`obsSet group "${groupName}" matches several annotation properties (${best.map(p => p.id).join(', ')}); using "${best[0].id}". Name the obsSets column after the annotation property to disambiguate.`);
+  return (obsSets?.tree ?? [])
+    .filter(({ name }) => selectedGroupNames.has(name)).map((groupNode) => {
+      const groupName = groupNode.name;
+      const byName = id => enumProps.find(p => p.id === id);
+      let prop = byName(obsSetColumnsByName?.[groupName]) ?? byName(groupName);
+      if (!prop) {
+        const leafNames = treeToLeafSets({ tree: [groupNode] })
+          .map(({ path }) => String(path[path.length - 1]));
+        const scores = enumProps.map(p => (
+          leafNames.filter(name => p.enum_labels.map(String).includes(name)).length
+        ));
+        const bestScore = Math.max(0, ...scores);
+        const best = enumProps.filter((p, i) => bestScore > 0 && scores[i] === bestScore);
+        if (best.length > 1) {
+          console.warn(`obsSet group "${groupName}" matches several annotation properties \
+          (${best.map(p => p.id).join(', ')}); using "${best[0].id}". \
+          Name the obsSets column after the annotation property to disambiguate.`);
+        }
+        [prop] = best;
       }
-      [prop] = best;
-    }
-    if (!prop) {
-        // A property without enum_labels, matched by name (e.g., `phenotype`
-        // in data written before enum labels were added): assume the codes are
-        // the indices of the alphabetically sorted category names.
+      if (!prop) {
+      // A property without enum_labels, matched by name (e.g., `phenotype`
+      // in data written before enum labels were added): assume the codes are
+      // the indices of the alphabetically sorted category names.
         const intProp = (neuroglancerInfo?.properties ?? []).find(p => (
           INTEGER_ANNOTATION_TYPES.includes(p.type)
           && (p.id === obsSetColumnsByName?.[groupName] || p.id === groupName)
@@ -119,13 +122,13 @@ export function getObsSetAnnotationColumns(
           values: categories.map((_, i) => i),
         };
       }
-    return {
-      path: [groupName],
-      prop: prop.id,
-      categories: prop.enum_labels.map(String),
-      values: prop.enum_values,
-    };
-  }).filter(Boolean);
+      return {
+        path: [groupName],
+        prop: prop.id,
+        categories: prop.enum_labels.map(String),
+        values: prop.enum_values,
+      };
+    }).filter(Boolean);
 }
 
 /**

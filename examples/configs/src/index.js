@@ -115,7 +115,7 @@ import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.j
 import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
 import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
-import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js'
+import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
