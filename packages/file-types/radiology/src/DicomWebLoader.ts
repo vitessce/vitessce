@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 import { VolumeLoader } from './VolumeLoader.js';
 import { type DicomImage, toVolume } from './dicom.js';
 import { decodeFrame } from './codecs.js';
@@ -61,15 +60,6 @@ export function fromDicomJson(instance: DicomJson): DicomImage & { sopInstanceUi
   };
 }
 
-function lastIndexOf(bytes: Uint8Array, sequence: Uint8Array) {
-  for (let i = bytes.length - sequence.length; i >= 0; i--) {
-    let j = 0;
-    while (j < sequence.length && bytes[i + j] === sequence[j]) j++;
-    if (j === sequence.length) return i;
-  }
-  return -1;
-}
-
 /**
  * Get the pixel data of a frame from a WADO-RS response, which usually wraps it
  * in a multipart/related body, along with its transfer syntax.
@@ -78,14 +68,14 @@ export function extractFrame(body: ArrayBuffer, contentType: string) {
   let bytes = new Uint8Array(body);
   let headers = `Content-Type: ${contentType}`;
   if (contentType.startsWith('multipart/related')) {
+    // Latin-1 decodes one character per byte, so string indexes are byte offsets.
+    const text = new TextDecoder('latin1').decode(bytes);
     // The frame follows the headers of the first part and ends before the closing delimiter.
-    const headersEnd = bytes.findIndex((_, i) => (
-      bytes[i] === 13 && bytes[i + 1] === 10 && bytes[i + 2] === 13 && bytes[i + 3] === 10
-    ));
-    headers = new TextDecoder().decode(bytes.subarray(0, headersEnd));
+    const headersEnd = text.indexOf('\r\n\r\n');
+    headers = text.slice(0, headersEnd);
     // Read the delimiter from the first line, since some servers omit the boundary parameter.
     const delimiter = headers.split('\r\n')[0];
-    const end = lastIndexOf(bytes, new TextEncoder().encode(`\r\n${delimiter}`));
+    const end = text.lastIndexOf(`\r\n${delimiter}`);
     bytes = bytes.subarray(headersEnd + 4, end > headersEnd ? end : undefined);
   }
   const mediaType = /content-type:\s*([^;\s]+)/i.exec(headers)?.[1]?.toLowerCase() ?? '';

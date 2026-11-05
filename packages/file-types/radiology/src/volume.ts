@@ -6,7 +6,7 @@ export type VolumeDtype = 'Uint8' | 'Int8' | 'Uint16' | 'Int16' | 'Uint32' | 'In
 export type VolumeArray = Uint8Array | Int8Array | Uint16Array | Int16Array
   | Uint32Array | Int32Array | Float32Array | Float64Array;
 
-const ARRAY_TYPES = {
+export const ARRAY_TYPES = {
   Uint8: Uint8Array,
   Int8: Int8Array,
   Uint16: Uint16Array,

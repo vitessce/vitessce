@@ -1,6 +1,7 @@
-/* eslint-disable no-plusplus */
 import { log } from '@vitessce/globals';
-import { type Volume, type VolumeArray, getRobustRange } from './volume.js';
+import {
+  type Volume, type VolumeArray, type VolumeDtype, ARRAY_TYPES, getRobustRange,
+} from './volume.js';
 
 /**
  * The attributes of a single-frame DICOM image needed to build a volume,
@@ -30,18 +31,6 @@ export interface DicomImage {
   modality?: string;
 }
 
-const ARRAY_TYPES = {
-  8: [Uint8Array, Int8Array],
-  16: [Uint16Array, Int16Array],
-  32: [Uint32Array, Int32Array],
-} as const;
-
-const DTYPES = {
-  8: ['Uint8', 'Int8'],
-  16: ['Uint16', 'Int16'],
-  32: ['Uint32', 'Int32'],
-} as const;
-
 function cross(a: number[], b: number[]) {
   return [
     a[1] * b[2] - a[2] * b[1],
@@ -70,7 +59,7 @@ function validate(images: DicomImage[]) {
   if (first.photometricInterpretation !== 'MONOCHROME2') {
     throw new Error(`DICOM PhotometricInterpretation ${first.photometricInterpretation} is not supported. Only MONOCHROME2 is supported.`);
   }
-  if (!(first.bitsAllocated in ARRAY_TYPES)) {
+  if (![8, 16, 32].includes(first.bitsAllocated)) {
     throw new Error(`DICOM BitsAllocated ${first.bitsAllocated} is not supported.`);
   }
   images.forEach((image) => {
@@ -143,9 +132,9 @@ export async function toVolume<T extends DicomImage>(
     sorted[0].position[w],
   ]);
 
-  const isSigned = first.pixelRepresentation === 1 ? 1 : 0;
-  const bits = first.bitsAllocated as keyof typeof ARRAY_TYPES;
-  const ArrayType = ARRAY_TYPES[bits][isSigned];
+  const isSigned = first.pixelRepresentation === 1;
+  const storedDtype = `${isSigned ? 'Int' : 'Uint'}${first.bitsAllocated}` as VolumeDtype;
+  const ArrayType = ARRAY_TYPES[storedDtype];
   const maxStored = 2 ** first.bitsStored;
   const rawRange: [number, number] = isSigned
     ? [-maxStored / 2, maxStored / 2 - 1]
@@ -187,7 +176,7 @@ export async function toVolume<T extends DicomImage>(
     depth: sorted.length,
     numT: 1,
     affine,
-    rawDtype: hasUniformRescale ? DTYPES[bits][isSigned] : 'Float32',
+    rawDtype: hasUniformRescale ? storedDtype : 'Float32',
     rawRange,
     slope,
     intercept,

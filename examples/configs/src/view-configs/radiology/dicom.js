@@ -1,37 +1,14 @@
 // Series of .dcm files in the public Imaging Data Commons (IDC) bucket.
 // URLs were listed with idc-index (the series_aws_url of each SeriesInstanceUID).
 // Reference viewer: https://viewer.imaging.datacommons.cancer.gov/v3/viewer/?StudyInstanceUIDs=<StudyInstanceUID>
+import { makeRadiologyConfig } from '../../utils.js';
 
 function makeDicomFilesConfig(name, seriesUuid, instanceUuids) {
   const seriesUrl = `https://idc-open-data.s3.amazonaws.com/${seriesUuid}`;
-  return {
-    version: '1.0.16',
-    name,
-    datasets: [
-      {
-        uid: 'series',
-        name,
-        files: [
-          {
-            fileType: 'image.dicom',
-            options: {
-              urls: instanceUuids.map(uuid => `${seriesUrl}/${uuid}.dcm`),
-            },
-          },
-        ],
-      },
-    ],
-    initStrategy: 'auto',
-    coordinationSpace: {},
-    layout: [
-      {
-        component: 'spatialBeta', x: 0, y: 0, w: 8, h: 12,
-      },
-      {
-        component: 'layerControllerBeta', x: 8, y: 0, w: 4, h: 12,
-      },
-    ],
-  };
+  return makeRadiologyConfig(name, {
+    fileType: 'image.dicom',
+    options: { urls: instanceUuids.map(uuid => `${seriesUrl}/${uuid}.dcm`) },
+  });
 }
 
 // Uncompressed. The same series as the DICOMweb demo.
