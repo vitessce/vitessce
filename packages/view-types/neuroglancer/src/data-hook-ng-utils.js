@@ -1,6 +1,8 @@
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
+import { mergeObsSets, treeFindNodeByNamePath, treeToLeafSets } from '@vitessce/sets-utils';
+import { getDefaultColor } from '@vitessce/utils';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { NG_CAMERA_VALIDATORS } from './utils.js';
 import { getPointsShader, DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
@@ -33,6 +35,129 @@ export const DEFAULT_NG_PROPS = {
 // NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
 const MIN_ANNOTATION_SPACING = 0.0625;
 const MAX_ANNOTATION_SPACING = 65536;
+
+
+/**
+ * Get the obsSet group name -> column name mapping from the options
+ * of the obsSets files (CSV: `column`, AnnData/SpatialData: `path`).
+ * For a hierarchy of columns, the finest level holds the leaf sets.
+ * @param {object[]} obsSetsLoaders Loaders of the obsSets data type.
+ * @returns {Record<string, string>}
+ */
+export function getObsSetColumnsByName(obsSetsLoaders) {
+  const result = {};
+  (obsSetsLoaders ?? []).forEach((loader) => {
+    loader?.options?.obsSets?.forEach(({ name, column, path }) => {
+      const columns = [].concat(column ?? path ?? []);
+      const finest = columns[columns.length - 1];
+      if (name && finest) {
+        // e.g. 'obs/phenotype_fine' -> 'phenotype_fine'
+        result[name] = String(finest).split('/').pop();
+      }
+    });
+  });
+  return result;
+}
+
+/**
+ * Get one "column" per obsSet group: the enum annotation property
+ * holding the group's categories. This is the analog of the raw
+ * categorical codes columns used by colorIndicesFromCodes
+ * (`{ path, categories }`), with the codes living in the annotation chunks.
+ * A group is matched to a property by the column name in the obsSets
+ * file options, then by the group name, and otherwise by the enum_labels
+ * containing the most of the group's set names.
+ * @param {object} obsSets The (merged) obsSets tree object.
+ * @param {object|null} neuroglancerInfo The annotation info JSON.
+ * @param {Record<string, string>} obsSetColumnsByName See getObsSetColumnsByName.
+ * @param {string[][]} selectedNamePaths Only the groups of these paths get a column.
+ * @returns {{ path: string[], prop: string, categories: string[],
+ *   values: number[] }[]}
+ */
+export function getObsSetAnnotationColumns(
+  obsSets, neuroglancerInfo, obsSetColumnsByName, selectedNamePaths,
+) {
+  const selectedGroupNames = new Set((selectedNamePaths || []).map(path => path[0]));
+  const enumProps = (neuroglancerInfo?.properties ?? []).filter(p => (
+    Array.isArray(p.enum_labels) && Array.isArray(p.enum_values)
+  ));
+  return (obsSets?.tree ?? []).filter(({ name }) => selectedGroupNames.has(name)).map((groupNode) => {
+    const groupName = groupNode.name;
+    const byName = id => enumProps.find(p => p.id === id);
+    let prop = byName(obsSetColumnsByName?.[groupName]) ?? byName(groupName);
+    if (!prop) {
+      const leafNames = treeToLeafSets({ tree: [groupNode] })
+        .map(({ path }) => String(path[path.length - 1]));
+      const scores = enumProps.map(p => (
+        leafNames.filter(name => p.enum_labels.map(String).includes(name)).length
+      ));
+      const bestScore = Math.max(0, ...scores);
+      const best = enumProps.filter((p, i) => bestScore > 0 && scores[i] === bestScore);
+      if (best.length > 1) {
+        console.warn(`obsSet group "${groupName}" matches several annotation properties (${best.map(p => p.id).join(', ')}); using "${best[0].id}". Name the obsSets column after the annotation property to disambiguate.`);
+      }
+      [prop] = best;
+    }
+    if (!prop) return null;
+    return {
+      path: [groupName],
+      prop: prop.id,
+      categories: prop.enum_labels.map(String),
+      values: prop.enum_values,
+    };
+  }).filter(Boolean);
+}
+
+/**
+ * The centroid-shader analog of colorIndicesFromCodes: map the selected
+ * set paths onto (annotation property, enum values) rules, so that the
+ * shader can color points from their categorical codes.
+ * Later paths take precedence, matching treeToCellColorsBySetNames.
+ * Unlike colorIndicesFromCodes, a selected non-leaf node resolves to the
+ * codes of all its leaf sets. Paths which do not resolve (e.g.,
+ * user-defined selections from additionalObsSets) are skipped,
+ * since there is no tree-based fallback for annotation points.
+ * @param {object} params
+ * @param {object[]} params.columns See getObsSetAnnotationColumns.
+ * @param {object} params.obsSets The (merged) obsSets tree object.
+ * @param {string[][]} params.selectedNamePaths
+ * @param {object[]} params.cellSetColor
+ * @param {string} params.theme
+ * @returns {{ prop: string, codes: number[], color: number[] }[]}
+ */
+export function obsSetRulesFromCodes({
+  columns, obsSets, selectedNamePaths, cellSetColor, theme,
+}) {
+  const unresolved = [];
+  const rules = (selectedNamePaths || []).map((setNamePath) => {
+    const column = columns.find(({ path }) => (
+      path.length <= setNamePath.length
+      && path.every((part, k) => part === setNamePath[k])
+    ));
+    const node = obsSets ? treeFindNodeByNamePath(obsSets, setNamePath) : null;
+    const leafNames = node
+      ? treeToLeafSets({ tree: [node] }).map(({ path }) => String(path[path.length - 1]))
+      : [String(setNamePath[setNamePath.length - 1])];
+    const codes = column
+      ? leafNames
+        .map(name => column.categories.indexOf(name))
+        .filter(i => i >= 0)
+        .map(i => column.values[i])
+      : [];
+    if (codes.length === 0) {
+      unresolved.push(setNamePath.join(' / '));
+      return null;
+    }
+    const color = cellSetColor?.find(d => isEqual(d.path, setNamePath))?.color
+      || getDefaultColor(theme);
+    return { prop: column.prop, codes, color };
+  }).filter(Boolean);
+  if (unresolved.length > 0) {
+    console.warn(`Segmentation centroids cannot be colored for the sets [${unresolved.join(', ')}]: no enum annotation property contains these categories.`);
+  }
+  return rules;
+}
+
 
 /**
  * Validate initialNgCameraState field by field. Invalid values fall back to a
@@ -338,6 +463,8 @@ export function useNeuroglancerViewerState(
   obsPointsData,
   pointMultiIndicesData,
   viewerDimensionsOverride = null,
+  obsSegmentationsSetsData = null,
+  obsSetColumnsByName = null,
 ) {
   const viewerState = useMemoCustomComparison(() => {
     let result = cloneDeep(DEFAULT_NG_PROPS);
@@ -420,7 +547,7 @@ export function useNeuroglancerViewerState(
     // Centroids are implicit: one annotation layer per segmentation channel
     // that has an obsLocations.ng-annotations file for its obsType.
     centroidSources.forEach(({
-      layerScope, channelScope, name, url, neuroglancerOptions: ngOptions,
+      layerScope, channelScope, name, url, neuroglancerOptions: ngOptions, neuroglancerInfo,
     }) => {
       const layerCoordination = segmentationLayerCoordination[0][layerScope];
       const channelCoordination = segmentationChannelCoordination[0]
@@ -428,9 +555,28 @@ export function useNeuroglancerViewerState(
       const centroidShaderParams = getCentroidShaderParams(
         layerCoordination, channelCoordination,
       );
+      let obsSetRules = null;
+      if (centroidShaderParams.obsColorEncoding === 'cellSetSelection'
+        && neuroglancerInfo && centroidShaderParams.obsSetSelection) {
+        const mergedObsSets = mergeObsSets(
+          obsSegmentationsSetsData?.[layerScope]?.[channelScope]?.obsSets,
+          channelCoordination?.additionalObsSets,
+        );
+        obsSetRules = obsSetRulesFromCodes({
+          columns: getObsSetAnnotationColumns(
+            mergedObsSets, neuroglancerInfo, obsSetColumnsByName,
+            centroidShaderParams.obsSetSelection,
+          ),
+          obsSets: mergedObsSets,
+          selectedNamePaths: centroidShaderParams.obsSetSelection,
+          cellSetColor: centroidShaderParams.obsSetColor,
+          theme,
+        });
+      }
       const shader = getPointsShader({
         theme,
         ...centroidShaderParams,
+        obsSetRules,
         quantitativeColorProp: ngOptions.quantitativeColorProp,
         quantitativeColorMax: getQuantitativeColorMax(
           ngOptions, centroidShaderParams.obsColorEncoding,
@@ -561,6 +707,8 @@ export function useNeuroglancerViewerState(
     obsPointsData,
     pointMultiIndicesData,
     viewerDimensionsOverride,
+    obsSegmentationsSetsData,
+    obsSetColumnsByName,
   }, customIsEqualForInitialViewerState);
 
   return viewerState;
