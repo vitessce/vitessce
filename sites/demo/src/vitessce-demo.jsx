@@ -218,6 +218,27 @@ export function VitessceDemo() {
 
     if (datasetId) {
       const config = getConfig(datasetId);
+      if (!config) {
+        // Without this, Vitessce reports a misleading config validation error.
+        const matchingIds = listConfigs(true)
+          .map(({ id }) => id)
+          .filter(id => id.includes(datasetId));
+        return (
+          <Warning
+            title={`No demo named "${datasetId}"`}
+            preformatted={matchingIds.length ? 'Demos with similar names:' : null}
+            unformatted={(
+              <ul>
+                {matchingIds.map(id => (
+                  <li key={id}><a href={`?dataset=${id}&theme=${theme}`}>{id}</a></li>
+                ))}
+                <li><a href={`?show=all&theme=${theme}`}>All demos</a></li>
+              </ul>
+            )}
+            theme={theme}
+          />
+        );
+      }
       const pluginProps = getPlugins(datasetId);
       const stores = getStores(datasetId);
       const PageComponent = getPage(datasetId);
