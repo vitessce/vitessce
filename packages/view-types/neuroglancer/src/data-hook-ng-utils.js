@@ -35,7 +35,7 @@ export const DEFAULT_NG_PROPS = {
 // NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
 const MIN_ANNOTATION_SPACING = 0.0625;
 const MAX_ANNOTATION_SPACING = 65536;
-
+const INTEGER_ANNOTATION_TYPES = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32'];
 
 /**
  * Get the obsSet group name -> column name mapping from the options
@@ -66,7 +66,9 @@ export function getObsSetColumnsByName(obsSetsLoaders) {
  * (`{ path, categories }`), with the codes living in the annotation chunks.
  * A group is matched to a property by the column name in the obsSets
  * file options, then by the group name, and otherwise by the enum_labels
- * containing the most of the group's set names.
+ * containing the most of the group's set names. An integer property
+ * without enum_labels, matched by name, is assumed to hold the indices
+ * of the alphabetically sorted category names.
  * @param {object} obsSets The (merged) obsSets tree object.
  * @param {object|null} neuroglancerInfo The annotation info JSON.
  * @param {Record<string, string>} obsSetColumnsByName See getObsSetColumnsByName.
@@ -98,7 +100,25 @@ export function getObsSetAnnotationColumns(
       }
       [prop] = best;
     }
-    if (!prop) return null;
+    if (!prop) {
+        // A property without enum_labels, matched by name (e.g., `phenotype`
+        // in data written before enum labels were added): assume the codes are
+        // the indices of the alphabetically sorted category names.
+        const intProp = (neuroglancerInfo?.properties ?? []).find(p => (
+          INTEGER_ANNOTATION_TYPES.includes(p.type)
+          && (p.id === obsSetColumnsByName?.[groupName] || p.id === groupName)
+        ));
+        if (!intProp) return null;
+        const categories = treeToLeafSets({ tree: [groupNode] })
+          .map(({ path }) => String(path[path.length - 1]))
+          .sort();
+        return {
+          path: [groupName],
+          prop: intProp.id,
+          categories,
+          values: categories.map((_, i) => i),
+        };
+      }
     return {
       path: [groupName],
       prop: prop.id,

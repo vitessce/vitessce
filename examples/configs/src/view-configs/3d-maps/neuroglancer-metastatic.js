@@ -124,6 +124,13 @@ function generateNeuroglancerMetastatic() {
     ]),
   }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsSegmentations') });
 
+
+  const [cellSetSelectionScope, cellSetColorScope, obsColorEncodingScope] = config.addCoordination(
+    'obsSetSelection',
+    'obsSetColor',
+    'obsColorEncoding',
+  );
+
 config.linkViewsByObject([spatialView, layerController], {
   segmentationLayer: CL([
     {
@@ -141,12 +148,14 @@ config.linkViewsByObject([spatialView, layerController], {
           spatialChannelOpacity: 1.0,
           obsHighlight: null,
           spatialChannelColor: [255, 165, 0],
-          obsColorEncoding: 'geneSelection',
+          obsColorEncoding: obsColorEncodingScope,
           featureSelection: ['MX1SPOTS'],
           featureValueColormap: 'plasma',
           featureValueColormapRange: [0.0, 0.32],
           spatialSegmentationStrokeWidth: 1.0,
           spatialSegmentationFilled: true,
+          obsSetSelection: cellSetSelectionScope,
+          obsSetColor: cellSetColorScope,
         },
       ]),
     },
@@ -157,6 +166,12 @@ config.linkViewsByObject([spatialView, layerController], {
     obsType: 'cell',
     featureType: 'gene',
     featureValueType: 'expression',
+  }, { meta: false });
+
+  config.linkViewsByObject([obsSets], {
+    obsSetSelection: cellSetSelectionScope,
+    obsSetColor: cellSetColorScope,
+    obsColorEncoding: obsColorEncodingScope,
   }, { meta: false });
 
   config.layout(hconcat(
