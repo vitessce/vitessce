@@ -1,0 +1,39 @@
+diff --git a/lib/data_management_context.d.ts b/lib/data_management_context.d.ts
+index 03882e816c24b4c433fd662c1834b04784dc2ad5..3463ebef35dbb254e32bf8f548588ccf0f1059d4 100644
+--- a/lib/data_management_context.d.ts
++++ b/lib/data_management_context.d.ts
+@@ -25,5 +25,5 @@ export declare class DataManagementContext extends RefCounted {
+     chunkQueueManager: ChunkQueueManager;
+     chunkManager: ChunkManager;
+     get rpc(): RPC;
+-    constructor(gl: GL, frameNumberCounter: FrameNumberCounter);
++    constructor(gl: GL, frameNumberCounter: FrameNumberCounter, worker: Worker);
+ }
+diff --git a/lib/data_management_context.js b/lib/data_management_context.js
+index b64661cb3ca76ccf78bf5792e5bb02126b01bffa..eb0e3e3fc8649b9684f07ab427555f3d51e964b1 100644
+--- a/lib/data_management_context.js
++++ b/lib/data_management_context.js
+@@ -22,15 +22,17 @@ import {
+ import { RefCounted } from "#src/util/disposable.js";
+ import { RPC } from "#src/worker_rpc.js";
+ export class DataManagementContext extends RefCounted {
+-  constructor(gl, frameNumberCounter) {
++  constructor(gl, frameNumberCounter, worker) {
+     super();
+     this.gl = gl;
+     this.frameNumberCounter = frameNumberCounter;
+-    this.worker = new Worker(
+-      /* webpackChunkName: "neuroglancer_chunk_worker" */
+-      new URL("./chunk_worker.bundle.js", import.meta.url),
+-      { type: "module" }
+-    );
++    // Vitessce: the chunk worker is injected (an inlined blob worker from
++    // @vitessce/neuroglancer-workers) instead of `new Worker(new URL(...))`,
++    // so consumers' bundlers never try to resolve/emit the worker bundle.
++    if (worker === undefined) {
++      throw new Error("DataManagementContext requires an injected chunk worker.");
++    }
++    this.worker = worker;
+     this.chunkQueueManager = this.registerDisposer(
+       new ChunkQueueManager(
+         new RPC(

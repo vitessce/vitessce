@@ -30,7 +30,7 @@
     "test": "pnpm exec vitest --run"
   },
   "dependencies": {
-    "@janelia-flyem/neuroglancer": "2.37.5",
+    "neuroglancer": "2.41.2",
     "@vitessce/neuroglancer-workers": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/constants-internal": "workspace:*",

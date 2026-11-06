@@ -100,7 +100,7 @@
       }
     },
     "patchedDependencies": {
-      "@janelia-flyem/neuroglancer@2.37.5": "patches/@janelia-flyem__neuroglancer@2.37.5.patch",
+      "neuroglancer@2.41.2": "patches/neuroglancer@2.41.2.patch",
       "rc-tree@2.1.0": "patches/rc-tree@2.1.0.patch"
     }
   },

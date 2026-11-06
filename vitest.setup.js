@@ -43,8 +43,9 @@ beforeAll(() => {
     global.createImageBitmap ??= async () => ({});
 
     // Mock neuroglancer so import side-effects don’t run in Node
-    vi.mock('@janelia-flyem/neuroglancer', () => ({
-        setupDefaultViewer: () => ({}),
+    vi.mock('neuroglancer', () => ({}));
+    vi.mock('neuroglancer/unstable/viewer.js', () => ({
+        Viewer: class {},
     }));
     */
 });
