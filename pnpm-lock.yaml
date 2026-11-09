@@ -311,7 +311,7 @@ overrides:
 
 patchedDependencies:
   neuroglancer@2.41.2:
-    hash: vc3fcmju5463zu5rxlvcbgenwe
+    hash: tgzf6nzckj6p3bi5nco2p6enxy
     path: patches/neuroglancer@2.41.2.patch
   rc-tree@2.1.0:
     hash: hn6ocsle7tvl24ochfytc7eqjy
@@ -1511,7 +1511,7 @@ importers:
         version: 15.0.0(rollup@2.79.1)
       neuroglancer:
         specifier: 2.41.2
-        version: 2.41.2(patch_hash=vc3fcmju5463zu5rxlvcbgenwe)(typescript@5.5.3)
+        version: 2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3)
       rollup:
         specifier: ^2.0.0
         version: 2.79.1
@@ -2335,7 +2335,7 @@ importers:
         version: 4.17.21
       neuroglancer:
         specifier: 2.41.2
-        version: 2.41.2(patch_hash=vc3fcmju5463zu5rxlvcbgenwe)(typescript@5.5.3)
+        version: 2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -28694,7 +28694,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  neuroglancer@2.41.2(patch_hash=vc3fcmju5463zu5rxlvcbgenwe)(typescript@5.5.3):
+  neuroglancer@2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3):
     dependencies:
       codemirror: 5.65.18
       core-js: 3.42.0
