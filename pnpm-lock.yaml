@@ -311,7 +311,7 @@ overrides:
 
 patchedDependencies:
   neuroglancer@2.41.2:
-    hash: tgzf6nzckj6p3bi5nco2p6enxy
+    hash: xgkjojorp5ymcxvecnai3gq3ke
     path: patches/neuroglancer@2.41.2.patch
   rc-tree@2.1.0:
     hash: hn6ocsle7tvl24ochfytc7eqjy
@@ -334,8 +334,8 @@ importers:
         specifier: ^0.5.2
         version: 0.5.2
       '@playwright/test':
-        specifier: ^1.52.0
-        version: 1.52.0
+        specifier: ^1.65.0
+        version: 1.65.0
       '@testing-library/dom':
         specifier: 'catalog:'
         version: 10.4.0
@@ -1511,7 +1511,7 @@ importers:
         version: 15.0.0(rollup@2.79.1)
       neuroglancer:
         specifier: 2.41.2
-        version: 2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3)
+        version: 2.41.2(patch_hash=xgkjojorp5ymcxvecnai3gq3ke)(typescript@5.5.3)
       rollup:
         specifier: ^2.0.0
         version: 2.79.1
@@ -2335,7 +2335,7 @@ importers:
         version: 4.17.21
       neuroglancer:
         specifier: 2.41.2
-        version: 2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3)
+        version: 2.41.2(patch_hash=xgkjojorp5ymcxvecnai3gq3ke)(typescript@5.5.3)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 'catalog:'
@@ -3358,8 +3358,8 @@ importers:
         specifier: ^1.6.1
         version: 1.7.0(eslint@6.8.0)
       playwright:
-        specifier: ^1.40.0
-        version: 1.52.0
+        specifier: ^1.65.0
+        version: 1.65.0
 
   sites/html:
     dependencies:
@@ -6267,9 +6267,9 @@ packages:
   '@placemarkio/flat-drop-files@1.0.2':
     resolution: {integrity: sha512-nx9S/59s756N+BSIfuyidaQYYHva2QoWihqgfm6oYcQ8g+26Gg2qbcToROOxxDK4mKgKbOjnw04VsXMKFqqX6w==}
 
-  '@playwright/test@1.52.0':
-    resolution: {integrity: sha512-uh6W7sb55hl7D6vsAeA+V2p5JnlAqzhqFyF0VcJkKZXkgnFcVG9PziERRHQfPLfNGx1C292a4JqbWzhR8L4R1g==}
-    engines: {node: '>=18'}
+  '@playwright/test@1.65.0':
+    resolution: {integrity: sha512-iGURLGuKDLakSEl7Pgfv8h7f+XLT+V861Wfhz0zlEl5nyFuKUopdkFBPKqTllTUp06aOwPuH8iuUEb3yp3MpbQ==}
+    engines: {node: '>=20'}
     hasBin: true
 
   '@pmndrs/handle@6.6.29':
@@ -10567,11 +10567,6 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
-  fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -13000,14 +12995,14 @@ packages:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
 
-  playwright-core@1.52.0:
-    resolution: {integrity: sha512-l2osTgLXSMeuLZOML9qYODUQoPPnUsKsb5/P6LJ2e6uPKXUdPK5WYhN4z03G+YNbWmGDY4YENauNu4ZKczreHg==}
-    engines: {node: '>=18'}
+  playwright-core@1.65.0:
+    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
+    engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.52.0:
-    resolution: {integrity: sha512-JAwMNMBlxJ2oD1kce4KPtMkDeKGHQstdpFPcPH3maElAXon/QZeTvtsfXmTMRyO9TslfoYOXkSsvao2nE1ilTw==}
-    engines: {node: '>=18'}
+  playwright@1.65.0:
+    resolution: {integrity: sha512-F3AMWcR44qMBt4kq+6Kb6mX7bjGXshktKFOPULd7reED6ZJWevjbNRqysP7q+AATE9kdPEZBibex1BYsvpVoeA==}
+    engines: {node: '>=20'}
     hasBin: true
 
   plur@5.1.0:
@@ -20207,9 +20202,9 @@ snapshots:
 
   '@placemarkio/flat-drop-files@1.0.2': {}
 
-  '@playwright/test@1.52.0':
+  '@playwright/test@1.65.0':
     dependencies:
-      playwright: 1.52.0
+      playwright: 1.65.0
 
   '@pmndrs/handle@6.6.29(@types/react@19.1.6)(immer@9.0.15)(react@19.2.6)':
     dependencies:
@@ -26254,9 +26249,6 @@ snapshots:
 
   fs.realpath@1.0.0: {}
 
-  fsevents@2.3.2:
-    optional: true
-
   fsevents@2.3.3:
     optional: true
 
@@ -28694,7 +28686,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  neuroglancer@2.41.2(patch_hash=tgzf6nzckj6p3bi5nco2p6enxy)(typescript@5.5.3):
+  neuroglancer@2.41.2(patch_hash=xgkjojorp5ymcxvecnai3gq3ke)(typescript@5.5.3):
     dependencies:
       codemirror: 5.65.18
       core-js: 3.42.0
@@ -29309,13 +29301,11 @@ snapshots:
     dependencies:
       find-up: 3.0.0
 
-  playwright-core@1.52.0: {}
+  playwright-core@1.65.0: {}
 
-  playwright@1.52.0:
+  playwright@1.65.0:
     dependencies:
-      playwright-core: 1.52.0
-    optionalDependencies:
-      fsevents: 2.3.2
+      playwright-core: 1.65.0
 
   plur@5.1.0:
     dependencies:

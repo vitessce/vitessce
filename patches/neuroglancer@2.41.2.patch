@@ -41,19 +41,18 @@ diff --git a/lib/layer/index.js b/lib/layer/index.js
 index d7c99d74347180d938bbae456f74e998c0ec6342..5f9bb4d0e0d54181e21cdbc959139654251c5f26 100644
 --- a/lib/layer/index.js
 +++ b/lib/layer/index.js
-@@ -989,6 +989,11 @@ export class LayerSelectedValues extends RefCounted {
+@@ -989,6 +989,10 @@ export class LayerSelectedValues extends RefCounted {
          const userLayer = layer.layer;
          if (layer.visible && userLayer !== null) {
            const { selectionState } = userLayer;
 +          // Vitessce: selectionState is only assigned in initializationDone(). A layer whose
 +          // restoreState(spec) threw never gets one, but its hover listener stays bound, so the
 +          // next viewer.state.restoreState({ layers }) while hovering crashed here.
-+          // (The @janelia-flyem fork had this guard.)
 +          if (selectionState === void 0) continue;
            userLayer.resetSelectionState(selectionState);
            selectionState.generation = generation;
            userLayer.captureSelectionState(selectionState, mouseState);
-@@ -999,7 +1004,7 @@ export class LayerSelectedValues extends RefCounted {
+@@ -999,7 +1003,7 @@ export class LayerSelectedValues extends RefCounted {
    get(userLayer) {
      this.update();
      const { selectionState } = userLayer;
