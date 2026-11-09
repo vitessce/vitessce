@@ -8,14 +8,11 @@ import { resolve } from 'path';
 const { getExtractedSVG } = svgInlineLoader;
 
 /**
- * The @janelia-flyem/neuroglancer package in node_modules
- * includes code in its production bundle like this:
- * `import save_icon from './save_icon.svg'` without
- * inlining the SVG file contents.
- * This means we need to do this asset inlining ourselves.
- * Bundlers like vite generally do not perform asset inlining
- * for code in node_modules by default, which is why we
- * define a custom Vite plugin here.
+ * Inlines `import icon from './icon.svg'` as a string.
+ * Originally needed for the @janelia-flyem/neuroglancer fork, whose production
+ * bundle imported SVG icons without inlining them. Mainline neuroglancer imports
+ * them as `./icon.svg?raw`, which Vite handles natively (this plugin only matches
+ * ids ending in `.svg`, so it does not affect those).
  * @param {*} options 
  * @param {[string]} options.classPrefix
  * @param {[string]} options.idPrefix
