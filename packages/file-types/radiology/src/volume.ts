@@ -220,29 +220,43 @@ export function toNgffMetadata(
  * Spatial views draw single-resolution images with Viv's ImageLayer (2D)
  * or VolumeLayer (3D), which both call getRaster only.
  */
+// Memory for the displayed slices of each image. Large volumes and time series
+// keep only their most recently used slices.
+const SLICE_CACHE_BYTES = 256 * 1024 * 1024;
+
 export function createSliceSource(
   volume: Volume,
   geometry: ReturnType<typeof getDisplayGeometry>,
   dtype: VolumeDtype,
+  cacheBytes = SLICE_CACHE_BYTES,
 ) {
   const {
     width, height, depth, numT, slope, intercept,
   } = volume;
   const [isFlippedX, isFlippedY, isFlippedZ] = geometry.flips;
-  // ponytail: unbounded cache, at most one full volume per image. Add an LRU if memory matters.
+  const sliceBytes = width * height * ARRAY_TYPES[dtype].BYTES_PER_ELEMENT;
+  const maxCachedSlices = Math.max(1, Math.floor(cacheBytes / sliceBytes));
+  // A Map iterates in insertion order. Each use moves a slice to the end,
+  // so the first key is the least recently used.
   const cache = new Map<number, Promise<VolumeArray>>();
 
   function getSlice(z: number, t: number) {
     const key = t * depth + z;
     let slice = cache.get(key);
-    if (!slice) {
+    if (slice) {
+      cache.delete(key);
+    } else {
       slice = volume.loadRawSlice(isFlippedZ ? depth - 1 - z : z, t)
         .then(raw => toDisplaySlice(raw, {
           width, height, slope, intercept, dtype, isFlippedX, isFlippedY,
         }));
       // Allow a failed slice to be requested again.
       slice.catch(() => cache.delete(key));
-      cache.set(key, slice);
+    }
+    cache.set(key, slice);
+    if (cache.size > maxCachedSlices) {
+      const [leastRecentlyUsed] = cache.keys();
+      cache.delete(leastRecentlyUsed);
     }
     return slice;
   }

@@ -15,6 +15,8 @@ Only `spatialBeta` and `layerControllerBeta` are targeted, not the legacy `spati
 - `VolumeLoader` turns a `Volume` into an `ImageWrapper`, using:
   - `createSliceSource()`: a single-resolution Viv `PixelSource` that loads and caches one slice per `getRaster` call.
   - `toNgffMetadata()`: synthesized OME-NGFF `multiscales` and `omero` metadata, which `ImageWrapper` already understands.
+  - The `ImageWrapper` is created with the image type `'radiology'`, so `getType()` does not report the synthesized metadata as OME-Zarr.
+- `dicom-parser` and `nifti-reader-js` are imported on first use, so they are not in the main bundle.
 
 ## Geometry
 
@@ -29,7 +31,7 @@ Only `spatialBeta` and `layerControllerBeta` are targeted, not the legacy `spati
 - DICOM slices are sorted by `ImagePositionPatient` projected onto the slice normal, not by `InstanceNumber`. Slice spacing is the median gap, and uneven spacing logs a warning. Images that do not match the rest of a series (such as localizers) are skipped with a warning.
 - The modality LUT (`value * slope + intercept`) is applied when slices load. Results use `Int16Array` when they are integers that fit in 16 bits (CT in HU), and `Float32Array` otherwise. Series with a different rescale per slice (often PET) are rescaled per slice into `Float32Array`. PET values are not converted to SUV.
 - `getRaster` returns a copy, because Viv's `getChannelStats` reorders rasters in place.
-- The slice cache is unbounded (at most one full volume per image). Add an LRU cache if memory becomes a problem.
+- Each image caches up to 256 MB of displayed slices, and evicts the least recently used slice when the cache is full. Volumes larger than that are read again when 3D mode is turned off and on.
 
 ## Codecs and workers
 
@@ -48,8 +50,20 @@ Only `spatialBeta` and `layerControllerBeta` are targeted, not the legacy `spati
 
 ## Known gaps
 
-- `ImageWrapper.getType()` reports `'ome-zarr'` for the synthesized metadata. Its only caller, `spatial-accelerated`, would fail when it tries to read Zarr chunks.
+- The accelerated 3D renderer (`spatialBeta` with the `accelerated` prop) reads Zarr chunks directly, so it does not support radiology images. It reports an error, because `getType()` returns `'radiology'`.
 - Not supported: compressed multi-frame `.dcm` files, multi-frame instances over DICOMweb, `MONOCHROME1`, color images, big-endian data, oblique rotation, reslicing, and DICOM-SEG or NIfTI label maps as `obsSegmentations`.
+
+## Milestone 2 candidates
+
+Ordered by value to radiology users. None of these are started.
+
+1. **Segmentations.** Load DICOM-SEG series and NIfTI label maps as `obsSegmentations`, so that segments (such as tumor masks) can be colored, selected, and linked to obs sets and other views. This is where Vitessce adds something that radiology viewers like OHIF do not. IDC hosts many SEG series to validate against. A label map has the same grid as an image, so it could reuse `Volume` and `createSliceSource`, with a bitmask loader instead of an image loader. Check how `spatialBeta` renders bitmask segmentations in 3D before scoping this.
+2. **Axial, coronal, and sagittal views.** Radiologists expect three orthogonal views of a volume. The 2D views only draw slices along the stored z axis. A slice source could read along another axis, with an option to choose the plane in each view. A coronal or sagittal slice needs every stored slice, so the whole volume must be loaded first (as 3D mode already does), and the slice cache limit applies. A crosshair that links the three views would come later. Oblique rotation could be handled by the same reslicing.
+3. **Series alignment.** The z translation is dropped from the model matrix (see Geometry), so different series of a study (such as T1, T2, and FLAIR MR, or PET with CT) do not line up in 3D, and `spatialTargetZ` links views by slice index instead of patient position. Linking by index only works when series share a grid, as in the Synthea comparison demo. Restoring the z translation needs a fix for the 2D camera's far plane, and slice linking needs a position-based coordination value.
+4. **Compressed multi-frame files.** Enhanced CT and MR (one multi-frame file per series) are common from modern scanners. Compressed frames of a multi-frame file are not split yet: this needs the basic or extended offset table to find each frame's fragments. Over DICOMweb, multi-frame instances need one frame request per frame number (`frames/{n}`).
+5. **Rarer formats.** `MONOCHROME1` (inverted grayscale, mostly radiographs), color images (such as ultrasound), lossy JPEG (Baseline and Extended), and big-endian data.
+6. **Window presets.** A menu of common CT windows in the layer controller, such as brain (40/80), soft tissue (40/400), lung (-600/1500), and bone (400/1800). MR values have no standard units, so presets only apply to CT.
+7. **Python package.** Check whether the `vitessce` Python package needs the new file types (`image.nifti`, `image.dicomweb`, `image.dicom`) before they can be used from Jupyter.
 
 ## Validation
 

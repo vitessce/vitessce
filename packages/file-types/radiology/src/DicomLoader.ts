@@ -1,5 +1,5 @@
 /* eslint-disable no-plusplus */
-import dicomParser, { type DataSet } from 'dicom-parser';
+import type { DataSet } from 'dicom-parser';
 import { VolumeLoader } from './VolumeLoader.js';
 import { type DicomImage, toVolume } from './dicom.js';
 import {
@@ -30,7 +30,9 @@ async function fetchBytes(url: string, requestInit?: RequestInit, range?: [numbe
   return { buffer: await res.arrayBuffer(), isWholeFile: res.status !== 206 };
 }
 
-function parse(buffer: ArrayBuffer) {
+async function parse(buffer: ArrayBuffer) {
+  // The parser is loaded on first use, so it is not in the main bundle.
+  const { default: dicomParser } = await import('dicom-parser');
   return dicomParser.parseDicom(new Uint8Array(buffer), { untilTag: PIXEL_DATA });
 }
 
@@ -46,14 +48,14 @@ async function readHeader(
   const [size, ...largerSizes] = readSizes;
   if (size === undefined) {
     const { buffer } = await fetchBytes(url, requestInit);
-    return { dataSet: parse(buffer), file: buffer };
+    return { dataSet: await parse(buffer), file: buffer };
   }
   const { buffer, isWholeFile } = await fetchBytes(url, requestInit, [0, size - 1]);
   if (isWholeFile) {
-    return { dataSet: parse(buffer), file: buffer };
+    return { dataSet: await parse(buffer), file: buffer };
   }
   try {
-    const dataSet = parse(buffer);
+    const dataSet = await parse(buffer);
     if (dataSet.elements[PIXEL_DATA]) {
       return { dataSet };
     }

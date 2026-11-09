@@ -62,6 +62,7 @@ describe('NiftiLoader', () => {
     const image = data.image.instance;
 
     expect(image.getName()).toEqual('ct');
+    expect(image.getType()).toEqual('radiology');
     expect(image.getDtype()).toEqual('Int16');
     expect(image.getNumZ()).toEqual(2);
     expect(image.getDefaultTargetZ()).toEqual(1);

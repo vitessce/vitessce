@@ -1,7 +1,4 @@
 /* eslint-disable no-plusplus */
-import {
-  isCompressed, decompressAsync, isNIFTI, readHeader, readImage,
-} from 'nifti-reader-js';
 import { VolumeLoader } from './VolumeLoader.js';
 import { type Volume, type VolumeArray, getRobustRange } from './volume.js';
 
@@ -34,10 +31,15 @@ export class NiftiLoader extends VolumeLoader {
     if (!url) {
       throw new Error('The image.nifti file type requires a url.');
     }
+    // The parser is loaded on first use, so it is not in the main bundle.
+    const niftiReader = import('nifti-reader-js');
     const res = await fetch(url, requestInit);
     if (!res.ok) {
       throw new Error(`NIfTI file failed to load: ${res.status} from ${res.url}`);
     }
+    const {
+      isCompressed, decompressAsync, isNIFTI, readHeader, readImage,
+    } = await niftiReader;
     let buffer = await res.arrayBuffer();
     if (isCompressed(buffer)) {
       buffer = await decompressAsync(buffer);

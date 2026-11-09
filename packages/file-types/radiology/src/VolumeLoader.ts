@@ -45,7 +45,7 @@ export abstract class VolumeLoader extends AbstractTwoStepLoader<RadiologySource
       data: [createSliceSource(volume, geometry, dtype)],
       metadata: toNgffMetadata(volume, geometry),
     } as unknown as VivLoaderType;
-    const imageWrapper = new ImageWrapper(vivLoader, this.options);
+    const imageWrapper = new ImageWrapper(vivLoader, this.options, 'radiology');
 
     const coordinationValues = {
       spatialTargetZ: imageWrapper.getDefaultTargetZ(),

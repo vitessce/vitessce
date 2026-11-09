@@ -121,4 +121,28 @@ describe('createSliceSource', () => {
     // Changes made by callers do not leak into the cache.
     expect(Array.from(again.data)).toEqual([2, 2]);
   });
+
+  it('evicts the least recently used slice when the cache is full', async () => {
+    const loadRawSlice = vi.fn(async (z: number) => new Int16Array([z, z]));
+    const volume = {
+      width: 2, height: 1, depth: 3, numT: 1, slope: 1, intercept: 0, loadRawSlice,
+    } as unknown as Volume;
+    const geometry = {
+      scale: [1, 1, 1], translation: [0, 0, 0], flips: [false, false, false], isOblique: false,
+    };
+    // Room for two Int16 slices of 2 values.
+    const source = createSliceSource(volume, geometry, 'Int16', 8);
+    const load = (z: number) => source.getRaster({ selection: { z } });
+
+    await load(0);
+    await load(1);
+    await load(0);
+    await load(2);
+    // Slice 1 was evicted; slices 0 and 2 are still cached.
+    await load(0);
+    await load(2);
+    expect(loadRawSlice.mock.calls.map(([z]) => z)).toEqual([0, 1, 2]);
+    await load(1);
+    expect(loadRawSlice.mock.calls.map(([z]) => z)).toEqual([0, 1, 2, 1]);
+  });
 });
