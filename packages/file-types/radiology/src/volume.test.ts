@@ -42,6 +42,13 @@ describe('toDisplaySlice', () => {
       ...params, slope: 2, intercept: -1, isFlippedX: false, isFlippedY: false,
     }))).toEqual([1, 3, 5, 7, 9, 11]);
   });
+
+  it('flips each plane of an RGB slice', () => {
+    const rgb = new Int16Array([1, 2, 3, 4, 5, 6]);
+    expect(Array.from(toDisplaySlice(rgb, {
+      ...params, width: 2, height: 1, numPlanes: 3, isFlippedX: true, isFlippedY: false,
+    }))).toEqual([2, 1, 4, 3, 6, 5]);
+  });
 });
 
 describe('getDisplayGeometry', () => {
@@ -144,5 +151,21 @@ describe('createSliceSource', () => {
     expect(loadRawSlice.mock.calls.map(([z]) => z)).toEqual([0, 1, 2]);
     await load(1);
     expect(loadRawSlice.mock.calls.map(([z]) => z)).toEqual([0, 1, 2, 1]);
+  });
+
+  it('returns a channel of an RGB slice per raster', async () => {
+    // Red, green, and blue planes of two pixels.
+    const loadRawSlice = vi.fn(async () => new Uint8Array([1, 2, 3, 4, 5, 6]));
+    const volume = {
+      width: 2, height: 1, depth: 1, numT: 1, slope: 1, intercept: 0, isRgb: true, loadRawSlice,
+    } as unknown as Volume;
+    const geometry = {
+      scale: [1, 1, 1], translation: [0, 0, 0], flips: [false, false, false], isOblique: false,
+    };
+    const source = createSliceSource(volume, geometry, 'Uint8');
+    expect(source.shape).toEqual([1, 3, 1, 1, 2]);
+    const rasters = await Promise.all([0, 1, 2].map(c => source.getRaster({ selection: { c } })));
+    expect(rasters.map(raster => Array.from(raster.data))).toEqual([[1, 2], [3, 4], [5, 6]]);
+    expect(loadRawSlice).toHaveBeenCalledTimes(1);
   });
 });

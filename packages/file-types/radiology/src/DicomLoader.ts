@@ -1,7 +1,13 @@
 /* eslint-disable no-plusplus */
 import type { DataSet } from 'dicom-parser';
 import { VolumeLoader } from './VolumeLoader.js';
-import { type DicomImage, toVolume } from './dicom.js';
+import {
+  type DicomAttributes,
+  type DicomImage,
+  readImage,
+  readFrames,
+  toVolume,
+} from './dicom.js';
 import {
   UNCOMPRESSED_TRANSFER_SYNTAXES,
   isSupportedTransferSyntax,
@@ -10,6 +16,7 @@ import {
 import type { Volume } from './volume.js';
 
 const PIXEL_DATA = 'x7fe00010';
+const EXPLICIT_VR_BIG_ENDIAN = '1.2.840.10008.1.2.2';
 // Headers are usually a few kilobytes, but multi-frame headers grow with the number of frames.
 // Try small reads before reading the whole file.
 const HEADER_READ_SIZES = [16_384, 262_144, 4_194_304];
@@ -30,10 +37,16 @@ async function fetchBytes(url: string, requestInit?: RequestInit, range?: [numbe
   return { buffer: await res.arrayBuffer(), isWholeFile: res.status !== 206 };
 }
 
-async function parse(buffer: ArrayBuffer) {
+async function parse(buffer: ArrayBuffer, url: string) {
   // The parser is loaded on first use, so it is not in the main bundle.
   const { default: dicomParser } = await import('dicom-parser');
-  return dicomParser.parseDicom(new Uint8Array(buffer), { untilTag: PIXEL_DATA });
+  try {
+    return dicomParser.parseDicom(new Uint8Array(buffer), { untilTag: PIXEL_DATA });
+  } catch (e) {
+    // dicom-parser throws strings, or objects that hold the error as `exception`.
+    const cause = (e as { exception?: unknown })?.exception ?? e;
+    throw new Error(`${url} could not be read as a DICOM file: ${cause}`);
+  }
 }
 
 /**
@@ -48,14 +61,14 @@ async function readHeader(
   const [size, ...largerSizes] = readSizes;
   if (size === undefined) {
     const { buffer } = await fetchBytes(url, requestInit);
-    return { dataSet: await parse(buffer), file: buffer };
+    return { dataSet: await parse(buffer, url), file: buffer };
   }
   const { buffer, isWholeFile } = await fetchBytes(url, requestInit, [0, size - 1]);
   if (isWholeFile) {
-    return { dataSet: await parse(buffer), file: buffer };
+    return { dataSet: await parse(buffer, url), file: buffer };
   }
   try {
-    const dataSet = await parse(buffer);
+    const dataSet = await parse(buffer, url);
     if (dataSet.elements[PIXEL_DATA]) {
       return { dataSet };
     }
@@ -65,129 +78,170 @@ async function readHeader(
   return readHeader(url, requestInit, largerSizes);
 }
 
-function getNumbers(dataSet: DataSet, tag: string) {
-  return dataSet.string(tag)?.split('\\').map(Number);
-}
-
-function fromDataSet(dataSet: DataSet, url: string): DicomImage & { transferSyntax: string } {
-  const transferSyntax = dataSet.string('x00020010') ?? '';
-  if (!isSupportedTransferSyntax(transferSyntax)) {
-    throw new Error(`${url} uses transfer syntax ${transferSyntax}, which is not supported.`);
-  }
-  if (!dataSet.elements[PIXEL_DATA]) {
-    throw new Error(`${url} has no pixel data.`);
-  }
+function toAttributes(dataSet: DataSet): DicomAttributes {
+  const key = (tag: string) => `x${tag.toLowerCase()}`;
   return {
-    transferSyntax,
-    modality: dataSet.string('x00080060'),
-    seriesDescription: dataSet.string('x0008103e'),
-    sliceThickness: getNumbers(dataSet, 'x00180050')?.[0],
-    position: getNumbers(dataSet, 'x00200032') ?? [],
-    orientation: getNumbers(dataSet, 'x00200037') ?? [],
-    samplesPerPixel: dataSet.uint16('x00280002') ?? 1,
-    photometricInterpretation: dataSet.string('x00280004') ?? 'MONOCHROME2',
-    numberOfFrames: getNumbers(dataSet, 'x00280008')?.[0] ?? 1,
-    rows: dataSet.uint16('x00280010') ?? 0,
-    columns: dataSet.uint16('x00280011') ?? 0,
-    pixelSpacing: getNumbers(dataSet, 'x00280030') ?? [],
-    bitsAllocated: dataSet.uint16('x00280100') ?? 16,
-    bitsStored: dataSet.uint16('x00280101') ?? 16,
-    pixelRepresentation: dataSet.uint16('x00280103') ?? 0,
-    windowCenter: getNumbers(dataSet, 'x00281050')?.[0],
-    windowWidth: getNumbers(dataSet, 'x00281051')?.[0],
-    intercept: getNumbers(dataSet, 'x00281052')?.[0] ?? 0,
-    slope: getNumbers(dataSet, 'x00281053')?.[0] ?? 1,
+    string: tag => dataSet.string(key(tag)),
+    numbers: tag => dataSet.string(key(tag))?.split('\\').map(Number),
+    uint16: tag => dataSet.uint16(key(tag)),
+    items: tag => dataSet.elements[key(tag)]?.items
+      ?.map(item => toAttributes(item.dataSet as DataSet)),
   };
 }
 
-// Functional group sequences of multi-frame images (DICOM PS3.3 C.7.6.16).
-const PER_FRAME_GROUPS = 'x52009230';
-const SHARED_GROUPS = 'x52009229';
+type DicomFrame = DicomImage & {
+  url: string;
+  transferSyntax: string;
+  /** The whole file, when the server sent it instead of a range. */
+  file?: ArrayBuffer;
+  /** The bytes of the frame in the file. Without an end, they run to the end of the file. */
+  start: number;
+  end?: number;
+  /** Whether the bytes start with the Basic Offset Table (in compressed single-frame files). */
+  hasOffsetTable?: boolean;
+};
 
 /**
- * Get the first item of a functional group sequence for a frame.
- * A per-frame group takes precedence over the shared group.
+ * Read bytes [start, end) of a file, from the whole file when it was kept,
+ * or else with a range request.
  */
-function getFunctionalGroup(dataSet: DataSet, frameIndex: number, sequenceTag: string) {
-  const perFrame = dataSet.elements[PER_FRAME_GROUPS]?.items?.[frameIndex]?.dataSet;
-  const shared = dataSet.elements[SHARED_GROUPS]?.items?.[0]?.dataSet;
-  const groups = perFrame?.elements[sequenceTag] ? perFrame : shared;
-  return groups?.elements[sequenceTag]?.items?.[0]?.dataSet;
-}
-
-/**
- * Split a multi-frame image into one image per frame, with the geometry and
- * rescaling of each frame from its functional groups (falling back to the
- * attributes of the whole image).
- */
-function getFrames<T extends DicomImage & { transferSyntax: string }>(
-  dataSet: DataSet, image: T, url: string,
+async function readBytes(
+  { url, file }: { url: string; file?: ArrayBuffer },
+  requestInit: RequestInit | undefined,
+  start: number,
+  end?: number,
 ) {
-  if (image.numberOfFrames === 1) {
-    return [{ ...image, frameIndex: 0 }];
+  if (file) {
+    return new Uint8Array(file).subarray(start, end);
   }
-  if (!UNCOMPRESSED_TRANSFER_SYNTAXES.includes(image.transferSyntax)) {
-    throw new Error(`${url} is a compressed multi-frame image, which is not supported yet.`);
-  }
-  if (!dataSet.elements[PER_FRAME_GROUPS]) {
-    throw new Error(`${url} is a multi-frame image without per-frame positions, which is not supported.`);
-  }
-  return Array.from({ length: image.numberOfFrames }, (_, frameIndex) => {
-    const position = getFunctionalGroup(dataSet, frameIndex, 'x00209113');
-    const orientation = getFunctionalGroup(dataSet, frameIndex, 'x00209116');
-    const measures = getFunctionalGroup(dataSet, frameIndex, 'x00289110');
-    const rescale = getFunctionalGroup(dataSet, frameIndex, 'x00289145');
-    const window = getFunctionalGroup(dataSet, frameIndex, 'x00289132');
-    return {
-      ...image,
-      numberOfFrames: 1,
-      frameIndex,
-      position: (position && getNumbers(position, 'x00200032')) ?? image.position,
-      orientation: (orientation && getNumbers(orientation, 'x00200037')) ?? image.orientation,
-      pixelSpacing: (measures && getNumbers(measures, 'x00280030')) ?? image.pixelSpacing,
-      sliceThickness: (measures && getNumbers(measures, 'x00180050')?.[0]) ?? image.sliceThickness,
-      intercept: (rescale && getNumbers(rescale, 'x00281052')?.[0]) ?? image.intercept,
-      slope: (rescale && getNumbers(rescale, 'x00281053')?.[0]) ?? image.slope,
-      windowCenter: (window && getNumbers(window, 'x00281050')?.[0]) ?? image.windowCenter,
-      windowWidth: (window && getNumbers(window, 'x00281051')?.[0]) ?? image.windowWidth,
-    };
-  });
+  const { buffer, isWholeFile } = await fetchBytes(url, requestInit, [start, end && end - 1]);
+  return isWholeFile ? new Uint8Array(buffer).subarray(start, end) : new Uint8Array(buffer);
 }
 
 /**
- * Join the fragments of encapsulated (compressed) pixel data: a sequence of items,
- * starting with a basic offset table, ended by a sequence delimiter.
- * Assumes one frame per file.
+ * Find the items of encapsulated (compressed) pixel data, up to the sequence delimiter
+ * or the end of the bytes. Returns where the value of each item starts and ends.
  */
-export function readFragments(bytes: Uint8Array) {
+function findItems(bytes: Uint8Array) {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const fragments: Uint8Array[] = [];
+  const items: { start: number; end: number }[] = [];
   let offset = 0;
   while (offset + 8 <= bytes.length) {
     // Tags (FFFE,E000) and (FFFE,E0DD) read as little-endian 32-bit values.
     const tag = view.getUint32(offset, true);
     const length = view.getUint32(offset + 4, true);
-    offset += 8;
     if (tag === 0xE0DDFFFE) break;
-    fragments.push(bytes.subarray(offset, offset + length));
-    offset += length;
+    items.push({ start: offset + 8, end: offset + 8 + length });
+    offset += 8 + length;
   }
-  // Skip the basic offset table.
-  const [, ...frameFragments] = fragments;
-  if (frameFragments.length === 1) {
-    return frameFragments[0];
+  return items;
+}
+
+/**
+ * Join the fragments of one frame of encapsulated pixel data.
+ * @param hasOffsetTable Whether the bytes start with the Basic Offset Table, which is skipped.
+ */
+function readFragments(bytes: Uint8Array, hasOffsetTable = false) {
+  const items = findItems(bytes).slice(hasOffsetTable ? 1 : 0);
+  if (items.length === 1) {
+    return bytes.subarray(items[0].start, items[0].end);
   }
-  const frame = new Uint8Array(frameFragments.reduce((sum, f) => sum + f.length, 0));
-  frameFragments.reduce((position, f) => {
-    frame.set(f, position);
-    return position + f.length;
+  const frame = new Uint8Array(items.reduce((sum, { start, end }) => sum + end - start, 0));
+  items.reduce((position, { start, end }) => {
+    frame.set(bytes.subarray(start, end), position);
+    return position + end - start;
   }, 0);
   return frame;
 }
 
 /**
+ * Find the bytes of each frame of a compressed multi-frame file
+ * from its Basic Offset Table (DICOM PS3.5 A.4).
+ * Without an offset table, the whole file is read, and each frame must be one fragment.
+ */
+async function findCompressedFrames(
+  source: { url: string; file?: ArrayBuffer },
+  requestInit: RequestInit | undefined,
+  pixelDataOffset: number,
+  numberOfFrames: number,
+): Promise<{ starts: number[]; ends: (number | undefined)[]; file?: ArrayBuffer }> {
+  const tableEnd = pixelDataOffset + 8 + 4 * numberOfFrames;
+  const table = await readBytes(source, requestInit, pixelDataOffset, tableEnd);
+  const view = new DataView(table.buffer, table.byteOffset, table.byteLength);
+  const tableLength = view.getUint32(4, true);
+  // Offsets are from the first fragment, which follows the table.
+  const firstFragment = pixelDataOffset + 8 + tableLength;
+  if (tableLength === 4 * numberOfFrames) {
+    const starts = Array.from(
+      { length: numberOfFrames },
+      (_, i) => firstFragment + view.getUint32(8 + 4 * i, true),
+    );
+    // The last frame runs to the sequence delimiter.
+    return { starts, ends: [...starts.slice(1), undefined] };
+  }
+  const whole = source.file ?? (await fetchBytes(source.url, requestInit)).buffer;
+  const items = findItems(new Uint8Array(whole).subarray(firstFragment));
+  if (items.length !== numberOfFrames) {
+    throw new Error(`${source.url} is a compressed multi-frame image without an offset table and with ${items.length} fragments for ${numberOfFrames} frames, which is not supported.`);
+  }
+  return {
+    starts: items.map(({ start }) => firstFragment + start - 8),
+    ends: items.map(({ end }) => firstFragment + end),
+    file: whole,
+  };
+}
+
+/**
+ * Read the header of a file, and find the bytes of each of its frames.
+ */
+async function readFile(url: string, requestInit?: RequestInit): Promise<DicomFrame[]> {
+  const { dataSet, file } = await readHeader(url, requestInit);
+  const transferSyntax = dataSet.string('x00020010') ?? '';
+  if (!isSupportedTransferSyntax(transferSyntax)) {
+    throw new Error(`${url} uses transfer syntax ${transferSyntax}, which is not supported.`);
+  }
+  const pixelData = dataSet.elements[PIXEL_DATA];
+  if (!pixelData) {
+    throw new Error(`${url} has no pixel data.`);
+  }
+  const attributes = toAttributes(dataSet);
+  const image = { ...readImage(attributes), url, transferSyntax };
+  if (transferSyntax === EXPLICIT_VR_BIG_ENDIAN && image.bitsAllocated === 8 && pixelData.vr === 'OW') {
+    // The values would need to be swapped in pairs, across frames.
+    throw new Error(`${url} has 8-bit big-endian pixel data stored as 16-bit words (OW), which is not supported.`);
+  }
+  const frames = readFrames(attributes, image);
+
+  if (UNCOMPRESSED_TRANSFER_SYNTAXES.includes(transferSyntax)) {
+    const frameLength = image.rows * image.columns * image.samplesPerPixel
+      * (image.bitsAllocated / 8);
+    return frames.map(frame => ({
+      ...frame,
+      file,
+      start: pixelData.dataOffset + frame.frameIndex * frameLength,
+      end: pixelData.dataOffset + (frame.frameIndex + 1) * frameLength,
+    }));
+  }
+  if (frames.length === 1) {
+    // The length of the fragments is not known up front, so read to the end.
+    return [{
+      ...frames[0], file, start: pixelData.dataOffset, hasOffsetTable: true,
+    }];
+  }
+  const found = await findCompressedFrames(
+    { url, file }, requestInit, pixelData.dataOffset, frames.length,
+  );
+  return frames.map((frame, i) => ({
+    ...frame,
+    file: found.file ?? file,
+    start: found.starts[i],
+    end: found.ends[i],
+  }));
+}
+
+/**
  * Loads a series of DICOM Part 10 (.dcm) files: one image per file,
- * or one multi-frame image with a frame per slice.
+ * or multi-frame images with a frame per slice.
  * Only headers are read up front; pixel data is read per slice with range requests.
  */
 export class DicomLoader extends VolumeLoader {
@@ -197,33 +251,16 @@ export class DicomLoader extends VolumeLoader {
     if (urls.length === 0) {
       throw new Error('The image.dicom file type requires options.urls.');
     }
-    const files = await Promise.all(urls.map(async (url) => {
-      const { dataSet, file } = await readHeader(url, requestInit);
-      const image = {
-        ...fromDataSet(dataSet, url),
-        url,
-        file,
-        pixelDataOffset: dataSet.elements[PIXEL_DATA].dataOffset,
-      };
-      return getFrames(dataSet, image, url);
-    }));
-    const images = files.flat();
+    const images = (await Promise.all(urls.map(url => readFile(url, requestInit)))).flat();
 
     return toVolume(images, async (image) => {
+      const bytes = await readBytes(image, requestInit, image.start, image.end);
       const isCompressed = !UNCOMPRESSED_TRANSFER_SYNTAXES.includes(image.transferSyntax);
-      const frameLength = image.rows * image.columns * (image.bitsAllocated / 8);
-      const start = image.pixelDataOffset + image.frameIndex * frameLength;
-      // The length of compressed pixel data is not known up front, so read to the end.
-      const end = isCompressed ? undefined : start + frameLength;
-      let bytes: Uint8Array;
-      if (image.file) {
-        bytes = new Uint8Array(image.file).subarray(start, end);
-      } else {
-        const range: [number, number?] = [start, end && end - 1];
-        const { buffer, isWholeFile } = await fetchBytes(image.url, requestInit, range);
-        bytes = isWholeFile ? new Uint8Array(buffer).subarray(start, end) : new Uint8Array(buffer);
-      }
-      return decodeFrame(image.transferSyntax, isCompressed ? readFragments(bytes) : bytes, image);
+      return decodeFrame(
+        image.transferSyntax,
+        isCompressed ? readFragments(bytes, image.hasOffsetTable) : bytes,
+        image,
+      );
     });
   }
 }

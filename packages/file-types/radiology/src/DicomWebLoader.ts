@@ -1,5 +1,10 @@
 import { VolumeLoader } from './VolumeLoader.js';
-import { type DicomImage, toVolume } from './dicom.js';
+import {
+  type DicomAttributes,
+  readImage,
+  readFrames,
+  toVolume,
+} from './dicom.js';
 import { decodeFrame } from './codecs.js';
 import type { Volume } from './volume.js';
 
@@ -18,46 +23,53 @@ const MEDIA_TYPE_TRANSFER_SYNTAXES: Record<string, string> = {
   'image/x-dicom-rle': '1.2.840.10008.1.2.5',
 };
 
+// Start-of-frame markers of JPEG processes, and their transfer syntaxes.
+const JPEG_FRAME_TRANSFER_SYNTAXES: Record<number, string> = {
+  0xC0: '1.2.840.10008.1.2.4.50', // Baseline
+  0xC1: '1.2.840.10008.1.2.4.51', // Extended
+  0xC3: '1.2.840.10008.1.2.4.70', // Lossless
+};
+
+/**
+ * Get the transfer syntax of a JPEG frame from its start-of-frame marker,
+ * since the image/jpeg media type is used for both lossy and lossless JPEG.
+ */
+export function getJpegTransferSyntax(bytes: Uint8Array) {
+  // After the start-of-image marker, each segment has a marker and a 2-byte length.
+  let offset = 2;
+  while (offset + 4 <= bytes.length && bytes[offset] === 0xFF) {
+    const transferSyntax = JPEG_FRAME_TRANSFER_SYNTAXES[bytes[offset + 1]];
+    if (transferSyntax) {
+      return transferSyntax;
+    }
+    offset += 2 + bytes[offset + 2] * 256 + bytes[offset + 3];
+  }
+  return undefined;
+}
+
 type DicomJson = Record<string, { vr: string; Value?: unknown[] } | undefined>;
 
-function getNumbers(instance: DicomJson, tag: string) {
-  return instance[tag]?.Value?.map(Number);
-}
-
-function getNumber(instance: DicomJson, tag: string) {
-  return getNumbers(instance, tag)?.[0];
-}
-
-function getString(instance: DicomJson, tag: string) {
-  const value = instance[tag]?.Value?.[0];
-  return typeof value === 'string' ? value : undefined;
+function toAttributes(instance: DicomJson): DicomAttributes {
+  const values = (tag: string) => instance[tag]?.Value;
+  return {
+    string: (tag) => {
+      const value = values(tag)?.[0];
+      return typeof value === 'string' ? value : undefined;
+    },
+    numbers: tag => values(tag)?.map(Number),
+    uint16: tag => values(tag)?.map(Number)[0],
+    items: tag => values(tag)?.map(item => toAttributes(item as DicomJson)),
+  };
 }
 
 /**
- * Read the attributes of an instance from DICOM JSON (DICOM PS3.18 F.2).
+ * Read the frames of an instance from DICOM JSON (DICOM PS3.18 F.2).
  */
-export function fromDicomJson(instance: DicomJson): DicomImage & { sopInstanceUid?: string } {
-  return {
-    sopInstanceUid: getString(instance, '00080018'),
-    modality: getString(instance, '00080060'),
-    seriesDescription: getString(instance, '0008103E'),
-    sliceThickness: getNumber(instance, '00180050'),
-    position: getNumbers(instance, '00200032') ?? [],
-    orientation: getNumbers(instance, '00200037') ?? [],
-    samplesPerPixel: getNumber(instance, '00280002') ?? 1,
-    photometricInterpretation: getString(instance, '00280004') ?? 'MONOCHROME2',
-    numberOfFrames: getNumber(instance, '00280008') ?? 1,
-    rows: getNumber(instance, '00280010') ?? 0,
-    columns: getNumber(instance, '00280011') ?? 0,
-    pixelSpacing: getNumbers(instance, '00280030') ?? [],
-    bitsAllocated: getNumber(instance, '00280100') ?? 16,
-    bitsStored: getNumber(instance, '00280101') ?? 16,
-    pixelRepresentation: getNumber(instance, '00280103') ?? 0,
-    windowCenter: getNumber(instance, '00281050'),
-    windowWidth: getNumber(instance, '00281051'),
-    intercept: getNumber(instance, '00281052') ?? 0,
-    slope: getNumber(instance, '00281053') ?? 1,
-  };
+function readInstance(instance: DicomJson) {
+  const attributes = toAttributes(instance);
+  const sopInstanceUid = attributes.string('00080018');
+  const image = { ...readImage(attributes), sopInstanceUid };
+  return readFrames(attributes, image);
 }
 
 /**
@@ -80,6 +92,7 @@ export function extractFrame(body: ArrayBuffer, contentType: string) {
   }
   const mediaType = /content-type:\s*([^;\s]+)/i.exec(headers)?.[1]?.toLowerCase() ?? '';
   const transferSyntax = /transfer-syntax="?([\d.]+)/i.exec(headers)?.[1]
+    ?? (mediaType === 'image/jpeg' ? getJpegTransferSyntax(bytes) : undefined)
     ?? MEDIA_TYPE_TRANSFER_SYNTAXES[mediaType];
   if (!transferSyntax) {
     throw new Error(`The DICOMweb server returned frames as ${mediaType}, which is not supported.`);
@@ -108,11 +121,14 @@ export class DicomWebLoader extends VolumeLoader {
     if (!res.ok) {
       throw new Error(`DICOMweb series metadata failed to load: ${res.status} from ${res.url}`);
     }
-    const images = (await res.json() as DicomJson[]).map(fromDicomJson);
+    const images = (await res.json() as DicomJson[]).flatMap(readInstance);
 
     return toVolume(images, async (image) => {
-      const frameUrl = `${seriesUrl}/instances/${image.sopInstanceUid}/frames/1`;
-      let frameRes = await fetch(frameUrl, withAccept(requestInit, FRAME_ACCEPT));
+      const frameUrl = `${seriesUrl}/instances/${image.sopInstanceUid}/frames/${image.frameIndex + 1}`;
+      // Color frames are requested as stored: servers that transcode them may convert
+      // YBR to RGB, while the metadata still says YBR.
+      const accept = image.samplesPerPixel === 3 ? FRAME_ACCEPT_STORED : FRAME_ACCEPT;
+      let frameRes = await fetch(frameUrl, withAccept(requestInit, accept));
       if (frameRes.status === 406) {
         frameRes = await fetch(frameUrl, withAccept(requestInit, FRAME_ACCEPT_STORED));
       }

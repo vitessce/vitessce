@@ -34,6 +34,9 @@ catalogs:
     '@cornerstonejs/codec-charls':
       specifier: 1.2.7
       version: 1.2.7
+    '@cornerstonejs/codec-libjpeg-turbo-8bit':
+      specifier: 1.2.8
+      version: 1.2.8
     '@cornerstonejs/codec-openjpeg':
       specifier: 1.3.6
       version: 1.3.6
@@ -812,6 +815,9 @@ importers:
       '@cornerstonejs/codec-charls':
         specifier: 'catalog:'
         version: 1.2.7
+      '@cornerstonejs/codec-libjpeg-turbo-8bit':
+        specifier: 'catalog:'
+        version: 1.2.8
       '@cornerstonejs/codec-openjpeg':
         specifier: 'catalog:'
         version: 1.3.6
@@ -1602,6 +1608,9 @@ importers:
       '@cornerstonejs/codec-charls':
         specifier: 'catalog:'
         version: 1.2.7
+      '@cornerstonejs/codec-libjpeg-turbo-8bit':
+        specifier: 'catalog:'
+        version: 1.2.8
       '@cornerstonejs/codec-openjpeg':
         specifier: 'catalog:'
         version: 1.3.6
@@ -4322,6 +4331,10 @@ packages:
 
   '@cornerstonejs/codec-charls@1.2.7':
     resolution: {integrity: sha512-kNfQ7J8LIrfQUbt56fPJ0SEvevLlAAbsLHjqPS4DUDWVSuAHb5Fn0cMIV/U0SYkJRJqKvzyLJYF1hl7/xQGqLQ==}
+    engines: {node: '>=0.14'}
+
+  '@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8':
+    resolution: {integrity: sha512-qggTc0EAso+FAB4aND1wufjY/FnaVXKaJ/PAiabSksaAgf8jhCew+K3R4e3QWJI8SqcYczZFkhpVdFVwXG9ZgQ==}
     engines: {node: '>=0.14'}
 
   '@cornerstonejs/codec-openjpeg@1.3.6':
@@ -12614,6 +12627,7 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+    deprecated: This package is no longer needed on supported Node.js versions. Node.js 16+ includes AbortController and AbortSignal as built-in globals. All Node.js versions requiring this polyfill are end-of-life. Use the built-in globals instead.
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
@@ -17604,6 +17618,8 @@ snapshots:
     optional: true
 
   '@cornerstonejs/codec-charls@1.2.7': {}
+
+  '@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8': {}
 
   '@cornerstonejs/codec-openjpeg@1.3.6': {}
 

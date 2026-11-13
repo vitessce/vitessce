@@ -1,9 +1,9 @@
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
-import { DicomWebLoader, extractFrame } from './DicomWebLoader.js';
+import { DicomWebLoader, extractFrame, getJpegTransferSyntax } from './DicomWebLoader.js';
+import { CODEC_FIXTURES, JPEG_BASELINE_FIXTURES } from './codecs.test.fixtures.js';
 import { RadiologySource } from './RadiologySource.js';
-import { CODEC_FIXTURES } from './codecs.test.fixtures.js';
 
 const SERIES_URL = 'https://example.com/dicomweb/studies/1.2/series/1.2.3';
 const EXPLICIT_VR_LITTLE_ENDIAN = 'application/octet-stream; transfer-syntax=1.2.840.10008.1.2.1';
@@ -33,6 +33,24 @@ function makeInstance(sopInstanceUid: string, z: number, { rows = 2, columns = 3
   };
 }
 
+/**
+ * DICOM JSON for a multi-frame instance with a frame at each height,
+ * with frame positions in its per-frame functional groups.
+ */
+function makeMultiFrameInstance(frameZs: number[]) {
+  const { '00200032': position, ...instance } = makeInstance('sop-multi', 0);
+  return {
+    ...instance,
+    '00280008': { vr: 'IS', Value: [frameZs.length] },
+    52009230: {
+      vr: 'SQ',
+      Value: frameZs.map(z => ({
+        '00209113': { vr: 'SQ', Value: [{ '00200032': { ...position, Value: [-10, -20, z] } }] },
+      })),
+    },
+  };
+}
+
 function multipart(frame: Uint8Array, partType: string) {
   const head = new TextEncoder().encode(`--BOUNDARY\r\nContent-Type: ${partType}\r\n\r\n`);
   const tail = new TextEncoder().encode('\r\n--BOUNDARY--');
@@ -53,10 +71,24 @@ function mockServer({
   getFrame = (z: number) => new Uint8Array(new Uint16Array(6).fill(1000 + z).buffer),
   canTranscode = true,
   hasLocalizer = false,
+  isMultiFrame = false,
+  isRgb = false,
 } = {}) {
+  const frameZs = [10, 0, 5];
   const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+    if (url.endsWith('/metadata') && isMultiFrame) {
+      return new Response(JSON.stringify([makeMultiFrameInstance(frameZs)]));
+    }
     if (url.endsWith('/metadata')) {
-      const instances = [10, 0, 5].map(z => makeInstance(`sop-z${z}`, z, shape));
+      const instances = frameZs.map(z => ({
+        ...makeInstance(`sop-z${z}`, z, shape),
+        ...(isRgb ? {
+          '00280002': { vr: 'US', Value: [3] },
+          '00280004': { vr: 'CS', Value: ['RGB'] },
+          '00280100': { vr: 'US', Value: [8] },
+          '00280101': { vr: 'US', Value: [8] },
+        } : {}),
+      }));
       if (hasLocalizer) {
         const localizer = makeInstance('localizer', 0, shape);
         localizer['00200037'].Value = [1, 0, 0, 0, 0, -1];
@@ -68,7 +100,9 @@ function mockServer({
     if (!canTranscode && !accept.includes('transfer-syntax=*')) {
       return new Response(null, { status: 406 });
     }
-    const z = Number(/sop-z(\d+)/.exec(url)?.[1]);
+    const z = isMultiFrame
+      ? frameZs[Number(/frames\/(\d+)/.exec(url)?.[1]) - 1]
+      : Number(/sop-z(\d+)/.exec(url)?.[1]);
     return new Response(multipart(getFrame(z), partType), {
       headers: { 'Content-Type': 'multipart/related; type="application/octet-stream"; boundary=BOUNDARY' },
     });
@@ -149,9 +183,37 @@ describe('DicomWebLoader', () => {
     expect(image.getNumZ()).toEqual(3);
   });
 
+  it('reads a frame per slice from multi-frame instances', async () => {
+    const fetchMock = mockServer({ isMultiFrame: true });
+    const image = (await makeLoader().load()).data.image.instance;
+    expect(image.getNumZ()).toEqual(3);
+    const [source] = image.getData();
+    const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 1 } });
+    expect(Array.from(raster.data)).toEqual(new Array(6).fill(1000 + 5 - 1024));
+    const [frameUrl] = fetchMock.mock.calls.at(-1) as unknown as [string];
+    expect(frameUrl).toEqual(`${SERIES_URL}/instances/sop-multi/frames/3`);
+  });
+
+  it('requests color frames as stored', async () => {
+    const fetchMock = mockServer({ isRgb: true, getFrame: () => new Uint8Array(3 * 6) });
+    await getFirstRaster();
+    const [, frameInit] = fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit];
+    expect(new Headers(frameInit.headers).get('Accept')).toContain('transfer-syntax=*');
+  });
+
   it('rejects unsupported frame types', async () => {
-    mockServer({ partType: 'image/jpeg' });
-    await expect(getFirstRaster()).rejects.toThrow('image/jpeg, which is not supported');
+    mockServer({ partType: 'video/mp4' });
+    await expect(getFirstRaster()).rejects.toThrow('video/mp4, which is not supported');
+  });
+});
+
+describe('getJpegTransferSyntax', () => {
+  it('reads the start-of-frame marker', () => {
+    const jpeg = Uint8Array.from(atob(JPEG_BASELINE_FIXTURES.gray.base64), c => c.charCodeAt(0));
+    expect(getJpegTransferSyntax(jpeg)).toEqual('1.2.840.10008.1.2.4.50');
+    const { base64 } = CODEC_FIXTURES.jpegLossless;
+    const lossless = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    expect(getJpegTransferSyntax(lossless)).toEqual('1.2.840.10008.1.2.4.70');
   });
 });
 

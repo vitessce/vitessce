@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@cornerstonejs/codec-charls": "catalog:",
+    "@cornerstonejs/codec-libjpeg-turbo-8bit": "catalog:",
     "@cornerstonejs/codec-openjpeg": "catalog:",
     "@cornerstonejs/codec-openjph": "catalog:",
     "jpeg-lossless-decoder-js": "catalog:"

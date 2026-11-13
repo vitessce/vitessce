@@ -11,6 +11,9 @@ interface FrameShape {
   rows: number;
   columns: number;
   bitsAllocated: number;
+  samplesPerPixel: number;
+  planarConfiguration: number;
+  photometricInterpretation: string;
 }
 
 let pool: Promise<Pool> | undefined;
@@ -27,9 +30,17 @@ function getPool() {
 
 /**
  * Decode one frame of pixel data into little-endian pixel values.
+ * Color frames are returned as RGB, with a plane per sample.
  * Compressed frames are decoded in a pool of web workers.
  */
-export async function decodeFrame(transferSyntax: string, bytes: Uint8Array, shape: FrameShape) {
+export async function decodeFrame(transferSyntax: string, bytes: Uint8Array, image: FrameShape) {
+  // Only these attributes are sent to workers: images may hold large buffers, such as whole files.
+  const {
+    rows, columns, bitsAllocated, samplesPerPixel, planarConfiguration, photometricInterpretation,
+  } = image;
+  const shape = {
+    rows, columns, bitsAllocated, samplesPerPixel, planarConfiguration, photometricInterpretation,
+  };
   if (UNCOMPRESSED_TRANSFER_SYNTAXES.includes(transferSyntax) || typeof Worker === 'undefined') {
     // Nothing to decode, or no workers (such as in tests).
     return decodeOnThisThread(transferSyntax, bytes, shape);

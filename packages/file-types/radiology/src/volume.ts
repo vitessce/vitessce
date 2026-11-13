@@ -17,11 +17,14 @@ export const ARRAY_TYPES = {
 };
 
 /**
- * A single-channel volume, described independently of its file format.
+ * A grayscale or RGB volume, described independently of its file format.
  */
 export interface Volume {
   name: string;
+  /** The name of the channel of a grayscale volume. */
   channelName: string;
+  /** Whether the volume has red, green, and blue channels instead of one grayscale channel. */
+  isRgb?: boolean;
   width: number;
   height: number;
   depth: number;
@@ -40,7 +43,10 @@ export interface Volume {
   intercept: number;
   /** Default window in displayed (rescaled) units. */
   window: [number, number];
-  /** Load one slice in array order (row-major, x fastest). */
+  /**
+   * Load one slice in array order (row-major, x fastest).
+   * An RGB slice has a plane per channel: all red values, then green, then blue.
+   */
   loadRawSlice: (z: number, t: number) => Promise<VolumeArray>;
 }
 
@@ -87,15 +93,15 @@ export function getRobustRange(
 }
 
 /**
- * Copy a raw slice into display order, applying the modality LUT and axis flips.
- * Returns the input unchanged when there is nothing to do.
+ * Copy a raw slice into display order, applying the modality LUT and axis flips
+ * to each plane. Returns the input unchanged when there is nothing to do.
  */
 export function toDisplaySlice(
   raw: VolumeArray,
   {
-    width, height, slope, intercept, dtype, isFlippedX, isFlippedY,
+    width, height, numPlanes = 1, slope, intercept, dtype, isFlippedX, isFlippedY,
   }: {
-    width: number; height: number; slope: number; intercept: number;
+    width: number; height: number; numPlanes?: number; slope: number; intercept: number;
     dtype: VolumeDtype; isFlippedX: boolean; isFlippedY: boolean;
   },
 ): VolumeArray {
@@ -103,12 +109,15 @@ export function toDisplaySlice(
   if (raw instanceof ArrayType && slope === 1 && intercept === 0 && !isFlippedX && !isFlippedY) {
     return raw;
   }
-  const out = new ArrayType(width * height);
-  for (let y = 0; y < height; y++) {
-    const srcRow = (isFlippedY ? height - 1 - y : y) * width;
-    const dstRow = y * width;
-    for (let x = 0; x < width; x++) {
-      out[dstRow + x] = raw[srcRow + (isFlippedX ? width - 1 - x : x)] * slope + intercept;
+  const out = new ArrayType(width * height * numPlanes);
+  for (let plane = 0; plane < numPlanes; plane++) {
+    const planeStart = plane * width * height;
+    for (let y = 0; y < height; y++) {
+      const srcRow = planeStart + (isFlippedY ? height - 1 - y : y) * width;
+      const dstRow = planeStart + y * width;
+      for (let x = 0; x < width; x++) {
+        out[dstRow + x] = raw[srcRow + (isFlippedX ? width - 1 - x : x)] * slope + intercept;
+      }
     }
   }
   return out;
@@ -181,6 +190,10 @@ export function toNgffMetadata(
   // ponytail: 3D views lose z alignment between series; restore it when overlays need it.
   const [tx, ty] = geometry.translation.map(v => v * 1000);
   const tz = 0;
+  const window = { start: volume.window[0], end: volume.window[1] };
+  const channels = volume.isRgb
+    ? [['Red', 'FF0000'], ['Green', '00FF00'], ['Blue', '0000FF']]
+    : [[volume.channelName, 'FFFFFF']];
   return {
     multiscales: [{
       name: volume.name,
@@ -201,15 +214,13 @@ export function toNgffMetadata(
     }],
     omero: {
       name: volume.name,
-      channels: [{
-        label: volume.channelName,
-        color: 'FFFFFF',
-        window: { start: volume.window[0], end: volume.window[1] },
-      }],
+      channels: channels.map(([label, color]) => ({ label, color, window })),
       rdefs: {
         defaultT: 0,
         defaultZ: Math.floor(volume.depth / 2),
-        model: 'greyscale',
+        // ImageWrapper reports the 'color' model as RGB, so the layer controller shows
+        // the three channels as one color image.
+        model: volume.isRgb ? 'color' : 'greyscale',
       },
     },
   };
@@ -234,7 +245,9 @@ export function createSliceSource(
     width, height, depth, numT, slope, intercept,
   } = volume;
   const [isFlippedX, isFlippedY, isFlippedZ] = geometry.flips;
-  const sliceBytes = width * height * ARRAY_TYPES[dtype].BYTES_PER_ELEMENT;
+  const numChannels = volume.isRgb ? 3 : 1;
+  const planeLength = width * height;
+  const sliceBytes = planeLength * numChannels * ARRAY_TYPES[dtype].BYTES_PER_ELEMENT;
   const maxCachedSlices = Math.max(1, Math.floor(cacheBytes / sliceBytes));
   // A Map iterates in insertion order. Each use moves a slice to the end,
   // so the first key is the least recently used.
@@ -248,7 +261,7 @@ export function createSliceSource(
     } else {
       slice = volume.loadRawSlice(isFlippedZ ? depth - 1 - z : z, t)
         .then(raw => toDisplaySlice(raw, {
-          width, height, slope, intercept, dtype, isFlippedX, isFlippedY,
+          width, height, numPlanes: numChannels, slope, intercept, dtype, isFlippedX, isFlippedY,
         }));
       // Allow a failed slice to be requested again.
       slice.catch(() => cache.delete(key));
@@ -261,16 +274,17 @@ export function createSliceSource(
     return slice;
   }
 
-  async function getRaster({ selection }: { selection: { z?: number; t?: number } }) {
+  async function getRaster({ selection }: { selection: { z?: number; t?: number; c?: number } }) {
     const slice = await getSlice(selection.z ?? 0, selection.t ?? 0);
+    const c = selection.c ?? 0;
     // Return a copy: callers may modify rasters in place
     // (Viv's getChannelStats reorders values to find quantiles).
-    return { data: slice.slice(), width, height };
+    return { data: slice.slice(c * planeLength, (c + 1) * planeLength), width, height };
   }
 
   return {
     labels: ['t', 'c', 'z', 'y', 'x'],
-    shape: [numT, 1, depth, height, width],
+    shape: [numT, numChannels, depth, height, width],
     dtype,
     tileSize: 2 ** Math.ceil(Math.log2(Math.max(width, height))),
     getRaster,

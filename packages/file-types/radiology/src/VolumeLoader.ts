@@ -55,18 +55,16 @@ export abstract class VolumeLoader extends AbstractTwoStepLoader<RadiologySource
           fileUid: this.coordinationValues?.fileUid || null,
           spatialLayerOpacity: 1.0,
           spatialLayerVisible: true,
-          photometricInterpretation: 'BlackIsZero',
+          photometricInterpretation: imageWrapper.getPhotometricInterpretation(),
           volumetricRenderingAlgorithm: 'maximumIntensityProjection',
           spatialTargetResolution: null,
-          imageChannel: CL([
-            {
-              spatialTargetC: 0,
-              spatialChannelColor: [255, 255, 255],
-              spatialChannelVisible: true,
-              spatialChannelOpacity: 1.0,
-              spatialChannelWindow: volume.window,
-            },
-          ]),
+          imageChannel: CL(imageWrapper.getChannelObjects().map((channel, i) => ({
+            spatialTargetC: i,
+            spatialChannelColor: channel.defaultColor,
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: volume.window,
+          }))),
         },
       ]),
     };
