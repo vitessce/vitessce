@@ -39,9 +39,15 @@ export type BoundingCube = [
   [number, number]
 ];
 
+/**
+ * The format of an image. Radiology images (DICOM and NIfTI) have synthesized
+ * OME-NGFF metadata, but are not backed by Zarr arrays.
+ */
+export type ImageType = 'ome-tiff' | 'ome-zarr' | 'radiology';
+
 export interface AbstractImageWrapper {
 
-  getType(): 'ome-tiff' | 'ome-zarr';
+  getType(): ImageType;
 
   hasPhysicalSize(): boolean;
 

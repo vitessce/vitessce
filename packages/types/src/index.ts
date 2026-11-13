@@ -25,6 +25,7 @@ export type {
 } from './data-sources.js';
 export type {
   AbstractImageWrapper,
+  ImageType,
   VivLoaderType,
   VivLoaderDataType,
   ImageOptions,

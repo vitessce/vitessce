@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 import type {
   AbstractImageWrapper,
+  ImageType,
   VivLoaderType,
   VivLoaderDataType,
   ImageOptions,
@@ -35,12 +36,22 @@ export default class ImageWrapper implements AbstractImageWrapper {
 
   modelMatrix: number[]|null = null;
 
-  constructor(vivLoader: VivLoaderType, options: ImageOptions) {
+  imageType?: ImageType;
+
+  /**
+   * @param imageType The format of the image, when its metadata does not show it
+   * (such as radiology images, whose OME-NGFF metadata is synthesized).
+   */
+  constructor(vivLoader: VivLoaderType, options: ImageOptions, imageType?: ImageType) {
     this.options = options || {};
     this.vivLoader = vivLoader;
+    this.imageType = imageType;
   }
 
-  getType(): 'ome-tiff' | 'ome-zarr' {
+  getType(): ImageType {
+    if (this.imageType) {
+      return this.imageType;
+    }
     if ('Pixels' in this.vivLoader.metadata) {
       return 'ome-tiff';
     }
