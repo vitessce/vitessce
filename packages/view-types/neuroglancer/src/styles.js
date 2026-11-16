@@ -116,7 +116,7 @@ const globalNeuroglancerCss = `
   border: 1px solid white;
 }
 
-#neuroglancer-status-container-modal > div > div:first-child {
+#neuroglancer-status-container-modal > div > div:first-of-type {
   position: absolute;
   top: 4px;
   right: 4px;
@@ -1317,7 +1317,7 @@ const globalNeuroglancerStyles = {
   '.neuroglancer-icon-hover:not(:hover) svg:last-child': {
     display: 'none',
   },
-  '.neuroglancer-icon-hover:hover svg:first-child': {
+  '.neuroglancer-icon-hover:hover svg:first-of-type': {
     display: 'none',
   },
   '.neuroglancer-invlerp-range-finder-button-container': {
@@ -1382,7 +1382,7 @@ const globalNeuroglancerStyles = {
   '.neuroglancer-position-widget input:disabled': {
     pointerEvents: 'none',
   },
-  '.neuroglancer-position-widget .neuroglancer-copy-button:first-child': {
+  '.neuroglancer-position-widget .neuroglancer-copy-button:first-of-type': {
     display: 'none',
   },
   '.neuroglancer-position-dimension-coordinate': {
@@ -3032,7 +3032,7 @@ const globalNeuroglancerStyles = {
     fontStyle: 'italic',
     color: '#ccc',
   },
-  '.neuroglancer-multiline-autocomplete-completion:nth-child(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
+  '.neuroglancer-multiline-autocomplete-completion:nth-of-type(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
     backgroundColor: '#2b2b2b',
   },
   '.neuroglancer-multiline-autocomplete-completion:hover': {
@@ -3513,7 +3513,7 @@ const globalNeuroglancerStyles = {
     backgroundClip: 'border-box',
     backgroundColor: 'rgba(128, 128, 255, 0.5)',
   },
-  '.neuroglancer-stack-layout-drop-placeholder:first-child': {
+  '.neuroglancer-stack-layout-drop-placeholder:first-of-type': {
     display: 'none',
   },
   '.neuroglancer-stack-layout-drop-placeholder:last-child': {
@@ -3974,19 +3974,10 @@ const globalNeuroglancerStyles = {
   '.neuroglancer-annotation-tool-status-widget:hover > .neuroglancer-annotation-tool-status-widget-delete': {
     visibility: 'inherit',
   },
-  '.neuroglancer-multiline-autocomplete-completion:nth-of-type(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
-    backgroundColor: '#2b2b2b',
-  },
   '.neuroglancer-rendered-data-panel:active': {
     cursor: 'grabbing',
   },
-  '.neuroglancer-stack-layout-drop-placeholder:first-of-type': {
-    display: 'none',
-  },
   '.neuroglancer-stack-layout-drop-placeholder:last-of-type': {
-    display: 'none',
-  },
-  '.neuroglancer-position-widget .neuroglancer-copy-button:first-of-type': {
     display: 'none',
   },
 };
