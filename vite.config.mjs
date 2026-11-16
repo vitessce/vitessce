@@ -36,6 +36,59 @@ export function svgLoaderForNeuroglancerIcons(options) {
   };
 };
 
+const NEUROGLANCER_PATH_RE = /[\\/]node_modules[\\/]neuroglancer[\\/]/;
+const CSS_RE = /\.css(\?|$)/;
+const IGNORED_NEUROGLANCER_CSS_ID = '\0ignored-neuroglancer-css';
+
+/**
+ * Drops the CSS imported by Neuroglancer's modules (e.g. `import "#src/viewer.css"`).
+ * Without this, the Vite dev server injects that CSS globally (unscoped),
+ * while library builds extract it to a separate .css file that consumers
+ * never load, so the dev demo and the published bundle would look different.
+ * The styles that we need are defined in `@vitessce/neuroglancer` (see its `styles.js`).
+ *
+ * Covers both Vite's own module resolution (builds, non-prebundled modules)
+ * and esbuild dependency pre-bundling (`optimizeDeps`) in the dev server.
+ */
+export function ignoreNeuroglancerCss() {
+  const esbuildPlugin = {
+    name: 'ignore-neuroglancer-css',
+    setup(build) {
+      build.onResolve({ filter: /\.css$/ }, args => (
+        NEUROGLANCER_PATH_RE.test(args.importer)
+          ? { path: args.path, namespace: 'ignored-neuroglancer-css' }
+          : undefined
+      ));
+      build.onLoad({ filter: /.*/, namespace: 'ignored-neuroglancer-css' }, () => ({
+        contents: '',
+        loader: 'js',
+      }));
+    },
+  };
+  return {
+    name: 'ignore-neuroglancer-css',
+    enforce: 'pre',
+    config() {
+      return {
+        optimizeDeps: {
+          esbuildOptions: {
+            plugins: [esbuildPlugin],
+          },
+        },
+      };
+    },
+    resolveId(source, importer) {
+      if (importer && CSS_RE.test(source) && NEUROGLANCER_PATH_RE.test(importer)) {
+        return IGNORED_NEUROGLANCER_CSS_ID;
+      }
+      return null;
+    },
+    load(id) {
+      return id === IGNORED_NEUROGLANCER_CSS_ID ? 'export default "";' : null;
+    },
+  };
+}
+
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
  * Reference: https://github.com/hms-dbmi/viv/blob/d8b0ae/sites/avivator/vite.config.js#L12
@@ -89,6 +142,7 @@ export default defineConfig({
     }),
     serveTestFixtures(),
     svgLoaderForNeuroglancerIcons(),
+    ignoreNeuroglancerCss(),
   ],
   test: {
     api: 4204,
