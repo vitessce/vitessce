@@ -7,6 +7,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { ignoreNeuroglancerCss } from '../../../vite.config.mjs';
 import { visualizer } from "rollup-plugin-visualizer";
 
 const isProduction = process.env.APP_ENV === 'production';
@@ -51,5 +52,6 @@ export default defineConfig({
   plugins: [
     react(),
     visualizer(),
+    ignoreNeuroglancerCss(),
   ],
 });

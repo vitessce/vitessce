@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { serveTestFixtures, svgLoaderForNeuroglancerIcons } from '../../vite.config.mjs';
+import { serveTestFixtures, svgLoaderForNeuroglancerIcons, ignoreNeuroglancerCss } from '../../vite.config.mjs';
 //import basicSsl from '@vitejs/plugin-basic-ssl';
 
 
@@ -16,6 +16,7 @@ export default defineConfig({
     }),
     serveTestFixtures(),
     svgLoaderForNeuroglancerIcons(),
+    ignoreNeuroglancerCss(),
   ],
   define: {
     // References:
