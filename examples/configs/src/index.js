@@ -113,6 +113,7 @@ import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko
 import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
 import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
+import { neuroglancerMisGzmb } from './view-configs/3d-maps/neuroglancer-mis-gzmb.js';
 import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
 import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js';
@@ -256,6 +257,7 @@ export const configs = {
   'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
   'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
+  'neuroglancer-mis-gzmb': neuroglancerMisGzmb,
   'neuroglancer-washu-kidney': neuroglancerWashuKidney,
   'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
   'neuroglancer-metastatic': neuroglancerMetastatic,
