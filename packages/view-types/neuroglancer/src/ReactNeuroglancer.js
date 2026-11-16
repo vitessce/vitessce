@@ -14,15 +14,18 @@
 
 /* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
-import { AnnotationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/annotation/user_layer.js';
-import { getObjectColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_display_state/frontend.js';
-import { SegmentationUserLayer } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/segmentation_user_layer.js';
-import { serializeColor } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/color.js';
-import { setupDefaultViewer } from '@janelia-flyem/neuroglancer';
-import { Uint64 } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/uint64.js';
-import { urlSafeParse } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/util/json.js';
+/* global BigInt */
+// eslint-plugin-import's node resolver does not support package.json "exports",
+// which mainline neuroglancer uses for its `neuroglancer/unstable/*` subpaths.
+/* eslint-disable import/no-unresolved */
+import { AnnotationUserLayer } from 'neuroglancer/unstable/layer/annotation/index.js';
+import { getObjectColor } from 'neuroglancer/unstable/segmentation_display_state/frontend.js';
+import { SegmentationUserLayer } from 'neuroglancer/unstable/layer/segmentation/index.js';
+import { serializeColor } from 'neuroglancer/unstable/util/color.js';
+import { urlSafeParse } from 'neuroglancer/unstable/util/json.js';
 /* eslint-disable max-len */
-// import { encodeFragment } from '@janelia-flyem/neuroglancer/dist/module/neuroglancer/ui/url_hash_binding';
+/* eslint-enable import/no-unresolved */
+import { setupViewer } from './setup-viewer.js';
 
 import { diffCameraState, applyQuat, GREY_HEX } from './utils.js';
 
@@ -37,7 +40,8 @@ const MIN_RELATIVE_DEPTH = 50; // NG default projectionDepth (-50)
  * @typedef {Object} NgProps
  * @property {number} perspectiveZoom
  * @property {Object} viewerState
- * @property {string} brainMapsClientId
+ * @property {() => Worker} createChunkWorker Factory from @vitessce/neuroglancer-workers.
+ * The viewer terminates the worker when it is disposed.
  * @property {string} key
  * @property {Object<string, string>} cellColorMapping
  *
@@ -53,7 +57,7 @@ const MIN_RELATIVE_DEPTH = 50; // NG default projectionDepth (-50)
  * @property {(segment:any|null, layer:any) => void} onSelectedChanged
  * A function of the form `(segment, layer) => {}`, called each time there is a change to
  * the segment the user has 'selected' (i.e., hovered over) in Neuroglancer.
- * The `segment` argument will be a Neuroglancer `Uint64` with the ID of the now-selected
+ * The `segment` argument will be a `bigint` with the ID of the now-selected
  * segment, or `null` if no segment is now selected.
  * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
  * will be a Neuroglancer `SegmentationUserLayer`.
@@ -61,7 +65,7 @@ const MIN_RELATIVE_DEPTH = 50; // NG default projectionDepth (-50)
  * @property {(segments:any, layer:any) => void} onVisibleChanged
  * A function of the form `(segments, layer) => {}`, called each time there is a change to
  * the segments the user has designated as 'visible' (i.e., double-clicked on) in Neuroglancer.
- * The `segments` argument will be a Neuroglancer `Uint64Set` whose elements are `Uint64`
+ * The `segments` argument will be a Neuroglancer `Uint64Set` whose elements are `bigint`
  * instances for the IDs of the now-visible segments.
  * The `layer` argument will be a Neuroglaner `ManagedUserLayer`, whose `layer` property
  * will be a Neuroglancer `SegmentationUserLayer`.
@@ -110,7 +114,7 @@ export function getNeuroglancerViewerState(key) {
 
 export function getNeuroglancerColor(idStr, key) {
   try {
-    const id = Uint64.parseString(idStr);
+    const id = BigInt(idStr);
     const v = key ? viewersKeyed[key] : viewerNoKey;
     if (v) {
       // eslint-disable-next-line no-restricted-syntax
@@ -411,7 +415,6 @@ export default class Neuroglancer extends React.Component {
   static defaultProps = {
     perspectiveZoom: 20,
     eventBindingsToUpdate: null,
-    brainMapsClientId: 'NOT_A_VALID_ID',
     viewerState: null,
     onSelectedChanged: null,
     onVisibleChanged: null,
@@ -607,9 +610,9 @@ export default class Neuroglancer extends React.Component {
         if (!newColors[id]) {
           const colorInt = this.hexToNgColor(defaultColor || GREY_HEX);
           // eslint-disable-next-line no-underscore-dangle
-          statedColors.delete_({ low: Number(id), high: 0 });
+          statedColors.delete_(BigInt(id));
           // eslint-disable-next-line no-underscore-dangle
-          statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+          statedColors.set_(BigInt(id), BigInt(colorInt));
         }
       }
 
@@ -617,9 +620,9 @@ export default class Neuroglancer extends React.Component {
       for (const [id, hex] of Object.entries(newColors)) {
         const colorInt = this.hexToNgColor(hex);
         // eslint-disable-next-line no-underscore-dangle
-        statedColors.delete_({ low: Number(id), high: 0 });
+        statedColors.delete_(BigInt(id));
         // eslint-disable-next-line no-underscore-dangle
-        statedColors.set_({ low: Number(id), high: 0 }, { low: colorInt, high: 0 });
+        statedColors.set_(BigInt(id), BigInt(colorInt));
       }
       statedColors.changed.dispatch();
       usedDirectUpdate = true;
@@ -641,17 +644,15 @@ export default class Neuroglancer extends React.Component {
   componentDidMount() {
     const {
       viewerState,
-      brainMapsClientId,
       eventBindingsToUpdate,
       callbacks,
       // ngServer,
       key,
-      bundleRoot,
+      createChunkWorker,
     } = this.props;
-    this.viewer = setupDefaultViewer({
-      brainMapsClientId,
+    this.viewer = setupViewer({
       target: this.ngContainer.current,
-      bundleRoot,
+      worker: createChunkWorker(),
     });
 
     this.setCallbacks(callbacks);
@@ -660,7 +661,6 @@ export default class Neuroglancer extends React.Component {
       this.updateEventBindings(eventBindingsToUpdate);
     }
 
-    this.viewer.expectingExternalUI = true;
     // if (ngServer) {
     //   this.viewer.makeUrlFromState = (state) => {
     //     const newState = { ...state };
@@ -1140,7 +1140,8 @@ export default class Neuroglancer extends React.Component {
    */
   setCallbacks(callbacks) {
     (callbacks ?? []).forEach((callback) => {
-      this.viewer.bindCallback(callback.name, callback.function);
+      // bindCallback() was a fork-only Viewer method; equivalent via mainline bindAction().
+      this.viewer.bindAction(callback.name, () => callback.function(this.viewer));
       this.viewer.inputEventBindings.sliceView.set(
         callback.event,
         callback.name,

@@ -6,6 +6,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { ignoreNeuroglancerCss } from '../../../vite.config.mjs';
 
 const isProduction = process.env.APP_ENV === 'production';
 
@@ -43,5 +44,5 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': `"${process.env.APP_ENV}"`,
   },
-  plugins: [react()],
+  plugins: [react(), ignoreNeuroglancerCss()],
 });
