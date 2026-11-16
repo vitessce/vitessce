@@ -52,10 +52,13 @@ export function BiomarkerSelectAlt(props) {
         {hasMultipleDatasets ? (
           <Grid
             container
-            size={3}
+            size={4}
             sx={{
               justifyContent: 'flex-start',
               flexDirection: 'column',
+              minWidth: 0,
+              paddingLeft: '8px',
+              paddingRight: '8px',
             }}
           >
             <BiomarkerSelectAltDatasetSelect
@@ -67,7 +70,7 @@ export function BiomarkerSelectAlt(props) {
         ) : null}
         <Grid
           container
-          size={5}
+          size={hasMultipleDatasets ? 4 : 5}
           sx={{
             justifyContent: 'flex-start',
             flexDirection: 'column',

@@ -21,7 +21,7 @@ import {
  * @param {string} [props.singleNucleusDatasetUrl] - URL to the single-nucleus
  * comparative AnnData-Zarr store.
  * @param {string} [props.selectedModality] - The modality currently being viewed
- * (one of 'sc' or 'sn'). By default, the first modality for which a URL was provided.
+ * (one of 'sc-rna-seq' or 'sn-rna-seq'). By default, the first modality for which a URL was provided.
  * @param {Function} [props.setSelectedModality] - Setter function
  * called when the selected modality has been updated from inside.
  * @param {string[]} props.geneSelection - Array of selected gene names.

@@ -28,15 +28,15 @@ export const BIOMARKER_SELECT_VIEW_UID = 'biomarker-select';
 // in the generated view config (with the modality `uid` as the dataset uid).
 export const COMPARATIVE_MODALITIES = [
   {
-    uid: 'sc',
-    name: 'Single-cell',
+    uid: 'sc-rna-seq',
+    name: 'Single-cell RNA sequencing',
     urlKey: 'singleCellDatasetUrl',
     // TODO: this is a hack. adjust the Densmap extent in the pipeline itself
     circleScaleFactor: 0.8,
   },
   {
-    uid: 'sn',
-    name: 'Single-nucleus',
+    uid: 'sn-rna-seq',
+    name: 'Single-nucleus RNA sequencing',
     urlKey: 'singleNucleusDatasetUrl',
     circleScaleFactor: 0.5,
   },

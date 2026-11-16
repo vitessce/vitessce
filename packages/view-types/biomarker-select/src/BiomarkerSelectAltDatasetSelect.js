@@ -26,11 +26,11 @@ export function BiomarkerSelectAltDatasetSelect(props) {
   }
 
   return (
-    <Grid container size={12}>
-      <Grid container size={4}>
-        <span style={{ lineHeight: '50px' }}>Modality:&nbsp;</span>
+    <Grid container size={12} wrap="nowrap">
+      <Grid container size="auto">
+        <span style={{ lineHeight: '50px', whiteSpace: 'nowrap' }}>Modality:&nbsp;</span>
       </Grid>
-      <Grid container size={8}>
+      <Grid container size="grow" sx={{ minWidth: 0 }}>
         <NativeSelect
           onChange={handleChange}
           value={dataset ?? ''}

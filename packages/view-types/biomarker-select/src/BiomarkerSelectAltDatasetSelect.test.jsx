@@ -4,8 +4,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { BiomarkerSelectAltDatasetSelect } from './BiomarkerSelectAltDatasetSelect.js';
 
 const datasetOptions = [
-  { uid: 'sc', name: 'Single-cell' },
-  { uid: 'sn', name: 'Single-nucleus' },
+  { uid: 'sc-rna-seq', name: 'Single-cell RNA sequencing' },
+  { uid: 'sn-rna-seq', name: 'Single-nucleus RNA sequencing' },
 ];
 
 describe('BiomarkerSelectAltDatasetSelect', () => {
@@ -13,7 +13,7 @@ describe('BiomarkerSelectAltDatasetSelect', () => {
     const { container } = render(
       <BiomarkerSelectAltDatasetSelect
         datasetOptions={[datasetOptions[0]]}
-        dataset="sc"
+        dataset="sc-rna-seq"
         setDataset={vi.fn()}
       />,
     );
@@ -25,15 +25,15 @@ describe('BiomarkerSelectAltDatasetSelect', () => {
     render(
       <BiomarkerSelectAltDatasetSelect
         datasetOptions={datasetOptions}
-        dataset="sc"
+        dataset="sc-rna-seq"
         setDataset={setDataset}
       />,
     );
     const select = screen.getByRole('combobox', { name: 'Select dataset' });
-    expect(select).toHaveValue('sc');
-    expect(screen.getByRole('option', { name: 'Single-nucleus' })).toBeInTheDocument();
+    expect(select).toHaveValue('sc-rna-seq');
+    expect(screen.getByRole('option', { name: 'Single-nucleus RNA sequencing' })).toBeInTheDocument();
 
-    fireEvent.change(select, { target: { value: 'sn' } });
-    expect(setDataset).toHaveBeenCalledWith('sn');
+    fireEvent.change(select, { target: { value: 'sn-rna-seq' } });
+    expect(setDataset).toHaveBeenCalledWith('sn-rna-seq');
   });
 });

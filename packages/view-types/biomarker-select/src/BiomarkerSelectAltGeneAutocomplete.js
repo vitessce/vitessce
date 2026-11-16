@@ -89,7 +89,7 @@ export function BiomarkerSelectAltGeneAutocomplete(props) {
   return (
     <>
       <Grid container size={12}>
-        <Grid size={8}>
+        <Grid size={hasPendingChange ? 8 : 12}>
           <SimpleAutocomplete
             value={displayedItem ? { label: displayedItem.label, data: displayedItem } : null}
             getMatches={autocompleteNode}

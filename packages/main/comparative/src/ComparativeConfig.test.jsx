@@ -18,13 +18,13 @@ function getScatterplot(config) {
 describe('generateComparativeConfig', () => {
   it('defines one dataset per provided modality', () => {
     const both = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
-    expect(both.datasets.map(d => d.uid)).toEqual(['sc', 'sn']);
+    expect(both.datasets.map(d => d.uid)).toEqual(['sc-rna-seq', 'sn-rna-seq']);
     expect(both.datasets[1].files.every(f => f.url.startsWith(singleNucleusDatasetUrl))).toBe(true);
-    expect(getSelectedModality(both)).toEqual('sc');
+    expect(getSelectedModality(both)).toEqual('sc-rna-seq');
 
     const snOnly = generateComparativeConfig({ singleNucleusDatasetUrl }, true);
-    expect(snOnly.datasets.map(d => d.uid)).toEqual(['sn']);
-    expect(getSelectedModality(snOnly)).toEqual('sn');
+    expect(snOnly.datasets.map(d => d.uid)).toEqual(['sn-rna-seq']);
+    expect(getSelectedModality(snOnly)).toEqual('sn-rna-seq');
   });
 
   it('throws when no dataset URL is provided', () => {
@@ -32,8 +32,8 @@ describe('generateComparativeConfig', () => {
   });
 
   it('links every view to the shared dataset scope', () => {
-    const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false, 'sn');
-    expect(getSelectedModality(config)).toEqual('sn');
+    const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false, 'sn-rna-seq');
+    expect(getSelectedModality(config)).toEqual('sn-rna-seq');
     expect(config.layout.every(v => v.coordinationScopes.dataset === '__comparison__')).toBe(true);
     expect(getScatterplot(config).props.circleScaleFactor).toEqual(0.5);
   });
@@ -43,8 +43,8 @@ describe('withSelectedModality', () => {
   const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
 
   it('switches the selected dataset and modality-specific view props', () => {
-    const newConfig = withSelectedModality(config, 'sn');
-    expect(getSelectedModality(newConfig)).toEqual('sn');
+    const newConfig = withSelectedModality(config, 'sn-rna-seq');
+    expect(getSelectedModality(newConfig)).toEqual('sn-rna-seq');
     expect(getScatterplot(newConfig).props.circleScaleFactor).toEqual(0.5);
     expect(getScatterplot(config).props.circleScaleFactor).toEqual(0.8);
   });
@@ -60,19 +60,19 @@ describe('withSelectedModality', () => {
         },
       },
     };
-    const newConfig = withSelectedModality(withSelection, 'sn');
+    const newConfig = withSelectedModality(withSelection, 'sn-rna-seq');
     expect(newConfig.coordinationSpace.obsSetSelection).toEqual({
       __multi__: null,
       __single__: null,
     });
     // Selecting the already-selected modality does not reset obsSetSelection.
-    expect(withSelectedModality(withSelection, 'sc')).toBe(withSelection);
+    expect(withSelectedModality(withSelection, 'sc-rna-seq')).toBe(withSelection);
   });
 
   it('ignores modalities that are not in the config', () => {
     const scOnly = generateComparativeConfig({ singleCellDatasetUrl }, false);
-    expect(withSelectedModality(scOnly, 'sn')).toBe(scOnly);
-    expect(withSelectedModality(config, 'sc')).toBe(config);
+    expect(withSelectedModality(scOnly, 'sn-rna-seq')).toBe(scOnly);
+    expect(withSelectedModality(config, 'sc-rna-seq')).toBe(config);
   });
 });
 
@@ -107,7 +107,7 @@ describe('mergeBiomarkerSelectConfig', () => {
     geneSelection: ['GPRIN3'],
     sampleSetSelection: null,
     biomarkerSelection: { label: 'GPRIN3', nodeType: 'gene' },
-    selectedModality: 'sc',
+    selectedModality: 'sc-rna-seq',
     createUid: () => 'B',
   };
 
@@ -127,9 +127,9 @@ describe('mergeBiomarkerSelectConfig', () => {
   });
 
   it('assigns a new uid upon a change of modality', () => {
-    const merged = mergeBiomarkerSelectConfig({ ...params, selectedModality: 'sn' });
+    const merged = mergeBiomarkerSelectConfig({ ...params, selectedModality: 'sn-rna-seq' });
     expect(merged.uid).toEqual('B');
-    expect(getSelectedModality(merged)).toEqual('sn');
+    expect(getSelectedModality(merged)).toEqual('sn-rna-seq');
   });
 
   it('merges into the initial config (without a uid) prior to the first onConfigChange', () => {
