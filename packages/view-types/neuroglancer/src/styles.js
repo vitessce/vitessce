@@ -15,80 +15,197 @@ export const useStyles = makeStyles()(() => ({
   },
 }));
 
-// We define a subset of styles as a string,
-// and render with <style></style>
-// since Neuroglancer renders them outside of the
-// .neuroglancer-container DOM element.
-// Instead, these elements are prepended/appended
-// directly to the `document` by neuroglancer,
-// so we cannot scope them as children of the
-// .neuroglancer-container class.
-const globalNeuroglancerCss = `
+// Styles converted from the CSS files that neuroglancer@2.41.2 imports
+// (Vite is configured to ignore those imports; see ignoreNeuroglancerCss in vite.config.mjs).
 
-.neuroglancer-position-widget, 
+// Neuroglancer appends some elements (overlays, status messages, context menus,
+// drag-and-drop status, tooltips) directly to document.body, outside of the
+// .neuroglancer-container DOM element, so we cannot scope their styles as
+// children of the container. We define these as a global string instead,
+// and render them with <GlobalStyles />.
+const globalNeuroglancerCss = `
+/* Vitessce: hide Neuroglancer UI that is not used in the embedded view. */
+.neuroglancer-position-widget,
 .neuroglancer-viewer-top-row,
-.neuroglancer-layer-panel, 
-.neuroglancer-side-panel-column,
+.neuroglancer-layer-panel,
 .neuroglancer-display-dimensions-widget,
-.neuroglancer-data-panel-layout-controls button{
-    display: none !important;
+.neuroglancer-data-panel-layout-controls button {
+  display: none !important;
 }
-    
+
 .neuroglancer-segment-list-header-label {
   display: none !important;
 }
-.overlay {
-  height:100%;
-  width:100%;
-  position:fixed;
-  z-index:99;
-  top:0;
-  left:0;
-  background-color:#000c;
-}
-.overlay-content {
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  background-color:#fff;
-  z-index:100;
-  color:#000;
-  padding:1em;
-}
-.neuroglancer-state-editor {
-  width: 80%
-}
-.close-button {
-  position: absolute;
-  right: 15px
+
+/* layer/annotation/style.css */
+.neuroglancer-annotation-shader-property-list {
+  max-height: 8em;
+  overflow: auto;
+  flex-shrink: 0;
 }
 
+.neuroglancer-annotation-shader-property {
+  white-space: pre;
+  font-family: monospace;
+  font-size: medium;
+}
+
+.neuroglancer-annotation-shader-property-type {
+  color: #c6c;
+  margin-right: 1ch;
+}
+
+.neuroglancer-annotation-shader-property-identifier {
+  user-select: text;
+}
+
+.neuroglancer-annotation-shader-property-identifier::after {
+  content: "()";
+  color: #999;
+}
+
+/* status.css */
+#neuroglancer-status-container {
+  position: absolute;
+  bottom: 0px;
+  z-index: 100;
+  background-color: #808080;
+  color: white;
+  margin: 0px;
+  padding: 0px;
+  font: 10pt sans-serif;
+}
+
+#neuroglancer-status-container li {
+  width: 100vw;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
+.neuroglancer-status-header {
+  display: inline-block;
+  font: 10pt sans-serif;
+  font-weight: bold;
+  background-color: #333;
+  padding: 2px;
+}
+
+#neuroglancer-status-container-modal {
+  pointer-events: none;
+  position: absolute;
+  z-index: 100;
+  color: white;
+  margin: 0px;
+  padding: 0px;
+  font: 10pt sans-serif;
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  height: 100vh;
+  width: 80vw;
+  left: 10vw;
+  grid-row-gap: 10px;
+}
+
+#neuroglancer-status-container-modal > div {
+  pointer-events: initial;
+  position: relative;
+  background-color: #808080;
+  padding: 20px;
+  padding-top: 30px;
+  border: 1px solid white;
+}
+
+#neuroglancer-status-container-modal > div > div:first-of-type {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  margin: 0;
+  padding: 0;
+}
+
+#neuroglancer-status-container-modal li {
+  display: block;
+}
+
+/* ui/drag_and_drop.css */
+.neuroglancer-drag-status {
+  position: absolute;
+  top: 0px;
+  z-index: 1000;
+  background-color: yellow;
+  color: black;
+  font: 10pt sans-serif;
+  padding: 2px;
+}
+
+/* layer/segmentation/style.css */
+.neuroglancer-segmentation-layer-skeleton-shader-overlay .neuroglancer-shader-code-widget {
+  width: 80vw;
+  height: 80vh;
+}
+
+/* overlay.css */
+.overlay {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.overlay-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  z-index: 100;
+  color: black;
+  padding: 1em;
+}
+
+/* widget/shader_code_widget.css */
+.neuroglancer-shader-code-widget.invalid-input {
+  border: 1px solid red;
+}
+
+.neuroglancer-shader-code-widget.valid-input {
+  border: 1px solid green;
+}
+
+.neuroglancer-shader-code-widget {
+  border: 1px solid transparent;
+}
+
+/* codemirror/lib/codemirror.css */
 .CodeMirror {
   font-family: monospace;
   height: 300px;
-  color: #000;
-  direction: ltr
+  color: black;
+  direction: ltr;
 }
 
 .CodeMirror-lines {
-  padding: 4px 0
+  padding: 4px 0;
 }
 
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
-  padding: 0 4px
+  padding: 0 4px;
 }
 
 .CodeMirror-scrollbar-filler,
 .CodeMirror-gutter-filler {
-  background-color: #fff
+  background-color: white;
 }
 
 .CodeMirror-gutters {
   border-right: 1px solid #ddd;
   background-color: #f7f7f7;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .CodeMirror-linenumber {
@@ -96,74 +213,74 @@ const globalNeuroglancerCss = `
   min-width: 20px;
   text-align: right;
   color: #999;
-  white-space: nowrap
+  white-space: nowrap;
 }
 
 .CodeMirror-guttermarker {
-  color: #000
+  color: black;
 }
 
 .CodeMirror-guttermarker-subtle {
-  color: #999
+  color: #999;
 }
 
 .CodeMirror-cursor {
   border-left: 1px solid black;
   border-right: none;
-  width: 0
+  width: 0;
 }
 
 .CodeMirror div.CodeMirror-secondarycursor {
-  border-left: 1px solid silver
+  border-left: 1px solid silver;
 }
 
 .cm-fat-cursor .CodeMirror-cursor {
   width: auto;
   border: 0 !important;
-  background: #7e7
+  background: #7e7;
 }
 
 .cm-fat-cursor div.CodeMirror-cursors {
-  z-index: 1
+  z-index: 1;
 }
 
-.cm-fat-cursor-mark {
-  background-color: #14ff1480;
-  -webkit-animation: blink 1.06s steps(1) infinite;
-  -moz-animation: blink 1.06s steps(1) infinite;
-  animation: blink 1.06s steps(1) infinite
+.cm-fat-cursor .CodeMirror-line::selection,
+.cm-fat-cursor .CodeMirror-line > span::selection,
+.cm-fat-cursor .CodeMirror-line > span > span::selection {
+  background: transparent;
 }
 
-.cm-animate-fat-cursor {
-  width: auto;
-  border: 0;
-  -webkit-animation: blink 1.06s steps(1) infinite;
-  -moz-animation: blink 1.06s steps(1) infinite;
-  animation: blink 1.06s steps(1) infinite;
-  background-color: #7e7
+.cm-fat-cursor .CodeMirror-line::-moz-selection,
+.cm-fat-cursor .CodeMirror-line > span::-moz-selection,
+.cm-fat-cursor .CodeMirror-line > span > span::-moz-selection {
+  background: transparent;
+}
+
+.cm-fat-cursor {
+  caret-color: transparent;
 }
 
 @-moz-keyframes blink {
-  50% {
-    background-color: transparent
-  }
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
 }
 
 @-webkit-keyframes blink {
-  50% {
-    background-color: transparent
-  }
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
 }
 
 @keyframes blink {
-  50% {
-    background-color: transparent
-  }
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
 }
 
 .cm-tab {
   display: inline-block;
-  text-decoration: inherit
+  text-decoration: inherit;
 }
 
 .CodeMirror-rulers {
@@ -172,150 +289,150 @@ const globalNeuroglancerCss = `
   right: 0;
   top: -50px;
   bottom: 0;
-  overflow: hidden
+  overflow: hidden;
 }
 
 .CodeMirror-ruler {
   border-left: 1px solid #ccc;
   top: 0;
   bottom: 0;
-  position: absolute
+  position: absolute;
 }
 
 .cm-s-default .cm-header {
-  color: #00f
+  color: blue;
 }
 
 .cm-s-default .cm-quote {
-  color: #090
+  color: #090;
 }
 
 .cm-negative {
-  color: #d44
+  color: #d44;
 }
 
 .cm-positive {
-  color: #292
+  color: #292;
 }
 
 .cm-header,
 .cm-strong {
-  font-weight: bold
+  font-weight: bold;
 }
 
 .cm-em {
-  font-style: italic
+  font-style: italic;
 }
 
 .cm-link {
-  text-decoration: underline
+  text-decoration: underline;
 }
 
 .cm-strikethrough {
-  text-decoration: line-through
+  text-decoration: line-through;
 }
 
 .cm-s-default .cm-keyword {
-  color: #708
+  color: #708;
 }
 
 .cm-s-default .cm-atom {
-  color: #219
+  color: #219;
 }
 
 .cm-s-default .cm-number {
-  color: #164
+  color: #164;
 }
 
 .cm-s-default .cm-def {
-  color: #00f
+  color: #00f;
 }
 
 .cm-s-default .cm-variable-2 {
-  color: #05a
+  color: #05a;
 }
 
 .cm-s-default .cm-variable-3,
 .cm-s-default .cm-type {
-  color: #085
+  color: #085;
 }
 
 .cm-s-default .cm-comment {
-  color: #a50
+  color: #a50;
 }
 
 .cm-s-default .cm-string {
-  color: #a11
+  color: #a11;
 }
 
 .cm-s-default .cm-string-2 {
-  color: #f50
+  color: #f50;
 }
 
 .cm-s-default .cm-meta {
-  color: #555
+  color: #555;
 }
 
 .cm-s-default .cm-qualifier {
-  color: #555
+  color: #555;
 }
 
 .cm-s-default .cm-builtin {
-  color: #30a
+  color: #30a;
 }
 
 .cm-s-default .cm-bracket {
-  color: #997
+  color: #997;
 }
 
 .cm-s-default .cm-tag {
-  color: #170
+  color: #170;
 }
 
 .cm-s-default .cm-attribute {
-  color: #00c
+  color: #00c;
 }
 
 .cm-s-default .cm-hr {
-  color: #999
+  color: #999;
 }
 
 .cm-s-default .cm-link {
-  color: #00c
+  color: #00c;
 }
 
 .cm-s-default .cm-error {
-  color: red
+  color: #f00;
 }
 
 .cm-invalidchar {
-  color: red
+  color: #f00;
 }
 
 .CodeMirror-composing {
-  border-bottom: 2px solid
+  border-bottom: 2px solid;
 }
 
 div.CodeMirror span.CodeMirror-matchingbracket {
-  color: #0b0
+  color: #0b0;
 }
 
 div.CodeMirror span.CodeMirror-nonmatchingbracket {
-  color: #a22
+  color: #a22;
 }
 
 .CodeMirror-matchingtag {
-  background: rgba(255, 150, 0, .3)
+  background: rgba(255, 150, 0, .3);
 }
 
 .CodeMirror-activeline-background {
-  background: #e8f2ff
+  background: #e8f2ff;
 }
 
 .CodeMirror {
   position: relative;
   overflow: hidden;
-  background: white
+  background: white;
 }
 
 .CodeMirror-scroll {
@@ -325,12 +442,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   padding-bottom: 50px;
   height: 100%;
   outline: none;
-  position: relative
+  position: relative;
+  z-index: 0;
 }
 
 .CodeMirror-sizer {
   position: relative;
-  border-right: 50px solid transparent
+  border-right: 50px solid transparent;
 }
 
 .CodeMirror-vscrollbar,
@@ -340,31 +458,31 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   position: absolute;
   z-index: 6;
   display: none;
-  outline: none
+  outline: none;
 }
 
 .CodeMirror-vscrollbar {
   right: 0;
   top: 0;
   overflow-x: hidden;
-  overflow-y: scroll
+  overflow-y: scroll;
 }
 
 .CodeMirror-hscrollbar {
   bottom: 0;
   left: 0;
   overflow-y: hidden;
-  overflow-x: scroll
+  overflow-x: scroll;
 }
 
 .CodeMirror-scrollbar-filler {
   right: 0;
-  bottom: 0
+  bottom: 0;
 }
 
 .CodeMirror-gutter-filler {
   left: 0;
-  bottom: 0
+  bottom: 0;
 }
 
 .CodeMirror-gutters {
@@ -372,7 +490,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   left: 0;
   top: 0;
   min-height: 100%;
-  z-index: 3
+  z-index: 3;
 }
 
 .CodeMirror-gutter {
@@ -380,40 +498,40 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   height: 100%;
   display: inline-block;
   vertical-align: top;
-  margin-bottom: -50px
+  margin-bottom: -50px;
 }
 
 .CodeMirror-gutter-wrapper {
   position: absolute;
   z-index: 4;
   background: none !important;
-  border: none !important
+  border: none !important;
 }
 
 .CodeMirror-gutter-background {
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 4
+  z-index: 4;
 }
 
 .CodeMirror-gutter-elt {
   position: absolute;
   cursor: default;
-  z-index: 4
+  z-index: 4;
 }
 
 .CodeMirror-gutter-wrapper ::selection {
-  background-color: transparent
+  background-color: transparent;
 }
 
 .CodeMirror-gutter-wrapper ::-moz-selection {
-  background-color: transparent
+  background-color: transparent;
 }
 
 .CodeMirror-lines {
   cursor: text;
-  min-height: 1px
+  min-height: 1px;
 }
 
 .CodeMirror pre.CodeMirror-line,
@@ -435,14 +553,14 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   overflow: visible;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-variant-ligatures: contextual;
-  font-variant-ligatures: contextual
+  font-variant-ligatures: contextual;
 }
 
 .CodeMirror-wrap pre.CodeMirror-line,
 .CodeMirror-wrap pre.CodeMirror-line-like {
   word-wrap: break-word;
   white-space: pre-wrap;
-  word-break: normal
+  word-break: normal;
 }
 
 .CodeMirror-linebackground {
@@ -451,21 +569,21 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 0
+  z-index: 0;
 }
 
 .CodeMirror-linewidget {
   position: relative;
   z-index: 2;
-  padding: .1px
+  padding: 0.1px;
 }
 
 .CodeMirror-rtl pre {
-  direction: rtl
+  direction: rtl;
 }
 
 .CodeMirror-code {
-  outline: none
+  outline: none;
 }
 
 .CodeMirror-scroll,
@@ -474,7 +592,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
 .CodeMirror-gutters,
 .CodeMirror-linenumber {
   -moz-box-sizing: content-box;
-  box-sizing: content-box
+  box-sizing: content-box;
 }
 
 .CodeMirror-measure {
@@ -482,113 +600,89 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   width: 100%;
   height: 0;
   overflow: hidden;
-  visibility: hidden
+  visibility: hidden;
 }
 
 .CodeMirror-cursor {
   position: absolute;
-  pointer-events: none
+  pointer-events: none;
 }
 
 .CodeMirror-measure pre {
-  position: static
+  position: static;
 }
 
 div.CodeMirror-cursors {
   visibility: hidden;
   position: relative;
-  z-index: 3
+  z-index: 3;
 }
 
 div.CodeMirror-dragcursors {
-  visibility: visible
+  visibility: visible;
 }
 
 .CodeMirror-focused div.CodeMirror-cursors {
-  visibility: visible
+  visibility: visible;
 }
 
 .CodeMirror-selected {
-  background: #d9d9d9
+  background: #d9d9d9;
 }
 
 .CodeMirror-focused .CodeMirror-selected {
-  background: #d7d4f0
+  background: #d7d4f0;
 }
 
 .CodeMirror-crosshair {
-  cursor: crosshair
+  cursor: crosshair;
 }
 
 .CodeMirror-line::selection,
-.CodeMirror-line>span::selection,
-.CodeMirror-line>span>span::selection {
-  background: #d7d4f0
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+  background: #d7d4f0;
 }
 
 .CodeMirror-line::-moz-selection,
-.CodeMirror-line>span::-moz-selection,
-.CodeMirror-line>span>span::-moz-selection {
-  background: #d7d4f0
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+  background: #d7d4f0;
 }
 
 .cm-searching {
   background-color: #ffa;
-  background-color: #ff06
+  background-color: rgba(255, 255, 0, .4);
 }
 
 .cm-force-border {
-  padding-right: .1px
+  padding-right: .1px;
 }
 
 @media print {
   .CodeMirror div.CodeMirror-cursors {
-    visibility: hidden
+    visibility: hidden;
   }
 }
 
 .cm-tab-wrap-hack:after {
-  content: ""
+  content: '';
 }
 
 span.CodeMirror-selectedtext {
-  background: none
+  background: none;
 }
 
-.CodeMirror-foldmarker {
-  color: #00f;
-  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
-  font-family: arial;
-  line-height: .3;
-  cursor: pointer
-}
-
-.CodeMirror-foldgutter {
-  width: .7em
-}
-
-.CodeMirror-foldgutter-open,
-.CodeMirror-foldgutter-folded {
-  cursor: pointer
-}
-
-.CodeMirror-foldgutter-open:after {
-  content: "\\25be"
-}
-
-.CodeMirror-foldgutter-folded:after {
-  content: "\\25b8"
-}
-
+/* codemirror/addon/lint/lint.css */
 .CodeMirror-lint-markers {
-  width: 16px
+  width: 16px;
 }
 
 .CodeMirror-lint-tooltip {
   background-color: #ffd;
   border: 1px solid black;
-  border-radius: 4px;
-  color: #000;
+  border-radius: 4px 4px 4px 4px;
+  color: black;
   font-family: monospace;
   font-size: 10pt;
   overflow: hidden;
@@ -603,20 +697,20 @@ span.CodeMirror-selectedtext {
   -moz-transition: opacity .4s;
   -webkit-transition: opacity .4s;
   -o-transition: opacity .4s;
-  -ms-transition: opacity .4s
+  -ms-transition: opacity .4s;
 }
 
 .CodeMirror-lint-mark {
   background-position: left bottom;
-  background-repeat: repeat-x
+  background-repeat: repeat-x;
 }
 
 .CodeMirror-lint-mark-warning {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=)
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
 }
 
 .CodeMirror-lint-mark-error {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==)
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==");
 }
 
 .CodeMirror-lint-marker {
@@ -627,66 +721,1185 @@ span.CodeMirror-selectedtext {
   height: 16px;
   width: 16px;
   vertical-align: middle;
-  position: relative
+  position: relative;
 }
 
 .CodeMirror-lint-message {
   padding-left: 18px;
   background-position: top left;
-  background-repeat: no-repeat
+  background-repeat: no-repeat;
 }
 
 .CodeMirror-lint-marker-warning,
 .CodeMirror-lint-message-warning {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAANlBMVEX/uwDvrwD/uwD/uwD/uwD/uwD/uwD/uwD/uwD6twD/uwAAAADurwD2tQD7uAD+ugAAAAD/uwDhmeTRAAAADHRSTlMJ8mN1EYcbmiixgACm7WbuAAAAVklEQVR42n3PUQqAIBBFUU1LLc3u/jdbOJoW1P08DA9Gba8+YWJ6gNJoNYIBzAA2chBth5kLmG9YUoG0NHAUwFXwO9LuBQL1giCQb8gC9Oro2vp5rncCIY8L8uEx5ZkAAAAASUVORK5CYII=)
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAANlBMVEX/uwDvrwD/uwD/uwD/uwD/uwD/uwD/uwD/uwD6twD/uwAAAADurwD2tQD7uAD+ugAAAAD/uwDhmeTRAAAADHRSTlMJ8mN1EYcbmiixgACm7WbuAAAAVklEQVR42n3PUQqAIBBFUU1LLc3u/jdbOJoW1P08DA9Gba8+YWJ6gNJoNYIBzAA2chBth5kLmG9YUoG0NHAUwFXwO9LuBQL1giCQb8gC9Oro2vp5rncCIY8L8uEx5ZkAAAAASUVORK5CYII=");
 }
 
 .CodeMirror-lint-marker-error,
 .CodeMirror-lint-message-error {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEW7AAC7AACxAAC7AAC7AAAAAAC4AAC5AAD///+7AAAUdclpAAAABnRSTlMXnORSiwCK0ZKSAAAATUlEQVR42mWPOQ7AQAgDuQLx/z8csYRmPRIFIwRGnosRrpamvkKi0FTIiMASR3hhKW+hAN6/tIWhu9PDWiTGNEkTtIOucA5Oyr9ckPgAWm0GPBog6v4AAAAASUVORK5CYII=)
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAHlBMVEW7AAC7AACxAAC7AAC7AAAAAAC4AAC5AAD///+7AAAUdclpAAAABnRSTlMXnORSiwCK0ZKSAAAATUlEQVR42mWPOQ7AQAgDuQLx/z8csYRmPRIFIwRGnosRrpamvkKi0FTIiMASR3hhKW+hAN6/tIWhu9PDWiTGNEkTtIOucA5Oyr9ckPgAWm0GPBog6v4AAAAASUVORK5CYII=");
 }
 
 .CodeMirror-lint-marker-multiple {
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAMAAADzjKfhAAAACVBMVEUAAAAAAAC/v7914kyHAAAAAXRSTlMAQObYZgAAACNJREFUeNo1ioEJAAAIwmz/H90iFFSGJgFMe3gaLZ0od+9/AQZ0ADosbYraAAAAAElFTkSuQmCC);
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAMAAADzjKfhAAAACVBMVEUAAAAAAAC/v7914kyHAAAAAXRSTlMAQObYZgAAACNJREFUeNo1ioEJAAAIwmz/H90iFFSGJgFMe3gaLZ0od+9/AQZ0ADosbYraAAAAAElFTkSuQmCC");
   background-repeat: no-repeat;
   background-position: right bottom;
   width: 100%;
-  height: 100%
+  height: 100%;
+}
+
+.CodeMirror-lint-line-error {
+  background-color: rgba(183, 76, 81, 0.08);
+}
+
+.CodeMirror-lint-line-warning {
+  background-color: rgba(255, 211, 0, 0.1);
+}
+
+/* layer/image/style.css */
+.neuroglancer-image-layer-shader-overlay .neuroglancer-shader-code-widget {
+  width: 80vw;
+  height: 80vh;
+}
+
+/* layer/single_mesh/style.css */
+.neuroglancer-single-mesh-shader-overlay .neuroglancer-shader-code-widget {
+  width: 80vw;
+  height: 80vh;
+}
+
+.neuroglancer-single-mesh-layer-shader-overlay .neuroglancer-single-mesh-attribute-widget {
+  max-height: 20vh;
+}
+
+/* ui/context_menu.css */
+.neuroglancer-context-menu {
+  position: absolute;
+  z-index: 100;
+  border: 1px solid white;
+  background-color: black;
+  box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  font-size: 11pt;
+  padding: 5px;
+  color: white;
+  outline: 0px;
+}
+
+/* ui/layer_side_panel.css */
+.neuroglancer-layer-side-panel-type-measure {
+  position: absolute;
+  visibility: hidden;
+  top: 0px;
+  height: auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.neuroglancer-layer-side-panel-type-measure {
+  padding-left: 3px;
+  padding-right: 3px;
+  font-weight: bold;
+  font-family: sans-serif;
+  font-size: 10pt;
+  box-sizing: border-box;
+}
+
+/* ui/screenshot_menu.css */
+.neuroglancer-screenshot-overlay {
+  --gray300: #d0d5dd;
+  --gray600: #141415;
+  --gray500: #f7f7f7;
+  --gray50: #e6e6e6;
+  --gray800: #344054;
+  --gray700: rgba(20, 20, 21, 0.6);
+  --gray400: rgba(20, 20, 21, 0.4);
+  --gray200: rgba(20, 20, 21, 0.8);
+  --primary500: #0069eb;
+  --primary700: #0474ff;
+}
+
+.neuroglancer-screenshot-overlay :is(div, table, tr, td, th) {
+  box-sizing: border-box;
+  outline: 0;
+}
+
+.neuroglancer-screenshot-dialog {
+  width: 48.75rem;
+  padding: 0;
+  margin: 1.25rem auto;
+  position: relative;
+  transform: none;
+  left: auto;
+  top: auto;
+  border-radius: 0.5rem;
+  font-family: sans-serif;
+}
+
+.neuroglancer-screenshot-main-body-container {
+  height: auto;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.neuroglancer-screenshot-title {
+  font-size: 0.938rem;
+  font-weight: 590;
+  color: var(--gray600);
+  margin: 0;
+}
+
+.neuroglancer-screenshot-title-subheading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.neuroglancer-screenshot-label {
+  font-size: 0.813rem;
+  color: var(--gray200);
+  font-weight: 590;
+}
+
+.neuroglancer-screenshot-close {
+  border-bottom: 1px solid var(--gray50);
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  gap: 10px;
+}
+
+.neuroglancer-screenshot-filename-container {
+  padding: 1rem 1rem 0.75rem 1rem;
+}
+
+.neuroglancer-screenshot-name-label {
+  color: var(--gray800);
+  font-style: normal;
+  display: block;
+  margin: 0.75rem 0 0.375rem;
+}
+
+.neuroglancer-screenshot-name-input {
+  width: 100%;
+  margin-right: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--gray300);
+  background: white;
+  font-size: 0.813rem;
+  font-style: normal;
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  color: var(--gray700);
+  box-shadow: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+  line-height: 20px;
+  box-sizing: border-box;
+  outline: 0;
+}
+
+.neuroglancer-screenshot-name-input:disabled {
+  background: var(--gray500);
+  color: var(--gray400);
+}
+
+.neuroglancer-screenshot-name-input::placeholder {
+  color: var(--gray700);
+}
+
+.neuroglancer-screenshot-scale-factor-label {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.neuroglancer-screenshot-scale-menu {
+  padding: 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.neuroglancer-screenshot-scale-radio-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.neuroglancer-screenshot-scale-radio-item {
+  margin-right: 2.125rem;
+}
+
+.neuroglancer-screenshot-scale-radio-label {
+  color: var(--gray700);
+  font-size: 0.75rem;
+}
+
+.neuroglancer-screenshot-scale-radio-input {
+  margin: 0 0.188rem 0 0;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.neuroglancer-screenshot-warning {
+  color: red;
+  width: auto;
+  font-size: 0.75rem;
+  margin: 0.12rem 0 0 -1.25rem;
+}
+
+.neuroglancer-screenshot-keep-slice-fov-checkbox {
+  margin: 0;
+}
+
+.neuroglancer-screenshot-keep-slice-label {
+  display: flex;
+  flex-direction: row-reverse;
+  margin: 1rem 0;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.neuroglancer-screenshot-button {
+  cursor: pointer;
+  margin: 2px 0px;
+  padding: 0;
+}
+
+.neuroglancer-screenshot-close-button {
+  margin-left: auto;
+  background-color: transparent;
+  border: 0;
+}
+
+.neuroglancer-screenshot-size-text {
+  margin: 0.75rem 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.neuroglancer-screenshot-resolution-size-label {
+  text-align: left;
+  color: var(--gray200);
+  font-size: 0.813rem;
+  font-style: normal;
+  font-weight: 590;
+  width: 33.33%;
+  padding: 0;
+  margin: 0 0;
+}
+
+.neuroglancer-screenshot-resolution-size-value {
+  font-size: 0.813rem;
+  color: var(--gray700);
+  width: 33.33%;
+  padding: 0.25rem;
+  font-weight: 400;
+}
+
+.neuroglancer-screenshot-resolution-preview-container {
+  border-top: 1px solid var(--gray50);
+  border-bottom: 1px solid var(--gray50);
+  background: var(--gray500);
+  width: 100%;
+  padding: 1rem 1rem 0.5rem 1rem;
+}
+
+.neuroglancer-screenshot-resolution-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  padding: 4px 2px 2px 2px;
+  background-color: var(--gray50);
+  margin-bottom: 0.75rem;
+  border-radius: 0.35rem;
+  border: 0;
+}
+
+.neuroglancer-screenshot-resolution-table th {
+  font-size: 0.813rem;
+  width: 33.33%;
+  text-align: left;
+  color: var(--gray200);
+  font-style: normal;
+  font-weight: 590;
+  background: var(--gray50);
+  padding: 0.25rem 0.375rem;
+}
+
+.neuroglancer-screenshot-resolution-table td {
+  font-size: 0.813rem;
+  width: 33.33%;
+  color: var(--gray700);
+  background: white;
+  padding: 0.375rem;
+  line-height: 1.25rem;
+}
+
+.neuroglancer-screenshot-resolution-table-tooltip {
+  vertical-align: top;
+  margin-left: 0.25rem;
+}
+
+.neuroglancer-screenshot-copy-icon {
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  height: 1rem;
+  margin-left: auto;
+  position: relative;
+  width: 33.33%;
+  justify-content: flex-end;
+}
+
+.neuroglancer-screenshot-dimension {
+  color: var(--gray600);
+}
+
+.neuroglancer-screenshot-statistics-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.neuroglancer-screenshot-statistics-table th {
+  text-align: left;
+  width: 33.33%;
+  padding: 0 0 0.5rem;
+}
+
+.neuroglancer-screenshot-statistics-table td {
+  text-align: left;
+  width: 33.33%;
+  font-size: 0.813rem;
+  padding: 0.5rem 0;
+}
+
+.neuroglancer-screenshot-statistics-table-data-key {
+  color: var(--gray200);
+  font-weight: 590;
+}
+
+.neuroglancer-screenshot-statistics-table-data-value {
+  color: var(--gray700);
+  font-weight: 400;
+}
+
+.neuroglancer-statistics-table-description-header {
+  font-size: 0.813rem;
+  color: var(--gray700);
+  line-height: 1.25rem;
+  font-weight: 400;
+}
+
+.neuroglancer-statistics-table-description-link {
+  font-weight: 590;
+  cursor: pointer;
+  color: var(--primary500);
+  margin-left: 0.1rem;
+}
+
+.neuroglancer-screenshot-dialog .neuroglancer-icon svg {
+  stroke: rgba(20, 20, 21, 0.4);
+  width: 1rem;
+  height: 1rem;
+}
+
+.neuroglancer-screenshot-dialog .neuroglancer-icon {
+  width: 1rem;
+  height: 1rem;
+  min-width: inherit;
+  min-height: inherit;
+  padding: 0;
+}
+
+.neuroglancer-screenshot-dialog .neuroglancer-icon:hover {
+  background: none;
+}
+
+.neuroglancer-screenshot-footer-container {
+  margin: 0;
+  display: flex;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--gray50);
+}
+
+.neuroglancer-screenshot-progress-text {
+  margin: 0;
+  flex: 1;
+  font-weight: 590;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.813rem;
+  align-self: center;
+  color: var(--primary700);
+}
+
+.neuroglancer-screenshot-footer-button {
+  border-radius: 0.5rem;
+  border: 1px solid var(--gray300);
+  background: white;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.813rem;
+  font-weight: 590;
+  color: var(--gray800);
+  margin: 0 0 0 0.25rem;
+}
+
+.neuroglancer-screenshot-footer-button:disabled {
+  display: none;
+}
+
+/* codemirror/addon/fold/foldgutter.css */
+.CodeMirror-foldmarker {
+  color: blue;
+  text-shadow: #b9f 1px 1px 2px, #b9f -1px -1px 2px, #b9f 1px -1px 2px, #b9f -1px 1px 2px;
+  font-family: arial;
+  line-height: .3;
+  cursor: pointer;
+}
+
+.CodeMirror-foldgutter {
+  width: .7em;
+}
+
+.CodeMirror-foldgutter-open,
+.CodeMirror-foldgutter-folded {
+  cursor: pointer;
+}
+
+.CodeMirror-foldgutter-open:after {
+  content: "\\25BE";
+}
+
+.CodeMirror-foldgutter-folded:after {
+  content: "\\25B8";
+}
+
+/* ui/state_editor.css */
+.neuroglancer-state-editor {
+  width: 80%;
+}
+
+.close-button {
+  position: absolute;
+  right: 15px;
 }
 `;
 
-
+// Styles for elements within the viewer, scoped to the viewer wrapper element.
+// Rules are converted from Neuroglancer's CSS, with Vitessce overrides applied.
 const globalNeuroglancerStyles = {
   '.neuroglancer-container': {
     position: 'relative',
     height: '100%',
+    '--neuroglancer-segment-list-width': 'auto',
+    '--layer-number-color': '#9a7518',
   },
-  // Converted neuro-styles.css using transform.tools
-  '#statusContainer': {
-    position: 'absolute',
-    bottom: '0px',
-    zIndex: 100,
-    backgroundColor: 'gray',
-    color: '#fff',
-    margin: '0',
-    padding: '0',
-    font: '10pt sans-serif',
-  },
-  '#statusContainer li': {
-    width: '100vw',
-    maxHeight: '25vh',
+  '.neuroglancer-annotation-rendering-tab': {
+    display: 'flex',
+    flexDirection: 'column',
     overflowY: 'auto',
   },
-  '.neuroglancer-status-header': {
+  '.neuroglancer-annotation-rendering-tab .neuroglancer-shader-code-widget': {
+    flexShrink: '0',
+  },
+  '.neuroglancer-annotation-dropdown-shader-top-row': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-transfer-function-panel': {
+    height: '60px',
+    border: '1px solid #666',
+    marginTop: '5px',
+  },
+  '.neuroglancer-transfer-function-color-picker-container': {
+    textAlign: 'right',
+  },
+  '.neuroglancer-transfer-function-color-picker': {
+    height: '24px',
     display: 'inline-block',
+  },
+  '.neuroglancer-transfer-function-clear-button': {
+    fontSize: '11pt',
+    cursor: 'pointer',
+    marginRight: '2px',
+    marginLeft: 'auto',
+  },
+  '.neuroglancer-transfer-function-widget-bound': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: 'cyan',
+  },
+  '.neuroglancer-transfer-function-window-bounds': {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  '.neuroglancer-invlerp-cdfpanel': {
+    height: '50px',
+    cursor: 'ew-resize',
+    border: '1px solid #666',
+  },
+  '.neuroglancer-invlerp-legend-panel': {
+    border: '1px solid #666',
+    height: '15px',
+  },
+  '.neuroglancer-invlerp-widget-bound': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+  },
+  '.neuroglancer-invlerp-widget-window-bound': {
+    color: 'cyan',
+  },
+  '.neuroglancer-invlerp-widget-range-bound': {
+    color: 'white',
+  },
+  '.neuroglancer-invlerp-widget-bounds': {
+    display: 'flex',
+  },
+  '.neuroglancer-invlerp-widget-range-spacer': {
+    flex: '1',
+    textAlign: 'center',
+  },
+  '.neuroglancer-invlerp-widget-window-bounds': {
+    justifyContent: 'space-between',
+  },
+  '.neuroglancer-icon': {
+    display: 'inline-flex',
+    textDecoration: 'none',
+    alignSelf: 'center',
+    whiteSpace: 'nowrap',
+    paddingLeft: '2px',
+    paddingRight: '2px',
+    minWidth: '18px',
+    minHeight: '18px',
+    borderRadius: '20%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    font: '12px sans-serif',
+    cursor: 'pointer',
+    fontWeight: '900',
+    marginLeft: '1px',
+    marginRight: '1px',
+    userSelect: 'none',
+  },
+  '.neuroglancer-icon svg': {
+    width: '16px',
+    height: '16px',
+    fill: 'transparent',
+    stroke: 'white',
+    strokeWidth: '2',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    pointerEvents: 'none',
+  },
+  '.neuroglancer-icon:hover': {
+    backgroundColor: '#db4437',
+  },
+  '.neuroglancer-icon.neuroglancer-info-icon:hover': {
+    backgroundColor: 'inherit',
+  },
+  '.neuroglancer-icon-hover:not(:hover) svg:last-child': {
+    display: 'none',
+  },
+  '.neuroglancer-icon-hover:hover svg:first-of-type': {
+    display: 'none',
+  },
+  '.neuroglancer-invlerp-range-finder-button-container': {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    marginTop: '1px',
+  },
+  '.neuroglancer-invlerp-range-finder-button': {
+    fontSize: '11pt',
+    cursor: 'pointer',
+    marginRight: '2px',
+  },
+  '.neuroglancer-tab-view': {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-tab-view-bar': {
+    display: 'block',
+    backgroundColor: '#333',
+    borderBottom: '1px solid white',
+  },
+  '.neuroglancer-tab-label': {
+    display: 'inline-block',
+    borderTop: '1px solid transparent',
+    borderLeft: '1px solid transparent',
+    borderRight: '1px solid transparent',
+    borderBottom: 'none',
+    marginRight: '4px',
+    paddingTop: '1px',
+    paddingLeft: '2px',
+    paddingRight: '2px',
     font: '10pt sans-serif',
     fontWeight: 'bold',
-    backgroundColor: '#333',
+    cursor: 'pointer',
+  },
+  '.neuroglancer-tab-label:hover': {
+    color: '#daa520',
+  },
+  '.neuroglancer-tab-label.neuroglancer-selected-tab-label': {
+    backgroundColor: 'black',
+    borderTop: '1px solid white',
+    borderLeft: '1px solid white',
+    borderRight: '1px solid white',
+    borderBottom: '1px solid black',
+    paddingBottom: '1px',
+    marginBottom: '-1px',
+  },
+  '.neuroglancer-stack-view': {
+    display: 'contents',
+  },
+  '.neuroglancer-tab-view > .neuroglancer-stack-view > .neuroglancer-tab-content': {
+    flex: '1',
+    flexBasis: '0px',
+    height: '0px',
+    minHeight: '0px',
     padding: '2px',
+  },
+  '.neuroglancer-position-widget': {
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+  '.neuroglancer-position-widget input:disabled': {
+    pointerEvents: 'none',
+  },
+  '.neuroglancer-position-widget .neuroglancer-copy-button:first-of-type': {
+    display: 'none',
+  },
+  '.neuroglancer-position-dimension-coordinate': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: 'white',
+    textAlign: 'right',
+  },
+  '.neuroglancer-position-dimension-name': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: '#ff6',
+    paddingLeft: '2px',
+  },
+  '.neuroglancer-position-dimension-scale': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: '#bbb',
+  },
+  '.neuroglancer-position-dimension[data-coordinate-array="valid"] .neuroglancer-position-dimension-scale': {
+    display: 'none',
+  },
+  '.neuroglancer-position-dimension[data-coordinate-array="invalid"] .neuroglancer-position-dimension-scale': {
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'wavy',
+    textDecorationColor: 'red',
+  },
+  '.neuroglancer-position-widget input:invalid': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-position-widget input::placeholder': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-position-widget input[data-is-valid="false"]': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-position-widget *:focus': {
+    outline: '0px',
+  },
+  '.neuroglancer-position-dimension + .neuroglancer-position-dimension': {
+    marginLeft: '1ch',
+  },
+  '.neuroglancer-position-dimension[data-dropdown-visible="true"]::after': {
+    content: '""',
+    display: 'block',
+    left: '0px',
+    right: '0px',
+    bottom: '-1px',
+    position: 'absolute',
+    borderBottom: '1px solid black',
+    zIndex: '100',
+    height: '0px',
+  },
+  '.neuroglancer-position-dimension-dropdown': {
+    position: 'absolute',
+    minWidth: 'calc(100% + 2px)',
+    border: '1px solid #aaa',
+    boxSizing: 'border-box',
+    padding: '2px',
+    left: '-1px',
+    zIndex: '100',
+    backgroundColor: 'black',
+  },
+  '.neuroglancer-position-dimension-coordinate-dropdown': {
+    position: 'absolute',
+    minWidth: 'calc(100% + 2px)',
+    border: '1px solid #aaa',
+    boxSizing: 'border-box',
+    padding: '2px',
+    left: '-1px',
+    zIndex: '100',
+    backgroundColor: 'black',
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'auto',
+  },
+  '.neuroglancer-dimension-dropdown-coordinate-entry': {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  '.neuroglancer-dimension-dropdown-coordinate-entry:hover': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-dimension-dropdown-coordinate-label': {
+    width: 'var(--neuroglancer-coordinate-label-width)',
+    color: '#0ff',
+  },
+  '.neuroglancer-position-dimension-dropdown:focus': {
+    outline: '0px',
+  },
+  '.neuroglancer-position-dimension-coordinate-dropdown:focus': {
+    outline: '0px',
+  },
+  '.neuroglancer-position-dimension:focus-within': {
+    border: '1px solid #aaa',
+    backgroundColor: 'black',
+  },
+  '.neuroglancer-position-dimension[data-dropdown-visible="true"]': {
+    border: '1px solid #aaa',
+    backgroundColor: 'black',
+  },
+  '.neuroglancer-position-dimension': {
+    border: '1px solid transparent',
+    position: 'relative',
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+  },
+  '.neuroglancer-position-dimension-scale-container[data-is-empty="false"]::before': {
+    content: '"("',
+    color: '#aaa',
+  },
+  '.neuroglancer-position-dimension-scale-container[data-is-empty="false"]::after': {
+    content: '")"',
+    color: '#aaa',
+  },
+  '.neuroglancer-position-dimension-scale-container[data-is-empty="false"]': {
+    marginRight: '5px',
+  },
+  '.neuroglancer-position-dimension-scale-container': {
+    marginRight: '2px',
+    marginLeft: '4px',
+  },
+  '.neuroglancer-mouse-position-widget': {
+    marginLeft: '1ch',
+    verticalAlign: 'center',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: 'orange',
+    whiteSpace: 'pre',
+  },
+  '.neuroglancer-position-dimension-coordinate-label': {
+    display: 'inline-block',
+    color: '#0ff',
+  },
+  '.neuroglancer-position-dimension-coordinate-label:not(:empty)::before': {
+    content: '"["',
+    color: '#aaa',
+  },
+  '.neuroglancer-position-dimension-coordinate-label:not(:empty)::after': {
+    content: '"]"',
+    color: '#aaa',
+  },
+  '.neuroglancer-position-dimension-playback': {
+    fontFamily: 'sans-serif',
+    fontSize: '10pt',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-position-dimension-playback .neuroglancer-number-input': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: '2px',
+  },
+  '.neuroglancer-position-dimension-playback input[type="text"]': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#fff',
+    border: '0px',
+    fontFamily: 'monospace',
+    width: '8ch',
+    textAlign: 'right',
+  },
+  '.neuroglancer-position-dimension-playback select': {
+    alignSelf: 'center',
+  },
+  '.neuroglancer-position-dimension > .neuroglancer-icon': {
+    minWidth: '14px',
+    minHeight: '14px',
+    position: 'relative',
+    top: '1px',
+  },
+  '.neuroglancer-position-dimension > .neuroglancer-icon svg': {
+    width: '12px',
+    height: '12px',
+  },
+  '.neuroglancer-position-tool-in-palette': {
+    display: 'grid',
+  },
+  '.neuroglancer-position-tool-in-palette > .neuroglancer-position-widget': {
+    gridRow: '1',
+    gridColumn: '1',
+  },
+  '.neuroglancer-position-tool-in-palette > .neuroglancer-position-dimension-plot': {
+    gridRow: '2',
+    gridColumn: '1 / 10',
+  },
+  '.neuroglancer-position-tool-in-palette > .neuroglancer-checkbox-icon': {
+    gridRow: '1',
+    gridColumn: '9',
+  },
+  '.neuroglancer-position-tool': {
+    backgroundColor: '#474747',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  '.neuroglancer-position-dimension-playback-header': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-tool-key-binding': {
+    display: 'inline-block',
+    color: '#0ff',
+    font: '9pt monospace',
+    whiteSpace: 'pre',
+  },
+  '.neuroglancer-tool-key-binding:hover': {
+    outline: '1px solid #fff',
+  },
+  '.neuroglancer-tool-key-binding::before': {
+    content: '"["',
+    color: '#999',
+  },
+  '.neuroglancer-tool-key-binding::after': {
+    content: '"]"',
+    color: '#999',
+  },
+  '.neuroglancer-tool-button': {
+    display: 'inline-flex',
+    flexDirection: 'row',
+  },
+  '#statusContainer li.neuroglancer-tool-status': {
+    maxHeight: '50vh',
+  },
+  '.neuroglancer-tool-status-bindings': {
+    backgroundColor: '#333',
+    userSelect: 'none',
+  },
+  '.neuroglancer-tool-status-content': {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  '.neuroglancer-tool-status-header-container': {
+    backgroundColor: '#555',
+    width: 'min-content',
+    padding: '3px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-tool-status-header': {
+    alignSelf: 'center',
+  },
+  '.neuroglancer-tool-status-body': {
+    flex: '1',
+    padding: '2px',
+  },
+  '.neuroglancer-checkbox-icon.light-background[data-checked="true"]': {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  '.neuroglancer-checkbox-icon.dark-background[data-checked="true"]': {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  '.neuroglancer-position-dimension-plot': {
+    display: 'grid',
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  '.neuroglancer-position-dimension-plot[data-orientation="column"]': {
+    gridTemplateAreas: '"labels . graph"',
+    gridTemplateRows: '1fr',
+    gridTemplateColumns: '0fr 3px 0fr',
+  },
+  '.neuroglancer-position-dimension-plot[data-orientation="row"]': {
+    gridTemplateAreas: '"labels" "." "graph"',
+    gridTemplateColumns: 'minmax(0px, 1fr)',
+    gridTemplateRows: '0fr 3px 0fr',
+  },
+  '.neuroglancer-position-dimension-plot-lowerbound': {
+    gridArea: 'labels',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    userSelect: 'none',
+  },
+  '.neuroglancer-position-dimension-plot-upperbound': {
+    gridArea: 'labels',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    userSelect: 'none',
+  },
+  '.neuroglancer-position-dimension-plot-hoverposition': {
+    gridArea: 'labels',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    userSelect: 'none',
+  },
+  '.neuroglancer-position-dimension-plot[data-orientation="column"] :is(.neuroglancer-position-dimension-plot-lowerbound, .neuroglancer-position-dimension-plot-upperbound, .neuroglancer-position-dimension-plot-hoverposition)': {
+    textAlign: 'right',
+  },
+  '.neuroglancer-position-dimension-plot[data-orientation="row"] :is(.neuroglancer-position-dimension-plot-lowerbound, .neuroglancer-position-dimension-plot-upperbound, .neuroglancer-position-dimension-plot-hoverposition)': {
+    maxWidth: 'max-content',
+  },
+  '.neuroglancer-position-dimension-plot > canvas': {
+    gridArea: 'graph',
+  },
+  '.neuroglancer-position-dimension-plot[data-orientation="column"] > canvas': {
+    marginTop: '0.5em',
+    marginBottom: '0.5em',
+  },
+  '.neuroglancer-segmentation-rendering-tab': {
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'auto',
+  },
+  '.neuroglancer-segmentation-rendering-tab .neuroglancer-shader-code-widget': {
+    height: '6em',
+  },
+  '.neuroglancer-segmentation-dropdown-skeleton-shader-header': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-segment-list-entry': {
+    display: 'flex',
+    flexDirection: 'row',
+    width: 'min-content',
+    minWidth: '100%',
+    backgroundColor: 'black',
+    alignItems: 'start',
+  },
+  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-entry-double-line': {
+    display: 'inline-flex',
+    minWidth: 'initial',
+    backgroundColor: 'initial',
+  },
+  '.neuroglancer-segment-list-entry[data-selected="true"]': {
+    backgroundColor: '#222',
+  },
+  '.neuroglancer-selection-details-segment[data-selected="true"]': {
+    backgroundColor: '#222',
+  },
+  '.neuroglancer-segment-list-entry-copy-container': {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-segment-list-entry-id-container': {
+    order: '1',
+    alignSelf: 'center',
+  },
+  '.neuroglancer-segment-list-entry-id': {
+    display: 'block',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    flexShrink: '0',
+    textAlign: 'right',
+    color: 'black',
+    backgroundColor: 'white',
+    userSelect: 'text',
+    width: 'var(--neuroglancer-segment-list-width)',
+  },
+  '.neuroglancer-selection-details-segment-id': {
+    display: 'block',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    flexShrink: '0',
+    textAlign: 'right',
+    color: 'black',
+    backgroundColor: 'white',
+    userSelect: 'text',
+    width: 'var(--neuroglancer-segment-list-width)',
+  },
+  '.neuroglancer-segment-list .neuroglancer-segment-list-entry-sticky': {
+    position: 'sticky',
+    left: '0',
+  },
+  '.neuroglancer-segment-list-entry-sticky': {
+    whiteSpace: 'nowrap',
+    flexDirection: 'row',
+    alignItems: 'start',
+    backgroundColor: 'inherit',
+    display: 'flex',
+  },
+  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-header .neuroglancer-segment-list-entry-star': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-header:hover .neuroglancer-segment-list-entry-copy': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-segment-list-entry-extra-property': {
+    paddingLeft: '8px',
+    flexShrink: '0',
+    textAlign: 'right',
+    userSelect: 'text',
+  },
+  '.neuroglancer-selection-details-segment-description': {
+    fontFamily: 'sans-serif',
+    fontSize: 'small',
+  },
+  '.neuroglancer-selection-details-segment-property': {
+    fontFamily: 'sans-serif',
+    fontSize: 'small',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  '.neuroglancer-selection-details-segment-property-name': {
+    userSelect: 'text',
+    fontStyle: 'italic',
+  },
+  '.neuroglancer-selection-details-segment-property-value': {
+    textAlign: 'right',
+    flex: '1',
+  },
+  '.neuroglancer-segmentation-toolbox': {
+    display: 'inline-block',
+  },
+  '.neuroglancer-segmentation-toolbox .neuroglancer-tool-button + .neuroglancer-tool-button': {
+    marginLeft: '1em',
+  },
+  '.neuroglancer-layer-options-control-container .neuroglancer-layer-control-label-container': {
+    marginRight: 'auto',
+  },
+  '.neuroglancer-layer-control-label-container': {
+    whiteSpace: 'nowrap',
+  },
+  '.neuroglancer-layer-control-label': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-layer-control-label-text-container': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'start',
+  },
+  '.neuroglancer-layer-control-container': {
+    marginTop: '1.5px',
+    marginBottom: '1.5px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-layer-control-control': {
+    flex: '1',
+    marginLeft: '5px',
+    maxWidth: '500px',
+  },
+  'select.neuroglancer-layer-control-control': {
+    flex: 'initial',
+  },
+  'input[type="checkbox"].neuroglancer-layer-control-control': {
+    flex: 'initial',
+  },
+  'input[type="color"].neuroglancer-layer-control-control': {
+    flex: 'initial',
+  },
+  '.range-slider': {
+    display: 'flex',
+    flexDirection: 'row',
+    whiteSpace: 'nowrap',
+    justifyContent: 'flex-end',
+  },
+  '.range-slider input[type="range"]': {
+    background: 'transparent',
+    flexBasis: '0px',
+  },
+  '.range-slider input[type="number"]': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#fff',
+    border: '0px',
+  },
+  '.range-slider input[type="range"]::-moz-range-track': {
+    backgroundColor: 'white',
+  },
+  '.neuroglancer-render-scale-widget': {
+    marginTop: '2px',
+    marginBottom: '2px',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-render-scale-widget-prompt': {
+    whiteSpace: 'nowrap',
+  },
+  '.neuroglancer-render-scale-widget > canvas': {
+    height: '36px',
+    flex: '1',
+    flexBasis: '0px',
+    width: '0px',
+  },
+  '.neuroglancer-render-scale-widget-legend': {
+    width: '15ch',
+    fontSize: '11px',
+    textAlign: 'right',
+  },
+  '.neuroglancer-render-scale-widget-legend > div': {
+    height: '12px',
+  },
+  '.neuroglancer-segmentation-color-seed-control': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  '.neuroglancer-segmentation-color-seed-control input': {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#fff',
+    border: '0px',
   },
   '.neuroglancer-selection-details-body': {
     height: '0px',
-    flex: 1,
+    flex: '1',
     overflowY: 'auto',
     flexBasis: '0px',
     minHeight: '0px',
@@ -699,10 +1912,12 @@ const globalNeuroglancerStyles = {
     fontFamily: 'monospace',
     fontSize: 'medium',
   },
-  '.neuroglancer-selection-details-position-dimension+.neuroglancer-selection-details-position-dimension': {
+  '.neuroglancer-selection-details-position-dimension + .neuroglancer-selection-details-position-dimension': {
     marginLeft: '8px',
   },
-  '.neuroglancer-selection-details-position-dimension-name': { color: '#ff6' },
+  '.neuroglancer-selection-details-position-dimension-name': {
+    color: '#ff6',
+  },
   '.neuroglancer-selection-details-position-dimension-coordinate': {
     marginLeft: '5px',
     userSelect: 'text',
@@ -750,15 +1965,18 @@ const globalNeuroglancerStyles = {
     fontSize: '10pt',
     backgroundColor: '#03c',
     padding: '2px',
-    color: '#fff',
+    color: 'white',
   },
   '.neuroglancer-side-panel-title': {
-    flex: 1,
+    flex: '1',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
-  '.neuroglancer-side-panel-drop-zone': { zIndex: 1000, display: 'none' },
+  '.neuroglancer-side-panel-drop-zone': {
+    zIndex: '1000',
+    display: 'none',
+  },
   '[data-neuroglancer-side-panel-drag] .neuroglancer-side-panel-drop-zone': {
     display: 'block',
   },
@@ -778,1146 +1996,35 @@ const globalNeuroglancerStyles = {
     paddingLeft: '2px',
     cursor: 'col-resize',
   },
-  '.neuroglancer-drag-status': {
-    position: 'absolute',
-    top: '0px',
-    zIndex: 1000,
-    backgroundColor: '#ff0',
-    color: '#000',
-    font: '10pt sans-serif',
-    padding: '2px',
-  },
-  '.neuroglancer-icon': {
-    display: 'inline-flex',
-    textDecoration: 'none',
-    alignSelf: 'center',
-    whiteSpace: 'nowrap',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-    minWidth: '18px',
-    minHeight: '18px',
-    borderRadius: '20%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    font: '12px sans-serif',
-    cursor: 'pointer',
-    fontWeight: 900,
-    marginLeft: '1px',
-    marginRight: '1px',
-  },
-  '.neuroglancer-icon svg': {
-    width: '16px',
-    height: '16px',
-    fill: 'transparent',
-    stroke: '#fff',
-    strokeWidth: 2,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-  },
-  '.neuroglancer-icon:hover': { backgroundColor: '#db4437' },
-  '.neuroglancer-checkbox-icon.light-background[data-checked=true]': {
-    backgroundColor: '#00000080',
-  },
-  '.neuroglancer-checkbox-icon.dark-background[data-checked=true]': {
-    backgroundColor: '#fff3',
-  },
-  '.neuroglancer-image-dropdown': {
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    height: '0px',
-  },
-  '.neuroglancer-image-dropdown .neuroglancer-shader-code-widget': {
-    flexShrink: 0,
-    height: '8em',
-    border: '1px solid transparent',
-  },
-  '.neuroglancer-image-dropdown-top-row': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-image-layer-shader-overlay .neuroglancer-shader-code-widget': {
-    width: '80vw',
-    height: '80vh',
-  },
-  '.neuroglancer-selection-details-value-grid': {
-    display: 'grid',
-    gridAutoRows: 'auto',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    alignItems: 'center',
-  },
-  '.neuroglancer-selection-details-value-grid-dim': {
-    gridColumn: 'dim',
-    color: '#ff6',
-  },
-  '.neuroglancer-selection-details-value-grid-dim:after': {
-    content: '"="',
-    color: '#aaa',
-  },
-  '.neuroglancer-selection-details-value-grid-coord': {
-    gridColumn: 'coord',
-    color: '#aaa',
-    marginRight: '1ch',
-  },
-  '.neuroglancer-selection-details-value-grid-value': {
-    gridColumn: 'value',
-    userSelect: 'text',
-  },
-  '.neuroglancer-layer-data-sources-tab': {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  '.neuroglancer-layer-data-sources-container': {
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    height: '0px',
-  },
-  '.neuroglancer-layer-data-source-url-input input.autocomplete-input': {
-    color: '#fff',
-  },
-  '.neuroglancer-layer-data-source-url-input input.autocomplete-hint': {
-    color: '#aaa',
-  },
-  '.neuroglancer-layer-data-source-url-input .autocomplete-dropdown': {
-    backgroundColor: '#333',
-  },
-  '.neuroglancer-layer-data-sources-source-id': { fontWeight: 'bold' },
-  '.neuroglancer-layer-data-sources-source-id:not(:empty):before': {
-    content: '"["',
-  },
-  '.neuroglancer-layer-data-sources-source-id:not(:empty):after': {
-    content: '"]"',
-  },
-  '.neuroglancer-layer-data-sources-source-id:not(:empty)': {
-    marginRight: '4px',
-    color: '#0ff',
-  },
-  '.neuroglancer-layer-data-sources-source-messages:empty': { display: 'none' },
-  '.neuroglancer-layer-data-sources-source-messages': {
-    marginTop: '0',
-    listStyle: 'none',
-    paddingLeft: '0',
-  },
-  'li.neuroglancer-message': { wordWrap: 'break-word', userSelect: 'text' },
-  'li.neuroglancer-message-error': { color: 'red' },
-  'li.neuroglancer-message-warning': { color: '#ff0' },
-  'li.neuroglancer-message-info': { color: '#ccc' },
-  '.neuroglancer-layer-data-sources-source-default': {
-    display: 'block',
-    marginBottom: '4px',
-  },
-  '.neuroglancer-layer-data-sources-info-line[data-is-active=false]': {
-    textDecoration: 'solid line-through #caa',
-  },
-  '.neuroglancer-layer-data-sources-tab-type-detection': {
-    position: 'sticky',
-    bottom: '0px',
-    backgroundColor: '#ff9',
-    color: '#000',
-    textAlign: 'center',
-    cursor: 'pointer',
-  },
-  '.neuroglancer-layer-data-sources-tab-type-detection:hover': {
-    backgroundColor: '#ffc',
-  },
-  '.neuroglancer-layer-data-sources-tab-type-detection-type': {
-    fontWeight: 'bold',
-  },
-  '.neuroglancer-coordinate-space-transform-widget': {
-    display: 'grid',
-    justifyItems: 'stretch',
-  },
-  '.neuroglancer-coordinate-space-transform-widget input': {
-    fontFamily: 'monospace',
-    justifySelf: 'stretch',
-    backgroundColor: '#000',
-    color: '#fff',
-    padding: '2px',
-  },
-  '.neuroglancer-coordinate-space-transform-widget *[data-will-be-deleted=true]': {
-    color: '#666',
-  },
-  '.neuroglancer-coordinate-space-transform-label': {
-    fontStyle: 'italic',
-    color: '#fcc',
-    alignSelf: 'center',
-  },
-  '.neuroglancer-coordinate-space-transform-input-lower-label': {
-    gridRow: 'sourceLower',
-    gridColumn: 'outputLabel / sourceDim 1',
-  },
-  '.neuroglancer-coordinate-space-transform-translation-label': {
-    gridRow: 'sourceLabel / outputDim 1',
-    gridColumn: 'sourceDim -1',
-    writingMode: 'vertical-lr',
-    textOrientation: 'mixed',
-    alignSelf: 'end',
-    justifySelf: 'center',
-    marginBottom: '2px',
-  },
-  '.neuroglancer-coordinate-space-transform-input-lower-label, .neuroglancer-coordinate-space-transform-input-upper-label, .neuroglancer-coordinate-space-transform-input-scale-label': {
-    textAlign: 'right',
-    marginRight: '4px',
-  },
-  '.neuroglancer-coordinate-space-transform-input-upper-label': {
-    gridRow: 'sourceUpper',
-    gridColumn: 'headerStart / headerEnd',
-  },
-  '.neuroglancer-coordinate-space-transform-input-scale-label': {
-    gridRow: '5',
-    gridColumn: 'headerStart / headerEnd',
-  },
-  '.neuroglancer-coordinate-space-transform-source-label': {
-    gridRow: 'sourceLabel',
-    gridColumn: 'sourceDim 1 / sourceDim -1',
-    textAlign: 'center',
-  },
-  '.neuroglancer-coordinate-space-transform-output-label': {
-    gridRow: 'outputDim 1 / outputDim -1',
-    gridColumn: 'outputLabel',
-    writingMode: 'vertical-lr',
-    textOrientation: 'mixed',
-    alignSelf: 'center',
-    justifySelf: 'end',
-    marginRight: '2px',
-  },
-  '.neuroglancer-coordinate-space-transform-input-name': {
-    textAlign: 'center',
-  },
-  '.neuroglancer-coordinate-space-transform-input-name, input.neuroglancer-coordinate-space-transform-output-name': {
-    fontFamily: 'monospace',
-    color: '#ff6',
-  },
-  '.neuroglancer-coordinate-space-transform-scale': { textAlign: 'right' },
-  '.neuroglancer-coordinate-space-transform-input-bounds, .neuroglancer-coordinate-space-transform-output-bounds': {
-    whiteSpace: 'nowrap',
-    fontFamily: 'monospace',
-    fontSize: 'small',
-    textAlign: 'right',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-    color: '#aff',
-  },
-  '.neuroglancer-coordinate-space-transform-input-bounds.neuroglancer-coordinate-space-transform-singleton:not(*[data-will-be-deleted="true"])': {
-    color: '#fa6',
-  },
-  '.neuroglancer-coordinate-space-transform-widget input[data-is-valid=false], .neuroglancer-coordinate-space-transform-widget input[data-is-valid=false]::placeholder': {
-    textDecoration: 'solid underline red',
-  },
-  '.neuroglancer-coordinate-space-transform-output-extend': {
-    gridRow: 'outputDim -1',
-    gridColumn: 'outputNames',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  '.neuroglancer-coordinate-space-transform-output-extend input': {
-    alignSelf: 'stretch',
-  },
-  '.neuroglancer-coordinate-space-transform-output-extend[data-is-active=false] input': {
+  '.neuroglancer-eye-icon.neuroglancer-visible > svg > :last-child': {
     display: 'none',
   },
-  '.neuroglancer-coordinate-space-transform-output-extend[data-is-active=true] .neuroglancer-icon': {
-    display: 'none',
+  '.neuroglancer-eye-icon.neuroglancer-indeterminate > svg > :last-child': {
+    stroke: 'rgba(255, 255, 255, 0.4)',
   },
-  '.neuroglancer-coordinate-space-transform-output-extend .neuroglancer-icon': {
-    alignSelf: 'start',
+  '.neuroglancer-star-icon > svg': {
+    stroke: 'white',
   },
-  '.neuroglancer-coordinate-space-transform-translation-coeff': {
-    marginLeft: '3px',
+  '.neuroglancer-star-icon.neuroglancer-starred > svg': {
+    fill: 'white',
   },
-  '.neuroglancer-coordinate-space-transform-output-scale-container': {
-    marginRight: '3px',
-  },
-  '.neuroglancer-coordinate-space-transform-input-scale-container, .neuroglancer-coordinate-space-transform-input-scale-label': {
-    marginBottom: '3px',
-  },
-  '.neuroglancer-coordinate-space-transform-widget input, .neuroglancer-coordinate-space-transform-output-name-container, .neuroglancer-coordinate-space-transform-scale-container': {
-    border: '1px solid #333',
-  },
-  '.neuroglancer-coordinate-space-transform-widget .neuroglancer-coordinate-space-transform-output-name, .neuroglancer-coordinate-space-transform-widget .neuroglancer-coordinate-space-transform-scale': {
-    border: '0px',
-  },
-  '.neuroglancer-coordinate-space-transform-output-name-container': {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    marginRight: '3px',
-  },
-  '.neuroglancer-coordinate-space-transform-scale-container': {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-  },
-  '.neuroglancer-coordinate-space-transform-scale-suggestion': {
-    fontFamily: 'monospace',
-    cursor: 'pointer',
-    borderRadius: '20%',
-    border: '1px solid #333',
-    alignSelf: 'flex-end',
-    margin: '2px',
-    color: '#aaa',
-  },
-  '.neuroglancer-coordinate-space-transform-scale-suggestion svg': {
-    width: '16px',
-    height: '16px',
-    fill: 'transparent',
-    stroke: '#aaa',
-    strokeWidth: 2,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-  },
-  '.neuroglancer-coordinate-space-transform-scale-suggestion:hover': {
-    backgroundColor: '#db4437',
-    border: '1px solid transparent',
-    color: '#fff',
-  },
-  '.neuroglancer-coordinate-space-transform-scale-suggestion:hover svg': {
-    stroke: '#fff',
-  },
-  '.neuroglancer-coordinate-space-transform-widget-reset-buttons': {
-    gridRow: 'outputDim -1',
-    gridColumn: 'headerEnd / -1',
-    justifySelf: 'start',
-  },
-  '.neuroglancer-multiline-autocomplete': {
-    marginTop: '2px',
-    padding: '2px',
-    position: 'relative',
-    backgroundColor: '#222',
-  },
-  '.neuroglancer-multiline-autocomplete-hint, .neuroglancer-multiline-autocomplete-input': {
-    fontFamily: 'monospace',
-    color: '#fff',
-    wordWrap: 'break-word',
-  },
-  '.neuroglancer-multiline-autocomplete-input:focus': { outline: '0px' },
-  '.neuroglancer-multiline-autocomplete-input:not(:focus):empty:before': {
-    content: 'attr(data-placeholder)',
-    color: '#aaa',
-  },
-  '.neuroglancer-multiline-autocomplete-hint': { color: '#aaa' },
-  '.neuroglancer-multiline-autocomplete-hint, .neuroglancer-multiline-autocomplete-input, .neuroglancer-multiline-autocomplete-completion': {
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-  },
-  '.neuroglancer-multiline-autocomplete-dropdown': {
-    color: '#fff',
-    backgroundColor: '#181818',
-    position: 'fixed',
-    display: 'block',
-    outline: '0',
-    margin: '0',
-    padding: '0',
-    left: '0px',
-    right: '0px',
-    textAlign: 'left',
-    cursor: 'default',
-    borderStyle: 'solid',
-    borderWidth: '1px',
-    borderColor: '#aaa',
-    overflowY: 'scroll',
-    wordWrap: 'break-word',
-  },
-  '.neuroglancer-multiline-autocomplete-completion:nth-of-type(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
-    backgroundColor: '#2b2b2b',
-  },
-  '.neuroglancer-multiline-autocomplete-completion:hover': {
-    outline: '1px solid #ddd',
-  },
-  '.neuroglancer-multiline-autocomplete-completion-active': {
-    backgroundColor: '#666',
-  },
-  '.neuroglancer-multiline-autocomplete-completion-description': {
-    fontStyle: 'italic',
-    color: '#f9f',
-  },
-  '.neuroglancer-tab-view': { display: 'flex', flexDirection: 'column' },
-  '.neuroglancer-tab-view-bar': {
-    display: 'block',
-    backgroundColor: '#333',
-    borderBottom: '1px solid white',
-  },
-  '.neuroglancer-tab-label': {
-    display: 'inline-block',
-    borderTop: '1px solid transparent',
-    borderLeft: '1px solid transparent',
-    borderRight: '1px solid transparent',
-    borderBottom: 'none',
-    marginRight: '4px',
-    paddingTop: '1px',
-    paddingLeft: '2px',
-    paddingRight: '2px',
-    font: '10pt sans-serif',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-  },
-  '.neuroglancer-tab-label:hover': { color: '#daa520' },
-  '.neuroglancer-tab-label.neuroglancer-selected-tab-label': {
-    backgroundColor: '#000',
-    borderTop: '1px solid white',
-    borderLeft: '1px solid white',
-    borderRight: '1px solid white',
-    borderBottom: '1px solid black',
-    paddingBottom: '1px',
-    marginBottom: '-1px',
-  },
-  '.neuroglancer-stack-view': { display: 'contents' },
-  '.neuroglancer-tab-view>.neuroglancer-stack-view>.neuroglancer-tab-content': {
-    flex: 1,
-    flexBasis: '0px',
-    height: '0px',
-    minHeight: '0px',
-    padding: '2px',
-  },
-  '.neuroglancer-tool-key-binding': {
-    display: 'inline-block',
-    color: '#0ff',
-    font: '9pt monospace',
-    whiteSpace: 'pre',
-  },
-  '.neuroglancer-tool-key-binding:hover': { outline: '1px solid #fff' },
-  '.neuroglancer-tool-key-binding:before': { content: '"["' },
-  '.neuroglancer-tool-key-binding:after': { content: '"]"' },
-  '.neuroglancer-tool-key-binding:before, .neuroglancer-tool-key-binding:after': {
-    color: '#999',
-  },
-  '.neuroglancer-tool-button': { display: 'inline-flex', flexDirection: 'row' },
-  '#statusContainer li.neuroglancer-tool-status': { maxHeight: '50vh' },
-  '.neuroglancer-tool-status-bindings': { backgroundColor: '#333' },
-  '.neuroglancer-tool-status-content': {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  '.neuroglancer-tool-status-header-container': {
-    backgroundColor: '#555',
-    width: 'min-content',
-    padding: '3px',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-tool-status-header': { alignSelf: 'center' },
-  '.neuroglancer-tool-status-body': { flex: 1, padding: '2px' },
-  '.neuroglancer-viewer': { outline: '0px' },
-  '.neuroglancer-viewer-top-row': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#222',
-    marginBottom: '3px',
-    paddingRight: '2px',
-  },
-  '.neuroglancer-viewer-side-panel': {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    maxWidth: '80%',
-    color: '#fff',
-  },
-  '.neuroglancer-noselect': {
-    WebkitTouchCallout: 'none',
-    WebkitUserSelect: 'none',
-    KhtmlUserSelect: 'none',
-    MozUserSelect: 'none',
-    msUserSelect: 'none',
-    userSelect: 'none',
-  },
-  '.neuroglancer-select-text': {
-    WebkitTouchCallout: 'default',
-    WebkitUserSelect: 'text',
-    KhtmlUserSelect: 'text',
-    MozUserSelect: 'text',
-    msUserSelect: 'text',
-    userSelect: 'text',
-  },
-  '.neuroglancer-data-panel-layout-controls': {
-    position: 'absolute',
-    top: '2px',
-    right: '2px',
-    display: 'flex',
-    alignItems: 'start',
-  },
-  '.neuroglancer-data-panel-layout-controls>button': {
-    display: 'flex',
-    margin: '2px',
-    border: ['0px', '1px solid white'],
-    backgroundColor: '#00000080',
-    flexDirection: 'row',
-    alignSelf: 'top',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '15px',
-    width: '18px',
-    height: '18px',
-    color: '#fff',
-  },
-  '.neuroglancer-data-panel-layout-controls>button>div': {
-    display: 'inline-block',
-    textAlign: 'center',
-    lineHeight: '12px',
-    width: '15px',
-    height: '15px',
-  },
-  '.neuroglancer-data-panel-layout-controls>button:hover': { color: '#6ff' },
-  'label.perspective-panel-show-slice-views': {
-    pointerEvents: 'none',
-    position: 'absolute',
-    right: '2px',
-    bottom: '2px',
-    fontFamily: 'sans-serif',
-    fontSize: 'small',
-  },
-  'input.perspective-panel-show-slice-views': { pointerEvents: 'all' },
-  '.neuroglancer-rendered-data-panel': {
-    cursor: 'grab',
-    position: 'relative',
-    outline: '0',
-    touchAction: 'none',
-    color: '#fff',
-    textAlign: 'left',
-  },
-  '.neuroglancer-rendered-data-panel:active': {
-    cursor: 'grabbing',
-  },
-  '.neuroglancer-display-dimensions-widget': {
-    position: 'absolute',
-    cursor: 'default',
-    top: '2px',
-    left: '2px',
-    backgroundColor: '#0000004d',
-  },
-  '.neuroglancer-display-dimensions-widget-dimension-grid': {
-    display: 'grid',
-    gridTemplateRows: '0fr 0fr 0fr 0fr',
-    gridTemplateColumns: '0fr 0fr 0fr',
-  },
-  '.neuroglancer-display-dimensions-widget input': {
-    outline: '0px',
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    boxShadow: 'none',
-    margin: '0',
-    border: '0',
-    padding: '2px',
-  },
-  '.neuroglancer-display-dimensions-widget input, .neuroglancer-display-dimensions-widget': {
-    fontFamily: 'monospace',
-    color: '#fff',
-  },
-  '.neuroglancer-display-dimensions-widget-dimension:hover': {
-    outline: '1px solid black',
-  },
-  '.neuroglancer-display-dimensions-widget-name[data-is-valid=false]': {
-    textDecoration: 'solid underline red',
-  },
-  '.neuroglancer-display-dimensions-widget-scale-factor': {
-    textAlign: 'right',
-    alignItems: 'end',
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-    marginLeft: '2px',
-  },
-  '.neuroglancer-display-dimensions-widget-scale': {
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-    paddingLeft: '10px',
-    textAlign: 'right',
-    marginLeft: '5px',
-  },
-  '.neuroglancer-display-dimensions-widget-scale:not(:empty):before': {
-    content: '"("',
-  },
-  '.neuroglancer-display-dimensions-widget-scale:not(:empty):after': {
-    content: '")"',
-  },
-  '.neuroglancer-display-dimensions-widget-scale-factor:after': {
-    content: '"\\d7"',
-  },
-  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-scale-factor, .neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-scale, .neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-default, .neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-depth-range-widget-grid, .neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-depth-range-relative-checkbox-label': {
-    display: 'none',
-  },
-  '.neuroglancer-display-dimensions-widget-dimension[data-is-modified=true] .neuroglancer-display-dimensions-widget-scale-factor, .neuroglancer-display-dimensions-widget-dimension[data-is-modified=true] .neuroglancer-display-dimensions-widget-scale': {
-    visibility: 'hidden',
-  },
-  '.neuroglancer-display-dimensions-widget *:focus': { outline: '0px' },
-  '.neuroglancer-display-dimensions-widget-default': {
-    gridRow: '4',
-    gridColumnStart: '1',
-    gridColumnEnd: '3',
-    display: 'inline-block',
-    whiteSpace: 'nowrap',
-  },
-  '.neuroglancer-display-dimensions-widget-default input': {
-    marginRight: '3px',
-  },
-  '.neuroglancer-depth-range-widget-grid': {
-    marginTop: '1em',
-    display: 'grid',
-    gridTemplateColumns: '0fr 0fr 0fr',
-    gridAutoRows: '0fr',
-  },
-  '.neuroglancer-depth-range-widget-dimension-names:not(:empty):before': {
-    content: '"("',
-  },
-  '.neuroglancer-depth-range-widget-dimension-names:not(:empty):after': {
-    content: '")"',
-  },
-  '.neuroglancer-depth-range-widget-dimension-names': {
-    marginLeft: '1ch',
-    whiteSpace: 'nowrap',
-  },
-  '.neuroglancer-help-body': {
-    flexBasis: '0px',
-    flex: 1,
-    height: '0px',
-    minHeight: '0px',
-    fontFamily: 'sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  '.neuroglancer-help-scroll-container': {
-    flex: 1,
-    flexBasis: '0px',
-    position: 'relative',
-    overflow: 'auto',
-  },
-  '.neuroglancer-help-scroll-container div+h2': { marginTop: '1em' },
-  '.neuroglancer-help-scroll-container h2': {
-    fontSize: '10pt',
-    padding: '4px',
-    position: 'sticky',
-    top: '0',
-    backgroundColor: '#333',
-    marginTop: '0',
-  },
-  '.neuroglancer-help-scroll-container .dt': {
-    fontFamily: 'monospace',
-    fontWeight: 'bold',
-    color: '#ff0',
-  },
-  '.neuroglancer-help-scroll-container .dd': {
-    fontSize: '10pt',
-    marginLeft: '4ex',
-  },
-  '.neuroglancer-layout-split-drop-zone': {
-    position: 'absolute',
-    zIndex: 1000,
-  },
-  '.neuroglancer-drag-over': { backgroundColor: '#0000ff80' },
-  '.neuroglancer-stack-layout-row>.neuroglancer-stack-layout-drop-placeholder': {
-    paddingLeft: '4px',
-    paddingRight: '4px',
-    width: '1px',
-  },
-  '.neuroglancer-stack-layout-column>.neuroglancer-stack-layout-drop-placeholder': {
-    paddingTop: '4px',
-    paddingBottom: '4px',
-    height: '1px',
-  },
-  '.neuroglancer-stack-layout-drop-placeholder': {
-    backgroundClip: 'content-box',
-    backgroundColor: '#666',
-    zIndex: 1,
-  },
-  '.neuroglancer-stack-layout-drop-placeholder.neuroglancer-drag-over': {
-    backgroundClip: 'border-box',
-    backgroundColor: '#8080ff80',
-  },
-  '.neuroglancer-stack-layout-drop-placeholder:first-of-type, .neuroglancer-stack-layout-drop-placeholder:last-of-type': {
-    display: 'none',
-  },
-  '.neuroglancer-panel': { flex: 1 },
-  '.neuroglancer-show-panel-borders .neuroglancer-panel': {
-    border: 'none',
-  },
-  // Hides the white border around NG view that shows the view is focused
-  // '.neuroglancer-panel:focus-within': { borderColor: '#fff' },
-  '.neuroglancer-layer-group-viewer': { outline: '0px' },
-  '.neuroglancer-layer-group-viewer-context-menu': {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-  },
-  '.neuroglancer-layer-group-viewer-context-menu label': {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  '.neuroglancer-layer-group-viewer-context-menu select:before': {
-    flex: 1,
-    content: '" "',
-  },
-  '.neuroglancer-layer-group-viewer-context-menu select': { marginLeft: '5px' },
-  '.neuroglancer-context-menu': {
-    position: 'absolute',
-    zIndex: 100,
-    border: '1px solid white',
-    backgroundColor: '#000',
-    boxShadow: '5px 5px 2px 1px #00000080',
-    fontFamily: 'sans-serif',
-    fontSize: '11pt',
-    padding: '5px',
-    color: '#fff',
-    outline: '0px',
-  },
-  ':root': {
-    '--layer-number-color': '#9a7518',
-    '--neuroglancer-segment-list-width': 'auto',
-  },
-  '.neuroglancer-layer-panel': {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'stretch',
-    marginLeft: '-5px',
-    marginTop: '-1px',
-    zIndex: -0.1,
-    overflow: 'hidden',
-  },
-  '.neuroglancer-layer-item': {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    color: '#fff',
-    cursor: 'pointer',
-    borderWidth: '1px',
-    borderStyle: 'solid',
-    borderColor: '#ccc',
-    fontFamily: 'sans-serif',
-    fontSize: '10pt',
-    backgroundColor: '#000',
-    padding: '1px',
-  },
-  '.neuroglancer-layer-item, .neuroglancer-layer-add-button': {
-    margin: '1px 1px 1px 5px',
-  },
-  '.neuroglancer-layer-item[data-selected=true]': { borderColor: '#8c8' },
-  '.neuroglancer-layer-item[data-selected=true]:hover': { borderColor: '#3c3' },
-  '.neuroglancer-layer-item:hover': { borderColor: '#daa520' },
-  '.neuroglancer-layer-item[data-pick=true] .neuroglancer-layer-item-label': {
-    backgroundColor: '#939',
-  },
-  '.neuroglancer-layer-item-label': {
-    display: 'inline-block',
-    position: 'relative',
-    backgroundColor: '#222',
-    paddingRight: '3px',
-  },
-  '.neuroglancer-layer-item-number': {
-    display: 'inline-block',
-    backgroundColor: 'var(--layer-number-color)',
-    fontWeight: 'bold',
-    paddingLeft: '1px',
-    paddingRight: '1px',
-  },
-  '.neuroglancer-layer-panel[data-show-hover-values=true] .neuroglancer-layer-item-value': {
-    display: 'inline-block',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    maxWidth: '50ch',
-    marginLeft: '1ch',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipses',
-    textAlign: 'center',
-  },
-  '.neuroglancer-layer-panel[data-show-hover-values=false] .neuroglancer-layer-item-value': {
-    display: 'none',
-  },
-  '.neuroglancer-layer-item[data-visible=false] .neuroglancer-layer-item-label': {
-    textDecoration: 'line-through',
-  },
-  '.neuroglancer-layer-item[data-visible=false]': { color: '#bbb' },
-  '.neuroglancer-layer-panel-drop-zone': { display: 'inline-block', flex: 1 },
-  '.neuroglancer-layer-item-visible-progress, .neuroglancer-layer-item-prefetch-progress': {
-    position: 'absolute',
-    left: '0px',
-    height: '2px',
-    backgroundColor: '#666',
-  },
-  '.neuroglancer-layer-item-visible-progress': { top: '0px' },
-  '.neuroglancer-layer-item-prefetch-progress': { bottom: '0px' },
-  '.neuroglancer-layer-item-value-container': {
-    display: 'grid',
-    gridTemplateColumns: 'min-content',
-    alignItems: 'center',
-  },
-  '.neuroglancer-layer-item-value': {
-    gridRow: '1',
-    gridColumn: '1',
-    visibility: 'visible',
-  },
-  '.neuroglancer-layer-item-button-container': {
-    gridRow: '1',
-    gridColumn: '1',
-    whiteSpace: 'nowrap',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    visibility: 'hidden',
-    justifySelf: 'right',
-  },
-  '.neuroglancer-layer-panel:hover .neuroglancer-layer-item-value': {
-    visibility: 'hidden',
-  },
-  '.neuroglancer-layer-panel:hover .neuroglancer-layer-item-button-container': {
-    visibility: 'visible',
-  },
-  '.neuroglancer-position-widget': {
-    display: 'inline-flex',
-    alignItems: 'center',
-  },
-  '.neuroglancer-position-widget input:disabled': { pointerEvents: 'none' },
-  '.neuroglancer-position-widget .neuroglancer-copy-button:first-of-type': {
-    display: 'none',
-  },
-  '.neuroglancer-position-dimension-coordinate, .neuroglancer-position-dimension-name, .neuroglancer-position-dimension-scale': {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    boxShadow: 'none',
-    border: '0',
-    margin: '0',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-  },
-  '.neuroglancer-position-dimension[data-coordinate-array=valid] .neuroglancer-position-dimension-scale': {
-    display: 'none',
-  },
-  '.neuroglancer-position-dimension[data-coordinate-array=invalid] .neuroglancer-position-dimension-scale': {
-    textDecorationLine: 'underline',
-    textDecorationStyle: 'wavy',
-    textDecorationColor: 'red',
-  },
-  '.neuroglancer-position-dimension-coordinate': { color: '#fff' },
-  '.neuroglancer-position-widget input:invalid, .neuroglancer-position-widget input::placeholder, .neuroglancer-position-widget input[data-is-valid=false]': {
-    textDecoration: 'solid underline red',
-  },
-  '.neuroglancer-position-widget *:focus': { outline: '0px' },
-  '.neuroglancer-position-dimension[data-dropdown-visible=true]:after': {
-    content: '""',
-    display: 'block',
-    left: '0px',
-    right: '0px',
-    bottom: '-1px',
-    position: 'absolute',
-    borderBottom: '1px solid black',
-    zIndex: 100,
-    height: '0px',
-  },
-  '.neuroglancer-position-dimension-dropdown, .neuroglancer-position-dimension-coordinate-dropdown': {
-    position: 'absolute',
-    minWidth: 'calc(100% + 2px)',
-    border: '1px solid #aaa',
-    boxSizing: 'border-box',
-    padding: '2px',
-    left: '-1px',
-    zIndex: 100,
-    backgroundColor: '#000',
-  },
-  '.neuroglancer-position-dimension-dropdown': {
-    display: 'grid',
-    gridTemplateAreas: '"labels . graph"',
-    gridTemplateRows: '1fr',
-    gridTemplateColumns: '0fr 3px 0fr',
-  },
-  '.neuroglancer-position-dimension-coordinate-dropdown': {
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
-  '.neuroglancer-dimension-dropdown-coordinate-entry': {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  '.neuroglancer-dimension-dropdown-coordinate-entry:hover': {
-    backgroundColor: '#333',
-  },
-  '.neuroglancer-dimension-dropdown-coordinate-label': {
-    width: 'var(--neuroglancer-coordinate-label-width)',
-    color: '#0ff',
-  },
-  '.neuroglancer-position-dimension-dropdown:focus, .neuroglancer-position-dimension-coordinate-dropdown:focus': {
-    outline: '0px',
-  },
-  '.neuroglancer-position-dimension-dropdown-lowerbound, .neuroglancer-position-dimension-dropdown-upperbound, .neuroglancer-position-dimension-dropdown-hoverposition': {
-    gridArea: 'labels',
-    textAlign: 'right',
-  },
-  '.neuroglancer-position-dimension-dropdown canvas': {
-    marginTop: '.5em',
-    marginBottom: '.5em',
-    gridArea: 'graph',
-  },
-  '.neuroglancer-position-dimension:focus-within, .neuroglancer-position-dimension[data-dropdown-visible=true]': {
-    border: '1px solid #aaa',
-    backgroundColor: '#000',
-  },
-  '.neuroglancer-position-dimension': {
-    border: '1px solid transparent',
-    position: 'relative',
-    display: 'inline-block',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    whiteSpace: 'nowrap',
-  },
-  '.neuroglancer-position-dimension-name': {
-    color: '#ff6',
-    paddingLeft: '2px',
-  },
-  '.neuroglancer-position-dimension-scale-container[data-is-empty=false]:before': {
-    content: '"("',
-    color: '#aaa',
-  },
-  '.neuroglancer-position-dimension-scale-container[data-is-empty=false]:after': {
-    content: '")"',
-    color: '#aaa',
-  },
-  '.neuroglancer-position-dimension-scale-container[data-is-empty=false]': {
-    marginRight: '5px',
-  },
-  '.neuroglancer-position-dimension-scale': { color: '#bbb' },
-  '.neuroglancer-position-dimension-scale-container': {
-    marginRight: '2px',
-    marginLeft: '4px',
-  },
-  '.neuroglancer-mouse-position-widget': {
-    marginLeft: '1ch',
-    verticalAlign: 'center',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    color: 'orange',
-    whiteSpace: 'pre',
-  },
-  '.neuroglancer-position-dimension-coordinate-label': {
-    display: 'inline-block',
-    color: '#0ff',
-  },
-  '.neuroglancer-position-dimension-coordinate-label:not(:empty):before': {
-    content: '"["',
-    color: '#aaa',
-  },
-  '.neuroglancer-position-dimension-coordinate-label:not(:empty):after': {
-    content: '"]"',
-    color: '#aaa',
-  },
-  '.neuroglancer-layer-list-panel-items': {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    overflow: 'auto',
-    height: '0px',
-    minHeight: '0px',
-    flexBasis: '0px',
-  },
-  '.neuroglancer-layer-list-panel-item': {
-    display: 'flex',
-    flexDirection: 'row',
-    padding: '2px',
-    border: '1px solid #aaa',
-    margin: '2px',
-  },
-  '.neuroglancer-layer-list-panel-item[data-selected=true]': {
-    borderColor: '#3c3',
-  },
-  '.neuroglancer-layer-list-panel-item[data-archived=true]': {
-    borderColor: '#666',
-  },
-  '.neuroglancer-layer-list-panel-item[data-archived=true] .neuroglancer-layer-side-panel-name, .neuroglancer-layer-list-panel-item[data-archived=true] .neuroglancer-icon svg': {
-    color: '#999',
-    stroke: '#999',
-  },
-  '.neuroglancer-layer-list-panel-item:hover': { backgroundColor: '#333' },
-  '.neuroglancer-layer-list-panel-item-number': {
-    fontFamily: 'sans-serif',
-    backgroundColor: 'var(--layer-number-color)',
-    color: '#fff',
-    fontWeight: 'bold',
-    display: 'inline-block',
-  },
-  '.neuroglancer-layer-list-panel-item:not(:hover)>.neuroglancer-layer-list-panel-item-delete': {
-    display: 'none',
-  },
-  '.neuroglancer-layer-list-panel-item:not(:hover)>.neuroglancer-layer-list-panel-item-controls': {
-    display: 'none',
-  },
-  '[data-neuroglancer-layer-panel-pinned=false] .neuroglancer-side-panel-titlebar.neuroglancer-layer-side-panel-title': {
-    backgroundColor: '#393',
-  },
-  '[data-neuroglancer-layer-visible=false] .neuroglancer-side-panel-titlebar.neuroglancer-layer-side-panel-title input': {
-    textDecoration: 'line-through',
-  },
-  '.neuroglancer-layer-side-panel-name': {
-    flex: 1,
-    backgroundColor: 'transparent',
-    border: '0px',
-    color: '#fff',
-    outline: '0px',
-    width: '0px',
-    minWidth: '0px',
-  },
-  '.neuroglancer-layer-side-panel-tab-view': {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    font: '10pt sans-serif',
-  },
-  '.neuroglancer-layer-side-panel-type-measure': {
-    position: 'absolute',
-    visibility: 'hidden',
-    top: '0px',
-    height: 'auto',
-    width: 'auto',
-    whiteSpace: 'nowrap',
-  },
-  '.neuroglancer-layer-side-panel-type, .neuroglancer-layer-side-panel-type-measure': {
-    paddingLeft: '3px',
-    paddingRight: '3px',
-    fontWeight: 'bold',
-    fontFamily: 'sans-serif',
-    fontSize: '10pt',
-    boxSizing: 'border-box',
-  },
-  '.neuroglancer-layer-side-panel-type': {
-    WebkitAppearance: 'none',
-    color: '#fff',
-    cursor: 'pointer',
-    backgroundColor: '#00000080',
-    marginRight: '5px',
-    border: '0px',
-    outline: '0px',
-  },
-  '.neuroglancer-layer-side-panel-type option': { backgroundColor: '#000' },
-  '.neuroglancer-statistics-panel-body': {
-    flex: 1,
-    flexBasis: '0px',
-    minWidth: '0px',
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-    font: '10pt sans-serif',
-  },
-  '.neuroglancer-statistics-panel-body>table': {
-    position: 'relative',
-    flex: 1,
-    width: '100%',
-  },
-  '.neuroglancer-statistics-panel-body>table>thead td': {
-    position: 'sticky',
-    top: '0px',
-    zIndex: 2,
-    backgroundColor: '#333',
-    fontWeight: 'bold',
-  },
-  '.neuroglancer-statistics-panel-body>table>tbody tr:hover': {
-    backgroundColor: '#336',
-  },
-  '.neuroglancer-settings-body': {
-    flexBasis: '0px',
-    flex: 1,
-    height: '0px',
-    minHeight: '0px',
-    fontFamily: 'sans-serif',
-    display: 'flex',
-    flexDirection: 'column',
-    fontSize: '10pt',
-  },
-  '.neuroglancer-settings-body input[type=text], .neuroglancer-settings-body input[type=number]': {
-    backgroundColor: '#333',
-    color: '#fff',
-    border: '0px',
-  },
-  '.neuroglancer-settings-scroll-container': {
-    flex: 1,
-    flexBasis: '0px',
-    position: 'relative',
-    overflow: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  '.neuroglancer-settings-scroll-container>*': { marginTop: '3px' },
-  '.neuroglancer-settings-title': { alignSelf: 'stretch' },
-  '.neuroglancer-settings-scroll-container>label': {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  '.neuroglancer-settings-scroll-container>label>input:before': {
-    flex: 1,
-    content: '" "',
-  },
-  '.neuroglancer-settings-scroll-container>label>input': {
-    marginLeft: '5px',
-    width: '11ch',
-  },
-  '.neuroglancer-settings-limit-widget>input': { width: '11ch' },
-  '.neuroglancer-annotation-tool-status': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflowX: 'scroll',
-    scrollbarWidth: 'none',
-  },
-  '.neuroglancer-annotation-tool-status::-webkit-scrollbar': {
-    display: 'none',
-  },
-  '.neuroglancer-annotation-tool-status-widget+.neuroglancer-annotation-tool-status-widget': {
-    marginLeft: '3px',
-  },
-  '.neuroglancer-annotation-tool-status-widget:hover': {
-    outline: '1px solid #fff',
-  },
-  '.neuroglancer-annotation-tool-status-widget': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-annotation-tool-status-widget-layer-number': {
-    display: 'inline-block',
-    font: '10pt sans-serif',
-    fontWeight: 'bold',
-    backgroundColor: '#9a7518',
-  },
-  '.neuroglancer-annotation-tool-status-widget-key': {
-    display: 'inline-block',
-    font: '9pt monospace',
-    color: '#0ff',
-  },
-  '.neuroglancer-annotation-tool-status-widget-key:before': { content: '"["' },
-  '.neuroglancer-annotation-tool-status-widget-key:after': { content: '"]"' },
-  '.neuroglancer-annotation-tool-status-widget-key:before, .neuroglancer-annotation-tool-status-widget-key:after': {
-    color: '#999',
-  },
-  '.neuroglancer-annotation-tool-status-widget-description': {
-    display: 'inline-block',
-    color: '#3c3',
-    font: '10pt sans-serif',
-    whiteSpace: 'nowrap',
-  },
-  '.neuroglancer-annotation-tool-status-widget-delete': {
-    visibility: 'hidden',
-  },
-  '.neuroglancer-annotation-tool-status-widget:hover>.neuroglancer-annotation-tool-status-widget-delete': {
-    visibility: 'inherit',
+  '.neuroglancer-star-icon.neuroglancer-indeterminate > svg': {
+    fill: 'rgba(255, 255, 255, 0.4)',
   },
   '.neuroglancer-annotations-tab': {
     display: 'flex',
     alignItems: 'stretch',
-    flex: 1,
+    flex: '1',
     flexDirection: 'column',
   },
   '.neuroglancer-annotation-list': {
     position: 'relative',
-    margin: '2px 0 0',
-    padding: '0',
+    margin: '0px',
+    padding: '0px',
+    marginTop: '2px',
     overflowY: 'auto',
     height: '0px',
-    flex: 1,
+    flex: '1',
     flexBasis: '0px',
     minHeight: '0px',
   },
@@ -1927,11 +2034,13 @@ const globalNeuroglancerStyles = {
     cursor: 'pointer',
     justifyContent: 'start',
   },
-  '.neuroglancer-annotation-position': { display: 'contents' },
+  '.neuroglancer-annotation-position': {
+    display: 'contents',
+  },
   '.neuroglancer-annotation-layer-view': {
     display: 'flex',
     flexDirection: 'column',
-    flex: 1,
+    flex: '1',
     alignItems: 'stretch',
   },
   '.neuroglancer-annotation-list-header': {
@@ -1960,11 +2069,15 @@ const globalNeuroglancerStyles = {
     alignSelf: 'start',
     visibility: 'hidden',
   },
-  '.neuroglancer-annotation-list-entry:hover>.neuroglancer-annotation-list-entry-delete': {
+  '.neuroglancer-annotation-list-entry:hover > .neuroglancer-annotation-list-entry-delete': {
     visibility: 'visible',
   },
-  '.neuroglancer-annotation-hover': { backgroundColor: '#333' },
-  '.neuroglancer-annotation-selected': { backgroundColor: '#939' },
+  '.neuroglancer-annotation-hover': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-annotation-selected': {
+    backgroundColor: '#939',
+  },
   '.neuroglancer-annotation-hover.neuroglancer-annotation-selected': {
     backgroundColor: '#969',
   },
@@ -1987,20 +2100,24 @@ const globalNeuroglancerStyles = {
     alignSelf: 'stretch',
     padding: '2px',
   },
-  '.neuroglancer-voxel-coordinates-link': { cursor: 'pointer' },
-  '.neuroglancer-voxel-coordinates-link:hover': { backgroundColor: '#db4437' },
+  '.neuroglancer-voxel-coordinates-link': {
+    cursor: 'pointer',
+  },
+  '.neuroglancer-voxel-coordinates-link:hover': {
+    backgroundColor: '#db4437',
+  },
   '.neuroglancer-annotation-details-icon': {
     display: 'inline-block',
     marginRight: '5px',
   },
   '.neuroglancer-annotation-details-title-text': {
     display: 'inline-block',
-    flex: 1,
+    flex: '1',
   },
   'textarea.neuroglancer-annotation-details-description': {
     alignSelf: 'stretch',
     backgroundColor: '#222',
-    color: '#fff',
+    color: 'white',
     font: '10pt sans-serif',
     border: '0px',
     outline: '0px',
@@ -2009,7 +2126,7 @@ const globalNeuroglancerStyles = {
   },
   'div.neuroglancer-annotation-details-description': {
     alignSelf: 'stretch',
-    color: '#fff',
+    color: 'white',
     font: '10pt sans-serif',
   },
   '.neuroglancer-annotation-toolbox': {
@@ -2017,24 +2134,32 @@ const globalNeuroglancerStyles = {
     alignItems: 'stretch',
   },
   '.neuroglancer-annotation-segment-item': {
-    color: '#000',
-    backgroundColor: '#fff',
+    color: 'black',
+    backgroundColor: 'white',
   },
   '.neuroglancer-annotations-view-dimension': {
     fontFamily: 'monospace',
     textAlign: 'right',
   },
-  '.neuroglancer-annotations-view-dimension-name': { color: '#ff6' },
-  '.neuroglancer-annotations-view-dimension-scale': { color: '#bbb' },
-  '.neuroglancer-annotations-view-dimension-scale:not(:empty):before': {
+  '.neuroglancer-annotations-view-dimension-name': {
+    color: '#ff6',
+  },
+  '.neuroglancer-annotations-view-dimension-scale': {
+    color: '#bbb',
+  },
+  '.neuroglancer-annotations-view-dimension-scale:not(:empty)::before': {
     content: '"("',
     marginLeft: '1ch',
   },
-  '.neuroglancer-annotations-view-dimension-scale:not(:empty):after': {
+  '.neuroglancer-annotations-view-dimension-scale:not(:empty)::after': {
     content: '")"',
   },
-  '.neuroglancer-annotation-relationship-label, .neuroglancer-annotation-property-label': {
+  '.neuroglancer-annotation-relationship-label': {
     marginRight: '5px',
+  },
+  '.neuroglancer-annotation-property-label': {
+    marginRight: '5px',
+    color: '#999',
   },
   '.neuroglancer-selected-annotation-details-position-grid': {
     display: 'grid',
@@ -2059,7 +2184,7 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-selected-annotation-details-position-coord': {
     textAlign: 'right',
-    marginLeft: '.5ch',
+    marginLeft: '0.5ch',
   },
   '.neuroglancer-related-segment-list-title': {
     fontFamily: 'sans-serif',
@@ -2075,282 +2200,61 @@ const globalNeuroglancerStyles = {
     flexDirection: 'row',
     fontFamily: 'sans-serif',
     fontSize: 'small',
+    userSelect: 'text',
   },
-  '.neuroglancer-annotation-property-label': { color: '#999' },
   '.neuroglancer-annotation-property-value': {
     textAlign: 'right',
     fontFamily: 'monospace',
     fontSize: 'medium',
-    flex: 1,
+    flex: '1',
   },
   'input.neuroglancer-segment-list-entry-id': {
     outline: '0px',
     border: '0px',
     textAlign: 'left',
   },
-  '.neuroglancer-segment-list-entry-new>.neuroglancer-segment-list-entry-copy': {
+  '.neuroglancer-segment-list-entry-new > .neuroglancer-segment-list-entry-copy': {
     visibility: 'hidden',
   },
-  '.neuroglancer-segment-list-entry-new>input[type=checkbox]': {
+  '.neuroglancer-segment-list-entry-new > input[type="checkbox"]': {
     visibility: 'hidden',
   },
-  '.neuroglancer-segment-list-entry-delete': { order: 0 },
   '.neuroglancer-selection-annotation-status': {
     fontFamily: 'sans-serif',
     fontSize: 'small',
   },
-  '.neuroglancer-channel-dimensions-widget-dim': { display: 'contents' },
-  '.neuroglancer-channel-dimensions-widget': {
-    display: 'grid',
-    gridTemplateColumns:
-        '[name] min-content [lower] min-content [upper] min-content',
-  },
-  '.neuroglancer-channel-dimensions-widget-name-container': {
-    gridColumn: 'name',
-  },
-  '.neuroglancer-channel-dimensions-widget-name[data-is-valid=false], .neuroglancer-channel-dimensions-widget-name::placeholder': {
-    textDecoration: 'solid underline red',
-  },
-  '.neuroglancer-channel-dimensions-widget-name': {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    boxShadow: 'none',
-    border: '0',
-    margin: '0',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    color: '#ff6',
-  },
-  '.neuroglancer-channel-dimensions-widget-name, .neuroglancer-channel-dimensions-widget-lower, .neuroglancer-channel-dimensions-widget-upper': {
-    fontFamily: 'monospace',
-  },
-  '.neuroglancer-channel-dimensions-widget-lower': {
-    gridColumn: 'lower',
-    textAlign: 'right',
-  },
-  '.neuroglancer-channel-dimensions-widget-upper': {
-    gridColumn: 'upper',
-    textAlign: 'right',
-  },
-  '.neuroglancer-channel-dimensions-widget-lower, .neuroglancer-channel-dimensions-widget-upper': {
-    textAlign: 'right',
-    marginLeft: '1ch',
-    userSelect: 'text',
-  },
-  '.neuroglancer-channel-dimensions-widget-upper:after': { content: '")"' },
-  '.neuroglancer-channel-dimensions-widget-lower:after': { content: '","' },
-  '.neuroglancer-channel-dimensions-widget-lower:before': { content: '"["' },
-  '.neuroglancer-channel-dimensions-widget-upper:after, .neuroglancer-channel-dimensions-widget-lower:before, .neuroglancer-channel-dimensions-widget-lower:after': {
-    color: '#999',
-  },
-  '.neuroglancer-layer-options-control-container .neuroglancer-layer-control-label-container': {
-    marginRight: 'auto',
-  },
-  '.neuroglancer-layer-control-label-container': { whiteSpace: 'nowrap' },
-  '.neuroglancer-layer-control-label': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-layer-control-label-text-container': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'start',
-  },
-  '.neuroglancer-layer-control-container': {
-    marginTop: '1.5px',
-    marginBottom: '1.5px',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-layer-control-control': {
-    flex: 1,
-    marginLeft: '5px',
-    maxWidth: '500px',
-  },
-  'select.neuroglancer-layer-control-control, input[type=checkbox].neuroglancer-layer-control-control, input[type=color].neuroglancer-layer-control-control': {
-    flex: 'initial',
-  },
-  '.range-slider': {
-    display: 'flex',
-    flexDirection: 'row',
-    whiteSpace: 'nowrap',
-    justifyContent: 'flex-end',
-  },
-  '.range-slider input[type=range]': {
-    background: 'transparent',
-    flexBasis: '0px',
-  },
-  '.range-slider input[type=number]': {
-    backgroundColor: '#ffffff4d',
-    color: '#fff',
-    border: '0px',
-  },
-  '.range-slider input[type=range]::-moz-range-track': {
-    backgroundColor: '#fff',
-  },
-  '.neuroglancer-render-scale-widget': {
-    marginTop: '2px',
-    marginBottom: '2px',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-render-scale-widget-prompt': { whiteSpace: 'nowrap' },
-  '.neuroglancer-render-scale-widget>canvas': {
-    height: '36px',
-    flex: 1,
-    flexBasis: '0px',
-    width: '0px',
-  },
-  '.neuroglancer-render-scale-widget-legend': {
-    width: '10ch',
-    fontSize: '11px',
-    textAlign: 'right',
-  },
-  '.neuroglancer-render-scale-widget-legend>div': { height: '12px' },
-  '.neuroglancer-shader-code-widget.invalid-input': { border: '1px solid red' },
-  '.neuroglancer-shader-code-widget.valid-input': { border: '1px solid green' },
-  '.neuroglancer-shader-code-widget': { border: '1px solid transparent' },
-  '.neuroglancer-invlerp-cdfpanel': { height: '50px', cursor: 'ew-resize' },
-  '.neuroglancer-invlerp-cdfpanel, .neuroglancer-invlerp-legend-panel': {
-    border: '1px solid #666',
-  },
-  '.neuroglancer-invlerp-legend-panel': { height: '15px' },
-  '.neuroglancer-invlerp-widget-bound': {
-    backgroundColor: 'transparent',
-    borderColor: 'transparent',
-    boxShadow: 'none',
-    border: '0',
-    margin: '0',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-  },
-  '.neuroglancer-invlerp-widget-window-bound': { color: '#0ff' },
-  '.neuroglancer-invlerp-widget-range-bound': { color: '#fff' },
-  '.neuroglancer-invlerp-widget-bounds': { display: 'flex' },
-  '.neuroglancer-invlerp-widget-range-spacer': { flex: 1, textAlign: 'center' },
-  '.neuroglancer-invlerp-widget-window-bounds': {
-    justifyContent: 'space-between',
-  },
-  '.neuroglancer-segmentation-rendering-tab': {
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-  },
-  '.neuroglancer-segmentation-rendering-tab .neuroglancer-shader-code-widget': {
-    height: '6em',
-  },
-  '.neuroglancer-segmentation-dropdown-skeleton-shader-header': {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  '.neuroglancer-segmentation-layer-skeleton-shader-overlay .neuroglancer-shader-code-widget': {
-    width: '80vw',
-    height: '80vh',
-  },
-  '.neuroglancer-segment-list-entry': {
-    display: 'flex',
-    flexDirection: 'row',
-    width: 'min-content',
-    minWidth: '100%',
-    backgroundColor: '#000',
-    alignItems: 'start',
-  },
-  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-entry-double-line': {
-    display: 'inline-flex',
-    minWidth: 'initial',
-    backgroundColor: 'initial',
-  },
-  '.neuroglancer-segment-list-entry[data-selected=true], .neuroglancer-selection-details-segment[data-selected=true]': {
-    backgroundColor: '#222',
-  },
-  '.neuroglancer-segment-list-entry-copy-container': {
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  '.neuroglancer-segment-list-entry-id-container': {
-    order: 1,
-    alignSelf: 'center',
-  },
-  '.neuroglancer-segment-list-entry-id, .neuroglancer-selection-details-segment-id': {
-    display: 'block',
-    fontFamily: 'monospace',
-    fontSize: 'medium',
-    flexShrink: 0,
-    textAlign: 'right',
-    color: '#000',
-    backgroundColor: '#fff',
-    userSelect: 'text',
-    width: 'var(--neuroglancer-segment-list-width)',
-  },
-  '.neuroglancer-segment-list .neuroglancer-segment-list-entry-sticky': {
-    position: 'sticky',
-    left: '0',
-  },
-  '.neuroglancer-segment-list-entry-sticky': {
-    whiteSpace: 'nowrap',
-    flexDirection: 'row',
-    alignItems: 'start',
-    backgroundColor: 'inherit',
-    display: 'flex',
-  },
-  '.neuroglancer-segment-list-entry-extra-property': {
-    paddingLeft: '8px',
-    flexShrink: 0,
-    textAlign: 'right',
-    userSelect: 'text',
-  },
-  '.neuroglancer-selection-details-segment-description, .neuroglancer-selection-details-segment-property': {
-    fontFamily: 'sans-serif',
-    fontSize: 'small',
-  },
-  '.neuroglancer-selection-details-segment-property': {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  '.neuroglancer-selection-details-segment-property-name': {
-    userSelect: 'text',
-    fontStyle: 'italic',
-  },
-  '.neuroglancer-selection-details-segment-property-value': {
-    textAlign: 'right',
-    flex: 1,
-  },
-  '.neuroglancer-segmentation-toolbox': { display: 'inline-block' },
-  '.neuroglancer-segmentation-toolbox .neuroglancer-tool-button+.neuroglancer-tool-button': {
-    marginLeft: '1em',
-  },
   '.neuroglancer-segment-list': {
     position: 'relative',
     overflowY: 'auto',
-    overflowX: 'scroll',
-    flex: 1,
+    overflowX: 'auto',
+    flex: '1',
   },
   '.neuroglancer-segment-display-tab': {
     display: 'flex',
     flexDirection: 'column',
   },
   '.neuroglancer-segment-query-errors': {
-    margin: '0',
+    margin: '0px',
     listStyleType: 'none',
-    padding: '0 0 0 3px',
+    padding: '0px',
+    paddingLeft: '3px',
     backgroundColor: '#333',
   },
-  '.neuroglancer-segment-query-errors>li': { display: 'block', color: 'red' },
-  '.neuroglancer-segment-list-entry:not(.neuroglancer-segment-list-entry-double-line) .neuroglancer-segment-list-entry-unmapped-id:empty+.neuroglancer-segment-list-entry-copy': {
+  '.neuroglancer-segment-query-errors > li': {
+    display: 'block',
+    color: 'red',
+  },
+  '.neuroglancer-segment-list-entry:not(.neuroglancer-segment-list-entry-double-line) .neuroglancer-segment-list-entry-unmapped-id:empty + .neuroglancer-segment-list-entry-copy': {
     display: 'none',
   },
-  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-entry-double-line .neuroglancer-segment-list-entry-unmapped-id:empty+.neuroglancer-segment-list-entry-copy': {
+  '.neuroglancer-segment-list-entry.neuroglancer-segment-list-entry-double-line .neuroglancer-segment-list-entry-unmapped-id:empty + .neuroglancer-segment-list-entry-copy': {
     visibility: 'hidden',
   },
-  '.neuroglancer-segment-list-entry-name:empty+.neuroglancer-segment-list-entry-filter': {
+  '.neuroglancer-segment-list-entry-name:empty + .neuroglancer-segment-list-entry-filter': {
     display: 'none',
   },
   '.neuroglancer-segment-list-entry-name': {
-    order: 1000,
+    order: '1000',
     display: 'inline-block',
     fontFamily: 'monospace',
     fontSize: 'medium',
@@ -2359,40 +2263,42 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-segment-list-query': {
     backgroundColor: '#151515',
-    color: '#fff',
+    color: 'white',
     fontFamily: 'monospace',
     fontSize: 'medium',
     border: '2px solid #333',
     padding: '2px',
     outline: '0px',
   },
-  '.neuroglancer-segment-list-query::placeholder': { color: '#aaa' },
+  '.neuroglancer-segment-list-query::placeholder': {
+    color: '#aaa',
+  },
   '.neuroglancer-segment-list-status': {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#333',
   },
-  '.neuroglancer-segment-list-entry-copy': { order: -2, visibility: 'hidden' },
+  '.neuroglancer-segment-list-entry-copy': {
+    order: '-2',
+    visibility: 'hidden',
+  },
   '.neuroglancer-segment-list-entry:hover .neuroglancer-segment-list-entry-copy': {
     visibility: 'visible',
   },
-  '.neuroglancer-segment-list-entry-visible-checkbox': { order: -1 },
-  '.neuroglancer-segment-list-entry[data-visible-list] .neuroglancer-segment-list-entry-sticky:before': {
-    order: -1000,
-    content: '" "',
-    display: 'inline-block',
-    width: '2px',
-    flexShrink: 0,
-    marginRight: '-2px',
-    alignSelf: 'stretch',
-    marginBottom: '2px',
-    backgroundColor: '#999',
+  '.neuroglancer-segment-list .neuroglancer-segment-list-entry:not(:hover) .neuroglancer-star-icon:not(.neuroglancer-starred)': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-segment-list .neuroglancer-segment-list-entry:not(:hover) .neuroglancer-eye-icon:not(.neuroglancer-visible)': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-segment-list-entry-visible-checkbox': {
+    order: '1',
   },
   '.neuroglancer-segment-list-entry-filter': {
     visibility: 'hidden',
     gridColumn: 'filter',
-    order: 999,
+    order: '999',
   },
   '.neuroglancer-segment-list-entry:hover .neuroglancer-segment-list-entry-filter': {
     visibility: 'visible',
@@ -2400,18 +2306,21 @@ const globalNeuroglancerStyles = {
   '.neuroglancer-segment-query-result-tag-list': {
     display: 'grid',
     gridAutoRows: 'auto',
-    gridTemplateColumns:
-        '[include] min-content [exclude] min-content [tag] 1fr [count] min-content',
+    gridTemplateColumns: '[include] min-content [exclude] min-content [tag] 1fr [count] min-content',
   },
-  '.neuroglancer-segment-query-result-tag': { display: 'contents' },
-  '.neuroglancer-segment-query-result-tag:hover *': { backgroundColor: '#222' },
+  '.neuroglancer-segment-query-result-tag': {
+    display: 'contents',
+  },
+  '.neuroglancer-segment-query-result-tag:hover *': {
+    backgroundColor: '#222',
+  },
   '.neuroglancer-segment-query-result-tag-name': {
     gridColumn: 'tag',
     whiteSpace: 'nowrap',
     cursor: 'pointer',
     fontWeight: 'bold',
   },
-  '.neuroglancer-segment-query-result-tag-name:before': {
+  '.neuroglancer-segment-query-result-tag-name::before': {
     content: '"#"',
     color: '#aaa',
     fontWeight: 'normal',
@@ -2420,18 +2329,22 @@ const globalNeuroglancerStyles = {
     display: 'inline-block',
     whiteSpace: 'nowrap',
   },
-  '.neuroglancer-segment-query-result-tag-include': { gridColumn: 'include' },
-  '.neuroglancer-segment-query-result-tag-exclude': { gridColumn: 'exclude' },
+  '.neuroglancer-segment-query-result-tag-include': {
+    gridColumn: 'include',
+  },
+  '.neuroglancer-segment-query-result-tag-exclude': {
+    gridColumn: 'exclude',
+  },
   '.neuroglancer-segment-query-result-statistics': {
     backgroundColor: '#333',
-    maxHeight: '40%',
-    flexShrink: 0,
+    maxHeight: '30%',
+    flexShrink: '0',
     overflow: 'auto',
   },
   '.neuroglancer-segment-query-result-statistics:not(:empty)': {
     paddingTop: '3px',
   },
-  '.neuroglancer-segment-query-result-statistics:not(:empty)+.neuroglancer-segment-list-status': {
+  '.neuroglancer-segment-query-result-statistics:not(:empty) + .neuroglancer-segment-list-status': {
     borderTop: '1px solid white',
   },
   '.neuroglancer-segment-query-result-statistics-separator': {
@@ -2443,11 +2356,11 @@ const globalNeuroglancerStyles = {
     gridColumn: 'count',
     textAlign: 'right',
   },
-  '.neuroglancer-segment-query-result-tag-count:not(:empty):before': {
+  '.neuroglancer-segment-query-result-tag-count:not(:empty)::before': {
     content: '"("',
     color: '#aaa',
   },
-  '.neuroglancer-segment-query-result-tag-count:not(:empty):after': {
+  '.neuroglancer-segment-query-result-tag-count:not(:empty)::after': {
     content: '")"',
     color: '#aaa',
   },
@@ -2478,10 +2391,10 @@ const globalNeuroglancerStyles = {
     pointerEvents: 'auto',
   },
   '.neuroglancer-segment-query-result-numerical-plot-window-bound': {
-    color: '#0ff',
+    color: 'cyan',
   },
   '.neuroglancer-segment-query-result-numerical-plot-range-bound': {
-    color: '#fff',
+    color: 'white',
   },
   '.neuroglancer-segment-query-result-numerical-plot-bounds': {
     display: 'flex',
@@ -2492,8 +2405,8 @@ const globalNeuroglancerStyles = {
     alignSelf: 'center',
   },
   '.neuroglancer-segment-query-result-numerical-plot-bound-constraint-spacer': {
-    flex: 1,
-    color: '#fff',
+    flex: '1',
+    color: 'white',
     fontWeight: 'bold',
     display: 'flex',
     flexDirection: 'row',
@@ -2503,10 +2416,16 @@ const globalNeuroglancerStyles = {
   '.neuroglancer-segment-query-result-numerical-plot-label': {
     cursor: 'pointer',
   },
-  '.neuroglancer-segment-query-result-numerical-plot-sort, .neuroglancer-segment-list-header-label-sort': {
+  '.neuroglancer-segment-query-result-numerical-plot-sort': {
     visibility: 'hidden',
   },
-  '.neuroglancer-segment-query-result-numerical-plot-label:hover .neuroglancer-segment-query-result-numerical-plot-sort, .neuroglancer-segment-list-header-label:hover .neuroglancer-segment-list-header-label-sort': {
+  '.neuroglancer-segment-list-header-label-sort': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-segment-query-result-numerical-plot-label:hover .neuroglancer-segment-query-result-numerical-plot-sort': {
+    visibility: 'visible',
+  },
+  '.neuroglancer-segment-list-header-label:hover .neuroglancer-segment-list-header-label-sort': {
     visibility: 'visible',
   },
   '.neuroglancer-segment-query-result-numerical-plot-container:hover .neuroglancer-segment-query-result-numerical-plot-bounds-window': {
@@ -2523,7 +2442,7 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-segment-list-header .neuroglancer-segment-list-entry-id': {
     backgroundColor: 'inherit',
-    color: '#fff',
+    color: 'white',
     textAlign: 'center',
   },
   '.neuroglancer-segment-list-header-label': {
@@ -2532,6 +2451,10 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-segment-list-header .neuroglancer-segment-list-entry-extra-property': {
     textAlign: 'center',
+  },
+  '.neuroglancer-segment-list-status-message': {
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
   },
   '.neuroglancer-merge-segments-status': {
     display: 'flex',
@@ -2545,17 +2468,100 @@ const globalNeuroglancerStyles = {
     display: 'flex',
     flexDirection: 'row',
   },
-  '.neuroglancer-linked-layer-widget-layer:hover': { backgroundColor: '#333' },
-  '.neuroglancer-segmentation-color-seed-control': {
+  '.neuroglancer-linked-layer-widget-layer:hover': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-image-dropdown': {
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '0px',
+  },
+  '.neuroglancer-image-dropdown .neuroglancer-shader-code-widget': {
+    flexShrink: '0',
+    height: '8em',
+    border: '1px solid transparent',
+  },
+  '.neuroglancer-image-dropdown-top-row': {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
   },
-  '.neuroglancer-segmentation-color-seed-control input': {
-    backgroundColor: '#ffffff4d',
-    color: '#fff',
-    border: '0px',
+  '.neuroglancer-selection-details-value-grid': {
+    display: 'grid',
+    gridAutoRows: 'auto',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    alignItems: 'center',
+  },
+  '.neuroglancer-selection-details-value-grid-dim': {
+    gridColumn: 'dim',
+    color: '#ff6',
+  },
+  '.neuroglancer-selection-details-value-grid-dim::after': {
+    content: '"="',
+    color: '#aaa',
+  },
+  '.neuroglancer-selection-details-value-grid-coord': {
+    gridColumn: 'coord',
+    color: '#aaa',
+    marginRight: '1ch',
+  },
+  '.neuroglancer-selection-details-value-grid-value': {
+    gridColumn: 'value',
+    userSelect: 'text',
+  },
+  '.neuroglancer-channel-dimensions-widget-dim': {
+    display: 'contents',
+  },
+  '.neuroglancer-channel-dimensions-widget': {
+    display: 'grid',
+    gridTemplateColumns: '[name] min-content [lower] min-content [upper] min-content',
+  },
+  '.neuroglancer-channel-dimensions-widget-name-container': {
+    gridColumn: 'name',
+  },
+  '.neuroglancer-channel-dimensions-widget-name[data-is-valid="false"]': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-channel-dimensions-widget-name::placeholder': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-channel-dimensions-widget-name': {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+    border: '0',
+    margin: '0',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    color: '#ff6',
+  },
+  '.neuroglancer-channel-dimensions-widget-lower': {
+    fontFamily: 'monospace',
+    gridColumn: 'lower',
+    textAlign: 'right',
+    marginLeft: '1ch',
+    userSelect: 'text',
+  },
+  '.neuroglancer-channel-dimensions-widget-upper': {
+    fontFamily: 'monospace',
+    gridColumn: 'upper',
+    textAlign: 'right',
+    marginLeft: '1ch',
+    userSelect: 'text',
+  },
+  '.neuroglancer-channel-dimensions-widget-upper::after': {
+    content: '")"',
+    color: '#999',
+  },
+  '.neuroglancer-channel-dimensions-widget-lower::after': {
+    content: '","',
+    color: '#999',
+  },
+  '.neuroglancer-channel-dimensions-widget-lower::before': {
+    content: '"["',
+    color: '#999',
   },
   '.neuroglancer-single-mesh-dropdown .neuroglancer-single-mesh-attribute-widget': {
     maxHeight: '6em',
@@ -2571,18 +2577,11 @@ const globalNeuroglancerStyles = {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  '.neuroglancer-single-mesh-shader-overlay .neuroglancer-shader-code-widget': {
-    width: '80vw',
-    height: '80vh',
-  },
   '.neuroglancer-single-mesh-attribute-widget': {
     wordWrap: 'break-word',
     overflowY: 'auto',
     display: 'grid',
     gridTemplateColumns: '[type] auto [name] auto [range] auto',
-  },
-  '.neuroglancer-single-mesh-layer-shader-overlay .neuroglancer-single-mesh-attribute-widget': {
-    maxHeight: '20vh',
   },
   '.neuroglancer-single-mesh-attribute': {
     fontFamily: 'monospace',
@@ -2594,42 +2593,1392 @@ const globalNeuroglancerStyles = {
   },
   '.neuroglancer-single-mesh-attribute-name': {
     marginLeft: '1ch',
-    color: '#fff',
+    color: 'white',
     gridColumn: 'name',
     userSelect: 'text',
   },
   '.neuroglancer-single-mesh-attribute-range': {
+    gridColumn: 'range',
     marginLeft: '1ch',
     whiteSpace: 'nowrap',
     color: '#999',
-    gridColumn: 'range',
   },
-  '.neuroglancer-annotation-rendering-tab': {
+  '.neuroglancer-graphene-tab .neuroglancer-annotation-toolbox': {
+    display: 'none',
+  },
+  '.neuroglancer-graphene-tab div[data-color="#ff0000"] > .neuroglancer-annotation-position': {
+    color: 'red',
+  },
+  '.neuroglancer-graphene-tab div[data-color="#0000ff"] > .neuroglancer-annotation-position': {
+    color: '#4444ff',
+  },
+  '.graphene-multicut-status': {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  '.graphene-multicut-status > .activeGroupIndicator': {
+    padding: '2px',
+    margin: 'auto 0',
+    backgroundColor: 'red',
+    font: '12px sans-serif',
+    fontWeight: '900',
+  },
+  '.graphene-multicut-status > .activeGroupIndicator.blueGroup': {
+    backgroundColor: 'blue',
+  },
+  '.graphene-multicut-status > .activeGroupIndicator::after': {
+    content: '"Red"',
+  },
+  '.graphene-multicut-status > .activeGroupIndicator.blueGroup::after': {
+    content: '"Blue"',
+  },
+  '.graphene-merge-segments-merges': {
     display: 'flex',
     flexDirection: 'column',
+  },
+  '.graphene-merge-segments-submission': {
+    display: 'flex',
+    gap: '10px',
+  },
+  '.graphene-merge-segments-status': {
+    display: 'flex',
+    gap: '10px',
+  },
+  '.graphene-merge-segments-status .neuroglancer-icon': {
+    height: '100%',
+  },
+  '.graphene-multicut-status .neuroglancer-icon': {
+    height: '100%',
+  },
+  '.graphene-merge-segments-status label': {
+    display: 'grid',
+    gridTemplateColumns: 'min-content min-content',
+    whiteSpace: 'nowrap',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+  '.graphene-merge-segments-point': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+  },
+  '.graphene-merge-segments-point .neuroglancer-segment-list-entry-visible-checkbox': {
+    display: 'none',
+  },
+  '.graphene-merge-segments-point .neuroglancer-segment-list-entry-copy-container': {
+    display: 'none',
+  },
+  '.neuroglancer-viewer': {
+    outline: '0px',
+  },
+  '.neuroglancer-viewer-top-row': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#222',
+    marginBottom: '3px',
+    paddingRight: '2px',
+  },
+  '.neuroglancer-viewer-side-panel': {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    maxWidth: '80%',
+    color: '#fff',
+  },
+  '.neuroglancer-layer-data-sources-tab': {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-layer-data-sources-container': {
     overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1',
+    height: '0px',
+    zIndex: '2',
   },
-  '.neuroglancer-annotation-rendering-tab .neuroglancer-shader-code-widget': {
-    flexShrink: 0,
+  '.neuroglancer-layer-data-source-url-input input.autocomplete-input': {
+    color: '#fff',
   },
-  '.neuroglancer-annotation-shader-property-list': {
-    maxHeight: '8em',
-    overflow: 'auto',
-    flexShrink: 0,
+  '.neuroglancer-layer-data-source-url-input input.autocomplete-hint': {
+    color: '#aaa',
   },
-  '.neuroglancer-annotation-shader-property': {
-    whiteSpace: 'pre',
+  '.neuroglancer-layer-data-source-url-input .autocomplete-dropdown': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-layer-data-sources-source-id': {
+    fontWeight: 'bold',
+  },
+  '.neuroglancer-layer-data-sources-source-id:not(:empty)::before': {
+    content: '"["',
+  },
+  '.neuroglancer-layer-data-sources-source-id:not(:empty)::after': {
+    content: '"]"',
+  },
+  '.neuroglancer-layer-data-sources-source-id:not(:empty)': {
+    marginRight: '4px',
+    color: '#0ff',
+  },
+  '.neuroglancer-layer-data-sources-source-messages:empty': {
+    display: 'none',
+  },
+  '.neuroglancer-layer-data-sources-source-messages': {
+    marginTop: '0px',
+    listStyle: 'none',
+    paddingLeft: '0px',
+  },
+  'li.neuroglancer-message': {
+    wordWrap: 'break-word',
+    userSelect: 'text',
+  },
+  'li.neuroglancer-message-error': {
+    color: 'red',
+  },
+  'li.neuroglancer-message-warning': {
+    color: 'yellow',
+  },
+  'li.neuroglancer-message-info': {
+    color: '#ccc',
+  },
+  '.neuroglancer-layer-data-sources-source-default': {
+    display: 'block',
+    marginBottom: '4px',
+  },
+  '.neuroglancer-layer-data-sources-info-line[data-is-active="false"]': {
+    textDecoration: 'solid line-through #caa',
+  },
+  '.neuroglancer-layer-data-sources-tab-type-detection': {
+    position: 'sticky',
+    bottom: '0px',
+    backgroundColor: '#ff9',
+    color: 'black',
+    textAlign: 'center',
+    cursor: 'pointer',
+  },
+  '.neuroglancer-layer-data-sources-tab-type-detection:hover': {
+    backgroundColor: '#ffc',
+  },
+  '.neuroglancer-layer-data-sources-tab-type-detection-type': {
+    fontWeight: 'bold',
+  },
+  '.neuroglancer-layer-data-sources-tab .neuroglancer-progress': {
+    margin: '0px',
+    listStyle: 'none',
+    padding: '0px',
+  },
+  '.neuroglancer-layer-data-sources-tab .neuroglancer-progress > li': {
+    color: '#ccc',
+  },
+  '.neuroglancer-coordinate-space-transform-widget': {
+    display: 'grid',
+    justifyItems: 'stretch',
+  },
+  '.neuroglancer-coordinate-space-transform-widget input': {
+    fontFamily: 'monospace',
+    justifySelf: 'stretch',
+    backgroundColor: 'black',
+    color: 'white',
+    padding: '2px',
+    border: '1px solid #333',
+  },
+  '.neuroglancer-coordinate-space-transform-widget *[data-will-be-deleted="true"]': {
+    color: '#666',
+  },
+  '.neuroglancer-coordinate-space-transform-label': {
+    fontStyle: 'italic',
+    color: '#fcc',
+    alignSelf: 'center',
+  },
+  '.neuroglancer-coordinate-space-transform-input-lower-label': {
+    gridRow: 'sourceLower',
+    gridColumn: 'outputLabel / sourceDim 1',
+    textAlign: 'right',
+    marginRight: '4px',
+  },
+  '.neuroglancer-coordinate-space-transform-translation-label': {
+    gridRow: 'sourceLabel / outputDim 1',
+    gridColumn: 'sourceDim -1',
+    writingMode: 'vertical-lr',
+    textOrientation: 'mixed',
+    alignSelf: 'end',
+    justifySelf: 'center',
+    marginBottom: '2px',
+  },
+  '.neuroglancer-coordinate-space-transform-input-upper-label': {
+    textAlign: 'right',
+    marginRight: '4px',
+    gridRow: 'sourceUpper',
+    gridColumn: 'headerStart / headerEnd',
+  },
+  '.neuroglancer-coordinate-space-transform-input-scale-label': {
+    textAlign: 'right',
+    marginRight: '4px',
+    gridRow: '5',
+    gridColumn: 'headerStart / headerEnd',
+    marginBottom: '3px',
+  },
+  '.neuroglancer-coordinate-space-transform-source-label': {
+    gridRow: 'sourceLabel',
+    gridColumn: 'sourceDim 1 / sourceDim -1',
+    textAlign: 'center',
+  },
+  '.neuroglancer-coordinate-space-transform-output-label': {
+    gridRow: 'outputDim 1 / outputDim -1',
+    gridColumn: 'outputLabel',
+    writingMode: 'vertical-lr',
+    textOrientation: 'mixed',
+    alignSelf: 'center',
+    justifySelf: 'end',
+    marginRight: '2px',
+  },
+  '.neuroglancer-coordinate-space-transform-input-name': {
+    textAlign: 'center',
+    fontFamily: 'monospace',
+    color: '#ff6',
+  },
+  'input.neuroglancer-coordinate-space-transform-output-name': {
+    fontFamily: 'monospace',
+    color: '#ff6',
+  },
+  '.neuroglancer-coordinate-space-transform-scale': {
+    textAlign: 'right',
+  },
+  '.neuroglancer-coordinate-space-transform-input-bounds': {
+    whiteSpace: 'nowrap',
+    fontFamily: 'monospace',
+    fontSize: 'small',
+    textAlign: 'right',
+    paddingLeft: '2px',
+    paddingRight: '2px',
+    color: '#aff',
+  },
+  '.neuroglancer-coordinate-space-transform-output-bounds': {
+    whiteSpace: 'nowrap',
+    fontFamily: 'monospace',
+    fontSize: 'small',
+    textAlign: 'right',
+    paddingLeft: '2px',
+    paddingRight: '2px',
+    color: '#aff',
+  },
+  '.neuroglancer-coordinate-space-transform-input-bounds.neuroglancer-coordinate-space-transform-singleton:not(*[data-will-be-deleted="true"])': {
+    color: '#fa6',
+  },
+  '.neuroglancer-coordinate-space-transform-widget input[data-is-valid="false"]': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-coordinate-space-transform-widget input[data-is-valid="false"]::placeholder': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-coordinate-space-transform-output-extend': {
+    gridRow: 'outputDim -1',
+    gridColumn: 'outputNames',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-coordinate-space-transform-output-extend input': {
+    alignSelf: 'stretch',
+  },
+  '.neuroglancer-coordinate-space-transform-output-extend[data-is-active="false"] input': {
+    display: 'none',
+  },
+  '.neuroglancer-coordinate-space-transform-output-extend[data-is-active="true"] .neuroglancer-icon': {
+    display: 'none',
+  },
+  '.neuroglancer-coordinate-space-transform-output-extend .neuroglancer-icon': {
+    alignSelf: 'start',
+  },
+  '.neuroglancer-coordinate-space-transform-translation-coeff': {
+    marginLeft: '3px',
+  },
+  '.neuroglancer-coordinate-space-transform-output-scale-container': {
+    marginRight: '3px',
+  },
+  '.neuroglancer-coordinate-space-transform-input-scale-container': {
+    marginBottom: '3px',
+  },
+  '.neuroglancer-coordinate-space-transform-output-name-container': {
+    border: '1px solid #333',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    marginRight: '3px',
+  },
+  '.neuroglancer-coordinate-space-transform-scale-container': {
+    border: '1px solid #333',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  '.neuroglancer-coordinate-space-transform-widget .neuroglancer-coordinate-space-transform-output-name': {
+    border: '0px',
+  },
+  '.neuroglancer-coordinate-space-transform-widget .neuroglancer-coordinate-space-transform-scale': {
+    border: '0px',
+  },
+  '.neuroglancer-coordinate-space-transform-scale-suggestion': {
+    fontFamily: 'monospace',
+    cursor: 'pointer',
+    borderRadius: '20%',
+    border: '1px solid #333',
+    alignSelf: 'flex-end',
+    margin: '2px',
+    color: '#aaa',
+  },
+  '.neuroglancer-coordinate-space-transform-scale-suggestion svg': {
+    width: '16px',
+    height: '16px',
+    fill: 'transparent',
+    stroke: '#aaa',
+    strokeWidth: '2',
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+  },
+  '.neuroglancer-coordinate-space-transform-scale-suggestion:hover': {
+    backgroundColor: '#db4437',
+    border: '1px solid transparent',
+    color: 'white',
+  },
+  '.neuroglancer-coordinate-space-transform-scale-suggestion:hover svg': {
+    stroke: 'white',
+  },
+  '.neuroglancer-coordinate-space-transform-widget-reset-buttons': {
+    gridRow: 'outputDim -1',
+    gridColumn: 'headerEnd / -1',
+    justifySelf: 'start',
+  },
+  '.neuroglancer-multiline-autocomplete': {
+    marginTop: '2px',
+    padding: '2px',
+    position: 'relative',
+    backgroundColor: '#222',
+  },
+  '.neuroglancer-multiline-autocomplete-hint': {
+    fontFamily: 'monospace',
+    color: '#aaa',
+    wordWrap: 'break-word',
+    fontSize: 'medium',
+  },
+  '.neuroglancer-multiline-autocomplete-input': {
+    fontFamily: 'monospace',
+    color: '#fff',
+    wordWrap: 'break-word',
+    fontSize: 'medium',
+  },
+  '.neuroglancer-multiline-autocomplete-input:focus': {
+    outline: '0px',
+  },
+  '.neuroglancer-multiline-autocomplete-input:not(:focus):empty::before': {
+    content: 'attr(data-placeholder)',
+    color: '#aaa',
+  },
+  '.neuroglancer-multiline-autocomplete-completion': {
     fontFamily: 'monospace',
     fontSize: 'medium',
   },
-  '.neuroglancer-annotation-shader-property-type': {
-    color: '#c6c',
-    marginRight: '1ch',
+  '.neuroglancer-multiline-autocomplete-dropdown': {
+    backgroundColor: '#181818',
+    position: 'fixed',
+    display: 'block',
+    outline: '0',
+    margin: '0',
+    padding: '0',
+    left: '0px',
+    right: '0px',
+    textAlign: 'left',
+    cursor: 'default',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#aaa',
+    overflowY: 'scroll',
+    wordWrap: 'break-word',
+    color: '#fff',
   },
-  '.neuroglancer-annotation-shader-property-identifier': { userSelect: 'text' },
-  '.neuroglancer-annotation-shader-property-identifier:after': {
-    content: '"()"',
+  '.neuroglancer-multiline-autocomplete-error': {
+    backgroundColor: '#181818',
+    position: 'fixed',
+    display: 'block',
+    outline: '0',
+    margin: '0',
+    padding: '0',
+    left: '0px',
+    right: '0px',
+    textAlign: 'left',
+    cursor: 'default',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#aaa',
+    overflowY: 'scroll',
+    wordWrap: 'break-word',
+    color: 'red',
+  },
+  '.neuroglancer-multiline-autocomplete-progress': {
+    backgroundColor: '#181818',
+    position: 'fixed',
+    display: 'block',
+    outline: '0',
+    margin: '0',
+    padding: '0',
+    left: '0px',
+    right: '0px',
+    textAlign: 'left',
+    cursor: 'default',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: '#aaa',
+    overflowY: 'scroll',
+    wordWrap: 'break-word',
+    fontStyle: 'italic',
+    color: '#ccc',
+  },
+  '.neuroglancer-multiline-autocomplete-completion:nth-of-type(even):not(.neuroglancer-multiline-autocomplete-completion-active)': {
+    backgroundColor: '#2b2b2b',
+  },
+  '.neuroglancer-multiline-autocomplete-completion:hover': {
+    outline: '1px solid #ddd',
+  },
+  '.neuroglancer-multiline-autocomplete-completion-active': {
+    backgroundColor: '#666',
+  },
+  '.neuroglancer-multiline-autocomplete-completion-description': {
+    fontStyle: 'italic',
+    color: '#f9f',
+  },
+  '.neuroglancer-multiline-autocomplete-linebreak::after': {
+    content: '"\\a"',
+    whiteSpace: 'pre',
+  },
+  '.neuroglancer-noselect': {
+    WebkitTouchCallout: 'none',
+    WebkitUserSelect: 'none',
+    KhtmlUserSelect: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
+    userSelect: 'none',
+  },
+  '.neuroglancer-select-text': {
+    WebkitTouchCallout: 'default',
+    WebkitUserSelect: 'text',
+    KhtmlUserSelect: 'text',
+    MozUserSelect: 'text',
+    msUserSelect: 'text',
+    userSelect: 'text',
+  },
+  '.neuroglancer-data-panel-layout-controls': {
+    position: 'absolute',
+    top: '2px',
+    right: '2px',
+    display: 'flex',
+    alignItems: 'start',
+  },
+  '.neuroglancer-data-panel-layout-controls > button': {
+    display: 'flex',
+    margin: '2px',
+    border: '0px',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flexDirection: 'row',
+    alignSelf: 'top',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '15px',
+    width: '18px',
+    height: '18px',
+    color: 'white',
+  },
+  '.neuroglancer-data-panel-layout-controls > button > div': {
+    display: 'inline-block',
+    textAlign: 'center',
+    lineHeight: '12px',
+    width: '15px',
+    height: '15px',
+  },
+  '.neuroglancer-data-panel-layout-controls > button:hover': {
+    color: '#6ff',
+  },
+  'label.perspective-panel-show-slice-views': {
+    pointerEvents: 'none',
+    position: 'absolute',
+    right: '2px',
+    bottom: '2px',
+    fontFamily: 'sans-serif',
+    fontSize: 'small',
+  },
+  'input.perspective-panel-show-slice-views': {
+    pointerEvents: 'all',
+  },
+  '.neuroglancer-rendered-data-panel': {
+    cursor: 'grab',
+    position: 'relative',
+    outline: '0',
+    touchAction: 'none',
+    color: '#fff',
+    textAlign: 'left',
+  },
+  '.neuroglancer-display-dimensions-widget': {
+    position: 'absolute',
+    cursor: 'default',
+    top: '2px',
+    left: '2px',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    padding: '2px 4px',
+    fontFamily: 'monospace',
+    color: 'white',
+    fontSize: '0.75rem',
+  },
+  '.neuroglancer-display-dimensions-widget-dimension-grid': {
+    display: 'grid',
+    gridTemplateRows: '0fr 0fr 0fr 0fr',
+    gridTemplateColumns: '0fr 0fr 0fr',
+  },
+  '.neuroglancer-display-dimensions-input-base': {
+    outline: '0px',
+    backgroundColor: 'transparent',
+    boxShadow: 'none',
+    margin: '0',
+    textAlign: 'right',
+    padding: '2px',
+    border: '1px solid transparent',
+    minWidth: '10px',
+    fontFamily: 'monospace',
+    color: 'white',
+    fontSize: '0.75rem',
+  },
+  '.neuroglancer-display-dimensions-input-wrapper': {
+    display: 'inline-flex',
+    lineHeight: 'normal',
+    alignItems: 'center',
+  },
+  '.neuroglancer-display-dimensions-input-wrapper:has(input[style*="display: none"])': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-input-base:hover': {
+    cursor: 'pointer',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  '.neuroglancer-display-dimensions-input-base:focus': {
+    backgroundColor: '#222',
+    borderColor: '#fff',
+  },
+  '.neuroglancer-display-dimensions-widget-dimension:hover': {
+    outline: '1px solid black',
+  },
+  '.neuroglancer-display-dimensions-widget-name[data-is-valid="false"]': {
+    textDecoration: 'solid underline red',
+  },
+  '.neuroglancer-display-dimensions-widget-name': {
+    minWidth: '6px',
+  },
+  '.neuroglancer-display-dimensions-widget-scale-factor': {
+    textAlign: 'right',
+    alignItems: 'end',
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    marginLeft: '4px',
+    marginRight: '4px',
+  },
+  '.neuroglancer-display-dimensions-widget-scale': {
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    textAlign: 'right',
+    padding: '0 0 0 1px',
+  },
+  '.neuroglancer-display-dimensions-widget-scale-unit': {
+    textAlign: 'left',
+    padding: '0 1px 0 0',
+  },
+  '.neuroglancer-display-dimensions-input-wrapper:not(:empty)::before': {
+    content: '"("',
+  },
+  '.neuroglancer-display-dimensions-input-wrapper:not(:empty)::after': {
+    content: '")"',
+  },
+  '.neuroglancer-display-dimensions-widget-scale-factor::after': {
+    content: '"×"',
+  },
+  '.neuroglancer-display-dimensions-widget-fov': {
+    display: 'flex',
+    flexDirection: 'column',
+    marginTop: '6px',
+  },
+  '.neuroglancer-display-dimensions-widget-fov-input': {
+    padding: '2px 0',
+  },
+  '.neuroglancer-display-dimensions-widget-fov-container': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.3rem',
+    paddingLeft: '2px',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-scale-factor': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-input-wrapper': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-default': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-display-dimensions-widget-fov': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-depth-range-widget-grid': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget:not(:hover):not([data-active="true"]) .neuroglancer-depth-range-relative-checkbox-label': {
+    display: 'none',
+  },
+  '.neuroglancer-display-dimensions-widget-dimension[data-is-modified="true"] .neuroglancer-display-dimensions-widget-scale-factor': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-display-dimensions-widget-dimension[data-is-modified="true"] .neuroglancer-display-dimensions-input-wrapper': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-display-dimensions-widget *:focus': {
+    outline: '0px',
+  },
+  '.neuroglancer-display-dimensions-widget-default': {
+    gridRow: '4',
+    gridColumnStart: '1',
+    gridColumnEnd: '3',
+    display: 'flex',
+    alignItems: 'center',
+    whiteSpace: 'nowrap',
+    gap: '4px',
+  },
+  '.neuroglancer-display-dimensions-widget input[type="checkbox"]': {
+    margin: '0.25rem',
+    verticalAlign: 'middle',
+  },
+  '.neuroglancer-depth-range-relative-checkbox-label': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+  },
+  '.neuroglancer-depth-range-widget-grid': {
+    marginTop: '6px',
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gridAutoRows: '0fr',
+  },
+  '.neuroglancer-depth-range-widget-dimension-names:not(:empty)::before': {
+    content: '"("',
+  },
+  '.neuroglancer-depth-range-widget-dimension-names:not(:empty)::after': {
+    content: '")"',
+  },
+  '.neuroglancer-depth-range-widget-dimension-names': {
+    whiteSpace: 'nowrap',
+  },
+  '.neuroglancer-depth-range-container': {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    paddingLeft: '3px',
+  },
+  '.neuroglancer-help-body': {
+    flexBasis: '0px',
+    flex: '1',
+    height: '0px',
+    minHeight: '0px',
+    fontFamily: 'sans-serif',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-help-scroll-container': {
+    flex: '1',
+    flexBasis: '0px',
+    position: 'relative',
+    overflow: 'auto',
+  },
+  '.neuroglancer-help-scroll-container div + h2': {
+    marginTop: '1em',
+  },
+  '.neuroglancer-help-scroll-container h2': {
+    fontSize: '10pt',
+    padding: '4px',
+    position: 'sticky',
+    top: '0',
+    backgroundColor: '#333',
+    marginTop: '0px',
+  },
+  '.neuroglancer-help-scroll-container .dt': {
+    fontFamily: 'monospace',
+    fontWeight: 'bold',
+    color: 'yellow',
+  },
+  '.neuroglancer-help-scroll-container .dd': {
+    fontSize: '10pt',
+    marginLeft: '4ex',
+  },
+  '.neuroglancer-build-info': {
+    fontSize: '10pt',
+    userSelect: 'text',
+  },
+  '.neuroglancer-build-info a': {
+    color: 'white',
+    textDecoration: 'none',
+    fontWeight: 'bold',
+  },
+  '.neuroglancer-build-info a:hover': {
+    backgroundColor: '#db4437',
+  },
+  '.neuroglancer-panel': {
+    flex: '1',
+  },
+  '.neuroglancer-show-panel-borders .neuroglancer-panel': {
+    border: 'none',
+  },
+  '.neuroglancer-panel:focus-within': {
+    borderColor: 'white',
+  },
+  '.neuroglancer-layer-group-viewer': {
+    outline: '0px',
+  },
+  '.neuroglancer-layer-group-viewer-context-menu': {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+  },
+  '.neuroglancer-layer-group-viewer-context-menu label': {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  '.neuroglancer-layer-group-viewer-context-menu select::before': {
+    flex: '1',
+    content: '" "',
+  },
+  '.neuroglancer-layer-group-viewer-context-menu select': {
+    marginLeft: '5px',
+  },
+  '.neuroglancer-layer-panel': {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'stretch',
+    marginLeft: '-5px',
+    marginTop: '-1px',
+    zIndex: '-0.1',
+    overflow: 'hidden',
+  },
+  '.neuroglancer-layer-item': {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    color: 'white',
+    cursor: 'pointer',
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    borderColor: '#ccc',
+    fontFamily: 'sans-serif',
+    fontSize: '10pt',
+    backgroundColor: 'black',
+    padding: '1px',
+    margin: '1px',
+    marginLeft: '5px',
+  },
+  '.neuroglancer-layer-add-button': {
+    margin: '1px',
+    marginLeft: '5px',
+  },
+  '.neuroglancer-layer-item[data-selected="true"]': {
+    borderColor: '#8c8',
+  },
+  '.neuroglancer-layer-item[data-selected="true"]:hover': {
+    borderColor: '#3c3',
+  },
+  '.neuroglancer-layer-item:hover': {
+    borderColor: '#daa520',
+  },
+  '.neuroglancer-layer-item-label': {
+    display: 'inline-block',
+    position: 'relative',
+    padding: '0 1px',
+    zIndex: '1',
+  },
+  '.neuroglancer-layer-item-number': {
+    display: 'inline-block',
+    backgroundColor: 'var(--layer-number-color)',
+    fontWeight: 'bold',
+    paddingLeft: '1px',
+    paddingRight: '1px',
+  },
+  '.neuroglancer-layer-panel[data-show-hover-values="true"] .neuroglancer-layer-item-value': {
+    display: 'inline-block',
+    fontFamily: 'monospace',
+    fontSize: 'medium',
+    maxWidth: '50ch',
+    marginLeft: '1ch',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipses',
+    textAlign: 'center',
+  },
+  '.neuroglancer-layer-panel[data-show-hover-values="false"] .neuroglancer-layer-item-value': {
+    display: 'none',
+  },
+  '.neuroglancer-layer-item[data-visible="false"] .neuroglancer-layer-item-label': {
+    textDecoration: 'line-through',
+  },
+  '.neuroglancer-layer-item[data-visible="false"]': {
+    color: '#bbb',
+  },
+  '.neuroglancer-layer-panel-drop-zone': {
+    display: 'inline-block',
+    flex: '1',
+  },
+  '.neuroglancer-layer-item-visible-progress': {
+    position: 'absolute',
+    left: '0px',
+    height: '2px',
+    backgroundColor: '#666',
+    top: '0px',
+  },
+  '.neuroglancer-layer-item-prefetch-progress': {
+    position: 'absolute',
+    left: '0px',
+    height: '2px',
+    backgroundColor: '#666',
+    bottom: '0px',
+  },
+  '.neuroglancer-layer-item-value-container': {
+    display: 'grid',
+    gridTemplateColumns: 'min-content',
+    alignItems: 'center',
+  },
+  '.neuroglancer-layer-item-label-wrapper': {
+    position: 'relative',
+    overflow: 'hidden',
+    margin: '0 2px',
+  },
+  '.neuroglancer-layer-item-label-color': {
+    position: 'absolute',
+    top: '0px',
+    left: '0px',
+    width: '100%',
+    height: '100%',
+    zIndex: '0',
+  },
+  '.neuroglancer-layer-item-label-color[data-color="multi"]': {
+    transform: 'scale(1.2)',
+    filter: 'blur(8px)',
+  },
+  '.neuroglancer-layer-item-value': {
+    gridRow: '1',
+    gridColumn: '1',
+    visibility: 'visible',
+  },
+  '.neuroglancer-layer-item-button-container': {
+    gridRow: '1',
+    gridColumn: '1',
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    visibility: 'hidden',
+    justifySelf: 'right',
+  },
+  '.neuroglancer-layer-panel:hover .neuroglancer-layer-item-value': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-layer-panel:hover .neuroglancer-layer-item-button-container': {
+    visibility: 'visible',
+  },
+  '.neuroglancer-layout-split-drop-zone': {
+    position: 'absolute',
+    zIndex: '1000',
+  },
+  '.neuroglancer-drag-over': {
+    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+  },
+  '.neuroglancer-stack-layout-row > .neuroglancer-stack-layout-drop-placeholder': {
+    paddingLeft: '4px',
+    paddingRight: '4px',
+    width: '1px',
+    cursor: 'col-resize',
+  },
+  '.neuroglancer-stack-layout-column > .neuroglancer-stack-layout-drop-placeholder': {
+    paddingTop: '4px',
+    paddingBottom: '4px',
+    height: '1px',
+    cursor: 'row-resize',
+  },
+  '.neuroglancer-stack-layout-drop-placeholder': {
+    backgroundClip: 'content-box',
+    backgroundColor: '#666',
+    zIndex: '1',
+  },
+  '.neuroglancer-stack-layout-drop-placeholder.neuroglancer-drag-over': {
+    backgroundClip: 'border-box',
+    backgroundColor: 'rgba(128, 128, 255, 0.5)',
+  },
+  '.neuroglancer-stack-layout-drop-placeholder:first-of-type': {
+    display: 'none',
+  },
+  '.neuroglancer-stack-layout-drop-placeholder:last-child': {
+    display: 'none',
+  },
+  '.neuroglancer-statistics-panel-body': {
+    flex: '1',
+    flexBasis: '0px',
+    minWidth: '0px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'auto',
+    font: '10pt sans-serif',
+  },
+  '.neuroglancer-statistics-panel-body > table': {
+    position: 'relative',
+    flex: '1',
+    width: '100%',
+  },
+  '.neuroglancer-statistics-panel-body > table > thead td': {
+    position: 'sticky',
+    top: '0px',
+    zIndex: '2',
+    backgroundColor: '#333',
+    fontWeight: 'bold',
+  },
+  '.neuroglancer-statistics-panel-body > table > tbody tr:hover': {
+    backgroundColor: '#336',
+  },
+  '.neuroglancer-layer-list-panel-items': {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1',
+    overflow: 'auto',
+    height: '0px',
+    minHeight: '0px',
+    flexBasis: '0px',
+  },
+  '.neuroglancer-layer-list-panel-item': {
+    display: 'flex',
+    flexDirection: 'row',
+    padding: '2px 4px',
+    border: '1px solid #aaa',
+    margin: '2px',
+    alignItems: 'center',
+    gap: '0px 2px',
+  },
+  '.neuroglancer-layer-list-panel-item[data-selected="true"]': {
+    borderColor: '#3c3',
+  },
+  '.neuroglancer-layer-list-panel-item[data-archived="true"]': {
+    borderColor: '#666',
+  },
+  '.neuroglancer-layer-list-panel-item[data-archived="true"] .neuroglancer-layer-list-panel-item-name': {
     color: '#999',
+    stroke: '#999',
+  },
+  '.neuroglancer-layer-list-panel-item[data-archived="true"] .neuroglancer-layer-type-indicator': {
+    color: '#999',
+    stroke: '#999',
+  },
+  '.neuroglancer-layer-list-panel-item[data-archived="true"] .neuroglancer-icon svg': {
+    color: '#999',
+    stroke: '#999',
+  },
+  '.neuroglancer-layer-list-panel-item[data-visible="false"]': {
+    color: '#bbb',
+  },
+  '.neuroglancer-layer-list-panel-item[data-visible="false"] .neuroglancer-layer-list-panel-item-name': {
+    color: '#bbb',
+  },
+  '.neuroglancer-layer-list-panel-item[data-visible="false"] .neuroglancer-layer-type-indicator': {
+    color: '#bbb',
+  },
+  '.neuroglancer-layer-list-panel-item input[type="checkbox"]': {
+    width: '"1rem"',
+    height: '"1rem"',
+    margin: '"0.25rem"',
+  },
+  '.neuroglancer-layer-list-panel-eye-icon': {
+    width: '20px',
+    height: '20px',
+    margin: '0',
+    padding: '0',
+    display: 'flex',
+  },
+  '.neuroglancer-layer-list-panel-item-name': {
+    lineHeight: '20px',
+    padding: '0',
+    marginLeft: '4px',
+  },
+  '.neuroglancer-layer-list-panel-item:hover': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-layer-list-panel-item-number': {
+    fontFamily: 'sans-serif',
+    fontWeight: 'bold',
+    display: 'inline-block',
+    textAlign: 'right',
+    lineHeight: '18px',
+  },
+  '.neuroglancer-layer-list-panel-color-value-wrapper': {
+    position: 'relative',
+    padding: '5px',
+    cursor: 'pointer',
+  },
+  '.neuroglancer-layer-list-panel-color-value': {
+    borderRadius: '50%',
+    height: '10px',
+    width: '10px',
+    overflow: 'hidden',
+  },
+  '.neuroglancer-layer-list-panel-color-value[data-color="rainbow"]': {
+    position: 'relative',
+  },
+  '.neuroglancer-layer-list-panel-color-value[data-color="rainbow"]::before': {
+    content: '""',
+    position: 'absolute',
+    top: '-17.5%',
+    left: '-17.5%',
+    width: '135%',
+    height: '135%',
+    background: 'conic-gradient( from 0deg, #ab47bc 0deg, #ffca28 72deg, #66bb6a 144deg, #26a69a 216deg, #5c6bc0 288deg, #ab47bc 360deg )',
+    filter: 'blur(0.5px)',
+    transform: 'scale(1.35)',
+  },
+  '.neuroglancer-layer-list-panel-color-value[data-color="unsupported"]': {
+    backgroundImage: 'linear-gradient( 45deg, rgba(128, 128, 128, 1.5) 25%, transparent 25% ), linear-gradient(-45deg, rgba(128, 128, 128, 1.5) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(128, 128, 128, 1.5) 75%), linear-gradient(-45deg, transparent 75%, rgba(128, 128, 128, 1.5) 75%)',
+    backgroundSize: '4px 4px',
+    backgroundPosition: '0 0, 0 2px, 2px -2px, -2px 0px',
+  },
+  '.neuroglancer-layer-list-panel-color-value-wrapper[data-visible="false"] .neuroglancer-layer-list-panel-color-value': {
+    opacity: '0.3',
+  },
+  '.neuroglancer-layer-list-panel-item[data-archived="true"] .neuroglancer-layer-list-panel-color-value': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-layer-list-panel-color-value-wrapper[data-visible="false"]::before': {
+    content: '""',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: '18px',
+    height: '1px',
+    backgroundColor: '#bbb',
+    transform: 'translate(-50%, -50%) rotate(135deg)',
+    zIndex: '1',
+  },
+  '.neuroglancer-layer-list-panel-item:not(:hover) > .neuroglancer-layer-list-panel-item-delete': {
+    display: 'none',
+  },
+  '.neuroglancer-layer-list-panel-item:not(:hover) > .neuroglancer-layer-list-panel-item-controls': {
+    display: 'none',
+  },
+  '.neuroglancer-layer-list-panel-item:not(:hover) > .neuroglancer-layer-list-panel-item-visibility': {
+    display: 'none',
+  },
+  '[data-neuroglancer-layer-panel-pinned="false"] .neuroglancer-side-panel-titlebar.neuroglancer-layer-side-panel-title': {
+    backgroundColor: '#393',
+  },
+  '[data-neuroglancer-layer-visible="false"] .neuroglancer-side-panel-titlebar.neuroglancer-layer-side-panel-title input': {
+    textDecoration: 'line-through',
+  },
+  '.neuroglancer-layer-side-panel-name': {
+    flex: '1',
+    backgroundColor: 'transparent',
+    border: '0px',
+    color: 'white',
+    outline: '0px',
+    width: '0px',
+    minWidth: '0px',
+  },
+  '.neuroglancer-layer-side-panel-tab-view': {
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
+    font: '10pt sans-serif',
+  },
+  '.neuroglancer-layer-side-panel-type': {
+    paddingLeft: '3px',
+    paddingRight: '3px',
+    fontWeight: 'bold',
+    fontFamily: 'sans-serif',
+    fontSize: '10pt',
+    boxSizing: 'border-box',
+    WebkitAppearance: 'none',
+    color: 'white',
+    cursor: 'pointer',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    marginRight: '5px',
+    border: '0px',
+    outline: '0px',
+  },
+  '.neuroglancer-layer-side-panel-type option': {
+    backgroundColor: '#000',
+  },
+  '.neuroglancer-layer-type-indicator': {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '2px',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: '4px',
+    color: '#fff',
+    fontSize: '10pt',
+    fontWeight: '700',
+    fontFamily: 'sans-serif',
+    lineHeight: 'normal',
+    height: '1rem',
+    justifyContent: 'center',
+    width: '26px',
+  },
+  '.neuroglancer-tool-palette-button-container': {
+    display: 'inline-flex',
+    flexDirection: 'row',
+    borderRadius: '20%',
+    border: '1px solid transparent',
+  },
+  '.neuroglancer-tool-palette-button-container:hover': {
+    backgroundColor: '#484848',
+  },
+  '.neuroglancer-tool-palette-button': {
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  '.neuroglancer-tool-palette-dropdown': {
+    position: 'absolute',
+    zIndex: '100',
+    minWidth: 'min(50vw, 300px)',
+    border: '1px solid #aaa',
+    backgroundColor: 'black',
+    padding: '2px',
+  },
+  '.neuroglancer-tool-palette-name': {
+    flex: '1',
+    backgroundColor: 'transparent',
+    border: '0px',
+    color: 'white',
+    outline: '0px',
+    width: '0px',
+    minWidth: '0px',
+  },
+  '.neuroglancer-tool-palette-dropdown > ul': {
+    overflowY: 'auto',
+    padding: '0px',
+    margin: '0px',
+  },
+  '.neuroglancer-tool-palette-dropdown > ul > li:not(.neuroglancer-tool-palette-dropdown-separator)': {
+    display: 'flex',
+    flexDirection: 'row',
+    listStyleType: 'none',
+    padding: '2px',
+    font: '10pt sans-serif',
+  },
+  '.neuroglancer-tool-palette-dropdown > ul > li:not(.neuroglancer-tool-palette-dropdown-separator):hover': {
+    backgroundColor: '#333',
+  },
+  '.neuroglancer-tool-palette-dropdown-canned-item': {
+    cursor: 'pointer',
+  },
+  '.neuroglancer-tool-palette-dropdown-separator': {
+    height: '1px',
+    marginTop: '3px',
+    marginBottom: '3px',
+    padding: '0px',
+    backgroundColor: '#ccc',
+  },
+  '.neuroglancer-tool-palette-drop-zone': {
+    display: 'block',
+    flex: '1',
+  },
+  '.neuroglancer-tool-palette-items': {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: '1',
+    flexShrink: '1',
+    flexBasis: '0px',
+    font: '10pt sans-serif',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+  },
+  '.neuroglancer-tool-palette-tool-container': {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    alignItems: 'center',
+    paddingTop: '2px',
+    paddingBottom: '2px',
+  },
+  '.neuroglancer-tool-palette-tool-container:hover': {
+    backgroundColor: '#282828',
+  },
+  '.neuroglancer-tool-palette-tool-container > .neuroglancer-tool-palette-tool-content': {
+    gridRow: '1',
+    gridColumn: '2',
+  },
+  '.neuroglancer-tool-palette-tool-container > .neuroglancer-tool-palette-tool-properties': {
+    gridRow: '2',
+    gridColumn: '1/3',
+  },
+  '.neuroglancer-tool-palette-tool-container > .neuroglancer-tool-key-binding': {
+    gridRow: '1',
+    gridColumn: '1',
+  },
+  '.neuroglancer-tool-palette-tool-delete': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-tool-palette-tool-container:hover > .neuroglancer-tool-palette-tool-delete': {
+    visibility: 'inherit',
+  },
+  '.neuroglancer-tool-palette-layer-group-header': {
+    display: 'flex',
+    flexDirection: 'row',
+    backgroundColor: '#181818',
+    borderBottom: '2px solid black',
+    position: 'sticky',
+    top: '0px',
+    zIndex: '1',
+  },
+  '.neuroglancer-tool-palette-layer-group:hover > .neuroglancer-tool-palette-layer-group-header': {
+    backgroundColor: '#282828',
+  },
+  '.neuroglancer-tool-palette-layer-group': {
+    borderLeft: '2px solid #181818',
+  },
+  '.neuroglancer-tool-palette-layer-group:hover': {
+    borderLeft: '2px solid #ccc',
+  },
+  '.neuroglancer-tool-palette-body': {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: '1',
+  },
+  '.neuroglancer-tool-palette-body .neuroglancer-multiline-autocomplete-dropdown': {
+    zIndex: '2',
+  },
+  '.neuroglancer-tool-palette-query-errors': {
+    margin: '0px',
+    padding: '0px',
+    marginBottom: '2px',
+  },
+  '.neuroglancer-tool-palette-query-errors > li': {
+    listStyleType: 'none',
+    padding: '2px',
+    font: '10pt sans-serif',
+    color: 'red',
+  },
+  '.neuroglancer-tool-palette-tool-properties': {
+    display: 'none',
+    color: '#f9f',
+    fontStyle: 'italic',
+    userSelect: 'text',
+  },
+  '.neuroglancer-tool-palette-show-properties .neuroglancer-tool-palette-tool-properties': {
+    display: 'block',
+  },
+  '.neuroglancer-tool-to-be-removed': {
+    opacity: '50%',
+  },
+  '.neuroglancer-settings-body': {
+    flexBasis: '0px',
+    flex: '1',
+    height: '0px',
+    minHeight: '0px',
+    fontFamily: 'sans-serif',
+    display: 'flex',
+    flexDirection: 'column',
+    fontSize: '10pt',
+  },
+  '.neuroglancer-settings-body input[type="text"]': {
+    backgroundColor: '#333',
+    color: '#fff',
+    border: '0px',
+  },
+  '.neuroglancer-settings-body input[type="number"]': {
+    backgroundColor: '#333',
+    color: '#fff',
+    border: '0px',
+  },
+  '.neuroglancer-settings-scroll-container': {
+    flex: '1',
+    flexBasis: '0px',
+    position: 'relative',
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  '.neuroglancer-settings-scroll-container > *': {
+    marginTop: '3px',
+  },
+  '.neuroglancer-settings-title': {
+    alignSelf: 'stretch',
+  },
+  '.neuroglancer-settings-scroll-container > label': {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  '.neuroglancer-settings-scroll-container > label > input::before': {
+    flex: '1',
+    content: '" "',
+  },
+  '.neuroglancer-settings-scroll-container > label > input': {
+    marginLeft: '5px',
+    width: '11ch',
+  },
+  '.neuroglancer-settings-limit-widget > input': {
+    width: '11ch',
+  },
+  '.neuroglancer-annotation-tool-status': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    overflowX: 'scroll',
+    scrollbarWidth: 'none',
+  },
+  '.neuroglancer-annotation-tool-status::-webkit-scrollbar': {
+    display: 'none',
+  },
+  '.neuroglancer-annotation-tool-status-widget + .neuroglancer-annotation-tool-status-widget': {
+    marginLeft: '3px',
+  },
+  '.neuroglancer-annotation-tool-status-widget:hover': {
+    outline: '1px solid #fff',
+  },
+  '.neuroglancer-annotation-tool-status-widget': {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  '.neuroglancer-annotation-tool-status-widget-layer-number': {
+    display: 'inline-block',
+    font: '10pt sans-serif',
+    fontWeight: 'bold',
+    backgroundColor: '#9a7518',
+  },
+  '.neuroglancer-annotation-tool-status-widget-key': {
+    display: 'inline-block',
+    font: '9pt monospace',
+    color: '#0ff',
+  },
+  '.neuroglancer-annotation-tool-status-widget-key::before': {
+    content: '"["',
+    color: '#999',
+  },
+  '.neuroglancer-annotation-tool-status-widget-key::after': {
+    content: '"]"',
+    color: '#999',
+  },
+  '.neuroglancer-annotation-tool-status-widget-description': {
+    display: 'inline-block',
+    color: '#3c3',
+    font: '10pt sans-serif',
+    whiteSpace: 'nowrap',
+  },
+  '.neuroglancer-annotation-tool-status-widget-delete': {
+    visibility: 'hidden',
+  },
+  '.neuroglancer-annotation-tool-status-widget:hover > .neuroglancer-annotation-tool-status-widget-delete': {
+    visibility: 'inherit',
+  },
+  '.neuroglancer-rendered-data-panel:active': {
+    cursor: 'grabbing',
+  },
+  '.neuroglancer-stack-layout-drop-placeholder:last-of-type': {
+    display: 'none',
   },
 };
 
