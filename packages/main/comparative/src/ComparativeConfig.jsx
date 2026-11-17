@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable camelcase */
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable jsx-a11y/anchor-is-valid */ // Remove once the "Show analysis details" dropdowns are implemented.
 import React, { useState } from 'react';

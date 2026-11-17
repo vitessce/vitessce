@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { describe, it, expect } from 'vitest';
 import {
   generateComparativeConfig,
@@ -17,7 +18,10 @@ function getScatterplot(config) {
 
 describe('generateComparativeConfig', () => {
   it('defines one dataset per provided modality', () => {
-    const both = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
+    const both = generateComparativeConfig(
+      { singleCellDatasetUrl, singleNucleusDatasetUrl },
+      false,
+    );
     expect(both.datasets.map(d => d.uid)).toEqual(['sc-rna-seq', 'sn-rna-seq']);
     expect(both.datasets[1].files.every(f => f.url.startsWith(singleNucleusDatasetUrl))).toBe(true);
     expect(getSelectedModality(both)).toEqual('sc-rna-seq');
@@ -40,7 +44,10 @@ describe('generateComparativeConfig', () => {
 });
 
 describe('withSelectedModality', () => {
-  const config = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, false);
+  const config = generateComparativeConfig(
+    { singleCellDatasetUrl, singleNucleusDatasetUrl },
+    false,
+  );
 
   it('switches the selected dataset and modality-specific view props', () => {
     const newConfig = withSelectedModality(config, 'sn-rna-seq');
@@ -90,7 +97,10 @@ describe('withBiomarkerSelection', () => {
 });
 
 describe('mergeBiomarkerSelectConfig', () => {
-  const initialConfig = generateComparativeConfig({ singleCellDatasetUrl, singleNucleusDatasetUrl }, true);
+  const initialConfig = generateComparativeConfig(
+    { singleCellDatasetUrl, singleNucleusDatasetUrl },
+    true,
+  );
   // After initialization by Vitessce, the config contains a uid.
   const currentConfig = withBiomarkerSelection({
     ...initialConfig,
