@@ -238,20 +238,42 @@ export function zarrOpenRoot(url: string, fileType: null | string, opts?: ZarrOp
     }
     const referenceSpecPromise = fetch(opts.refSpecUrl)
       .then(res => res.json())
-      .then(referenceSpec => Object.fromEntries(
-        // We want ReferenceStore.fromSpec to use our `target` URL option regardless
+      .then((referenceSpec) => {
+        // Reference specs are either version 0 (a flat object of references)
+        // or version 1 (references nested under a `refs` property).
+        // Reference: https://fsspec.github.io/kerchunk/spec.html
+        const isVersion1 = referenceSpec.version === 1 && typeof referenceSpec.refs === 'object';
+        const refs = isVersion1 ? referenceSpec.refs : referenceSpec;
+        // We want the references to point to our `url` regardless
         // of what target URL(s) are specified in the reference spec JSON.
-        // Reference: https://github.com/manzt/zarrita.js/pull/155
-        Object.entries(referenceSpec).map(([key, entry]) => {
-          if (Array.isArray(entry) && entry.length >= 1) {
-            // eslint-disable-next-line no-param-reassign
-            entry[0] = null;
-          }
-          return [key, entry];
-        }),
-      ));
-    store = ReferenceStore.fromSpec(referenceSpecPromise,
-      { target: url, overrides: opts?.requestInit });
+        // Note: we cannot use the ReferenceStore `target` option for this, since
+        // as of @zarrita/storage v0.2.0 the target is also used as the base URL
+        // from which reference keys are parsed, so keys would not be found.
+        const newRefs = Object.fromEntries(
+          Object.entries(refs).map(([key, entry]) => {
+            if (Array.isArray(entry) && entry.length >= 1) {
+              return [key, [url, ...entry.slice(1)]];
+            }
+            return [key, entry];
+          }),
+        );
+        return isVersion1 ? { ...referenceSpec, refs: newRefs } : newRefs;
+      });
+    // When given a Promise, ReferenceStore.fromSpec returns a Promise<ReferenceStore>
+    // (as of @zarrita/storage v0.2.0). zarrOpenRoot must return synchronously,
+    // so wrap it in a store that waits for the reference store on each read.
+    const referenceStorePromise = ReferenceStore.fromSpec(referenceSpecPromise,
+      { overrides: opts?.requestInit });
+    store = {
+      async get(...args: Parameters<AsyncReadable['get']>) {
+        const referenceStore = await referenceStorePromise;
+        return referenceStore.get(...args);
+      },
+      async getRange(...args: Parameters<NonNullable<AsyncReadable['getRange']>>) {
+        const referenceStore = await referenceStorePromise;
+        return referenceStore.getRange(...args);
+      },
+    };
   } else {
     store = new FetchStore(url, { overrides: opts?.requestInit, fetch: relaxedFetch });
   }
