@@ -1,4 +1,21 @@
 
+## 4.2.0
+
+### Minor Changes
+
+- Upgrade from the `@janelia-flyem/neuroglancer@2.37.5` fork to mainline `neuroglancer@2.41.2`, with worker code (including WASM decoders) inlined as Blob-URL workers that are lazy-loaded when a Neuroglancer view mounts. (`@vitessce/neuroglancer`, `@vitessce/neuroglancer-workers`) ([#2693](https://github.com/vitessce/vitessce/pull/2693))
+
+### Patch Changes
+
+- Fix linting issues with PR 2691. (`@vitessce/comparative`) ([#2699](https://github.com/vitessce/vitessce/pull/2699))
+
+- Support both single-cell and single-nucleus datasets in the comparative UI by changing the `datasetUrl` prop of `UncontrolledComparative` and `ControlledComparative` components to the explicit `singleCellDatasetUrl` and `singleNucleusDatasetUrl` props. Fix bugs with URL state management syncing. (`@vitessce/comparative`, `@vitessce/biomarker-select`, `@vitessce/styles`, `demo`) ([#2691](https://github.com/vitessce/vitessce/pull/2691))
+
+- Adjust vite and webpack configurations to account for latest Neuroglancer package version styling setup. Update the Neuroglancer styling overrides within Vitessce. (`@vitessce/neuroglancer`) ([#2693](https://github.com/vitessce/vitessce/pull/2693))
+
+- Fix on-demand mesh loading in the docs build, where Docusaurus’s Babel transform broke Set spread ([...set] -> [set]). (`@vitessce/example-configs`, `docs`) ([#2689](https://github.com/vitessce/vitessce/pull/2689))
+
+
 ## 4.1.3
 
 ### Patch Changes
