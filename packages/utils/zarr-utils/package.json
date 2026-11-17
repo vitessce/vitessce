@@ -32,6 +32,7 @@
   "dependencies": {
     "zarrita": "catalog:",
     "@zarrita/storage": "catalog:",
+    "hdf5-as-virtual-zarr": "catalog:",
     "@vitessce/globals": "workspace:*"
   },
   "devDependencies": {

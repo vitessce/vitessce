@@ -22,6 +22,7 @@ catalog:
   # Zarrita
   "zarrita": 0.7.5
   "@zarrita/storage": 0.2.0
+  "hdf5-as-virtual-zarr": 0.2.2
   # D3
   "d3-array": ^2.4.0
   "d3-dsv": ^1.1.1
