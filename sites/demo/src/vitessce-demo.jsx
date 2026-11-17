@@ -173,8 +173,7 @@ export function VitessceDemo() {
     const { rowHeight = null } = {};
     const urlParams = new URLSearchParams(window.location.search);
     const datasetId = urlParams.get('dataset');
-    const isComparativeSn = urlParams.get('comparative') === 'sn-rna-seq';
-    const isComparativeSc = urlParams.get('comparative') === 'sc-rna-seq';
+    const isComparative = urlParams.get('comparative') === 'true';
     const debug = urlParams.get('debug') === 'true';
     const datasetUrl = urlParams.get('url');
     const datasetGist = urlParams.get('gist');
@@ -192,11 +191,7 @@ export function VitessceDemo() {
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
-    if (isComparativeSn || isComparativeSc) {
-      // TODO: props here to pass a comparative anndata.zarr url?
-      const comparativeDatasetUrl = isComparativeSc
-        ? 'https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr'
-        : 'https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-june-2026.adata.zarr';
+    if (isComparative) {
       return (
         <ContainerComponent>
           {!pageMode ? (
@@ -210,7 +205,8 @@ export function VitessceDemo() {
             </style>
           ) : null}
           <UncontrolledComparative
-            datasetUrl={comparativeDatasetUrl}
+            singleCellDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr"
+            singleNucleusDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-june-2026.adata.zarr"
           />
         </ContainerComponent>
       );
