@@ -278,6 +278,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
       CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
+      CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -1707,21 +1708,39 @@ export function NeuroglancerSubscriber(props) {
   const orthographicEffective = spatialRenderingMode !== '3D';
   const scaleBarVisibleEffective = spatialScaleBarVisible ?? true;
 
-  // One options group per point layer (includes centroid layers).
+  // One options group per point layer and per centroid layer.
   // Spacing display = effective value NG received (coordination > file option > 1.0).
-  const pointLayersForOptions = useMemo(() => (pointLayerScopes || []).map((scope) => {
-    const values = pointLayerCoordination[0]?.[scope] ?? {};
-    const setters = pointLayerCoordination[1]?.[scope] ?? {};
-    const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
-    return {
-      scope,
-      label: values.spatialLayerLabel || `Points ${scope}`,
-      strokeWidth: values.spatialPointStrokeWidth,
-      setStrokeWidth: setters.setSpatialPointStrokeWidth,
-      spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
-      setSpacing: setters.setSpatialPointProjectionSpacing,
-    };
-  }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
+  const pointLayersForOptions = useMemo(() => [
+    ...(pointLayerScopes || []).map((scope) => {
+      const values = pointLayerCoordination[0]?.[scope] ?? {};
+      const setters = pointLayerCoordination[1]?.[scope] ?? {};
+      const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
+      return {
+        scope,
+        label: values.spatialLayerLabel || `Points ${scope}`,
+        strokeWidth: values.spatialPointStrokeWidth,
+        setStrokeWidth: setters.setSpatialPointStrokeWidth,
+        spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+        setSpacing: setters.setSpatialPointProjectionSpacing,
+      };
+    }),
+    // Centroid layers: spacing is stored on their segmentation channel.
+    ...centroidSources.map(({ layerScope, channelScope, name }) => {
+      const values = segmentationChannelCoordination[0]?.[layerScope]?.[channelScope] ?? {};
+      const setters = segmentationChannelCoordination[1]?.[layerScope]?.[channelScope] ?? {};
+      const ngLayer = derivedViewerState?.layers?.find(l => l?.name === name);
+      return {
+        scope: name,
+        label: 'Centroids',
+        spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+        setSpacing: setters.setSpatialPointProjectionSpacing,
+      };
+    }),
+  ], [
+    pointLayerScopes, pointLayerCoordination, derivedViewerState, centroidSources,
+    segmentationChannelCoordination, segmentationLayerCoordination,
+  ]);
+
 
   // "Hide unselected" = unselected opacity 0 on all segmentation channels (+ their centroid layers).
   // Meshes can only hide (NG has no per-segment alpha); centroids fade via the same value.

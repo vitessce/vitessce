@@ -618,7 +618,12 @@ export function useNeuroglancerViewerState(
             // Both layer and channel visibility must be true, as for the segmentation layer.
             visible: Boolean(layerCoordination?.spatialLayerVisible
               && channelCoordination?.spatialChannelVisible),
-            projectionAnnotationSpacing: ngOptions.projectionAnnotationSpacing ?? 1.0,
+            // Coordination value (gear menu) > file option > 1.0, as for point layers.
+            projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
+              MIN_ANNOTATION_SPACING,
+              channelCoordination?.spatialPointProjectionSpacing
+                ?? ngOptions.projectionAnnotationSpacing ?? 1.0,
+            )),
           },
         ],
         selectedLayer: {

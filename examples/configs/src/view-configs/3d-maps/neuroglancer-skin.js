@@ -17,9 +17,9 @@ import {
     dataset.addFile({
       fileType: 'obsLocations.ng-annotations',
       url: 'http://localhost:9004/ALL_cells_3D_precomputed/cells',
-      options: {
-        projectionAnnotationSpacing: 1,
-      },
+    //   options: {
+    //     projectionAnnotationSpacing: 1,
+    //   },
       coordinationValues: {
         obsType: 'cell',
       },
@@ -65,7 +65,7 @@ import {
               spatialChannelOpacity: 1.0,
               spatialChannelColor: [0, 114, 178],
               obsColorEncoding: 'cellSetSelection',
-            //   spatialPointProjectionSpacing: 16,
+              spatialPointProjectionSpacing: 1,
             },
           ]),
         },
