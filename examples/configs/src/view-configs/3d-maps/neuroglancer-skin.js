@@ -67,7 +67,7 @@ function generateNeuroglancerCentroidsConfig() {
             obsColorEncoding: 'cellSetSelection',
             spatialPointProjectionSpacing: 1,
             spatialPointStrokeWidth: 0.2,
-            spatialPointRadius: 2.5,
+            spatialPointRadius: 1,
           },
         ]),
       },

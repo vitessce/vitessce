@@ -621,8 +621,11 @@ export function useNeuroglancerViewerState(
             shader,
             name,
             // Both layer and channel visibility must be true, as for the segmentation layer.
+            // A centroid point size of 0 (gear menu) hides only the centroids:
+            // the layer is made invisible, so NG also stops loading its chunks.
             visible: Boolean(layerCoordination?.spatialLayerVisible
-              && channelCoordination?.spatialChannelVisible),
+              && channelCoordination?.spatialChannelVisible
+              && (channelCoordination?.spatialPointRadius ?? 1) > 0),
             // Coordination value (gear menu) > file option > 1.0, as for point layers.
             projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
               MIN_ANNOTATION_SPACING,

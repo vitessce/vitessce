@@ -45,7 +45,7 @@ function SliderRow({ label, id, children }) {
 // Slider whose value is committed on release: each committed change rebuilds
 // the annotation shader, so it should not happen on every drag step.
 function CommitSliderRow({
-  label, id, value, setValue, min, max, step, ariaLabel,
+  label, id, value, setValue, min, max, step, ariaLabel, valueLabelFormat,
 }) {
   const { classes } = usePlotOptionsStyles();
   const [localValue, setLocalValue] = useState(value);
@@ -62,6 +62,7 @@ function CommitSliderRow({
         max={max}
         step={step}
         valueLabelDisplay="auto"
+        valueLabelFormat={valueLabelFormat}
         onChange={(e, v) => setLocalValue(v)}
         onChangeCommitted={(e, v) => setValue(v)}
         id={id}
@@ -125,10 +126,12 @@ function PointLayerRows({ layer, baseId }) {
           id={`${baseId}-point-size`}
           value={pointRadius}
           setValue={setPointRadius}
-          min={0.1}
+          // 0 hides the centroids without affecting the meshes.
+          min={0.0}
           max={20.0}
           step={0.1}
-          ariaLabel={`${label} point size`}
+          valueLabelFormat={v => (v <= 0 ? 'hidden' : v.toFixed(1))}
+          ariaLabel={`${label} point size (0 hides the centroids)`}
         />
       ) : null}
     </>
