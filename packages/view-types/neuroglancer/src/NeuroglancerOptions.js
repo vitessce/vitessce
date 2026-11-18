@@ -45,32 +45,32 @@ function SliderRow({ label, id, children }) {
 // Slider whose value is committed on release: each committed change rebuilds
 // the annotation shader, so it should not happen on every drag step.
 function CommitSliderRow({
-    label, id, value, setValue, min, max, step, ariaLabel,
-  }) {
-    const { classes } = usePlotOptionsStyles();
-    const [localValue, setLocalValue] = useState(value);
-    useEffect(() => { setLocalValue(value); }, [value]);
-    return (
-      <SliderRow label={label} id={id}>
-        <Slider
-          slotProps={{
-            root: { className: classes.slider },
-            valueLabel: { className: classes.sliderValueLabel },
-          }}
-          value={localValue}
-          min={min}
-          max={max}
-          step={step}
-          valueLabelDisplay="auto"
-          onChange={(e, v) => setLocalValue(v)}
-          onChangeCommitted={(e, v) => setValue(v)}
-          id={id}
-          aria-label={ariaLabel}
-        />
-      </SliderRow>
-    );
-  }
-  
+  label, id, value, setValue, min, max, step, ariaLabel,
+}) {
+  const { classes } = usePlotOptionsStyles();
+  const [localValue, setLocalValue] = useState(value);
+  useEffect(() => { setLocalValue(value); }, [value]);
+  return (
+    <SliderRow label={label} id={id}>
+      <Slider
+        slotProps={{
+          root: { className: classes.slider },
+          valueLabel: { className: classes.sliderValueLabel },
+        }}
+        value={localValue}
+        min={min}
+        max={max}
+        step={step}
+        valueLabelDisplay="auto"
+        onChange={(e, v) => setLocalValue(v)}
+        onChangeCommitted={(e, v) => setValue(v)}
+        id={id}
+        aria-label={ariaLabel}
+      />
+    </SliderRow>
+  );
+}
+
 
 function PointLayerRows({ layer, baseId }) {
   const { classes } = usePlotOptionsStyles();

@@ -1739,13 +1739,13 @@ export function NeuroglancerSubscriber(props) {
         spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
         setSpacing: setters.setSpatialPointProjectionSpacing,
         // Point layers have these in the layer controller; centroids have no
-       // layer controller row of their own, so they get them here.
-       strokeWidth: values.spatialPointStrokeWidth
+        // layer controller row of their own, so they get them here.
+        strokeWidth: values.spatialPointStrokeWidth
        ?? values.spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
-     setStrokeWidth: setters.setSpatialPointStrokeWidth,
-     pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
-     setPointRadius: setters.setSpatialPointRadius,
-     showMarkerControls: true,
+        setStrokeWidth: setters.setSpatialPointStrokeWidth,
+        pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
+        setPointRadius: setters.setSpatialPointRadius,
+        showMarkerControls: true,
       };
     }),
   ], [
