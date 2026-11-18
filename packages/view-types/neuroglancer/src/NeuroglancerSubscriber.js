@@ -39,6 +39,7 @@ import {
   mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
+import { commaNumber, pluralize } from '@vitessce/utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import {
   useNeuroglancerViewerState,
@@ -46,6 +47,7 @@ import {
   sanitizeNgCameraState,
   getObsSetColumnsByName,
   CENTROID_POINT_STROKE_WIDTH,
+  countSelectedObs,
 } from './data-hook-ng-utils.js';
 import { DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
@@ -1790,11 +1792,55 @@ export function NeuroglancerSubscriber(props) {
   }, [spatialCameraSnapshot]);
 
   const backgroundTheme = spatialBackgroundTheme ?? 'dark';
+  // Number of observations per obsType, as in the spatialBeta subtitle.
+  // Counts come from the tabular data (obsSets / obsFeatureMatrix index), since
+  // the precomputed annotation info does not include the number of annotations.
+  // With a set selection (cellSetSelection), shows "<selected> of <total>".
+  const countsSubtitle = useMemo(() => {
+    const totals = new Map();
+    const selected = new Map();
+    const add = (map, obsTypeLabel, n) => {
+      if (n > 0) map.set(obsTypeLabel, (map.get(obsTypeLabel) ?? 0) + n);
+    };
+    (segmentationLayerScopes ?? []).forEach((layerScope) => {
+      (segmentationChannelScopesByLayer?.[layerScope] ?? []).forEach((channelScope) => {
+        const channel = segmentationChannelCoordination[0]?.[layerScope]?.[channelScope] ?? {};
+        const obsTypeLabel = channel.obsType ?? 'segmentation';
+        const setsData = obsSegmentationsSetsData?.[layerScope]?.[channelScope];
+        const obsIndex = setsData?.obsIndex
+          ?? segmentationMultiIndicesData?.[layerScope]?.[channelScope]?.obsIndex;
+        add(totals, obsTypeLabel, obsIndex?.length ?? 0);
+        if (channel.obsColorEncoding === 'cellSetSelection' && setsData?.obsSets) {
+          const n = countSelectedObs(
+            setsData.obsSets,
+            mergeObsSets(setsData.obsSets, channel.additionalObsSets),
+            channel.obsSetSelection,
+          );
+          if (n !== null) add(selected, obsTypeLabel, n);
+        }
+      });
+    });
+    (pointLayerScopes ?? []).forEach((layerScope) => {
+      const obsTypeLabel = pointLayerCoordination[0]?.[layerScope]?.obsType ?? 'point';
+      add(totals, obsTypeLabel, pointMultiIndicesData?.[layerScope]?.obsIndex?.length ?? 0);
+    });
+    return Array.from(totals.entries())
+      .map(([obsTypeLabel, n]) => (selected.has(obsTypeLabel)
+        ? `${commaNumber(selected.get(obsTypeLabel))} of ${commaNumber(n)} ${pluralize(obsTypeLabel, n)} selected`
+        : `${commaNumber(n)} ${pluralize(obsTypeLabel, n)}`))
+      .join(', ');
+  }, [
+    segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
+    obsSegmentationsSetsData, segmentationMultiIndicesData,
+    pointLayerScopes, pointLayerCoordination, pointMultiIndicesData,
+  ]);
+  const infoText = [countsSubtitle, subtitle].filter(Boolean).join(' | ');
+
   return (
 
     <TitleInfo
       title={title}
-      info={subtitle}
+      info={infoText}
       helpText={helpText}
       isSpatial
       theme={theme}

@@ -1,7 +1,7 @@
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
-import { mergeObsSets, treeFindNodeByNamePath, treeToLeafSets } from '@vitessce/sets-utils';
+import { mergeObsSets, treeFindNodeByNamePath, treeToLeafSets, nodeToSet } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { NG_CAMERA_VALIDATORS } from './utils.js';
@@ -32,12 +32,49 @@ export const DEFAULT_NG_PROPS = {
   layers: [],
 };
 
+// Border width of the centroid point markers.
+export const CENTROID_POINT_STROKE_WIDTH = 0.2;
+
 // NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
 const MIN_ANNOTATION_SPACING = 0.0625;
 const MAX_ANNOTATION_SPACING = 65536;
 const INTEGER_ANNOTATION_TYPES = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32'];
-// Border width of the centroid point markers.
-export const CENTROID_POINT_STROKE_WIDTH = 0.2;
+
+function countNodeObs(node) {
+  if (!node) return 0;
+  if (!node.children) return node.set?.length ?? 0;
+  return node.children.reduce((sum, child) => sum + countNodeObs(child), 0);
+}
+
+/**
+ * Count the observations in the selected obsSets, for the view subtitle.
+ * Sets of one group from the loaded obsSets are categories of a single
+ * column, so they are disjoint and their sizes can be summed without
+ * building the (possibly millions of) member IDs. Otherwise (several groups,
+ * or user-defined sets which may overlap), the union of members is counted.
+ * @param {object} obsSets The obsSets tree object (loaded sets only).
+ * @param {object} mergedObsSets The obsSets tree merged with additionalObsSets.
+ * @param {string[][]} selectedNamePaths
+ * @returns {number|null} null when there is no selection to count.
+ */
+export function countSelectedObs(obsSets, mergedObsSets, selectedNamePaths) {
+  if (!mergedObsSets || !selectedNamePaths?.length) return null;
+  // Drop paths whose ancestor is also selected.
+  const paths = selectedNamePaths.filter(path => !selectedNamePaths.some(other => (
+    other.length < path.length && other.every((part, k) => part === path[k])
+  )));
+  const nodes = paths.map(path => treeFindNodeByNamePath(mergedObsSets, path)).filter(Boolean);
+  const groups = new Set(paths.map(path => path[0]));
+  const isLoadedGroup = groups.size === 1
+    && (obsSets?.tree ?? []).some(node => node.name === paths[0]?.[0]);
+  if (isLoadedGroup) {
+    return nodes.reduce((sum, node) => sum + countNodeObs(node), 0);
+  }
+  const ids = new Set();
+  nodes.forEach(node => nodeToSet(node).forEach(([id]) => ids.add(id)));
+  return ids.size;
+}
+
 /**
  * Get the obsSet group name -> column name mapping from the options
  * of the obsSets files (CSV: `column`, AnnData/SpatialData: `path`).
