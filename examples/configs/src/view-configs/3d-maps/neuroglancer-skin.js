@@ -66,6 +66,8 @@ import {
               spatialChannelColor: [0, 114, 178],
               obsColorEncoding: 'cellSetSelection',
               spatialPointProjectionSpacing: 1,
+              spatialPointStrokeWidth: 0.2,
+spatialPointRadius: 2.5,
             },
           ]),
         },

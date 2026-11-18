@@ -36,7 +36,8 @@ export const DEFAULT_NG_PROPS = {
 const MIN_ANNOTATION_SPACING = 0.0625;
 const MAX_ANNOTATION_SPACING = 65536;
 const INTEGER_ANNOTATION_TYPES = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32'];
-
+// Border width of the centroid point markers.
+export const CENTROID_POINT_STROKE_WIDTH = 0.2;
 /**
  * Get the obsSet group name -> column name mapping from the options
  * of the obsSets files (CSV: `column`, AnnData/SpatialData: `path`).
@@ -379,9 +380,6 @@ export function getSegmentationCentroidSources({
   ));
 }
 
-// Border width of the centroid point markers.
-const CENTROID_POINT_STROKE_WIDTH = 0.2;
-
 /**
  * Map segmentation layer/channel coordination values onto the parameters
  * of getPointsShader, so that centroids share the visual properties
@@ -405,6 +403,8 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetSelection,
     additionalObsSets,
     spatialSegmentationStrokeWidth,
+    spatialPointStrokeWidth,
+    spatialPointRadius,
   } = channelCoordination || {};
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
@@ -421,7 +421,12 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     additionalObsSets,
     // Only show the centroids of the selected obsSets.
     featureFilterMode: 'featureSelection',
-    pointMarkerBorderWidth: spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+    // Gear menu value (spatialPointStrokeWidth) first, as for point layers;
+    // spatialSegmentationStrokeWidth is kept as a fallback for existing configs.
+    pointMarkerBorderWidth: spatialPointStrokeWidth
+      ?? spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+    // spatialPointRadius is a radius (as for point layers); NG's marker size is a diameter.
+    pointMarkerSize: (spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2) * 2,
     // The points represent the centroids of the segmentations.
     // We pass this down to the getPointsShader, to determine whether to interpret
     // `obsColorEncoding === 'geneSelection'` as a

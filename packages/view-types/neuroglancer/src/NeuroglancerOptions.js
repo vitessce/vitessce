@@ -42,10 +42,41 @@ function SliderRow({ label, id, children }) {
   );
 }
 
+// Slider whose value is committed on release: each committed change rebuilds
+// the annotation shader, so it should not happen on every drag step.
+function CommitSliderRow({
+    label, id, value, setValue, min, max, step, ariaLabel,
+  }) {
+    const { classes } = usePlotOptionsStyles();
+    const [localValue, setLocalValue] = useState(value);
+    useEffect(() => { setLocalValue(value); }, [value]);
+    return (
+      <SliderRow label={label} id={id}>
+        <Slider
+          slotProps={{
+            root: { className: classes.slider },
+            valueLabel: { className: classes.sliderValueLabel },
+          }}
+          value={localValue}
+          min={min}
+          max={max}
+          step={step}
+          valueLabelDisplay="auto"
+          onChange={(e, v) => setLocalValue(v)}
+          onChangeCommitted={(e, v) => setValue(v)}
+          id={id}
+          aria-label={ariaLabel}
+        />
+      </SliderRow>
+    );
+  }
+  
+
 function PointLayerRows({ layer, baseId }) {
   const { classes } = usePlotOptionsStyles();
   const {
     label, spacing, setSpacing,
+    showMarkerControls, strokeWidth, setStrokeWidth, pointRadius, setPointRadius,
   } = layer;
   // Local state so dragging is smooth; spacing commits on release (may load finer chunks).
   const [exp, setExp] = useState(toExp(spacing ?? 1.0));
@@ -74,6 +105,31 @@ function PointLayerRows({ layer, baseId }) {
             aria-label={`${label} projection spacing (lower shows more points)`}
           />
         </SliderRow>
+      ) : null}
+      {/* Same ranges as the point layer controls in layerControllerBeta. */}
+      {showMarkerControls && setStrokeWidth ? (
+        <CommitSliderRow
+          label={`${label} stroke width`}
+          id={`${baseId}-stroke-width`}
+          value={strokeWidth ?? 0.0}
+          setValue={setStrokeWidth}
+          min={0.0}
+          max={5.0}
+          step={0.1}
+          ariaLabel={`${label} stroke width`}
+        />
+      ) : null}
+      {showMarkerControls && setPointRadius ? (
+        <CommitSliderRow
+          label={`${label} point size`}
+          id={`${baseId}-point-size`}
+          value={pointRadius}
+          setValue={setPointRadius}
+          min={0.1}
+          max={20.0}
+          step={0.1}
+          ariaLabel={`${label} point size`}
+        />
       ) : null}
     </>
   );

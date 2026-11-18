@@ -45,7 +45,9 @@ import {
   getSegmentationCentroidSources,
   sanitizeNgCameraState,
   getObsSetColumnsByName,
+  CENTROID_POINT_STROKE_WIDTH,
 } from './data-hook-ng-utils.js';
+import { DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import NeuroglancerTooltipSubscriber from './NeuroglancerTooltipSubscriber.js';
 import { useStyles } from './styles.js';
@@ -279,6 +281,8 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.FEATURE_VALUE_TYPE,
       CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -1734,6 +1738,14 @@ export function NeuroglancerSubscriber(props) {
         label: 'Centroids',
         spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
         setSpacing: setters.setSpatialPointProjectionSpacing,
+        // Point layers have these in the layer controller; centroids have no
+       // layer controller row of their own, so they get them here.
+       strokeWidth: values.spatialPointStrokeWidth
+       ?? values.spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+     setStrokeWidth: setters.setSpatialPointStrokeWidth,
+     pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
+     setPointRadius: setters.setSpatialPointRadius,
+     showMarkerControls: true,
       };
     }),
   ], [
