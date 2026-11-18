@@ -628,8 +628,14 @@ export default class Neuroglancer extends React.Component {
       usedDirectUpdate = true;
     }
 
-    // Fallback to restoreState if direct update not possible
-    if (!usedDirectUpdate) {
+    // Fallback to restoreState if direct update not possible.
+    // Skip it when there is nothing to color (e.g. centroid-only segmentation
+    // layers): this runs on every visibleChunksChanged, and restoring the
+    // layers each time while annotation chunks stream in stalls the viewer.
+    const hasSegmentColors = newLayers.some(l => (
+      l.segmentColors && Object.keys(l.segmentColors).length > 0
+    ));
+    if (!usedDirectUpdate && hasSegmentColors) {
       this.withoutEmitting(() => {
         this.preserveDimensions(() => {
           this.viewer.state.restoreState({ layers: newLayers });

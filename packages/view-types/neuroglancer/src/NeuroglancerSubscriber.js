@@ -628,13 +628,27 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [spatialCameraSnapshot, hasSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
+  // Segmentation layers that have meshes (an obsSegmentations file with a URL).
+  // Layers without meshes only render their centroids, which are colored in
+  // the annotation shader from enum properties, so they need no per-segment
+  // colors -- building those for millions of centroids slows the app
+  const meshLayerScopesKey = (segmentationLayerScopes ?? [])
+    .filter(layerScope => obsSegmentationsUrls?.[layerScope]?.[0]?.url)
+    .join(',');
+
+
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
     // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
     // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
     const result = {};
+    const meshLayerScopes = new Set(meshLayerScopesKey.split(','));
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
+      if (!meshLayerScopes.has(layerScope)) {
+        // Centroid-only layer: nothing to color per segment.
+        return;
+      }
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
         // Prefer obsFeatureMatrix.obsIndex from segmentationMultiIndicesData,
         // but fall back to obsSets.obsIndex if not available.
@@ -842,6 +856,7 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiExpressionNormData,
     segmentationMultiIndicesData,
     csvLoaded,
+    meshLayerScopesKey,
   }, customIsEqualForCellColors);
 
   // TODO: For debugging in console uncomment

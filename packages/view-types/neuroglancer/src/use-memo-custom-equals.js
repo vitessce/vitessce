@@ -37,6 +37,10 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('csvLoaded')) {
     forceUpdate = true;
   }
+  // A layer gained or lost its meshes (see meshLayerScopesKey).
+  if (curriedShallowDiff('meshLayerScopesKey')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
