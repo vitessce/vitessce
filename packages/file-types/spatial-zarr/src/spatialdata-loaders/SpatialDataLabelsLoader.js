@@ -24,6 +24,7 @@ export default class SpatialDataLabelsLoader extends SpatialDataImageLoader {
       spatialSegmentationFilled: true,
       spatialSegmentationStrokeWidth: 1.0,
       obsHighlight: null,
+      featureAggregationStrategy: null,
     }));
 
     const coordinationValues = {

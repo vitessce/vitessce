@@ -167,10 +167,13 @@ function handleAdaptiveQuality(clock, params) {
     if (!dataManager.manuallyStopped) {
       dataManager.noNewRequests = false;
       dataManager.triggerUsage = true;
+      // Newly visible regions need their coarse levels first.
+      dataManager.resetProgressiveLevel();
       // A batch in flight was requested for the previous view: stop it early,
-      // so that the buffers are read again for the current one.
+      // so that the buffers are read again for the current one. Its bricks still
+      // loading are aborted once the current view no longer requests them.
       if (dataManager.isBusy) {
-        dataManager.needsBailout = true;
+        dataManager.requestBailout();
       }
     }
     return;
@@ -253,6 +256,11 @@ export function VolumeView(props) {
     setViewState,
     isOrthographic = false,
     isColoredByResolution = false,
+    // Bricks fetched at once: a positive integer, or Infinity for no limit.
+    // Unset uses DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS. Can change at any time.
+    volumeMaxConcurrentBrickRequests,
+    // Load missing coarser levels before the requested one. Can change at any time.
+    volumeProgressiveLoading = false,
   } = props;
   const {
     gl,
@@ -333,6 +341,16 @@ export function VolumeView(props) {
   useEffect(() => {
     renderManager.uniforms.u_orthographic.value = isOrthographic;
   }, [renderManager, isOrthographic]);
+
+  // Applies to brick fetches not yet started.
+  useEffect(() => {
+    dataManager.setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
+  }, [dataManager, volumeMaxConcurrentBrickRequests]);
+
+  // Applies from the next request read.
+  useEffect(() => {
+    dataManager.setProgressiveLoading(volumeProgressiveLoading);
+  }, [dataManager, volumeProgressiveLoading]);
 
   useEffect(() => {
     logWithColor('useEffect MRT target matching canvas');
@@ -668,6 +686,11 @@ export function VolumeView(props) {
           uniforms[`clim${id}`].value.set(...windowToClim(window, storageRange));
         }
       });
+    }
+
+    // Progressive loading: no brick finer than this level is requested.
+    if (uniforms?.minRequestRes) {
+      uniforms.minRequestRes.value = dataManager.getMinRequestLevel();
     }
 
     if (!stillRef.current) {

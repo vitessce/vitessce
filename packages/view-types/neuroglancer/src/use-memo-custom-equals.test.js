@@ -47,6 +47,13 @@ describe('customIsEqualForInitialViewerState point opacity', () => {
       makeDeps({ spatialLayerOpacityUnselected: 0.25 }),
     )).toBe(true);
   });
+
+  it('is not equal when spatialPointRadius changes', () => {
+    expect(customIsEqualForInitialViewerState(
+      makeDeps({ spatialPointRadius: 2.5 }),
+      makeDeps({ spatialPointRadius: 5 }),
+    )).toBe(false);
+  });
 });
 
 describe('customIsEqualForInitialViewerState segmentation centroids', () => {

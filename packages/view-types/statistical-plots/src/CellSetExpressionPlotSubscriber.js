@@ -12,7 +12,9 @@ import {
   useCoordinationScopes,
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
-import { VALUE_TRANSFORM_OPTIONS, capitalize, cleanFeatureId } from '@vitessce/utils';
+import {
+  VALUE_TRANSFORM_OPTIONS, capitalize, cleanFeatureId, resolveFeatureAggregationStrategy,
+} from '@vitessce/utils';
 import {
   treeToSetSizesBySetNames,
   mergeObsSets,
@@ -259,8 +261,10 @@ export function CellSetExpressionPlotSubscriber(props) {
     sampleEdgesUrls,
   ]);
 
-  const featureAggregationStrategyToUse = featureAggregationStrategy
-    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  // Convert a feature name into its index within the geneSelection.
+  const featureAggregationStrategyToUse = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [histogramData, setArr, exprMax] = useExpressionByCellSet(
     sampleEdges, sampleSets, sampleSetSelection,

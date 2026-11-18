@@ -1,4 +1,19 @@
 
+## 4.1.3
+
+### Patch Changes
+
+- Publish `config-<latestVersion>.base-plugins.schema.json`, a JSON schema built with the base plugins that also validates file definition options, view component names, and coordination values. (`@vitessce/json-schema`) ([#2683](https://github.com/vitessce/vitessce/pull/2683))
+
+- Move `react` from `dependencies` to `peerDependencies` in `@vitessce/neuroglancer` so that consumers are not forced to install an exact React version. (`@vitessce/neuroglancer`) ([#2680](https://github.com/vitessce/vitessce/pull/2680))
+
+- Add `spatialSpotShape` coordination type (`"circle"` or `"square"`). Add a dropdown for selection of a single gene among multiple for segmentation channels and spot layers in the layer-controller-beta view. (`@vitessce/constants-internal`, `@vitessce/gl`, `@vitessce/all`, `@vitessce/spatial-beta`, `@vitessce/annotation-controller`) ([#2644](https://github.com/vitessce/vitessce/pull/2644))
+
+- Added options to enhance Neuroglancer view, such as tooltip, crosshair, axisLines and bounds visibility. (`@vitessce/all`, `@vitessce/example-configs`) ([#2668](https://github.com/vitessce/vitessce/pull/2668))
+
+- Terminate AsyncComputation worker in neuroglancer to avoid piling up of workers on vc.widget() runs within jupyter notebooks -- avoiding a kernel stuck position and wasm out of memory errors. (`@vitessce/neuroglancer`) ([#2687](https://github.com/vitessce/vitessce/pull/2687))
+
+
 ## 4.1.2
 
 ### Patch Changes

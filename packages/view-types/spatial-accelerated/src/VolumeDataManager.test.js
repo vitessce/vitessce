@@ -20,6 +20,12 @@ import {
   _getDataRange,
   _toUint8,
   _zarrToPt,
+  DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS,
+  MIN_BRICKS_PER_BATCH,
+  MAX_BRICKS_PER_BATCH,
+  _getBricksPerBatch,
+  MAX_CHUNK_DOWNLOADS,
+  _getMaxChunkDownloads,
   VolumeDataManager,
 } from './VolumeDataManager.js';
 
@@ -48,7 +54,11 @@ function createManager() {
   manager.zarrStore.resolutions = brickLayout.length;
   manager.zarrStore.brickLayout = brickLayout;
   manager.channels.zarrMappings = [0, 1];
-  return { manager, writes, brickLayout, PT };
+  // XYZ ratios to level 0, as init sets them.
+  const scales = levels.map(level => [...level.ratio].reverse());
+  return {
+    manager, writes, brickLayout, PT, scales,
+  };
 }
 
 describe('spatial-accelerated data utils', () => {
@@ -373,19 +383,20 @@ describe('spatial-accelerated data utils', () => {
         || y + h > PT.yExtent || z + d > PT.zTotal)).toHaveLength(0);
     });
 
-    it('ends the batch in flight for a new channel overview, unless it loads overviews', () => {
+    it('ends the batch in flight for a new channel overview, aborting all but overview bricks', () => {
       const { manager } = createManager();
-      let aborts = 0;
-      manager.brickSource = { abortReads: () => { aborts += 1; } };
+      const load = isAbortable => ({
+        ptCoord: { x: 0, y: 0, z: 0 }, isAbortable, controller: new AbortController(),
+      });
+      const regular = load(true);
+      const overview = load(false);
+      manager.brickLoads.set('regular', regular).set('overview', overview);
       manager.overviewAttempts.set(0, 3); // slot 0 is done with its overview
       manager.isBusy = true;
-      manager.isLoadingOverviews = true;
       manager.updateChannels({ A: { spatialTargetC: 0 }, B: { spatialTargetC: 5 } });
-      expect(aborts).toBe(0);
-      manager.isLoadingOverviews = false;
-      manager.updateChannels({ A: { spatialTargetC: 0 }, B: { spatialTargetC: 6 } });
-      expect(aborts).toBe(1);
       expect(manager.needsBailout).toBe(true);
+      expect(regular.controller.signal.aborted).toBe(true);
+      expect(overview.controller.signal.aborted).toBe(false);
     });
 
     it('maps the new channel when all slots are in use', () => {
@@ -601,6 +612,138 @@ describe('spatial-accelerated data utils', () => {
     });
   });
 
+  describe('progressive loading', () => {
+    // A manager whose fake source records the level of each brick read.
+    function setUpRequests() {
+      const { manager, PT, brickLayout } = createManager();
+      manager.initStatus = 'complete';
+      // No overview loads left to try, so the batch goes to the regular requests.
+      manager.overviewAttempts.set(0, 3).set(1, 3);
+      const reads = [];
+      manager.brickSource = {
+        brickChunkKeys: () => null,
+        isChunkCached: () => false,
+        async readBrick(brick) {
+          reads.push(brick.level);
+          return { data: new Uint8Array(32 ** 3) };
+        },
+      };
+      // eslint-disable-next-line no-underscore-dangle
+      manager._writeBrick = (ptCoord, slot) => {
+        manager.bc2pt[slot.bcIndex] = ptCoord;
+        return true;
+      };
+      // Requests as the shader packs them: x:10 | y:10 | z:12, big-endian RGBA8.
+      const bufferOf = (pixels) => {
+        const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+        pixels.forEach(({ x, y, z }, i) => {
+          buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+        });
+        return new Uint8Array(buffer.buffer);
+      };
+      return {
+        manager, PT, brickLayout, reads, bufferOf,
+      };
+    }
+
+    it('requests bricks of every level when disabled, and loads them directly', async () => {
+      const {
+        manager, PT, reads, bufferOf,
+      } = setUpRequests();
+      expect(manager.isProgressiveLoadingEnabled).toBe(false);
+      expect(manager.getMinRequestLevel()).toBe(0);
+      await manager.processRequestData(bufferOf([_zarrToPt(0, 0, 4, 5, 3, PT)]), {});
+      expect(reads).toEqual([0]);
+    });
+
+    it('starts at the coarsest level, and moves one level finer after two empty reads', async () => {
+      const { manager, brickLayout, bufferOf } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      expect(manager.getMinRequestLevel()).toBe(coarsest);
+      // One read that finds nothing missing could have missed a sampled brick.
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest);
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      // Finer levels are left, so loading is not done.
+      expect(manager.noNewRequests).toBe(false);
+    });
+
+    it('stays at a level while any brick at or above it is requested', async () => {
+      const {
+        manager, PT, brickLayout, reads, bufferOf,
+      } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = coarsest - 1;
+      // The shader requests a brick of the current level (here, level coarsest - 1).
+      const brick = _zarrToPt(0, coarsest - 1, 0, 0, 0, PT);
+      await manager.processRequestData(bufferOf([brick]), {});
+      expect(reads).toEqual([coarsest - 1]);
+      await manager.processRequestData(bufferOf([]), {});
+      // A missing brick resets the count: two more empty reads are needed.
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 2);
+    });
+
+    it('stays at a level while a brick at or above it is still loading', async () => {
+      const {
+        manager, PT, brickLayout, bufferOf,
+      } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = coarsest - 1;
+      // A brick of the current level, still loading from a batch that bailed out.
+      const ptCoord = _zarrToPt(0, coarsest - 1, 0, 0, 0, PT);
+      manager.brickLoads.set(`${ptCoord.x},${ptCoord.y},${ptCoord.z}`, { ptCoord });
+      await manager.processRequestData(bufferOf([]), {});
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+    });
+
+    it('does not wait for a brick that keeps failing', async () => {
+      const {
+        manager, PT, brickLayout, bufferOf,
+      } = setUpRequests();
+      const coarsest = brickLayout.length - 1;
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = coarsest - 1;
+      manager.brickSource.readBrick = async () => { throw new Error('network'); };
+      const failing = bufferOf([_zarrToPt(0, coarsest - 1, 0, 0, 0, PT)]);
+      for (let i = 0; i < 3; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        await manager.processRequestData(failing, {});
+      }
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 1);
+      // The shader keeps requesting it, but finer levels no longer wait for it.
+      await manager.processRequestData(failing, {});
+      await manager.processRequestData(failing, {});
+      expect(manager.getMinRequestLevel()).toBe(coarsest - 2);
+    });
+
+    it('is done only once nothing is missing at level 0', async () => {
+      const { manager, bufferOf } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = 0;
+      await manager.processRequestData(bufferOf([]), {});
+      expect(manager.noNewRequests).toBe(true);
+      expect(manager.getMinRequestLevel()).toBe(0);
+    });
+
+    it('starts over from the coarsest level when the view changes', () => {
+      const { manager, brickLayout } = setUpRequests();
+      manager.setProgressiveLoading(true);
+      manager.progressiveLevel = 0;
+      manager.resetProgressiveLevel();
+      expect(manager.getMinRequestLevel()).toBe(brickLayout.length - 1);
+      // Turning it off requests every level again.
+      manager.setProgressiveLoading(false);
+      expect(manager.getMinRequestLevel()).toBe(0);
+    });
+  });
+
   describe('loading bricks that share source chunks', () => {
     // Bricks of one level and z slab share their chunk, as with one-plane chunks
     // that cover the whole XY extent. Uncached reads take a moment.
@@ -793,38 +936,46 @@ describe('spatial-accelerated data utils', () => {
       expect(reads.slice(0, 3)).toEqual(['0:0', '0:1', '0:2']);
     });
 
-    it('stops a batch on stopLoading, even when loading restarts right away', async () => {
+    it('counts the chunk downloads of bricks still loading from earlier batches', async () => {
       const { manager, PT } = createManager();
-      const { reads } = withBrickSource(manager);
-      const requests = Array.from({ length: 8 }, (_, bz) => _zarrToPt(0, 0, 0, 0, bz, PT));
-      const handled = manager.handleBrickRequests(requests);
-      manager.stopLoading();
-      manager.restartLoading(); // clears needsBailout before any brick finished
-      const uploaded = await handled;
-      // Only the bricks already in flight finish.
-      expect(reads).toHaveLength(6);
-      expect(uploaded).toHaveLength(6);
-    });
-
-    it('lets bricks in flight finish after stopLoading, and fails them on restartLoading', async () => {
-      const { manager, PT } = createManager();
-      let aborted = false;
-      let finish;
+      const planesOf = ({ level, bz }) => Array.from({ length: 32 }, (_, z) => `${level}:${bz * 32 + z}`);
+      const releases = new Map();
+      const started = [];
       manager.brickSource = {
-        brickChunkKeys: ({ bz }) => [`0:${bz}`],
+        brickChunkKeys: planesOf,
         isChunkCached: () => false,
-        abortReads: () => { aborted = true; finish(new Error('Loading stopped')); },
-        readBrick: () => new Promise((resolve, reject) => { finish = reject; }),
+        readBrick: brick => new Promise((resolve) => {
+          started.push(`${brick.bz}:${brick.bx}`);
+          releases.set(`${brick.bz}:${brick.bx}`, () => resolve({ data: new Uint8Array(32 ** 3) }));
+        }),
       };
       // eslint-disable-next-line no-underscore-dangle
       manager._writeBrick = () => true;
-      manager.isBusy = true; // as in processRequestData
-      const handled = manager.handleBrickRequests([_zarrToPt(0, 0, 0, 0, 0, PT)]);
-      manager.stopLoading();
-      expect(aborted).toBe(false);
-      manager.restartLoading();
-      expect(aborted).toBe(true);
-      expect(await handled).toEqual([]);
+      const pt = (bx, bz) => _zarrToPt(0, 0, bx, 0, bz, PT);
+      const tick = () => new Promise((resolve) => { setTimeout(resolve, 0); });
+      const first = manager.handleBrickRequests([pt(0, 0)]);
+      manager.requestBailout(); // as when the camera moves mid-batch
+      await first;
+      // Slab 0 is still downloading: a brick of slab 1 waits for it, while
+      // another brick of slab 0 shares its downloads and starts.
+      const second = manager.handleBrickRequests([pt(0, 1), pt(1, 0)]);
+      await tick();
+      expect(started).toEqual(['0:0', '0:1']);
+      releases.get('0:0')();
+      await tick();
+      expect(started).toEqual(['0:0', '0:1']);
+      releases.get('0:1')();
+      await tick();
+      expect(started).toEqual(['0:0', '0:1', '1:0']);
+      releases.get('1:0')();
+      expect(await second).toHaveLength(2);
+    });
+
+    it('scales the chunk download budget with the fetch limit', () => {
+      expect(_getMaxChunkDownloads(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS))
+        .toBe(MAX_CHUNK_DOWNLOADS);
+      expect(_getMaxChunkDownloads(12)).toBe(2 * MAX_CHUNK_DOWNLOADS);
+      expect(_getMaxChunkDownloads(Infinity)).toBe(Infinity);
     });
 
     it('takes no cache slots for bricks a bail-out never fetched', async () => {
@@ -832,11 +983,204 @@ describe('spatial-accelerated data utils', () => {
       const { reads } = withBrickSource(manager);
       const requests = Array.from({ length: 8 }, (_, bz) => _zarrToPt(0, 0, 0, 0, bz, PT));
       const handled = manager.handleBrickRequests(requests);
-      manager.needsBailout = true; // as when usage data arrives mid-batch
-      const uploaded = await handled;
+      manager.requestBailout(); // as when the camera moves mid-batch
+      // The batch ends without waiting for the bricks in flight, which still upload.
+      expect(await handled).toEqual([]);
+      await Promise.all(Array.from(manager.brickLoads.values(), ({ promise }) => promise));
       expect(reads).toHaveLength(6);
-      expect(uploaded).toHaveLength(6);
       expect(manager.BCUnusedIndex).toBe(6);
+    });
+
+    describe('aborting bricks that are no longer requested', () => {
+      // Reads that wait until released or aborted.
+      function withPendingBrickSource(manager) {
+        const reads = new Map(); // brick bz -> { signal, release }
+        const counts = { started: 0 };
+        // eslint-disable-next-line no-param-reassign
+        manager.brickSource = {
+          brickChunkKeys: () => null,
+          isChunkCached: () => false,
+          readBrick(brick, { signal } = {}) {
+            counts.started += 1;
+            return new Promise((resolve, reject) => {
+              reads.set(brick.bz, {
+                signal,
+                release: () => resolve({ data: new Uint8Array(32 ** 3) }),
+              });
+              signal?.addEventListener('abort', () => reject(signal.reason));
+            });
+          },
+        };
+        // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+        manager._writeBrick = (ptCoord, slot) => {
+          // eslint-disable-next-line no-param-reassign
+          manager.bc2pt[slot.bcIndex] = ptCoord;
+          return true;
+        };
+        const settled = () => Promise.all(
+          Array.from(manager.brickLoads.values(), ({ promise }) => promise),
+        );
+        return { reads, counts, settled };
+      }
+
+      it('aborts bricks of a bailed-out batch that the next request reads omit', async () => {
+        const { manager, PT } = createManager();
+        const { reads, settled } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const handled = manager.handleBrickRequests([pt(0), pt(1), pt(2)]);
+        manager.requestBailout();
+        expect(await handled).toEqual([]);
+        expect(manager.brickLoads.size).toBe(3);
+        // The view has changed and requests brick 0 only. Requests are sampled,
+        // so the first read that omits a brick does not abort it yet.
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([pt(0)]);
+        expect([0, 1, 2].map(bz => reads.get(bz).signal.aborted)).toEqual([false, false, false]);
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([pt(0), pt(2)]);
+        expect([0, 1, 2].map(bz => reads.get(bz).signal.aborted)).toEqual([false, true, false]);
+        // The abort says why, and is still an AbortError.
+        expect(reads.get(1).signal.reason).toMatchObject({
+          name: 'AbortError',
+          message: expect.stringMatching(/no longer requests this brick/),
+        });
+        reads.get(0).release();
+        reads.get(2).release();
+        await settled();
+        expect(manager.brickLoads.size).toBe(0);
+        // The aborted brick took no cache slot and is not counted as loaded.
+        expect(manager.BCUnusedIndex).toBe(2);
+        expect(manager.bricksEverLoaded.has(`${pt(1).x},${pt(1).y},${pt(1).z}`)).toBe(false);
+      });
+
+      it('joins a brick still loading from a bailed-out batch instead of fetching it again', async () => {
+        const { manager, PT } = createManager();
+        const { reads } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const first = manager.handleBrickRequests([pt(0)]);
+        manager.requestBailout();
+        await first;
+        const firstSignal = reads.get(0).signal;
+        const second = manager.handleBrickRequests([pt(0), pt(1)]);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.get(0).signal).toBe(firstSignal);
+        reads.get(0).release();
+        reads.get(1).release();
+        expect((await second).map(({ ptCoord }) => ptCoord)).toEqual([pt(0), pt(1)]);
+        expect(manager.BCUnusedIndex).toBe(2);
+      });
+
+      it('keeps overview bricks loading, and stopLoading aborts the others', async () => {
+        const { manager, PT } = createManager();
+        const { reads, settled } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const overview = manager.handleBrickRequests([pt(0)], { canBailOut: false });
+        const regular = manager.handleBrickRequests([pt(1)]);
+        manager.stopLoading();
+        await regular;
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([]);
+        // eslint-disable-next-line no-underscore-dangle
+        manager._abortUnrequestedBrickLoads([]);
+        expect(reads.get(0).signal.aborted).toBe(false);
+        expect(reads.get(1).signal.aborted).toBe(true);
+        expect(reads.get(1).signal.reason).toMatchObject({
+          name: 'AbortError',
+          message: expect.stringMatching(/loading was stopped/),
+        });
+        reads.get(0).release();
+        await settled();
+        expect(await overview).toEqual([{ ptCoord: pt(0), bcIndex: 0 }]);
+      });
+
+      it('starts no more fetches than the limit while bricks of earlier batches load', async () => {
+        const { manager, PT } = createManager();
+        const { reads } = withPendingBrickSource(manager);
+        const pt = bz => _zarrToPt(0, 0, 0, 0, bz, PT);
+        const first = manager.handleBrickRequests([0, 1, 2, 3, 4, 5].map(pt));
+        manager.requestBailout();
+        await first;
+        const second = manager.handleBrickRequests([6, 7].map(pt));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.size).toBe(6);
+        // A free fetch slot goes to the next batch.
+        reads.get(0).release();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(reads.size).toBe(7);
+        manager.requestBailout();
+        await second;
+      });
+
+      it('fetches as many bricks at once as maxConcurrentBrickRequests allows', async () => {
+        const { manager, PT } = createManager();
+        const { counts } = withPendingBrickSource(manager);
+        // Level 0 has 9 x 9 x 8 bricks.
+        const requests = Array.from(
+          { length: 20 }, (_, i) => _zarrToPt(0, 0, i % 9, Math.floor(i / 9), 0, PT),
+        );
+        manager.setMaxConcurrentBrickRequests(10);
+        const limited = manager.handleBrickRequests(requests.slice(0, 15));
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(10);
+        manager.stopLoading();
+        await limited;
+        manager.restartLoading();
+        counts.started = 0;
+        // No limit: every brick of the batch starts at once.
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        const unlimited = manager.handleBrickRequests(requests);
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(20);
+        manager.stopLoading();
+        await unlimited;
+      });
+
+      it('falls back to the default limit for unset or invalid values', () => {
+        const { manager } = createManager();
+        [undefined, null, 0, -1, 2.5, Number.NaN, '8'].forEach((value) => {
+          manager.setMaxConcurrentBrickRequests(32);
+          manager.setMaxConcurrentBrickRequests(value);
+          expect(manager.maxConcurrentBrickRequests).toBe(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS);
+          expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+        });
+      });
+
+      it('sizes batches to the fetch limit, within the brick cache bounds', () => {
+        expect(_getBricksPerBatch(DEFAULT_MAX_CONCURRENT_BRICK_REQUESTS))
+          .toBe(MIN_BRICKS_PER_BATCH);
+        expect(_getBricksPerBatch(100)).toBe(100);
+        expect(_getBricksPerBatch(Infinity)).toBe(MAX_BRICKS_PER_BATCH);
+        const { manager } = createManager();
+        expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+        manager.setMaxConcurrentBrickRequests(100);
+        expect(manager.k).toBe(100);
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        expect(manager.k).toBe(MAX_BRICKS_PER_BATCH);
+        manager.setMaxConcurrentBrickRequests(undefined);
+        expect(manager.k).toBe(MIN_BRICKS_PER_BATCH);
+      });
+
+      it('fetches more than the default batch at once when the limit allows', async () => {
+        const { manager, PT } = createManager();
+        const { counts } = withPendingBrickSource(manager);
+        manager.initStatus = 'complete';
+        // No overview loads left to try, so the batch goes to the regular requests.
+        manager.overviewAttempts.set(0, 3).set(1, 3);
+        // One pixel for each of 60 distinct level-0 bricks.
+        const pixels = Array.from(
+          { length: 60 }, (_, i) => _zarrToPt(0, 0, i % 9, Math.floor(i / 9), 0, PT),
+        );
+        const buffer = new DataView(new ArrayBuffer(pixels.length * 4));
+        pixels.forEach(({ x, y, z }, i) => {
+          buffer.setUint32(i * 4, x * (2 ** 22) + y * (2 ** 12) + z);
+        });
+        manager.setMaxConcurrentBrickRequests(Infinity);
+        const handled = manager.processRequestData(new Uint8Array(buffer.buffer), {});
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(counts.started).toBe(60);
+        manager.stopLoading();
+        await handled;
+      });
     });
 
     it('also loads requests beyond the top k whose chunks are cached', async () => {

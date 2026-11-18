@@ -15,9 +15,9 @@ function generateNeuroglancerTissueClasses() {
   });
   const dataset = config.addDataset('My dataset').addFile({
     fileType: 'image.ome-tiff',
-    url: 'https://data-2.vitessce.io/data/kiemenetal/5xLabelled.ome.tiff',
+    url: 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE_norm.ome.tiff',
     options: {
-      offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xLabelled.offsets.json',
+      offsetsUrl: 'https://data-2.vitessce.io/data/kiemenetal/5xHE_HE_norm.offsets.json',
     },
     coordinationValues: {
       fileUid: 'tissue-classes',
@@ -117,11 +117,20 @@ function generateNeuroglancerTissueClasses() {
         volumetricRenderingAlgorithm: 'additive',
         imageChannel: CL([
           {
+            // Hematoxylin (nuclei): blue-purple
             spatialTargetC: 0,
-            spatialChannelColor: [255, 0, 0],
+            spatialChannelColor: [90, 60, 220],
             spatialChannelVisible: true,
             spatialChannelOpacity: 1.0,
-            spatialChannelWindow: [0, 10],
+            spatialChannelWindow: [30, 220],
+          },
+          {
+            // Eosin (cytoplasm / stroma): pink
+            spatialTargetC: 1,
+            spatialChannelColor: [255, 80, 170],
+            spatialChannelVisible: true,
+            spatialChannelOpacity: 1.0,
+            spatialChannelWindow: [30, 255],
           },
         ]),
       },

@@ -258,6 +258,12 @@ uniform uvec3 voxelExtents;
 // Global resolution range: (min_res, max_res)
 // global range of requested resolutions
 uniform ivec2 resGlobal;
+// Finest resolution level that bricks may be requested at. Progressive loading
+// raises it, so that a missing finer brick is requested at this level instead,
+// and lowers it one level at a time once nothing at or above it is missing.
+// Rendering is not limited by it: finer bricks already resident are still used.
+// 0 when progressive loading is off.
+uniform int minRequestRes;
 // Maximum number of active channels
 // max number of channels (relevant for the cache statistics)
 // between 1 and 7
@@ -842,11 +848,11 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
         // check if the PT entry is initialized
         uint isInit = (ptEntry >> 30u) & 1u;
         if (isInit == 0u) { 
-            currentRes++; 
-            // Request brick loading if needed
-            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true) {
+            // Request brick loading if needed, at minRequestRes or coarser
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true && currentRes >= minRequestRes) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
+            currentRes++; 
             continue;
         }
         
@@ -873,11 +879,11 @@ ivec4 getBrickLocation(vec3 location, int targetRes, int channel, float rnd, boo
         // continue to next resolution if not resident
         uint isResident = (ptEntry >> 31u) & 1u;
         if (isResident == 0u) {
-            currentRes++;
-            // Request brick loading if needed
-            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true) {
+            // Request brick loading if needed, at minRequestRes or coarser
+            if (requestChannel == true && (gRequest.a + gRequest.b + gRequest.g + gRequest.r == 0.0) && query == true && currentRes >= minRequestRes) {
                 gRequest = packPTCoordToRGBA8(uvec3(coordinate));
             }
+            currentRes++;
             continue;
         } else {
             // Extract brick cache coordinates
@@ -1757,12 +1763,15 @@ void main(void) {
             
             // Request higher resolution bricks if we're using lower resolution than optimal.
             // potentially overwrite brick request
+            // Never finer than minRequestRes; nothing when rendering finer data already.
+            int requestRes = max(bestRes, minRequestRes);
             if (!overWrittenRequest 
-                && c_res_current[c] != bestRes
+                && c_res_current[c] != requestRes
+                && c_res_current[c] >= minRequestRes
                 && c_val_current[c] > 0.0
                 && c_renderMode_current[c] == 2
                 && int(floor(rnd * float(maxChannels))) == c) {
-                setBrickRequest(p, bestRes, slot, rnd);
+                setBrickRequest(p, requestRes, slot, rnd);
                 overWrittenRequest = true;
             }
 

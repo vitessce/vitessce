@@ -1,4 +1,5 @@
 import { get, slice } from 'zarrita';
+import { createSharedAbort, raceAbortSignal } from '@vitessce/zarr-utils';
 
 const BRICK_SIZE = 32;
 const SPATIAL_AXES = ['z', 'y', 'x'];
@@ -201,7 +202,11 @@ const CHUNK_STALL_MS = 30000;
 // Decoded-chunk LRU shared by all levels and neighboring bricks (Zarr chunks
 // or TIFF tiles). Entries hold promises, so concurrent reads of the same chunk
 // share one decode. Failures, including stalls and aborts, are retryable.
-// Loaders get an AbortSignal, which abortAll and stalls abort.
+// A read in flight is aborted only once every brick waiting for it has aborted;
+// a brick that aborts stops waiting right away. When no chunk has arrived for
+// stallMs while some are loading, the server is taken to have stopped answering:
+// the loads in flight fail and their requests are aborted, so that their bricks
+// fail and free their fetch slots instead of holding them indefinitely.
 export function createChunkCache(
   maxBytes = DECODED_CHUNK_CACHE_BYTES, { stallMs = CHUNK_STALL_MS } = {},
 ) {
@@ -209,16 +214,13 @@ export function createChunkCache(
   let bytes = 0;
   // Entries loading, with a function that fails them.
   const loading = new Map();
-  let controller = new AbortController();
   let lastLoadTime = Date.now();
   let watchdog = null;
-  // Fail every load in flight and abort its requests, where the reader passes the
-  // signal on. The loads fail right away either way, so their bricks do too.
-  function failLoading(error) {
-    loading.forEach(fail => fail(error));
-    loading.clear();
-    controller.abort(error);
-    controller = new AbortController();
+  function stopWatchdogWhenIdle() {
+    if (loading.size === 0 && watchdog) {
+      clearTimeout(watchdog);
+      watchdog = null;
+    }
   }
   function checkStalled() {
     watchdog = null;
@@ -228,32 +230,59 @@ export function createChunkCache(
       watchdog = setTimeout(checkStalled, stallMs - idle);
       return;
     }
-    failLoading(new Error(`No chunk loaded for ${stallMs / 1000} s`));
+    const error = new Error(`No chunk loaded for ${stallMs / 1000} s`);
+    Array.from(loading.values()).forEach(fail => fail(error));
   }
   // A chunk finished loading, or failed: either way, the server answered.
   function loaded(entry) {
     loading.delete(entry);
     lastLoadTime = Date.now();
-    if (loading.size === 0 && watchdog) {
-      clearTimeout(watchdog);
-      watchdog = null;
-    }
+    stopWatchdogWhenIdle();
   }
-  function load(key, loader) {
+  /**
+   * @param {string} key
+   * @param {(signal: AbortSignal) => Promise<{ data: ArrayLike<number> }>} loader
+   * Reads the chunk; its signal aborts once all of the chunk's readers have,
+   * or when the load stalls.
+   * @param {{ signal?: AbortSignal }} options The reader's signal.
+   */
+  function load(key, loader, { signal } = {}) {
     if (cache.has(key)) {
       const entry = cache.get(key);
       cache.delete(key);
       cache.set(key, entry);
-      return entry.promise;
+      if (!entry.isReady) entry.shared.attach(signal);
+      return raceAbortSignal(entry.promise, signal);
     }
     const entry = { bytes: 0, isReady: false };
+    // Forget the entry when it fails or is aborted, so the next read starts anew.
+    const forget = () => {
+      if (cache.get(key) === entry) cache.delete(key);
+    };
+    // Aborted once every reader has aborted (then no longer awaited, so it
+    // cannot stall), or when it stalls.
+    const controller = new AbortController();
+    entry.shared = createSharedAbort(() => {
+      forget();
+      loading.delete(entry);
+      stopWatchdogWhenIdle();
+    });
+    entry.shared.signal.addEventListener(
+      'abort', () => controller.abort(entry.shared.signal.reason), { once: true },
+    );
     // Idle time before this load is not a stall.
     if (loading.size === 0) lastLoadTime = Date.now();
-    const stalled = new Promise((resolve, reject) => {
-      loading.set(entry, reject);
+    const stalled = new Promise((_, reject) => {
+      loading.set(entry, (error) => {
+        loading.delete(entry);
+        forget();
+        controller.abort(error);
+        reject(error);
+      });
     });
     if (!watchdog) watchdog = setTimeout(checkStalled, stallMs);
     entry.promise = Promise.race([loader(controller.signal), stalled]).then((chunk) => {
+      entry.shared.release();
       loaded(entry);
       if (cache.get(key) === entry) {
         entry.isReady = true;
@@ -272,21 +301,19 @@ export function createChunkCache(
       }
       return chunk;
     }, (error) => {
+      entry.shared.release();
       if (loading.has(entry)) loaded(entry);
-      if (cache.get(key) === entry) cache.delete(key);
+      forget();
       throw error;
     });
     cache.set(key, entry);
-    return entry.promise;
+    entry.shared.attach(signal);
+    return raceAbortSignal(entry.promise, signal);
   }
   return {
     load,
     // Whether a chunk is decoded and retained, without touching its recency.
     isReady: key => cache.get(key)?.isReady === true,
-    // Fail the loads in flight, e.g. when the user stops loading.
-    abortAll: () => {
-      if (loading.size > 0) failLoading(new Error('Loading stopped'));
-    },
     stats: () => ({ entries: cache.size, bytes }),
     clear: () => { cache.clear(); bytes = 0; },
   };
@@ -301,30 +328,35 @@ function chunkIndices(selection, chunkSize) {
 
 /**
  * Region reader for zarrita arrays (or the Vitessce adapter proxy).
- * readRegion(source, { t, c, z, y, x }) takes [start, end) ranges for z, y, x
- * and returns { data, stride } with strides in ZYX order.
+ * readRegion(source, { t, c, z, y, x }, { signal }) takes [start, end) ranges
+ * for z, y, x and returns { data, stride } with strides in ZYX order. Aborting
+ * the signal aborts the store requests of chunks that no other read waits for.
  * readRegion.chunkKeys(source, region) lists the cache keys of the chunks it reads.
  */
 export function createZarrRegionReader({ arrays, labels, cache }) {
   // Zarrita assembles selections through getChunk, so caching getChunk lets
-  // neighboring bricks reuse decoded chunks.
+  // neighboring bricks reuse decoded chunks. Zarrita passes the signal of get
+  // in the store options of getChunk; the store request gets the shared one.
   const cachedArrays = arrays.map((array, source) => new Proxy(array, {
     get(target, property) {
       if (property !== 'getChunk') return Reflect.get(target, property);
-      return (coordinates, options, ...rest) => cache.load(
+      return (coordinates, storeOptions, ...options) => cache.load(
         `${source}:${coordinates.join(',')}`,
-        signal => target.getChunk(coordinates, { ...options, signal }, ...rest),
+        signal => target.getChunk(coordinates, { ...storeOptions, signal }, ...options),
+        { signal: storeOptions?.signal },
       );
     },
   }));
   const spatialLabels = labels.filter(axis => SPATIAL_AXES.includes(axis));
   async function readRegion(source, {
     t, c, z, y, x,
-  }) {
+  }, { signal } = {}) {
     const selections = {
       t, c, z: slice(...z), y: slice(...y), x: slice(...x),
     };
-    const result = await get(cachedArrays[source], labels.map(axis => selections[axis]));
+    const result = await get(
+      cachedArrays[source], labels.map(axis => selections[axis]), { signal },
+    );
     return {
       data: result.data,
       stride: SPATIAL_AXES.map(axis => result.stride[spatialLabels.indexOf(axis)]),
@@ -416,7 +448,13 @@ export function createVolumeBrickSource({
     }));
   }
 
-  async function readBrick(brick) {
+  /**
+   * @param {object} brick { level, t, c, bx, by, bz }
+   * @param {{ signal?: AbortSignal }} options Aborting rejects with the signal's
+   * reason and aborts the reads of source chunks that no other brick waits for.
+   */
+  async function readBrick(brick, { signal } = {}) {
+    signal?.throwIfAborted();
     const { t = 0, c = 0 } = brick;
     const {
       level, origin: [z0, y0, x0], valid, yRange, xRange, ranges,
@@ -456,17 +494,24 @@ export function createVolumeBrickSource({
     };
     let nextRead = 0;
     const readNext = async () => {
-      while (nextRead < ranges.length) {
+      // Once aborted, or once another read has failed, start no further reads.
+      while (nextRead < ranges.length && !signal?.aborted) {
         const range = ranges[nextRead];
         nextRead += 1;
         // eslint-disable-next-line no-await-in-loop
         const result = await readRegion(level.source, {
           t, c, z: range, y: yRange, x: xRange,
-        });
+        }, { signal });
         accumulate(result, range);
       }
     };
-    await Promise.all(Array.from({ length: Math.min(concurrency, ranges.length) }, readNext));
+    try {
+      await Promise.all(Array.from({ length: Math.min(concurrency, ranges.length) }, readNext));
+    } catch (error) {
+      nextRead = ranges.length;
+      throw error;
+    }
+    signal?.throwIfAborted();
     const data = new DataType(BRICK_SIZE ** 3);
     const isInteger = !(data instanceof Float32Array || data instanceof Float64Array);
     // Source voxels per logical voxel; edge bins may be partial.
@@ -505,8 +550,6 @@ export function createVolumeBrickSource({
     brickChunkKeys,
     // Whether a chunk from brickChunkKeys is decoded, so reading it fetches nothing.
     isChunkCached: cache.isReady,
-    // Fail the chunk loads in flight, cancelling their requests where possible.
-    abortReads: cache.abortAll,
     cache: { stats: cache.stats, clear: cache.clear },
   };
 }

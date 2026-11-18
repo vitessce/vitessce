@@ -156,6 +156,13 @@ export function SpatialSubscriber(props) {
     // Z reduction of coarse levels in the accelerated 3D view:
     // 'auto' | 'none' | 'sample' | 'mean' | 'max'. Read once when the volume loads.
     volumeZReduction = 'auto',
+    // Maximum number of bricks the accelerated 3D view fetches at once: a positive
+    // integer, or Infinity for no limit. Unset uses the default (6). Batches grow
+    // with it (at least 40 bricks, at most a quarter of the brick cache).
+    volumeMaxConcurrentBrickRequests = 6,
+    // Opt in to the accelerated 3D view loading the missing coarser levels of a
+    // region before the requested level, so that zooming in refines gradually.
+    volumeProgressiveLoading = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
@@ -193,6 +200,7 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialBackgroundTheme,
     spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
@@ -219,6 +227,7 @@ export function SpatialSubscriber(props) {
     setSpatialRotationOrbit: setRotationOrbit,
     setSpatialOrbitAxis: setOrbitAxis,
     setSpatialAxisFixed,
+    setSpatialBackgroundTheme,
     setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
@@ -249,6 +258,9 @@ export function SpatialSubscriber(props) {
   // A non-null camera snapshot in the coordination space indicates
   // that a neuroglancer view is present and is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
+  const requestCameraReset = useCallback(() => {
+    setSpatialCameraSnapshot(null);
+  }, [setSpatialCameraSnapshot]);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -368,6 +380,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_SHAPE,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -407,6 +420,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -461,6 +476,24 @@ export function SpatialSubscriber(props) {
 
   const is3dMode = spatialRenderingMode === '3D';
   const shouldUseThree = threeFor3d && is3dMode;
+  // spatialAxisFixed is only read by the DeckGL renderer.
+  const hasCameraAxisOption = !shouldUseThree;
+  const hasVolumeLoadingOptions = threeFor3d && acceleratedFor3d;
+
+  // Brick loading options of the accelerated 3D view. The props set the initial
+  // values; the options menu changes them for this view (until the props change).
+  const [maxConcurrentBrickRequests, setMaxConcurrentBrickRequests] = useState(
+    volumeMaxConcurrentBrickRequests,
+  );
+  const [isProgressiveLoadingEnabled, setIsProgressiveLoadingEnabled] = useState(
+    volumeProgressiveLoading,
+  );
+  useEffect(() => {
+    setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
+  }, [volumeMaxConcurrentBrickRequests]);
+  useEffect(() => {
+    setIsProgressiveLoadingEnabled(volumeProgressiveLoading);
+  }, [volumeProgressiveLoading]);
 
   const [deckWidth, deckHeight, deckRef] = useDeckCanvasSize();
   const [threeWidth, threeHeight, threeRef] = useGridItemSize();
@@ -548,7 +581,9 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionNormDataAggregated,
     spotMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForLayers({
-    multiExpressionData: spotMultiExpressionNormData,
+    multiExpressionData: spotMultiExpressionData,
+    multiExpressionNormData: spotMultiExpressionNormData,
+    multiExpressionExtents: spotMultiExpressionExtents,
     layerScopes: spotLayerScopes,
     layerCoordination: spotLayerCoordination,
   });
@@ -557,7 +592,9 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionNormDataAggregated,
     segmentationMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForChannels({
-    multiExpressionData: segmentationMultiExpressionNormData,
+    multiExpressionData: segmentationMultiExpressionData,
+    multiExpressionNormData: segmentationMultiExpressionNormData,
+    multiExpressionExtents: segmentationMultiExpressionExtents,
     layerScopes: segmentationLayerScopes,
     layerCoordination: segmentationLayerCoordination,
     channelScopesByLayer: segmentationChannelScopesByLayer,
@@ -1056,11 +1093,20 @@ export function SpatialSubscriber(props) {
       isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
+      spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
       options={(
         <SpatialOptions
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
           use3d={is3dMode}
+          hasCameraAxisOption={hasCameraAxisOption}
+          hasVolumeLoadingOptions={hasVolumeLoadingOptions}
+          volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+          setVolumeMaxConcurrentBrickRequests={setMaxConcurrentBrickRequests}
+          volumeProgressiveLoading={isProgressiveLoadingEnabled}
+          setVolumeProgressiveLoading={setIsProgressiveLoadingEnabled}
+          spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+          setSpatialBackgroundTheme={setSpatialBackgroundTheme}
         />
       )}
     >
@@ -1096,6 +1142,8 @@ export function SpatialSubscriber(props) {
               onEntitySelected={onEntitySelected}
               onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
               volumeZReduction={volumeZReduction}
+              volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+              volumeProgressiveLoading={isProgressiveLoadingEnabled}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}
@@ -1234,7 +1282,8 @@ export function SpatialSubscriber(props) {
             annotationShapes={annotationShapes}
             annotationOverlayVisible={annotationOverlayVisible}
             annotationSemanticZoom={annotationSemanticZoom}
-            hideRecenter={hasSpatialCameraSnapshot}
+            // Synced to Neuroglancer: recenter asks NG to restore its home camera (snapshot follows).
+            onRequestCameraReset={hasSpatialCameraSnapshot ? requestCameraReset : undefined}
             {...annotationEditingProps}
           />
         )
@@ -1269,8 +1318,8 @@ export function SpatialSubscriber(props) {
         />
       )}
       <MultiLegend
-        // Fix to dark theme due to black background of spatial plot.
-        theme="dark"
+        // Match the plot background, which is configurable.
+        theme={spatialBackgroundTheme ?? 'dark'}
         maxHeight={height}
 
         // Segmentations
