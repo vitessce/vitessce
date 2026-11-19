@@ -1,74 +1,11 @@
 // OME-TIFF support for the brick reader in volume-zarr.js. A TIFF pyramid level
 // is read through viv's TiffPixelSource, one tile of one plane at a time.
-
-// Selection of the first plane, for reading a level's TIFF directory.
-function firstPlane(labels) {
-  return Object.fromEntries(labels
-    .filter(axis => axis !== 'y' && axis !== 'x')
-    .map(axis => [axis, 0]));
-}
+// Level descriptors (with each level's own tile as its chunk) come from
+// ImageWrapper.getResolutionLevels.
 
 /**
- * Array-like descriptors of OME-TIFF pyramid levels: { shape, chunks, dtype },
- * with the TIFF tile as the chunk, so that planVolumeLevels and
- * decodedBytesPerBrick treat tiles like Zarr chunks. The tile size comes from
- * each level's own TIFF directory: viv's tileSize is level 0's for every level,
- * but pyramid writers often shrink tiles at coarse levels (e.g. 1024, 928, 464).
- * @param {object[]} pixelSources viv TiffPixelSource per resolution level.
- * @returns {Promise<object[]>} One descriptor per level; pixelSource is kept for reading.
- */
-export async function getTiffLevelArrays(pixelSources) {
-  return Promise.all(pixelSources.map(async (pixelSource) => {
-    const { shape, labels } = pixelSource;
-    if (labels.length !== shape.length || labels.at(-2) !== 'y' || labels.at(-1) !== 'x') {
-      throw new Error('Interleaved (RGB) OME-TIFF images are not supported in the 3D view');
-    }
-    // eslint-disable-next-line no-underscore-dangle
-    const image = await pixelSource._indexer(firstPlane(labels));
-    // Tiled images give the tile size, stripped ones the image width and RowsPerStrip.
-    const tileShape = { y: image.getTileHeight(), x: image.getTileWidth() };
-    return {
-      shape,
-      chunks: labels.map(axis => tileShape[axis] ?? 1),
-      dtype: pixelSource.dtype,
-      pixelSource,
-    };
-  }));
-}
-
-/**
- * Sample value range of an OME-TIFF, if its writer recorded one: the TIFF
- * SMinSampleValue / SMaxSampleValue tags, or the same keys in the OME-XML
- * original metadata (kept by Bio-Formats conversions). Neither is part of the
- * OME-XML model, and viv's parser drops annotations, so this reads the first IFD.
- * @param {object} pixelSource viv TiffPixelSource of level 0.
- * @returns {Promise<[number, number]|null>} [min, max], or null if not recorded.
- */
-export async function getTiffSampleRange(pixelSource) {
-  try {
-    // eslint-disable-next-line no-underscore-dangle
-    const image = await pixelSource._indexer(firstPlane(pixelSource.labels));
-    const directory = image?.fileDirectory ?? {};
-    // Tags hold one value per sample; take the overall range.
-    const fromTag = (value, reduce) => (value === undefined || typeof value === 'number'
-      ? value : reduce(...Array.from(value)));
-    let min = fromTag(directory.SMinSampleValue, Math.min);
-    let max = fromTag(directory.SMaxSampleValue, Math.max);
-    if (!(Number.isFinite(min) && Number.isFinite(max))
-      && typeof directory.ImageDescription === 'string') {
-      const fromXml = key => Number(directory.ImageDescription
-        .match(new RegExp(`<Key>${key}</Key>\\s*<Value>([^<]*)</Value>`))?.[1]);
-      min = fromXml('SMinSampleValue');
-      max = fromXml('SMaxSampleValue');
-    }
-    return Number.isFinite(min) && Number.isFinite(max) && max > min ? [min, max] : null;
-  } catch (error) {
-    return null; // The range is optional metadata.
-  }
-}
-
-/**
- * Region reader for OME-TIFF levels from getTiffLevelArrays, with the same
+ * Region reader for OME-TIFF levels ({ shape, chunks, data }), whose data is a
+ * viv TiffPixelSource, with the same
  * contract as createZarrRegionReader. Windows follow each level's own tile
  * grid (its chunks), so each window decodes exactly one TIFF tile. Decoded
  * tiles go through the shared chunk cache, since one tile serves many
@@ -103,7 +40,7 @@ export function createTiffRegionReader({ arrays, labels, cache }) {
     const {
       t, c, z: [z0, z1], y: [y0, y1], x: [x0, x1],
     } = region;
-    const { pixelSource, shape, chunks } = arrays[source];
+    const { data: pixelSource, shape, chunks } = arrays[source];
     const tileHeight = chunks[yIndex];
     const tileWidth = chunks[xIndex];
     const height = y1 - y0;

@@ -1,5 +1,7 @@
 // Attribution: Originally written by @alexandrairger
 // Moved from .glsl file to .js file in this commit: https://github.com/vitessce/vitessce/pull/2264/commits/7f17fc003674a4ed1a8de6140db802781871cf88
+import { BRICK_SIZE } from '../brick-constants.js';
+
 /*
  * This shader implements ray-marching volume rendering with:
  * - Multi-resolution level-of-detail (LOD) support
@@ -351,7 +353,7 @@ layout(location = 2) out vec4 gUsage;
 // CONSTANTS
 // ========================================
 // Size of each brick in voxels (32x32x32)
-const float BRICK_SIZE = 32.0;
+const float BRICK_SIZE = ${BRICK_SIZE.toFixed(1)};
 // Brick cache texture width
 const float BRICK_CACHE_SIZE_X = 2048.0;
 // Brick cache texture height

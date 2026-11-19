@@ -16,7 +16,6 @@ import {
   _pickWarmUpLevel,
   _widenDataRange,
   _hasBrickRequests,
-  _getVoxelSpacing,
   _getDataRange,
   _toUint8,
   _zarrToPt,
@@ -62,26 +61,6 @@ function createManager() {
 }
 
 describe('spatial-accelerated data utils', () => {
-  describe('_getVoxelSpacing', () => {
-    const identity = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-    it('uses the root-level scale of the converter datasets', () => {
-      // kingsnake: datasets[0] scale is 1, root-level scale doubles Z.
-      expect(_getVoxelSpacing(identity, {
-        coordinateTransformations: [{ type: 'scale', scale: [1, 1, 2, 1, 1] }],
-      })).toEqual([2, 1, 1]);
-      // f8ii, melanoma
-      expect(_getVoxelSpacing(identity, {
-        coordinateTransformations: [{ type: 'scale', scale: [1, 1, 0.28, 0.14, 0.14] }],
-      })).toEqual([0.28, 0.14, 0.14]);
-    });
-    it('uses the model matrix for NGFF dataset scales', () => {
-      // idr0101A: datasets[0] scale in micrometers, no root-level transform.
-      const matrix = [0.108335, 0, 0, 0, 0, 0.108335, 0, 0, 0, 0, 0.4, 0, 0, 0, 0, 1];
-      expect(_getVoxelSpacing(matrix, {})).toEqual([0.4, 0.108335, 0.108335]);
-      expect(_getVoxelSpacing(identity, {})).toEqual([1, 1, 1]);
-    });
-  });
-
   describe('initialization of page table and brick cache', () => {
     it('Can compute brick layout per resolution', () => {
       // TODO: also add test for calculation of brick layout from zarr metadata
@@ -421,23 +400,17 @@ describe('spatial-accelerated data utils', () => {
       expect(_getDataRange(new Float32Array([NaN]))).toEqual([0, 1]);
     });
 
-    it('_getStorageRange prefers the recorded sample range, then the OMERO window', () => {
+    it('_getStorageRange gives the channel window from the image metadata', () => {
       // eslint-disable-next-line no-underscore-dangle
       const storageRange = manager => VolumeDataManager.prototype._getStorageRange.call(manager, 1);
-      const omero = { channels: [{}, { window: { start: 50, end: 800, min: 0, max: 65535 } }] };
-      expect(storageRange({ sampleRange: [0, 66], ngffMetadata: { omero } })).toEqual([0, 66]);
-      expect(storageRange({ sampleRange: null, ngffMetadata: { omero } })).toEqual([50, 800]);
-      expect(storageRange({ sampleRange: null, ngffMetadata: { Pixels: {} } })).toBeUndefined();
-      // An OMERO block without a window has no range either.
-      const noWindow = { channels: [{}, { label: 'DAPI' }] };
-      expect(storageRange({ sampleRange: null, ngffMetadata: { omero: noWindow } }))
-        .toBeUndefined();
+      expect(storageRange({ channelWindows: [undefined, [50, 800]] })).toEqual([50, 800]);
+      expect(storageRange({ channelWindows: [[0, 66], undefined] })).toBeUndefined();
+      expect(storageRange({ channelWindows: [] })).toBeUndefined();
     });
 
     it('takes an integer channel range from its overview brick too, within dtype limits', async () => {
       const { manager, brickLayout, PT } = createManager();
-      manager.ngffMetadata = { Pixels: {} }; // OME-TIFF without a recorded range
-      manager.sampleRange = null;
+      manager.channelWindows = []; // OME-TIFF without a recorded range
       manager.channels.downsampleMin = [undefined, undefined];
       manager.channels.downsampleMax = [undefined, undefined];
       // Values 200-900, as a camera offset under dim uint16 signal (WashU kidney).
@@ -467,8 +440,7 @@ describe('spatial-accelerated data utils', () => {
 
     it('takes a float channel range from its overview brick, before any other brick', async () => {
       const { manager, brickLayout, PT } = createManager();
-      manager.ngffMetadata = { Pixels: {} }; // OME-TIFF without a recorded range
-      manager.sampleRange = null;
+      manager.channelWindows = []; // OME-TIFF without a recorded range
       manager.channels.downsampleMin = [undefined, undefined];
       manager.channels.downsampleMax = [undefined, undefined];
       // Float values 0-66, as in LuCa-7color_3x3component_data.ome.tif.

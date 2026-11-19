@@ -13,20 +13,15 @@ import {
   NearestFilter,
 } from 'three';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
-import { createAbortReason } from '@vitessce/zarr-utils';
+import { createAbortReason, getBytesPerElement } from '@vitessce/zarr-utils';
 import {
   planVolumeLevels,
   decodedBytesPerBrick,
   createVolumeBrickSource,
-  createZarrRegionReader,
-  getBytesPerElement,
 } from './volume-zarr.js';
-import {
-  getTiffLevelArrays,
-  createTiffRegionReader,
-  getTiffSampleRange,
-} from './volume-tiff.js';
+import { getVolumeSources } from './volume-sources.js';
 import { getVolumeInfo, formatDtype } from './volume-info.js';
+import { BRICK_SIZE } from './brick-constants.js';
 
 // NOTES:
 // 2048 x 2048 x 32 = 4096 bricks, around 134 MB
@@ -39,7 +34,6 @@ import { getVolumeInfo, formatDtype } from './volume-info.js';
 // Default chunk sizes
 // const CHUNK_SIZE = 32;
 // const CHUNK_TOTAL_SIZE = 32768; // 32*32*32 = 32768
-const BRICK_SIZE = 32;
 const BRICK_CACHE_SIZE_X = 64;
 const BRICK_CACHE_SIZE_Y = 64;
 const BRICK_CACHE_SIZE_Z = 4;
@@ -152,70 +146,6 @@ function logWithColor(message) {
 
 /* Begin extracted functions */
 /**
- * The source resolution levels of an image, and how to read them, by image type.
- * @param {object} imageWrapper ImageWrapper of an OME-Zarr or OME-TIFF image.
- * @returns {Promise<{ labels: string[], arrays: object[], datasets: object[],
- *   createRegionReader: function }>} arrays have shape and chunks per level;
- * datasets are the NGFF multiscale datasets (empty for OME-TIFF).
- */
-export async function _getVolumeSources(imageWrapper) {
-  const type = imageWrapper?.getType();
-  if (type === 'ome-tiff') {
-    // viv's TiffPixelSource per level; bricks are read tile by tile.
-    const { data } = imageWrapper.vivLoader;
-    const pixelSources = Array.isArray(data) ? data : [data];
-    return {
-      labels: pixelSources[0].labels,
-      arrays: await getTiffLevelArrays(pixelSources),
-      datasets: [],
-      createRegionReader: createTiffRegionReader,
-    };
-  }
-  if (type === 'ome-zarr') {
-    const { multiscales } = imageWrapper.vivLoader.metadata;
-    if (!multiscales) {
-      throw new Error('Expected multiscales metadata in group.attrs');
-    }
-    // Physical sizes come from the model matrix, not from vivData meta.
-    const vivData = imageWrapper.getData();
-    if (!Array.isArray(vivData) || vivData.length < 1) {
-      throw new Error('Not a multiresolution loader');
-    }
-    return {
-      labels: vivData[0].labels,
-      // TODO: add a better getter to ImageWrapper to avoid accessing the private _data field here?
-      arrays: vivData.map(resolutionData => resolutionData._data),
-      datasets: multiscales[0].datasets,
-      createRegionReader: createZarrRegionReader,
-    };
-  }
-  throw new Error('Invalid imageWrapper or not an OME-Zarr or OME-TIFF image');
-}
-
-/**
- * Level-0 voxel spacing, ZYX. Combines the column-major model matrix (dataset and
- * multiscale transforms, plus any from the file options) with the non-standard
- * root-level coordinateTransformations that the converter datasets (kingsnake,
- * f8ii, melanoma) use for their physical spacing and that the model matrix ignores.
- * @param {number[]} modelMatrix From ImageWrapper.getModelMatrix().
- * @param {object} ngffMetadata The root .zattrs.
- * @returns {[number, number, number]}
- */
-export function _getVoxelSpacing(modelMatrix, ngffMetadata) {
-  const spacing = [8, 4, 0].map(i => Math.hypot(
-    modelMatrix[i], modelMatrix[i + 1], modelMatrix[i + 2],
-  ) || 1);
-  const rootScale = ngffMetadata?.coordinateTransformations
-    ?.find(t => t.type === 'scale')?.scale;
-  if (rootScale?.length >= 3) {
-    rootScale.slice(-3).forEach((value, axis) => {
-      if (Number.isFinite(value) && value > 0) spacing[axis] *= value;
-    });
-  }
-  return spacing;
-}
-
-/**
  * Range of the finite values of a brick, as a uint8 storage range fallback.
  * @param {TypedArray} data
  * @returns {[number, number]} [min, max], with max > min.
@@ -277,21 +207,6 @@ export function _toUint8(data, min, max) {
     out[i] = ((clamped - min) * 255 / range) | 0; // NaN | 0 is 0
   }
   return out;
-}
-
-/**
- * Value range mapped to 0-255 when converting uint16 bricks to uint8.
- * Prefers the OMERO display window (start/end) over the full data range
- * (min/max), which is often the whole dtype range, e.g. 0-65535 in IDR files.
- * @param {object} omero The omero metadata of the image.
- * @param {number} channel The Zarr channel index.
- * @returns {[number, number]|undefined} Undefined without a window in the metadata.
- */
-export function _getChannelWindow(omero, channel) {
-  const window = omero?.channels?.[channel]?.window;
-  const start = window?.start ?? window?.min;
-  const end = window?.end ?? window?.max;
-  return end > start ? [start, end] : undefined;
 }
 
 export function _resolutionStatsToShapes(multiResolutionStats) {
@@ -390,7 +305,7 @@ export function _getPageTableLayout(brickLayout, channelCount) {
  * arrays and level sources start at firstSource; spacing is its voxel size, ZYX.
  */
 export function _planLevelsWithinPageTable({
-  arrays, labels, datasets = [], spacing = [1, 1, 1], mode, maxLevels,
+  arrays, labels, spacing = [1, 1, 1], mode, maxLevels,
   channelCount, max3DTextureSize = Infinity,
 }) {
   const maxExtent = PAGE_TABLE_MAX_EXTENT.map(extent => Math.min(extent, max3DTextureSize));
@@ -402,7 +317,6 @@ export function _planLevelsWithinPageTable({
     const levels = planVolumeLevels({
       arrays: sourceArrays,
       labels,
-      datasets: datasets.slice(firstSource),
       spacing: sourceSpacing,
       mode,
       maxLevels,
@@ -901,6 +815,9 @@ export class VolumeDataManager {
       lowestDataRes: 0, // lowest resolution level with data
     };
 
+    // Value range of each Zarr channel from the image metadata, or undefined.
+    this.channelWindows = [];
+
     this.ptTHREE = null;
     this.bcTHREE = null;
 
@@ -1375,13 +1292,8 @@ export class VolumeDataManager {
 
       // OME-Zarr or OME-TIFF levels, plus the matching region reader.
       const {
-        labels, arrays: sourceArrays, datasets, createRegionReader,
-      } = await _getVolumeSources(imageWrapper);
-
-      // TODO(mark): Do not access vivLoader.metadata directly. Generalize to non-NGFF metadata.
-      // For OME-TIFF this is the OME-XML metadata.
-      this.ngffMetadata = imageWrapper.vivLoader.metadata;
-      log.debug('ngffMetadata', this.ngffMetadata);
+        labels, arrays: sourceArrays, dtype, createRegionReader,
+      } = await getVolumeSources(imageWrapper);
 
       // Try to load each resolution level in order
       /*
@@ -1410,8 +1322,8 @@ export class VolumeDataManager {
       if (sourceArrays.length > 0) {
         const sourceAxisSize = axis => (labels.includes(axis)
           ? sourceArrays[0].shape[labels.indexOf(axis)] : 1);
-        // For OME-TIFF, the model matrix holds the OME-XML physical sizes.
-        const sourceSpacing = _getVoxelSpacing(imageWrapper.getModelMatrix(), this.ngffMetadata);
+        // In the units of imageWrapper.getSpatialUnit().
+        const sourceSpacing = imageWrapper.getVoxelSpacing();
 
         // Render levels are logical: a source array plus a Z reduction factor.
         // Bricks are 32^3 regions read independently of the source chunk shape.
@@ -1422,7 +1334,6 @@ export class VolumeDataManager {
         } = _planLevelsWithinPageTable({
           arrays: sourceArrays,
           labels,
-          datasets,
           spacing: sourceSpacing,
           mode: loadingOptions.zReduction,
           maxLevels: MAX_RESOLUTION_LEVELS,
@@ -1434,15 +1345,13 @@ export class VolumeDataManager {
         }
         this.volumeInfo = getVolumeInfo({
           sourceArrays,
+          dtype,
           labels,
           levels,
           firstSource,
           maxShape: MAX_LEVEL_SHAPE,
           spacing: sourceSpacing,
-          // NGFF axes, or the OME-XML of an OME-TIFF.
-          spacingUnit: this.ngffMetadata?.multiscales?.[0]?.axes
-            ?.find(axis => axis.name?.toLowerCase() === 'x')?.unit
-            ?? this.ngffMetadata?.Pixels?.PhysicalSizeXUnit,
+          spacingUnit: imageWrapper.getSpatialUnit(),
         });
         const array0 = arrays[0];
         log.debug('volume levels [source, zFactor, zMode, shape ZYX]', levels.map(
@@ -1451,7 +1360,7 @@ export class VolumeDataManager {
 
         // Every level is rendered, however much source data its bricks decode
         // (e.g. whole-plane chunks at full resolution make them slow).
-        const bytesPerElement = getBytesPerElement(array0.dtype);
+        const bytesPerElement = getBytesPerElement(dtype);
         log.debug('volume levels: MiB decoded per brick', levels.map(level => decodedBytesPerBrick(
           level, arrays[level.source], labels, bytesPerElement,
         ) / (2 ** 20)));
@@ -1466,7 +1375,7 @@ export class VolumeDataManager {
           chunkSize: array0.chunks,
           shapes, // TCZYX
           arrays,
-          dtype: array0.dtype,
+          dtype,
           physicalSizeTotal: levels[0].shape.map((size, axis) => size * spacing[axis]),
           physicalSizeVoxel: spacing,
           brickLayout: levels.map(level => level.shape.map(size => Math.ceil(size / BRICK_SIZE))),
@@ -1499,10 +1408,10 @@ export class VolumeDataManager {
         // log.debug('initializing channel mappings');
         log.debug('config', config);
         // for each key in config, add to channel mappings
-        // OME-TIFF has no OMERO block. Its sample range, if the writer recorded one.
-        this.sampleRange = sourceArrays[0].pixelSource
-          ? await getTiffSampleRange(sourceArrays[0].pixelSource) : null;
-        log.debug('omero', this.ngffMetadata?.omero, 'sampleRange', this.sampleRange);
+        // Value ranges from the metadata: OMERO windows (OME-Zarr), or the
+        // sample range an OME-TIFF writer recorded.
+        this.channelWindows = await imageWrapper.getChannelWindows();
+        log.debug('channelWindows', this.channelWindows);
         // Channels stored over a fallback range, for a warning in the info panel.
         // uint8 is stored as is, so needs no range.
         this.volumeInfo.channelsWithoutRange = this.volumeInfo.dtype === 'uint8' ? []
@@ -1533,14 +1442,6 @@ export class VolumeDataManager {
 
       // log.debug(this.zarrStore);
 
-      /*
-      if (this.ngffMetadata.coordinateTransformations
-          && this.ngffMetadata.coordinateTransformations[0]
-          && this.ngffMetadata.coordinateTransformations[0].scale) {
-        // log.debug('scale', this.ngffMetadata.coordinateTransformations[0].scale);
-      }
-      */
-
       // Return data that can be displayed in the HUD
       return {
         success: true,
@@ -1565,14 +1466,15 @@ export class VolumeDataManager {
   }
 
   /**
-   * Value range of a channel mapped to 0-255 in the uint8 brick cache: the OMERO
-   * window (OME-Zarr), or the sample range recorded in an OME-TIFF.
+   * Value range of a channel mapped to 0-255 in the uint8 brick cache: from
+   * ImageWrapper.getChannelWindows, the OMERO window (OME-Zarr), or the sample
+   * range recorded in an OME-TIFF.
    * @param {number} zarrChannel
    * @returns {[number, number]|undefined} Undefined when the metadata has no range;
    * the first brick then sets it (see _loadBrick).
    */
   _getStorageRange(zarrChannel) {
-    return this.sampleRange ?? _getChannelWindow(this.ngffMetadata?.omero, zarrChannel);
+    return this.channelWindows?.[zarrChannel];
   }
 
   /**
@@ -1800,7 +1702,7 @@ export class VolumeDataManager {
         if (nextFreeSlot !== -1) {
           this.channels.zarrMappings[nextFreeSlot] = targetZarrChannel;
           log.debug('channelData', channelData);
-          log.debug('this.ngffMetadata?.omero?.channels', this.ngffMetadata?.omero?.channels);
+          log.debug('channelWindows', this.channelWindows);
           log.debug('targetZarrChannel', targetZarrChannel);
           [this.channels.downsampleMin[nextFreeSlot], this.channels.downsampleMax[nextFreeSlot]] = this._getStorageRange(targetZarrChannel) ?? [];
           log.debug(`Mapped zarr channel ${targetZarrChannel} to slot ${nextFreeSlot}`);

@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import * as zarr from 'zarrita';
+import { getBytesPerElement } from '@vitessce/zarr-utils';
 import {
   createVolumeBrickSource,
   planVolumeLevels,
   decodedBytesPerBrick,
-  getBytesPerElement,
 } from './volume-zarr.js';
-import { getTiffLevelArrays, createTiffRegionReader, getTiffSampleRange } from './volume-tiff.js';
-import { _getVolumeSources } from './VolumeDataManager.js';
+import { createTiffRegionReader } from './volume-tiff.js';
+import { getVolumeSources } from './volume-sources.js';
 
 const value = (c, z, y, x) => (z * 7 + y * 3 + x + c * 100) % 4000;
 
@@ -22,6 +22,7 @@ function createMockPixelSource({
     labels,
     shape,
     tileSize,
+    tileShape,
     dtype: 'Uint16',
     tileReads: 0,
     windows: [],
@@ -52,7 +53,7 @@ function createMockPixelSource({
   return pixelSource;
 }
 
-// The same voxels as a zarrita array (TCZYX).
+// The same voxels as a zarrita array (TCZYX), as an OME-Zarr source level.
 async function createZarrArray(shape, chunkShape) {
   const array = await zarr.create(zarr.root(new Map()).resolve('a'), { shape, chunkShape, dtype: 'uint16' });
   const [, nc, nz, ny, nx] = shape;
@@ -67,25 +68,53 @@ async function createZarrArray(shape, chunkShape) {
   }
   const stride = shape.map((_, axis) => shape.slice(axis + 1).reduce((a, b) => a * b, 1));
   await zarr.set(array, null, { data, shape, stride });
-  return array;
+  return { shape: array.shape, chunks: array.chunks, data: array };
 }
 
 const withDataShape = level => ({ ...level, dataShape: level.shape });
 
+// Mimics an ImageWrapper of an OME-TIFF, whose getResolutionLevels gives each
+// level's own tile as its chunk (tested in @vitessce/image-utils).
+function createMockTiffWrapper(pixelSources) {
+  return {
+    getType: () => 'ome-tiff',
+    isInterleaved: () => pixelSources[0].labels.at(-1) !== 'x',
+    getResolutionLevels: async () => pixelSources.map(pixelSource => ({
+      shape: pixelSource.shape,
+      labels: pixelSource.labels,
+      dtype: pixelSource.dtype,
+      chunks: pixelSource.labels.map(axis => (
+        { y: pixelSource.tileShape[0], x: pixelSource.tileShape[1] }[axis] ?? 1
+      )),
+      data: pixelSource,
+    })),
+  };
+}
+
+// Source levels as getVolumeSources gives them for OME-TIFF.
+async function getTiffLevelArrays(pixelSources) {
+  const { arrays } = await getVolumeSources(createMockTiffWrapper(pixelSources));
+  return arrays;
+}
+
 describe('volume-tiff', () => {
-  describe('getTiffLevelArrays', () => {
+  describe('OME-TIFF level descriptors', () => {
     it('describes each level with its tiles as chunks, in label order', async () => {
       const pixelSources = [
         createMockPixelSource({ labels: ['t', 'z', 'c', 'y', 'x'], shape: [1, 1955, 2, 2048, 1758], tileSize: 256 }),
         createMockPixelSource({ labels: ['t', 'z', 'c', 'y', 'x'], shape: [1, 1955, 2, 1024, 879], tileSize: 256 }),
       ];
       const arrays = await getTiffLevelArrays(pixelSources);
-      expect(arrays[0]).toMatchObject({ shape: [1, 1955, 2, 2048, 1758], chunks: [1, 1, 1, 256, 256], dtype: 'Uint16' });
-      expect(arrays[1].pixelSource).toBe(pixelSources[1]);
+      expect(arrays[0]).toMatchObject({
+        shape: [1, 1955, 2, 2048, 1758], chunks: [1, 1, 1, 256, 256],
+      });
+      expect(arrays[1].data).toBe(pixelSources[1]);
     });
 
     it('rejects interleaved RGB images', async () => {
-      const rgb = createMockPixelSource({ labels: ['t', 'c', 'z', 'y', 'x'], shape: [1, 1, 1, 64, 64, 3], tileSize: 64 });
+      const rgb = createMockPixelSource({
+        labels: ['t', 'c', 'z', 'y', 'x', '_c'], shape: [1, 1, 1, 64, 64, 3], tileSize: 64,
+      });
       await expect(getTiffLevelArrays([rgb])).rejects.toThrow(/Interleaved/);
     });
 
@@ -272,83 +301,10 @@ describe('volume-tiff', () => {
       expect(levels.map(l => l.zFactor)).toEqual([1, 3, 6, 13, 26, 52, 104]);
       expect(levels.at(-1)).toMatchObject({ isOverview: true });
       expect(levels.at(-1).shape.every(size => size <= 32)).toBe(true);
-      const bytesPerElement = getBytesPerElement(arrays[0].dtype);
+      const bytesPerElement = getBytesPerElement(pixelSources[0].dtype);
       // 32 planes of one 256 x 256 uint16 tile.
       expect(decodedBytesPerBrick(levels[0], arrays[0], labels, bytesPerElement))
         .toBe(32 * 256 * 256 * 2);
-    });
-  });
-
-  describe('getTiffSampleRange', () => {
-    const labels = ['t', 'z', 'c', 'y', 'x'];
-    const withDirectory = fileDirectory => ({
-      labels,
-      // eslint-disable-next-line no-underscore-dangle
-      _indexer: async selection => (
-        Object.values(selection).every(v => v === 0) ? { fileDirectory } : null
-      ),
-    });
-
-    it('reads the SMinSampleValue / SMaxSampleValue tags', async () => {
-      const source = withDirectory({ SMinSampleValue: [0, 2], SMaxSampleValue: [50, 66] });
-      expect(await getTiffSampleRange(source)).toEqual([0, 66]);
-    });
-
-    it('falls back to the same keys in the OME-XML original metadata', async () => {
-      // As in LuCa-7color_3x3component_data.ome.tif.
-      const xml = '<OME><StructuredAnnotations><XMLAnnotation><Value><OriginalMetadata>'
-        + '<Key>SMinSampleValue</Key><Value>0</Value></OriginalMetadata></Value></XMLAnnotation>'
-        + '<XMLAnnotation><Value><OriginalMetadata><Key>SMaxSampleValue</Key><Value>66</Value>'
-        + '</OriginalMetadata></Value></XMLAnnotation></StructuredAnnotations></OME>';
-      expect(await getTiffSampleRange(withDirectory({ ImageDescription: xml }))).toEqual([0, 66]);
-    });
-
-    it('returns null when no range is recorded or reading fails', async () => {
-      expect(await getTiffSampleRange(withDirectory({ ImageDescription: '<OME/>' }))).toBeNull();
-      expect(await getTiffSampleRange({
-        labels,
-        _indexer: async () => { throw new Error('network'); },
-      })).toBeNull();
-    });
-  });
-
-  describe('getBytesPerElement', () => {
-    it('reads v2 Zarr dtype strings and viv TIFF dtype names', () => {
-      expect(['|u1', '<u2', '>u2', '<f4', '<f8', 'Uint8', 'Uint16', 'Float32'].map(getBytesPerElement))
-        .toEqual([1, 2, 2, 4, 8, 1, 2, 4]);
-    });
-  });
-
-  describe('_getVolumeSources', () => {
-    it('reads OME-TIFF levels from the viv pixel sources', async () => {
-      const labels = ['t', 'c', 'z', 'y', 'x'];
-      const pixelSource = createMockPixelSource({
-        labels, shape: [1, 3, 401, 4255, 4992], tileSize: 512,
-      });
-      const sources = await _getVolumeSources({
-        getType: () => 'ome-tiff',
-        vivLoader: { data: [pixelSource], metadata: { Pixels: {} } },
-      });
-      expect(sources.labels).toEqual(labels);
-      expect(sources.datasets).toEqual([]);
-      expect(sources.arrays[0].chunks).toEqual([1, 1, 1, 512, 512]);
-      expect(sources.createRegionReader).toBe(createTiffRegionReader);
-    });
-
-    it('reads OME-Zarr levels from the zarrita arrays', async () => {
-      const array = { shape: [1, 1, 32, 32, 32], chunks: [1, 1, 32, 32, 32] };
-      const datasets = [{ path: '0' }];
-      const sources = await _getVolumeSources({
-        getType: () => 'ome-zarr',
-        getData: () => [{ labels: ['t', 'c', 'z', 'y', 'x'], _data: array }],
-        vivLoader: { metadata: { multiscales: [{ datasets }], omero: {} } },
-      });
-      expect(sources.arrays).toEqual([array]);
-      expect(sources.datasets).toBe(datasets);
-    });
-
-    it('rejects other image types', async () => {
-      await expect(_getVolumeSources(undefined)).rejects.toThrow(/OME-Zarr or OME-TIFF/);
     });
   });
 });

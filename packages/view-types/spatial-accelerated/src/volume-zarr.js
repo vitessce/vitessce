@@ -1,7 +1,7 @@
 import { get, slice } from 'zarrita';
 import { createSharedAbort, raceAbortSignal } from '@vitessce/zarr-utils';
+import { BRICK_SIZE } from './brick-constants.js';
 
-const BRICK_SIZE = 32;
 const SPATIAL_AXES = ['z', 'y', 'x'];
 
 // Virtual levels appended when the coarsest stored level spans several bricks:
@@ -61,8 +61,11 @@ function planVirtualLevels(coarsest, shape0, chunkZ) {
 // partial bin must not change the scale used by the shader (extent / scale).
 // With minZFactor > 1, level 0 is binned in Z too (a stack too deep to address),
 // and ratios are relative to its binned voxels.
+// arrays are source levels as ImageWrapper.getResolutionLevels gives them:
+// { shape, chunks, scale? }. Their scales (e.g. OME-Zarr dataset scales) give
+// the ratios between levels when every level has one; else their shapes do.
 export function planVolumeLevels({
-  arrays, labels, datasets = [], spacing = [1, 1, 1], mode = 'auto', maxLevels = 10,
+  arrays, labels, spacing = [1, 1, 1], mode = 'auto', maxLevels = 10,
   minZFactor = 1,
 }) {
   if (!['auto', 'none', 'sample', 'mean', 'max'].includes(mode)) {
@@ -73,10 +76,9 @@ export function planVolumeLevels({
     throw new Error('Expected Zarr axes z, y, x, with optional t and c');
   }
   const shapes = arrays.map(array => SPATIAL_AXES.map(axis => array.shape[labels.indexOf(axis)]));
-  const scales = arrays.map((array, i) => {
-    const scale = datasets[i]?.coordinateTransformations?.find(t => t.type === 'scale')?.scale;
-    return SPATIAL_AXES.map(axis => scale?.[labels.indexOf(axis)]);
-  });
+  const scales = arrays.map(array => SPATIAL_AXES.map(
+    axis => array.scale?.[labels.indexOf(axis)],
+  ));
   const hasScales = scales.every(scale => scale.every(
     value => Number.isFinite(value) && value > 0,
   ));
@@ -178,14 +180,6 @@ export function decodedBytesPerBrick(level, array, labels, bytesPerElement) {
   });
   return counts.reduce((product, count) => product * count, bytesPerElement)
     * array.chunks.reduce((product, size) => product * size, 1);
-}
-
-// Bytes per element of a v2 Zarr dtype string ('<u2', '|u1') or a viv
-// TIFF dtype name ('Uint16', 'Float32').
-export function getBytesPerElement(dtype) {
-  const [, prefix, digits] = String(dtype).match(/^([<>|]?).*?(\d+)$/) ?? [];
-  if (!digits) return 2;
-  return prefix ? Number(digits) : Number(digits) / 8;
 }
 
 // Room for several 32-plane stacks of large one-plane chunks, e.g. eight of
@@ -331,7 +325,8 @@ function chunkIndices(selection, chunkSize) {
 }
 
 /**
- * Region reader for zarrita arrays (or the Vitessce adapter proxy).
+ * Region reader for OME-Zarr levels ({ shape, chunks, data }), whose data is a
+ * zarrita array (or the Vitessce adapter proxy).
  * readRegion(source, { t, c, z, y, x }, { signal }) takes [start, end) ranges
  * for z, y, x and returns { data, stride } with strides in ZYX order. Aborting
  * the signal aborts the store requests of chunks that no other read waits for.
@@ -341,7 +336,7 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
   // Zarrita assembles selections through getChunk, so caching getChunk lets
   // neighboring bricks reuse decoded chunks. Zarrita passes the signal of get
   // in the store options of getChunk; the store request gets the shared one.
-  const cachedArrays = arrays.map((array, source) => new Proxy(array, {
+  const cachedArrays = arrays.map(({ data: array }, source) => new Proxy(array, {
     get(target, property) {
       if (property !== 'getChunk') return Reflect.get(target, property);
       return (coordinates, storeOptions, ...options) => cache.load(
@@ -382,7 +377,8 @@ export function createZarrRegionReader({ arrays, labels, cache }) {
 /**
  * Reads logical 32^3 bricks of the planned levels.
  * @param {object} options
- * @param {object[]} options.arrays Per source level, anything with shape and chunks.
+ * @param {object[]} options.arrays Per source level, { shape, chunks, data }, as
+ * ImageWrapper.getResolutionLevels gives them; data is what the region reader reads.
  * @param {object[]} options.levels From planVolumeLevels.
  * @param {string[]} options.labels Axis labels of the arrays.
  * @param {number} options.cacheBytes Budget of the decoded-chunk cache.

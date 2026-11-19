@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getVolumeInfo, formatBytes, formatExtent, formatDtype, formatRangeWarning,
+  getVolumeInfo, formatExtent, formatDtype, formatRangeWarning,
   formatChunkWarning,
 } from './volume-info.js';
 
@@ -10,14 +10,15 @@ describe('volume info', () => {
     // Three timepoints, of which the view shows one.
     const labels = ['t', 'c', 'z', 'y', 'x'];
     const sourceArrays = [
-      { shape: [3, 4, 64, 2048, 1024], chunks: [1, 1, 1, 512, 512], dtype: 'Uint16' },
-      { shape: [3, 4, 64, 1024, 512], chunks: [1, 1, 1, 512, 512], dtype: 'Uint16' },
-      { shape: [3, 4, 64, 512, 256], chunks: [1, 1, 1, 256, 256], dtype: 'Uint16' },
+      { shape: [3, 4, 64, 2048, 1024], chunks: [1, 1, 1, 512, 512] },
+      { shape: [3, 4, 64, 1024, 512], chunks: [1, 1, 1, 512, 512] },
+      { shape: [3, 4, 64, 512, 256], chunks: [1, 1, 1, 256, 256] },
     ];
 
     it('describes every source level, and render levels by their source', () => {
       const info = getVolumeInfo({
         sourceArrays,
+        dtype: 'Uint16',
         labels,
         // Planned from source 1 on: source 0 is too large.
         levels: [
@@ -47,7 +48,8 @@ describe('volume info', () => {
 
     it('treats missing axes as size 1', () => {
       const info = getVolumeInfo({
-        sourceArrays: [{ shape: [512, 64, 64], chunks: [256, 32, 32], dtype: 'uint8' }],
+        sourceArrays: [{ shape: [512, 64, 64], chunks: [256, 32, 32] }],
+        dtype: 'Uint8',
         labels: ['z', 'y', 'x'],
         levels: [{ source: 0, dataShape: [512, 64, 64], zFactor: 1, zMode: 'sample' }],
         firstSource: 0,
@@ -61,7 +63,8 @@ describe('volume info', () => {
 
     it('flags a source deeper than the limit', () => {
       const info = getVolumeInfo({
-        sourceArrays: [{ shape: [5000, 64, 64], chunks: [1, 64, 64], dtype: 'uint8' }],
+        sourceArrays: [{ shape: [5000, 64, 64], chunks: [1, 64, 64] }],
+        dtype: 'Uint8',
         labels: ['z', 'y', 'x'],
         levels: [{ source: 0, dataShape: [2500, 64, 64], zFactor: 2, zMode: 'sample' }],
         firstSource: 0,
@@ -73,10 +76,7 @@ describe('volume info', () => {
     });
   });
 
-  it('formats sizes and extents', () => {
-    expect(formatBytes(512)).toBe('512 B');
-    expect(formatBytes(1.5 * (2 ** 20))).toBe('1.5 MB');
-    expect(formatBytes(2048 * 2048 * 1920)).toBe('7.5 GB');
+  it('formats extents', () => {
     expect(formatExtent([1920, 2048, 1024])).toBe('1024 × 2048 × 1920');
   });
 

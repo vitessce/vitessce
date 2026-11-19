@@ -1,9 +1,9 @@
 // Dataset description for the volume info panel: source levels as stored, the
 // render levels planned from them, and the source levels too large to render.
-import { getBytesPerElement } from './volume-zarr.js';
+import { getBytesPerElement } from '@vitessce/zarr-utils';
+import { BRICK_SIZE } from './brick-constants.js';
 
 const DTYPE_KINDS = { u: 'uint', i: 'int', f: 'float' };
-const BRICK_SIZE = 32;
 // Chunk sizes recommended for loading bricks: at least a brick deep, and at
 // most this along every axis.
 const MAX_RECOMMENDED_CHUNK = 256;
@@ -22,7 +22,8 @@ export function formatUnit(unit) {
 }
 
 /**
- * @param {string} dtype As zarrita (uint16, or Zarr v2 codes such as <u2) or viv (Uint16) give it.
+ * @param {string} dtype As ImageWrapper.getDtype gives it (viv's Uint16), or
+ * a zarrita (uint16) or Zarr v2 (<u2) dtype.
  * @returns {string} E.g. 'uint16', 'float32'.
  */
 export function formatDtype(dtype) {
@@ -47,7 +48,8 @@ function getBrickReadFactor(shape, chunks) {
 
 /**
  * @param {object} options
- * @param {object[]} options.sourceArrays Every source level, with shape, chunks, dtype.
+ * @param {object[]} options.sourceArrays Every source level, with shape and chunks.
+ * @param {string} options.dtype Data type of the image, e.g. viv's Uint16.
  * @param {string[]} options.labels Axis labels of the arrays.
  * @param {object[]} options.levels Render levels from _planLevelsWithinPageTable.
  * @param {number} options.firstSource The finest source level that is rendered.
@@ -61,7 +63,7 @@ function getBrickReadFactor(shape, chunks) {
  * brickReadFactor: see getBrickReadFactor.
  */
 export function getVolumeInfo({
-  sourceArrays, labels, levels, firstSource, maxShape = [Infinity, Infinity, Infinity],
+  sourceArrays, dtype, labels, levels, firstSource, maxShape = [Infinity, Infinity, Infinity],
   spacing, spacingUnit,
 }) {
   const zyx = values => ['z', 'y', 'x'].map(axis => (
@@ -69,9 +71,9 @@ export function getVolumeInfo({
   ));
   const [array0] = sourceArrays;
   const channelCount = labels.includes('c') ? array0.shape[labels.indexOf('c')] : 1;
-  const bytesPerElement = getBytesPerElement(array0.dtype);
+  const bytesPerElement = getBytesPerElement(dtype);
   return {
-    dtype: formatDtype(array0.dtype),
+    dtype: formatDtype(dtype),
     channelCount,
     spacing,
     spacingUnit: formatUnit(spacingUnit),
@@ -101,21 +103,6 @@ export function getVolumeInfo({
       xyFactor: Math.max(level.yFactor ?? 1, level.xFactor ?? 1),
     })),
   };
-}
-
-/**
- * @param {number} bytes
- * @returns {string} E.g. '512 B', '1.5 MB', '7.5 GB'.
- */
-export function formatBytes(bytes) {
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  let value = bytes;
-  let unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-  return `${unit === 0 ? value : value.toFixed(1)} ${units[unit]}`;
 }
 
 /**

@@ -31,6 +31,8 @@ export type {
   ChannelObject,
   ResolutionObject,
   BoundingCube,
+  ResolutionLevel,
+  ChannelWindow,
 } from './imaging.js';
 export type {
   SetsTreeNodeLeaf,

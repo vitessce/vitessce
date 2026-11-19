@@ -22,3 +22,4 @@ export {
   flattenOmeAttrs,
   getOmeNgffVersion,
 } from './ome-ngff-version.js';
+export { getBytesPerElement } from './dtype.js';

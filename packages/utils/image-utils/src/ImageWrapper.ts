@@ -7,6 +7,8 @@ import type {
   ChannelObject,
   ResolutionObject,
   BoundingCube,
+  ResolutionLevel,
+  ChannelWindow,
 } from '@vitessce/types';
 import {
   normalizeCoordinateTransformations,
@@ -17,12 +19,34 @@ import {
   physicalSizeToMatrix,
   hexToRgb,
   getSourceFromLoader,
+  getDatasetScale,
   canLoadResolution,
   getStatsForResolution,
   isInterleaved as isInterleavedUtil,
 } from '@vitessce/spatial-utils';
 import { VIEWER_PALETTE, UNIT_TO_METERS } from '@vitessce/utils';
 import { log } from '@vitessce/globals';
+import { readTiffTileShape, readTiffSampleRange } from './tiff-metadata.js';
+import type { TiffPixelSourceLike } from './tiff-metadata.js';
+
+type OmeroWindow = {
+  start?: number;
+  end?: number;
+  min?: number;
+  max?: number;
+};
+
+/**
+ * The OMERO display window (start/end) of a channel, or else its data range
+ * (min/max), when it is a non-empty range.
+ */
+function getOmeroWindow(window: OmeroWindow | undefined): ChannelWindow {
+  const start = window?.start ?? window?.min;
+  const end = window?.end ?? window?.max;
+  return Number.isFinite(start) && Number.isFinite(end) && (end as number) > (start as number)
+    ? [start as number, end as number]
+    : undefined;
+}
 
 /**
  * A wrapper around the Viv loader, to provide a common interface for
@@ -367,9 +391,7 @@ export default class ImageWrapper implements AbstractImageWrapper {
         defaultColor: channel.color
           ? hexToRgb(channel.color)
           : undefined,
-        defaultWindow: channel.window
-          ? [channel.window.start, channel.window.end]
-          : undefined,
+        defaultWindow: getOmeroWindow(channel.window),
         autoDefaultColor: VIEWER_PALETTE[i % VIEWER_PALETTE.length],
       }));
     }
@@ -563,9 +585,17 @@ export default class ImageWrapper implements AbstractImageWrapper {
     return [xSlice, ySlice, zSlice];
   }
 
+  /**
+   * Whether the last dimension holds interleaved RGB(A) samples.
+   * viv labels it '_c' (OME-TIFF). When the last label is 'x',
+   * the image is not interleaved, even if it is 3 or 4 pixels wide.
+   */
   isInterleaved(): boolean {
     const loader = this.vivLoader;
-    const { shape } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    const { shape, labels } = Array.isArray(loader.data) ? loader.data[0] : loader.data;
+    if (labels?.length === shape.length && labels.at(-1) === 'x') {
+      return false;
+    }
     return isInterleavedUtil(shape);
   }
 
@@ -602,24 +632,110 @@ export default class ImageWrapper implements AbstractImageWrapper {
   }
 
   /**
-   * Meters per 3D scene unit, i.e. the unit of getModelMatrix().
-   * OME-TIFF: physicalSizeToMatrix divides by 1 um, so the scene is in µm
-   * (only when physical sizes exist; otherwise pixels, unit unknown → null).
-   * OME-Zarr: the model matrix is in the units of the NGFF axes.
+   * The unit of the 3D scene, i.e. of getModelMatrix() and getVoxelSpacing().
+   * OME-TIFF: physicalSizeToMatrix divides by 1 µm, so the scene is in µm,
+   * whatever PhysicalSizeXUnit is (only when physical sizes exist;
+   * otherwise pixels, unit unknown → null).
+   * OME-Zarr: the model matrix is in the units of the NGFF axes, as spelled
+   * there (e.g. 'micrometer').
    */
-
-  getSceneMetersPerUnit(): number | null {
+  getSpatialUnit(): string | null {
     const { metadata } = this.vivLoader as any;
     if (!metadata) return null;
     if ('Pixels' in metadata) {
-      return this.hasPhysicalSize() ? 1e-6 : null;
+      return this.hasPhysicalSize() ? 'µm' : null;
     }
     if ('multiscales' in metadata) {
       const axes = metadata.multiscales?.[0]?.axes ?? [];
       const xAxis = axes.find((a: any) => (typeof a === 'string' ? a : a?.name) === 'x');
-      const unit = typeof xAxis === 'object' ? xAxis?.unit : null;
-      return unit ? UNIT_TO_METERS[unit.normalize('NFKC')] ?? null : null;
+      return (typeof xAxis === 'object' ? xAxis?.unit : null) || null;
     }
     return null;
+  }
+
+  /**
+   * Meters per 3D scene unit, i.e. the unit of getModelMatrix().
+   * Null when the unit is unknown.
+   */
+  getSceneMetersPerUnit(): number | null {
+    const unit = this.getSpatialUnit();
+    return unit ? UNIT_TO_METERS[unit.normalize('NFKC')] ?? null : null;
+  }
+
+  /**
+   * Level-0 voxel size, ZYX, in units of getSpatialUnit(): the scale of each
+   * axis of getModelMatrix() (including transforms from the file options),
+   * times the scale of the non-standard root-level coordinateTransformations
+   * that some converted OME-Zarr datasets (e.g. kingsnake, f8ii, melanoma) use
+   * for their physical spacing. getModelMatrix() itself ignores the latter.
+   */
+  getVoxelSpacing(): [number, number, number] {
+    const modelMatrix = this.getModelMatrix();
+    // Column-major: the norms of the X, Y, and Z columns, in ZYX order.
+    const spacing = [8, 4, 0].map(i => Math.hypot(
+      modelMatrix[i], modelMatrix[i + 1], modelMatrix[i + 2],
+    ) || 1) as [number, number, number];
+    const { metadata } = this.vivLoader as any;
+    const rootScale = metadata?.coordinateTransformations
+      ?.find((t: any) => t?.type === 'scale')?.scale;
+    if (Array.isArray(rootScale) && rootScale.length >= 3) {
+      rootScale.slice(-3).forEach((value: number, axis: number) => {
+        if (Number.isFinite(value) && value > 0) spacing[axis] *= value;
+      });
+    }
+    return spacing;
+  }
+
+  /**
+   * Every resolution level as stored, finest first, with its chunk shape
+   * and, for OME-Zarr, the scale of its multiscales dataset.
+   * For OME-TIFF, the chunk is each level's own TIFF tile, read from its TIFF
+   * directory (viv's tileSize is level 0's for every level).
+   */
+  async getResolutionLevels(): Promise<ResolutionLevel[]> {
+    const { data, metadata } = this.vivLoader;
+    const pixelSources: any[] = Array.isArray(data) ? data : [data];
+    if ('Pixels' in metadata) {
+      return Promise.all(pixelSources.map(async (pixelSource) => {
+        const { shape, labels, dtype } = pixelSource;
+        const [tileHeight, tileWidth] = await readTiffTileShape(pixelSource);
+        const tileShape: Record<string, number> = { y: tileHeight, x: tileWidth };
+        return {
+          shape,
+          labels,
+          dtype,
+          chunks: labels.map((axis: string) => tileShape[axis] ?? 1),
+          data: pixelSource,
+        };
+      }));
+    }
+    // OME-Zarr: viv's ZarrPixelSource wraps the zarrita array. The pixel
+    // sources follow the order of the multiscales datasets.
+    const datasets = (metadata as any).multiscales?.[0]?.datasets ?? [];
+    return pixelSources.map((pixelSource, i) => ({
+      shape: pixelSource.shape,
+      labels: pixelSource.labels,
+      dtype: pixelSource.dtype,
+      chunks: pixelSource._data.chunks,
+      scale: getDatasetScale(datasets[i]),
+      data: pixelSource._data,
+    }));
+  }
+
+  /**
+   * Value range of each channel from the image metadata, in the order of
+   * getChannelObjects(): its defaultWindow, or for OME-TIFF the sample range
+   * the writer recorded in the TIFF (see readTiffSampleRange), which needs a
+   * read of the first TIFF directory. Undefined for channels without either.
+   */
+  async getChannelWindows(): Promise<ChannelWindow[]> {
+    const windows = this.getChannelObjects().map(channel => channel.defaultWindow);
+    const { data, metadata } = this.vivLoader;
+    if (!('Pixels' in metadata)) {
+      return windows;
+    }
+    const pixelSource = (Array.isArray(data) ? data[0] : data) as unknown;
+    const sampleRange = await readTiffSampleRange(pixelSource as TiffPixelSourceLike);
+    return sampleRange ? windows.map(window => window ?? sampleRange) : windows;
   }
 }

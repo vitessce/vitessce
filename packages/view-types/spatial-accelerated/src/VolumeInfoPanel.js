@@ -12,10 +12,14 @@ import {
   ContentCopy as ContentCopyIcon,
   Warning as WarningIcon,
 } from '@vitessce/styles';
+import { formatBytes as formatBytesWithDecimals } from '@vitessce/utils';
 import {
-  formatBytes, formatExtent, formatRangeWarning, formatChunkWarning,
+  formatExtent, formatRangeWarning, formatChunkWarning,
 } from './volume-info.js';
 import { roundViewState } from './camera-utils.js';
+
+// E.g. '512 Bytes', '1.5 MB', '7.5 GB'.
+const formatBytes = bytes => formatBytesWithDecimals(bytes, 1);
 
 const useStyles = makeStyles()(theme => ({
   volumeInfoPanel: {

@@ -16,8 +16,12 @@ function mockArrays(shapesZYX, chunksZYX) {
   return shapesZYX.map((shape, i) => ({
     shape: [1, 1, ...shape],
     chunks: [1, 1, ...(chunksZYX?.[i] ?? [1, shape[1], shape[2]])],
+    data: {},
   }));
 }
+
+// Source levels with the scales of their OME-Zarr datasets, in label order.
+const withScales = (arrays, scales) => arrays.map((array, i) => ({ ...array, scale: scales[i] }));
 
 function xyOnlyShapes(depth, height, width, levels) {
   return Array.from({ length: levels }, (_, k) => [
@@ -57,11 +61,8 @@ async function createTestArray(store, path, shape, chunkShape, dtype = 'uint16')
   }
   const stride = shape.map((_, axis) => shape.slice(axis + 1).reduce((a, b) => a * b, 1));
   await zarr.set(array, null, { data, shape, stride });
-  // Mimic the Vitessce adapter, which reports v2 dtype strings.
-  return new Proxy(array, {
-    get: (target, property) => (property === 'dtype'
-      ? { uint8: '|u1', uint16: '<u2' }[dtype] : Reflect.get(target, property)),
-  });
+  // A source level, as ImageWrapper.getResolutionLevels gives it.
+  return { shape: array.shape, chunks: array.chunks, data: array };
 }
 
 function expectedValue(level, c, z, y, x) {
@@ -177,11 +178,11 @@ describe('volume-zarr', () => {
 
     it('uses NGFF scales as ratios to level 0, including physical units', () => {
       const shapes = xyOnlyShapes(35, 2048, 2048, 3);
-      const datasets = [0.108335, 0.21667, 0.43334].map(s => ({
-        coordinateTransformations: [{ type: 'scale', scale: [1, 1, 0.4, s, s] }],
-      }));
+      const arrays = withScales(
+        mockArrays(shapes), [0.108335, 0.21667, 0.43334].map(s => [1, 1, 0.4, s, s]),
+      );
       const levels = planVolumeLevels({
-        arrays: mockArrays(shapes), labels: TCZYX, datasets, spacing: [0.4, 0.108335, 0.108335],
+        arrays, labels: TCZYX, spacing: [0.4, 0.108335, 0.108335],
       });
       // Fewer than 64 slices: no reduction above the 32-slice floor, except for
       // the virtual levels appended after the coarsest level, which halve Z once.
@@ -257,13 +258,12 @@ describe('volume-zarr', () => {
         // Rounded sizes with metadata scales: 130 / 4 = 32.5 exceeds the 32 stored voxels.
         {
           shapes: [[40, 130, 130], [40, 65, 65], [40, 32, 32]],
-          datasets: [1, 2, 4].map(s => ({
-            coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1, s, s] }],
-          })),
+          scales: [1, 2, 4].map(s => [1, 1, 1, s, s]),
         },
       ];
-      cases.forEach(({ shapes, datasets }) => {
-        const levels = planVolumeLevels({ arrays: mockArrays(shapes), labels: TCZYX, datasets });
+      cases.forEach(({ shapes, scales = [] }) => {
+        const arrays = withScales(mockArrays(shapes), scales);
+        const levels = planVolumeLevels({ arrays, labels: TCZYX });
         const overview = levels[levels.length - 1];
         expect(overview.isOverview).toBe(true);
         expect(overview.shape.every(size => size <= 32)).toBe(true);
@@ -435,14 +435,11 @@ describe('volume-zarr', () => {
     it('covers the shader extent when a rounded level is smaller than scale implies', async () => {
       // Width 65 -> 32 at metadata scale 2: the shader addresses 65 / 2 = 32.5 voxels.
       const store = createCountingStore();
-      const arrays = [
+      const arrays = withScales([
         await createTestArray(store, '0', [1, 1, 32, 32, 65], [1, 1, 32, 32, 32]),
         await createTestArray(store, '1', [1, 1, 32, 32, 32], [1, 1, 32, 32, 32]),
-      ];
-      const datasets = [1, 2].map(s => ({
-        coordinateTransformations: [{ type: 'scale', scale: [1, 1, 1, 1, s] }],
-      }));
-      const rounded = planVolumeLevels({ arrays, labels: TCZYX, datasets, mode: 'none' });
+      ], [1, 2].map(s => [1, 1, 1, 1, s]));
+      const rounded = planVolumeLevels({ arrays, labels: TCZYX, mode: 'none' });
       expect(rounded[1]).toMatchObject({ dataShape: [32, 32, 32], shape: [32, 32, 33] });
       const source = createVolumeBrickSource({ arrays, levels: rounded, labels: TCZYX });
       // Brick x = 1 exists only for the shader extent; it repeats the last column.
