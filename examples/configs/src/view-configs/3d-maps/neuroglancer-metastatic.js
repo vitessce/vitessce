@@ -192,7 +192,7 @@ function generateNeuroglancerMetastatic() {
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,
-            spatialChannelOpacity: 0.6,
+            spatialChannelOpacity: 1.0,
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'cellSetSelection',
@@ -212,7 +212,7 @@ function generateNeuroglancerMetastatic() {
   config.linkViews([featureList, violin, obsSets], ['obsType', 'featureType', 'featureValueType'], ['cell', 'gene', 'expression']);
 
   featureList.useCoordination(featureSelectionScope, obsColorEncodingScope);
-  violin.useCoordination(featureSelectionScope, obsSetSelectionScope, obsSetColorScope);
+  violin.useCoordination(featureSelectionScope, obsSetColorScope);
   obsSets.useCoordination(obsColorEncodingScope, obsSetSelectionScope, obsSetColorScope);
 
   config.layout(hconcat(
