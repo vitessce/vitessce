@@ -154,6 +154,8 @@ export function NeuroglancerSubscriber(props) {
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
   // For overlay when meshes are loaded on demand
   const [isMeshLoading, setIsMeshLoading] = useState(false);
+  // Number of meshes currently shown by on-demand loading, per segmentation layer.
+  const [visibleMeshCounts, setVisibleMeshCounts] = useState({});
 
   // Incremented whenever a centroid point layer has both its info JSON and
   // its NG chunk transform available (one bump per newly-ready layer).
@@ -219,8 +221,11 @@ export function NeuroglancerSubscriber(props) {
     if (csvUrlRef.current) return csvUrlRef.current;
     const obsSetsMap = loaders?.[dataset]?.loaders?.obsSets;
     if (!obsSetsMap) return null;
-    const firstLoader = obsSetsMap.values().next().value;
-    const url = firstLoader?.url ?? null;
+    // Only a CSV obsSets file can carry the MeshID/CellID columns
+    // (obsSets.json / anndata have none: mesh ids == cell ids).
+    const csvLoader = Array.from(obsSetsMap.values())
+      .find(loader => typeof loader?.dataSource?.loadCsv === 'function');
+    const url = csvLoader?.url ?? null;
     if (url) csvUrlRef.current = url;
     return url;
   }, [loaders, dataset]);
@@ -665,14 +670,17 @@ export function NeuroglancerSubscriber(props) {
           ?.[layerScope]?.[channelScope] || {};
         const { obsIndex: layerIndexFromColors, obsColorMap } = obsSegmentationsColorsData
           ?.[layerScope]?.[channelScope] || {};
+          // Set coloring must cover every cell in the sets, not only those in the
+        // feature matrix (e.g. cells excluded from quantification).
+        const channelEncoding = segmentationChannelCoordination?.[0]
+          ?.[layerScope]?.[channelScope]?.obsColorEncoding;
 
         // Prefer the observation index from obsFeatureMatrix,
         // then from the per-observation colors,
         // and finally, if neither of those are provided, from obsSets.
-        const rawLayerIndex = layerIndexFromMatrix
-        ?? (layerIndexFromColors
-          ?? (layerIndexFromSets ?? null)
-        );
+        const rawLayerIndex = (channelEncoding === 'cellSetSelection' && layerIndexFromSets)
+          ? layerIndexFromSets
+          : (layerIndexFromMatrix ?? layerIndexFromColors ?? layerIndexFromSets ?? null);
         // obsFeatureMatrix's own index can carry a dataset-specific prefix
         // (e.g. "F8iia-quantification3_1") for the same segment IDs NG's
         // own mesh/segments use in plain numeric form ("1") -- normalize so
@@ -905,7 +913,8 @@ export function NeuroglancerSubscriber(props) {
         // TODO: For debugging
         // window.__meshIdToCellId = meshIdToCellIdRef.current;
         // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
-      });
+      })
+      .catch(() => setCsvLoaded(true)); // no map: mesh ids == cell ids
   }, [csvUrl, meshIdColumn, cellIdColumn]);
 
   // clear cache when annotation source changes
@@ -1002,6 +1011,9 @@ export function NeuroglancerSubscriber(props) {
       });
       if (changed) {
         visibleSegmentIdsBySegLayerRef.current = nextBySegLayer;
+        setVisibleMeshCounts(Object.fromEntries(
+          Object.entries(nextBySegLayer).map(([segLayer, ids]) => [segLayer, ids.length]),
+        ));
         incrementLatestViewerStateIteration();
       }
       return added;
@@ -1797,11 +1809,15 @@ export function NeuroglancerSubscriber(props) {
   // the precomputed annotation info does not include the number of annotations.
   // With a set selection (cellSetSelection), shows "<selected> of <total>".
   const countsSubtitle = useMemo(() => {
+    const parts = [];
     const totals = new Map();
     const selected = new Map();
-    const add = (map, obsTypeLabel, n) => {
-      if (n > 0) map.set(obsTypeLabel, (map.get(obsTypeLabel) ?? 0) + n);
+    const add = (map, label, n) => {
+      if (n > 0) map.set(label, (map.get(label) ?? 0) + n);
     };
+
+    // Segmentation observations (cells): total, or "<selected> of <total>"
+    // when colored by a set selection.
     (segmentationLayerScopes ?? []).forEach((layerScope) => {
       (segmentationChannelScopesByLayer?.[layerScope] ?? []).forEach((channelScope) => {
         const channel = segmentationChannelCoordination[0]?.[layerScope]?.[channelScope] ?? {};
@@ -1820,18 +1836,39 @@ export function NeuroglancerSubscriber(props) {
         }
       });
     });
-    (pointLayerScopes ?? []).forEach((layerScope) => {
-      const obsTypeLabel = pointLayerCoordination[0]?.[layerScope]?.obsType ?? 'point';
-      add(totals, obsTypeLabel, pointMultiIndicesData?.[layerScope]?.obsIndex?.length ?? 0);
-    });
-    return Array.from(totals.entries())
-      .map(([obsTypeLabel, n]) => (selected.has(obsTypeLabel)
+    totals.forEach((n, obsTypeLabel) => {
+      parts.push(selected.has(obsTypeLabel)
         ? `${commaNumber(selected.get(obsTypeLabel))} of ${commaNumber(n)} ${pluralize(obsTypeLabel, n)} selected`
-        : `${commaNumber(n)} ${pluralize(obsTypeLabel, n)}`))
-      .join(', ');
+        : `${commaNumber(n)} ${pluralize(obsTypeLabel, n)}`);
+    });
+
+    // Meshes shown by on-demand loading: only for layers that have meshes and
+    // are culled via their centroids (otherwise all meshes are shown).
+    const onDemandMeshLayers = (meshLayerScopesKey ? meshLayerScopesKey.split(',') : [])
+      .filter(layerScope => centroidLayerRoles.culledSegLayerScopes.has(layerScope));
+    if (onDemandMeshLayers.length > 0) {
+      const shownMeshes = onDemandMeshLayers
+        .reduce((sum, layerScope) => sum + (visibleMeshCounts[layerScope] ?? 0), 0);
+      parts.push(`${commaNumber(shownMeshes)} ${pluralize('mesh', shownMeshes)} shown`);
+    }
+
+    // Point layers (e.g. transcripts), labeled by their layer label or obsType,
+    // counted separately from the cells.
+    const pointTotals = new Map();
+    (pointLayerScopes ?? []).forEach((layerScope) => {
+      const values = pointLayerCoordination[0]?.[layerScope] ?? {};
+      const pointLabel = values.spatialLayerLabel || values.obsType || 'point';
+      add(pointTotals, pointLabel, pointMultiIndicesData?.[layerScope]?.obsIndex?.length ?? 0);
+    });
+    pointTotals.forEach((n, pointLabel) => {
+      parts.push(`${commaNumber(n)} ${pluralize(pointLabel, n)}`);
+    });
+
+    return parts.join(', ');
   }, [
     segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
     obsSegmentationsSetsData, segmentationMultiIndicesData,
+    meshLayerScopesKey, visibleMeshCounts, centroidLayerRoles,
     pointLayerScopes, pointLayerCoordination, pointMultiIndicesData,
   ]);
   const infoText = [countsSubtitle, subtitle].filter(Boolean).join(' | ');
