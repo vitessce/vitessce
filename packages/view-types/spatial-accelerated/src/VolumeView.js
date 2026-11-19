@@ -10,7 +10,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { isEqual, throttle } from 'lodash-es';
+import { isEqual } from 'lodash-es';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -341,9 +341,6 @@ function handleAdaptiveQuality(params) {
 // How long after the last interaction the view stays in interactive (fast) mode
 // before stepping up to high quality (one RAMP_STEP_MS, as each later step).
 const INTERACTION_SETTLE_MS = RAMP_STEP_MS;
-
-// While the camera moves, how often it is written to the coordination space.
-const CAMERA_SNAPSHOT_THROTTLE_MS = 100;
 
 export function VolumeView(props) {
   const {
@@ -959,8 +956,11 @@ export function VolumeView(props) {
     });
   }, [dmInitComplete, dataManager, renderShader, firstImageWrapper, geometrySize, meshScale]);
 
-  // Write the camera to the coordination space, so that linked 3D views follow.
-  const publishCameraSnapshot = useEventCallback(() => {
+  // Write the camera to the coordination space on every change, so that
+  // linked 3D views follow. Each write re-renders this view and the linked
+  // views, so a camera equal to the last one written or applied is skipped.
+  const onOrbitControlsChange = useEventCallback((e) => {
+    if (isApplyingSnapshotRef.current) return;
     if (!volumeOrbitControls || !sceneFrame || !setSpatialCameraSnapshot) return;
     const snapshot = volumeCameraToSnapshot({
       position: camera.position.toArray(),
@@ -968,32 +968,22 @@ export function VolumeView(props) {
       quaternion: camera.quaternion.toArray(),
       fovDegrees: camera.fov,
     }, sceneFrame);
+    if (isEqual(snapshot, lastCameraSnapshotRef.current)) return;
     lastCameraSnapshotRef.current = snapshot;
     setSpatialCameraSnapshot(snapshot);
-  });
-  // While dragging, at most every CAMERA_SNAPSHOT_THROTTLE_MS: each write
-  // re-renders this view and the linked views.
-  const throttledPublishCameraSnapshot = useMemo(
-    () => throttle(publishCameraSnapshot, CAMERA_SNAPSHOT_THROTTLE_MS),
-    [publishCameraSnapshot],
-  );
-  useEffect(() => () => throttledPublishCameraSnapshot.cancel(), [throttledPublishCameraSnapshot]);
-
-  const onOrbitControlsChange = useEventCallback((e) => {
-    if (isApplyingSnapshotRef.current) return;
-    throttledPublishCameraSnapshot();
   });
 
   // OrbitControls also sends start and end for each wheel event.
   const onOrbitControlsEnd = useEventCallback((e) => {
     endInteraction();
-    throttledPublishCameraSnapshot.flush();
   });
 
   // Apply the camera from the coordination space: the view config, a linked view.
   useEffect(() => {
     if (!volumeOrbitControls || !sceneFrame) return;
-    if (spatialCameraSnapshot === lastCameraSnapshotRef.current) return;
+    // Our own write coming back, or a linked view writing the same camera
+    // (possibly as a new object): the camera is already there.
+    if (isEqual(spatialCameraSnapshot, lastCameraSnapshotRef.current)) return;
     // No snapshot (e.g. cleared to recenter): the initial camera.
     const nextCamera = spatialCameraSnapshot
       ? snapshotToVolumeCamera(spatialCameraSnapshot, sceneFrame, camera.fov)
