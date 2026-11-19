@@ -71,7 +71,6 @@ export default function SpatialOptions(props) {
   } = props;
 
   const optionsId = useId();
-  const toggleAxisId = useId();
   const backgroundId = useId();
   const { classes } = useStyles();
   const { classes: plotOptionsClasses } = usePlotOptionsStyles();
