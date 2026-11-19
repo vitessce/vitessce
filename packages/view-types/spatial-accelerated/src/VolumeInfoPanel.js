@@ -16,7 +16,7 @@ import { formatBytes as formatBytesWithDecimals } from '@vitessce/utils';
 import {
   formatExtent, formatRangeWarning, formatChunkWarning,
 } from './volume-info.js';
-import { roundViewState } from './camera-utils.js';
+import { roundCameraSnapshot } from './camera-snapshot.js';
 
 // E.g. '512 Bytes', '1.5 MB', '7.5 GB'.
 const formatBytes = bytes => formatBytesWithDecimals(bytes, 1);
@@ -112,9 +112,10 @@ function formatSpacing(spacing, unit) {
  * waiting to load. Collapsed to a summary; expanded to a table of levels.
  * @param {object} props
  * @param {object} props.dataManager An initialized VolumeDataManager.
- * @param {object} [props.viewState] The camera, as in the coordination space.
+ * @param {object} [props.cameraSnapshot] The camera, as the spatialCameraSnapshot
+ * coordination value.
  */
-export function VolumeInfoPanel({ dataManager, viewState }) {
+export function VolumeInfoPanel({ dataManager, cameraSnapshot }) {
   const { classes } = useStyles();
   const cellClass = classes.volumeInfoCell;
   const [isExpanded, setIsExpanded] = useState(false);
@@ -151,8 +152,8 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
     ...(hasChannels ? ['Per channel', 'Total'] : ['Data']),
     'Queued',
   ];
-  // The camera of a view config: zoom, target, rotationX, rotationOrbit.
-  const camera = viewState ? roundViewState(viewState) : null;
+  // The camera of a view config: the spatialCameraSnapshot coordination value.
+  const camera = cameraSnapshot ? roundCameraSnapshot(cameraSnapshot) : null;
   const droppedClass = `${cellClass} ${classes.volumeInfoDroppedCell}`;
   const zWarningClass = `${cellClass} ${classes.volumeInfoZWarningCell}`;
   const finestLevel = renderLevels[0];
@@ -234,8 +235,9 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
           ) : null}
           {camera ? (
             <Typography className={classes.volumeInfoText}>
-              {`Camera: zoom ${camera.zoom} · target ${camera.target.join(', ')}`
-                + ` · rotation ${camera.rotationX}°, orbit ${camera.rotationOrbit}°`}
+              {`Camera: target ${camera.position.join(', ')}`
+                + ` · height ${camera.projectionScale}`
+                + ` · rotation ${camera.quaternion.join(', ')}`}
               <IconButton
                 size="small"
                 className={classes.volumeInfoCopyButton}

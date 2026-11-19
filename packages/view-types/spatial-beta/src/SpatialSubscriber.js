@@ -255,8 +255,8 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
 
-  // A non-null camera snapshot in the coordination space indicates
-  // that a neuroglancer view is present and is publishing its camera state.
+  // A non-null camera snapshot in the coordination space indicates that
+  // another 3D view (neuroglancer, accelerated spatialBeta) is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
   const requestCameraReset = useCallback(() => {
     setSpatialCameraSnapshot(null);
@@ -1126,15 +1126,13 @@ export function SpatialSubscriber(props) {
               setRotationZ={setRotationZ}
               targetT={targetT}
               targetZ={targetZ}
-              viewState={isValidViewState ? ({
-                zoom,
-                target: [targetX, targetY, targetZ],
-                rotationX,
-                rotationOrbit,
-              }) : DEFAULT_VIEW_STATE}
+              // The camera is shared with the other 3D views (spatialBeta,
+              // Neuroglancer) via the snapshot, which the view converts to
+              // the units of its scene, rather than via spatialZoom etc.
+              spatialCameraSnapshot={is3dMode ? spatialCameraSnapshot : null}
+              setSpatialCameraSnapshot={is3dMode ? setSpatialCameraSnapshot : null}
               orbitAxis={orbitAxis}
               spatialAxisFixed={spatialAxisFixed}
-              setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
               originalViewState={originalViewState}
               spatialRenderingMode={spatialRenderingMode}
               updateViewInfo={setComponentViewInfo}

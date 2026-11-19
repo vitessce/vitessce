@@ -1,6 +1,7 @@
 import {
   VitessceConfig,
   CoordinationLevel as CL,
+  getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
 const idr0077Angles = [0, 1, 2, 3, 4, 5, 6, 7];
@@ -120,16 +121,6 @@ const idToOptions = {
 
 const defaultChannels = [{ spatialTargetC: 0, spatialChannelColor: [255, 0, 0] }];
 
-// The camera of the 3D view, in the units of its scene (the volume box is about 1 wide):
-// the initial camera looks at the center of the volume from the front.
-// The info panel of the view shows the current camera, with a button to copy it.
-const defaultCamera = {
-  zoom: 0,
-  target: [0, 0, 0],
-  rotationX: 0,
-  rotationOrbit: 0,
-};
-
 /**
  * @param {string} imageId A key of idToUrl.
  * @param {'auto'|'none'|'sample'|'mean'|'max'} volumeZReduction
@@ -137,7 +128,11 @@ const defaultCamera = {
  * @param {string} [preset.name] The config name.
  * @param {object[]} [preset.channels] Coordination values per channel: spatialTargetC,
  * spatialChannelColor, and optionally spatialChannelWindow, spatialChannelVisible.
- * @param {object} [preset.camera] { zoom, target: [x, y, z], rotationX, rotationOrbit }.
+ * @param {object|null} [preset.camera] The spatialCameraSnapshot coordination value:
+ * { position, quaternion, projectionScale, fovDegrees, metersPerUnit }, in the
+ * physical units of the image. Null for the initial camera, which looks at the
+ * center of the volume from the front. The info panel of the view shows the
+ * current camera, with a button to copy it.
  * @param {object} [preset.layer] Coordination values of the image layer, e.g.
  * spatialLodFactor, spatialSliceX/Y/Z.
  * @param {object} [preset.viewProps] Props of the 3D view: volumeProjection
@@ -146,7 +141,7 @@ const defaultCamera = {
 export function generateSpatialAcceleratedConfiguration(imageId, volumeZReduction = 'auto', {
   name = `Spatial Accelerated: ${imageId}`,
   channels = defaultChannels,
-  camera = defaultCamera,
+  camera = null,
   layer = {},
   viewProps = {},
 } = {}) {
@@ -191,13 +186,9 @@ export function generateSpatialAcceleratedConfiguration(imageId, volumeZReductio
   //   .setProps({ three: true, accelerated: false });
   const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 8 });
   config.linkViewsByObject([spatialAcceleratedView, lcView], {
-    // Kept up to date by the 3D view, so the camera is saved with the config.
-    spatialZoom: camera.zoom,
-    spatialTargetX: camera.target[0],
-    spatialTargetY: camera.target[1],
-    spatialTargetZ: camera.target[2],
-    spatialRotationX: camera.rotationX,
-    spatialRotationOrbit: camera.rotationOrbit,
+    // Kept up to date by the 3D view, so the camera is saved with the config,
+    // and shared with other 3D views (spatialBeta, Neuroglancer) linked to it.
+    spatialCameraSnapshot: camera,
     spatialOrbitAxis: 'Y',
     spatialTargetT: 0,
     spatialRenderingMode: '3D',
@@ -216,7 +207,7 @@ export function generateSpatialAcceleratedConfiguration(imageId, volumeZReductio
         ...layer,
       },
     ]),
-  });
+  }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'image') });
 
   // config.layout(hconcat(spatialAcceleratedView, lcView));
 

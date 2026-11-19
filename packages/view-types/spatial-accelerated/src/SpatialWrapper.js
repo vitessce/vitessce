@@ -6,13 +6,14 @@ import { Canvas } from '@react-three/fiber';
 import { useViewConfigStore } from '@vitessce/vit-s';
 import { VolumeView } from './VolumeView.js';
 import { VolumeInfoPanel } from './VolumeInfoPanel.js';
+import { DEFAULT_VOLUME_CAMERA, CAMERA_FAR } from './camera-snapshot.js';
 
 // Vitessce themes with a white background (see muiTheme in @vitessce/vit-s).
 const LIGHT_THEMES = ['light', 'light2'];
 
 export function SpatialWrapper(props) {
   const {
-    spatialRenderingMode, theme, viewState, uuid,
+    spatialRenderingMode, theme, spatialCameraSnapshot, uuid,
   } = props;
   // Options for figures, read from the view's props in the view config, since
   // SpatialSubscriber only passes on the props it knows.
@@ -60,10 +61,10 @@ export function SpatialWrapper(props) {
         }}
         camera={{
           fov: 50,
-          up: [0, 1, 0],
-          position: [0, 0, 4],
+          up: DEFAULT_VOLUME_CAMERA.up,
+          position: DEFAULT_VOLUME_CAMERA.position,
           near: 0.01,
-          far: 15,
+          far: CAMERA_FAR,
         }}
         gl={{
           antialias: true,
@@ -82,7 +83,7 @@ export function SpatialWrapper(props) {
         </Suspense>
       </Canvas>
       {dataManager && spatialRenderingMode === '3D' ? (
-        <VolumeInfoPanel dataManager={dataManager} viewState={viewState} />
+        <VolumeInfoPanel dataManager={dataManager} cameraSnapshot={spatialCameraSnapshot} />
       ) : null}
     </>
   );

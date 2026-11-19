@@ -10,7 +10,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { useThree, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { isEqual } from 'lodash-es';
+import { isEqual, throttle } from 'lodash-es';
 import { log, atLeastLogLevel, LogLevel } from '@vitessce/globals';
 import { useEventCallback } from '@vitessce/styles';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -23,11 +23,12 @@ import {
 } from './VolumeDataManager.js';
 import { VolumeRenderManager, getScreenLodFactor, windowToClim } from './VolumeRenderManager.js';
 import {
-  viewStateToCamera,
-  cameraToViewState,
-  isVolumeViewState,
-  DEFAULT_VOLUME_VIEW_STATE,
-} from './camera-utils.js';
+  getVolumeSceneFrame,
+  snapshotToVolumeCamera,
+  volumeCameraToSnapshot,
+  DEFAULT_VOLUME_CAMERA,
+  CAMERA_FAR,
+} from './camera-snapshot.js';
 
 import { gaussianVertexShader } from './shaders/GaussianVertexShader.js';
 import { gaussianFragmentShader } from './shaders/GaussianFragmentShader.js';
@@ -341,6 +342,9 @@ function handleAdaptiveQuality(params) {
 // before stepping up to high quality (one RAMP_STEP_MS, as each later step).
 const INTERACTION_SETTLE_MS = RAMP_STEP_MS;
 
+// While the camera moves, how often it is written to the coordination space.
+const CAMERA_SNAPSHOT_THROTTLE_MS = 100;
+
 export function VolumeView(props) {
   const {
     images,
@@ -354,8 +358,9 @@ export function VolumeView(props) {
     onVolumeLoadingUpdate,
     onDataManagerReady,
     volumeZReduction = 'auto',
-    viewState,
-    setViewState,
+    // Shared with the other 3D views (spatialBeta, Neuroglancer), in world units.
+    spatialCameraSnapshot,
+    setSpatialCameraSnapshot,
     isOrthographic = false,
     isColoredByResolution = false,
     // Bricks fetched at once: a positive integer, or Infinity for no limit.
@@ -377,9 +382,13 @@ export function VolumeView(props) {
   // OrbitControls of the volume, once rendered. State rather than a ref, so the
   // camera from the coordination space is applied as soon as they mount.
   const [volumeOrbitControls, setVolumeOrbitControls] = useState(null);
-  // The viewState last written to the coordination space, to tell it apart
-  // from changes made elsewhere (the view config, linked views).
-  const lastViewStateRef = useRef(null);
+  // The camera snapshot last written to the coordination space or applied to
+  // the camera, to tell it apart from changes made elsewhere (the view config,
+  // linked views).
+  const lastCameraSnapshotRef = useRef(null);
+  // True while a snapshot is applied, so that the OrbitControls change it
+  // causes is not written back.
+  const isApplyingSnapshotRef = useRef(false);
   const meshRef = useRef(null);
   const bufRequest = useRef(null);
   const bufUsage = useRef(null);
@@ -933,48 +942,90 @@ export function VolumeView(props) {
     startInteraction();
   });
 
-  // Write the camera to the coordination space when an orbit, pan or zoom ends
-  // (OrbitControls also sends start and end for each wheel event), rather than
-  // on every frame, which would re-render the view while dragging.
-  const onOrbitControlsEnd = useEventCallback((e) => {
-    endInteraction();
-    if (!volumeOrbitControls || !setViewState) return;
-    const nextViewState = cameraToViewState(camera.position, volumeOrbitControls.target);
-    lastViewStateRef.current = nextViewState;
-    setViewState(nextViewState);
+  // How world units (of spatialCameraSnapshot) relate to the units of the
+  // scene, in which the volume box is about 1 wide and centered on the origin.
+  const firstImageWrapper = firstImage?.image?.instance;
+  const { geometrySize, meshScale, shader: renderShader } = renderState;
+  const sceneFrame = useMemo(() => {
+    const physicalSizeZYX = dmInitComplete ? dataManager.zarrStore?.physicalSizeTotal : null;
+    if (!physicalSizeZYX || !renderShader) return null;
+    // Column-major: the translation is in elements 12 to 14.
+    const modelMatrix = firstImageWrapper?.getModelMatrix?.();
+    return getVolumeSceneFrame({
+      physicalSize: [...physicalSizeZYX].reverse(),
+      boxExtent: geometrySize.map((size, axis) => size * meshScale[axis]),
+      origin: modelMatrix ? [modelMatrix[12], modelMatrix[13], modelMatrix[14]] : undefined,
+      metersPerUnit: firstImageWrapper?.getSceneMetersPerUnit?.() ?? null,
+    });
+  }, [dmInitComplete, dataManager, renderShader, firstImageWrapper, geometrySize, meshScale]);
+
+  // Write the camera to the coordination space, so that linked 3D views follow.
+  const publishCameraSnapshot = useEventCallback(() => {
+    if (!volumeOrbitControls || !sceneFrame || !setSpatialCameraSnapshot) return;
+    const snapshot = volumeCameraToSnapshot({
+      position: camera.position.toArray(),
+      target: volumeOrbitControls.target.toArray(),
+      quaternion: camera.quaternion.toArray(),
+      fovDegrees: camera.fov,
+    }, sceneFrame);
+    lastCameraSnapshotRef.current = snapshot;
+    setSpatialCameraSnapshot(snapshot);
+  });
+  // While dragging, at most every CAMERA_SNAPSHOT_THROTTLE_MS: each write
+  // re-renders this view and the linked views.
+  const throttledPublishCameraSnapshot = useMemo(
+    () => throttle(publishCameraSnapshot, CAMERA_SNAPSHOT_THROTTLE_MS),
+    [publishCameraSnapshot],
+  );
+  useEffect(() => () => throttledPublishCameraSnapshot.cancel(), [throttledPublishCameraSnapshot]);
+
+  const onOrbitControlsChange = useEventCallback((e) => {
+    if (isApplyingSnapshotRef.current) return;
+    throttledPublishCameraSnapshot();
   });
 
-  // The viewState object is new on every render of the parent, so the effect
-  // below depends on its values.
-  const {
-    zoom: viewZoom, rotationX: viewRotationX, rotationOrbit: viewRotationOrbit, target: viewTarget,
-  } = viewState ?? {};
-  const [viewTargetX, viewTargetY, viewTargetZ] = viewTarget ?? [];
+  // OrbitControls also sends start and end for each wheel event.
+  const onOrbitControlsEnd = useEventCallback((e) => {
+    endInteraction();
+    throttledPublishCameraSnapshot.flush();
+  });
 
   // Apply the camera from the coordination space: the view config, a linked view.
   useEffect(() => {
-    if (!volumeOrbitControls || !viewState) return;
-    if (isEqual(viewState, lastViewStateRef.current)) return;
-    const boxExtent = renderState.geometrySize.map((size, axis) => size * renderState.meshScale[axis]);
-    const isShowable = isVolumeViewState(viewState, boxExtent);
-    const nextViewState = isShowable ? viewState : DEFAULT_VOLUME_VIEW_STATE;
-    logWithColor(`apply viewState ${JSON.stringify(viewState)}${isShowable ? '' : ' (out of view, reset)'}`);
-
-    const { position, target } = viewStateToCamera(nextViewState);
-    camera.position.set(...position);
-    volumeOrbitControls.target.set(...target);
-    volumeOrbitControls.update();
-    if (!isShowable && setViewState) {
-      // Replace values in other units, so the coordination space holds this camera.
-      lastViewStateRef.current = DEFAULT_VOLUME_VIEW_STATE;
-      setViewState(DEFAULT_VOLUME_VIEW_STATE);
+    if (!volumeOrbitControls || !sceneFrame) return;
+    if (spatialCameraSnapshot === lastCameraSnapshotRef.current) return;
+    // No snapshot (e.g. cleared to recenter): the initial camera.
+    const nextCamera = spatialCameraSnapshot
+      ? snapshotToVolumeCamera(spatialCameraSnapshot, sceneFrame, camera.fov)
+      : { ...DEFAULT_VOLUME_CAMERA, distance: DEFAULT_VOLUME_CAMERA.position[2] };
+    if (!nextCamera) {
+      log.warn('Ignoring a spatialCameraSnapshot that is not usable', spatialCameraSnapshot);
+      return;
     }
+    lastCameraSnapshotRef.current = spatialCameraSnapshot;
+    logWithColor(`apply spatialCameraSnapshot ${JSON.stringify(spatialCameraSnapshot)}`);
+
+    const {
+      position, target, up, distance,
+    } = nextCamera;
+    // OrbitControls.update() calls camera.lookAt(target), which builds the
+    // orientation from camera.up, so setting it keeps the roll of the snapshot.
+    // OrbitControls keep orbiting around the axis that was up when they were
+    // created (Y), as in the spatialBeta Deck.gl view.
+    camera.up.set(...up);
+    camera.position.set(...position);
+    // Keep the volume within the far plane when the camera is further away.
+    camera.far = Math.max(CAMERA_FAR, distance + 2 * Math.max(...sceneFrame.boxExtent));
+    camera.updateProjectionMatrix();
+    volumeOrbitControls.target.set(...target);
+    isApplyingSnapshotRef.current = true;
+    volumeOrbitControls.update();
+    isApplyingSnapshotRef.current = false;
     // Redraw and request the bricks for the new view, also when settled.
     startInteraction();
     endInteraction();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [volumeOrbitControls, viewZoom, viewRotationX, viewRotationOrbit,
-    viewTargetX, viewTargetY, viewTargetZ]);
+  }, [volumeOrbitControls, sceneFrame, spatialCameraSnapshot]);
 
   // Interact while the user is sliding the channel slider
   // for smooth updates.
@@ -1066,6 +1117,7 @@ export function VolumeView(props) {
         ref={setVolumeOrbitControls}
         enableDamping={false}
         onStart={onOrbitControlsStart}
+        onChange={onOrbitControlsChange}
         onEnd={onOrbitControlsEnd}
       />
       <mesh ref={meshRef} scale={renderState.meshScale}>

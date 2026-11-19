@@ -5,40 +5,77 @@ import { generateSpatialAcceleratedConfiguration } from './three-spatial-acceler
 // white background.
 //
 // To add the current camera: expand the info panel of the 3D view, click the
-// copy button next to "Camera", and paste it as the camera of the figure.
+// copy button next to "Camera", and paste it as the camera of the figure
+// (a spatialCameraSnapshot, in the physical units of the image).
 //
 // viewProps.volumeProjection 'orthographic' turns off the perspective (in the
 // vertex shader), and viewProps.volumeColorByResolution colors the volume
 // by the level each sample was read from: 0 red, 1 blue, 2 green, 3 magenta,
 // 4 cyan, 5 yellow, 6 light red.
 
+const DEG2RAD = Math.PI / 180;
+// Vertical field of view of the 3D view.
+const FOV_DEGREES = 50;
+
+/**
+ * A spatialCameraSnapshot that orbits the center of a volume.
+ * @param {object} volume
+ * @param {number[]} volume.size Physical size (XYZ) of the volume.
+ * @param {number} [volume.metersPerUnit] Physical size of one unit, if known.
+ * @param {object} orbit
+ * @param {number} [orbit.zoom] log2 scale: 0 fits the width of the volume
+ * (as the view starts), each step doubles the magnification.
+ * @param {number} [orbit.rotationX] Elevation in degrees, from the XY plane
+ * towards +Y.
+ * @param {number} [orbit.rotationOrbit] Degrees around the Y axis
+ * (clockwise when seen from +Y).
+ * @returns {object} The spatialCameraSnapshot.
+ */
+function orbitCamera({ size, metersPerUnit }, { zoom = 0, rotationX = 0, rotationOrbit = 0 } = {}) {
+  // Camera distance at zoom 0, in widths of the volume: as the view starts.
+  const distance = 4 * size[0] * (2 ** -zoom);
+  // Yaw about Y, then pitch about X: [sin(a/2) * axis, cos(a/2)].
+  const yaw = (-rotationOrbit * DEG2RAD) / 2;
+  const pitch = (-rotationX * DEG2RAD) / 2;
+  return {
+    position: size.map(value => value / 2),
+    quaternion: [
+      Math.cos(yaw) * Math.sin(pitch),
+      Math.sin(yaw) * Math.cos(pitch),
+      -Math.sin(yaw) * Math.sin(pitch),
+      Math.cos(yaw) * Math.cos(pitch),
+    ],
+    projectionScale: distance * 2 * Math.tan((FOV_DEGREES * DEG2RAD) / 2),
+    fovDegrees: FOV_DEGREES,
+    ...(metersPerUnit ? { metersPerUnit } : {}),
+  };
+}
+
+// Physical sizes (XYZ) of the volumes, from the image metadata.
+const volumes = {
+  // 2048 x 2048 x 1937 voxels of 6.55 x 6.55 x 5 µm.
+  idr0066: {
+    size: [2048 * 6.550032422660492, 2048 * 6.550032422660492, 1937 * 5],
+    metersPerUnit: 1e-6,
+  },
+  // 11008 x 5632 x 200 voxels of 0.14 x 0.14 x 0.28, without a unit.
+  'lsp-3': { size: [11008 * 0.14, 5632 * 0.14, 200 * 0.28] },
+  // 15921 x 12177 x 408 voxels of 2 x 2 x 12 µm.
+  'kiemen-he-tiff': { size: [15921 * 2, 12177 * 2, 408 * 12], metersPerUnit: 1e-6 },
+  // 3714 x 3708 x 2298 voxels of 0.229 x 0.229 x 0.466 µm.
+  'washu-kidney-tiff': {
+    size: [3714 * 0.22853955542347043, 3708 * 0.22853955542347043, 2298 * 0.46611274060167124],
+    metersPerUnit: 1e-6,
+  },
+};
+
 // Front view of the XY plane, as the view starts.
-const overviewCamera = {
-  zoom: 0,
-  target: [0, 0, 0],
-  rotationX: 0,
-  rotationOrbit: 0,
-};
+const overviewCamera = null;
 // TODO: paste the zoomed-in cameras from the info panel.
-const zoomCamera = {
-  zoom: 3,
-  target: [0, 0, 0],
-  rotationX: 0,
-  rotationOrbit: 0,
-};
+const zoomOrbit = { zoom: 3 };
 // Isometric: looking down 35.26° (atan(1/√2)) from 45° around the volume.
-const isoCamera = {
-  zoom: 0,
-  target: [0, 0, 0],
-  rotationX: -35.264,
-  rotationOrbit: 45,
-};
-const altCamera = {
-  zoom: 0,
-  target: [0, 0, 0],
-  rotationX: -20,
-  rotationOrbit: -60,
-};
+const isoOrbit = { rotationX: -35.264, rotationOrbit: 45 };
+const altOrbit = { rotationX: -20, rotationOrbit: -60 };
 const orthographic = { volumeProjection: 'orthographic' };
 
 // idr0066: 2048 x 2048 x 1937, one channel (tdTomato), 6.55 µm in XY, 5 µm in Z.
@@ -93,13 +130,16 @@ function multichannelFigures(figure, imageId, name, channels) {
       imageId, name: `Figure ${figure}: ${name} overview`, channels, camera: overviewCamera,
     },
     [`${figure}-zoom`]: {
-      imageId, name: `Figure ${figure}: ${name} zoom`, channels, camera: zoomCamera,
+      imageId,
+      name: `Figure ${figure}: ${name} zoom`,
+      channels,
+      camera: orbitCamera(volumes[imageId], zoomOrbit),
     },
     [`${figure}-iso`]: {
       imageId,
       name: `Figure ${figure}: ${name} isometric`,
       channels,
-      camera: isoCamera,
+      camera: orbitCamera(volumes[imageId], isoOrbit),
       viewProps: orthographic,
     },
   };
@@ -116,7 +156,7 @@ const figures = {
     imageId: 'idr0066',
     name: 'Figure 0: idr0066 isometric',
     channels: idr0066Channels,
-    camera: isoCamera,
+    camera: orbitCamera(volumes.idr0066, isoOrbit),
     layer: idr0066Cube,
     viewProps: orthographic,
   },
@@ -124,7 +164,7 @@ const figures = {
     imageId: 'idr0066',
     name: 'Figure 0: idr0066 isometric, colored by level',
     channels: idr0066Channels,
-    camera: isoCamera,
+    camera: orbitCamera(volumes.idr0066, isoOrbit),
     layer: idr0066Cube,
     viewProps: { ...orthographic, volumeColorByResolution: true },
   },
@@ -139,7 +179,7 @@ const figures = {
     imageId: 'idr0066',
     name: 'Figure 2a: idr0066 zoom, full resolution',
     channels: idr0066Channels,
-    camera: zoomCamera,
+    camera: orbitCamera(volumes.idr0066, zoomOrbit),
     layer: idr0066FullResolution,
   },
   '2b-overview': {
@@ -153,7 +193,7 @@ const figures = {
     imageId: 'idr0066',
     name: 'Figure 2b: idr0066 zoom, level 4',
     channels: idr0066LowResolutionChannels,
-    camera: zoomCamera,
+    camera: orbitCamera(volumes.idr0066, zoomOrbit),
     layer: idr0066Cube,
   },
   '3-overview': {
@@ -167,14 +207,14 @@ const figures = {
     imageId: 'idr0066',
     name: 'Figure 3: idr0066 zoom',
     channels: idr0066Channels,
-    camera: zoomCamera,
+    camera: orbitCamera(volumes.idr0066, zoomOrbit),
     layer: idr0066Cube,
   },
   '3-alt': {
     imageId: 'idr0066',
     name: 'Figure 3: idr0066 other angle',
     channels: idr0066Channels,
-    camera: altCamera,
+    camera: orbitCamera(volumes.idr0066, altOrbit),
     layer: idr0066Cube,
   },
   ...multichannelFigures('4a', 'lsp-3', 'lsp-3', lsp3Channels),
