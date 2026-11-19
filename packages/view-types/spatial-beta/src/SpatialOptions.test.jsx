@@ -55,7 +55,7 @@ describe('SpatialOptions.js', () => {
     });
 
     describe('volume loading options', () => {
-      const MAX_LABEL = 'Maximum number of volume bricks fetched at once';
+      const MAX_LABEL = 'Maximum number of volume chunks fetched at once';
       const SKIP_LABEL = 'Skip intermediate volume resolutions instead of loading coarser ones before finer ones';
       function renderOptions(props = {}) {
         render(<SpatialOptions
