@@ -154,8 +154,6 @@ export function NeuroglancerSubscriber(props) {
   const [isLayersLoaded, setIsLayersLoaded] = useState(false);
   // For overlay when meshes are loaded on demand
   const [isMeshLoading, setIsMeshLoading] = useState(false);
-  // Number of meshes currently shown by on-demand loading, per segmentation layer.
-  const [visibleMeshCounts, setVisibleMeshCounts] = useState({});
 
   // Incremented whenever a centroid point layer has both its info JSON and
   // its NG chunk transform available (one bump per newly-ready layer).
@@ -1011,9 +1009,6 @@ export function NeuroglancerSubscriber(props) {
       });
       if (changed) {
         visibleSegmentIdsBySegLayerRef.current = nextBySegLayer;
-        setVisibleMeshCounts(Object.fromEntries(
-          Object.entries(nextBySegLayer).map(([segLayer, ids]) => [segLayer, ids.length]),
-        ));
         incrementLatestViewerStateIteration();
       }
       return added;
@@ -1847,8 +1842,11 @@ export function NeuroglancerSubscriber(props) {
     const onDemandMeshLayers = (meshLayerScopesKey ? meshLayerScopesKey.split(',') : [])
       .filter(layerScope => centroidLayerRoles.culledSegLayerScopes.has(layerScope));
     if (onDemandMeshLayers.length > 0) {
-      const shownMeshes = onDemandMeshLayers
-        .reduce((sum, layerScope) => sum + (visibleMeshCounts[layerScope] ?? 0), 0);
+      // Count what NG is given (after culling + hide unselected), not the raw culled ids.
+      const shownMeshes = (derivedViewerState?.layers ?? [])
+        .filter(layer => layer?.type === 'segmentation'
+          && onDemandMeshLayers.some(layerScope => layer.name?.includes(layerScope)))
+        .reduce((sum, layer) => sum + (layer.segments?.length ?? 0), 0);
       parts.push(`${commaNumber(shownMeshes)} ${pluralize('mesh', shownMeshes)} shown`);
     }
 
@@ -1868,7 +1866,7 @@ export function NeuroglancerSubscriber(props) {
   }, [
     segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
     obsSegmentationsSetsData, segmentationMultiIndicesData,
-    meshLayerScopesKey, visibleMeshCounts, centroidLayerRoles,
+    meshLayerScopesKey, derivedViewerState, centroidLayerRoles,
     pointLayerScopes, pointLayerCoordination, pointMultiIndicesData,
   ]);
   const infoText = [countsSubtitle, subtitle].filter(Boolean).join(' | ');
