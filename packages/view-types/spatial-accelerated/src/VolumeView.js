@@ -46,6 +46,34 @@ function logWithColor(msg) {
   }
 }
 
+// Loading counts as slow once a batch of bricks has taken this long (e.g. large
+// one-plane chunks): the view then holds an image at best quality while it waits.
+const SLOW_LOADING_MS = 1000;
+// While loading slowly, a held image is drawn again for bricks that arrived
+// since, at most this often, so that they show before the batch ends without
+// keeping the GPU busy. Only the batch end reads the buffers back.
+const SLOW_LOADING_REDRAW_MS = 1000;
+// After an interaction, the view gets one ray step level finer this often,
+// until it renders at best quality.
+const RAMP_STEP_MS = 200;
+// While loading quickly (frames drawn continuously), the level gets coarser
+// once frames drop below this rate.
+const MIN_FPS = 30;
+// While interacting, frames should keep up with the display (browsers draw at
+// most once per refresh, so 60 fps on most displays): the level gets coarser
+// once they drop below INTERACTIVE_MIN_FPS (two frames dropped in a 200 ms
+// check at 60 Hz), the coarsest below INTERACTIVE_COARSEST_FPS, and finer only
+// at INTERACTIVE_FINER_FPS (no frame dropped).
+const INTERACTIVE_MIN_FPS = 50;
+const INTERACTIVE_COARSEST_FPS = 30;
+const INTERACTIVE_FINER_FPS = 58;
+// While interacting, a buffer read cycle (usage, then requests on the next frame)
+// starts at most this often: each read waits for the GPU to finish the frame,
+// which would otherwise make every frame of a drag uneven. Each batch started
+// then ends on the next frame anyway, so mid-drag reads mostly cancel bricks of
+// views already left; the view loads in earnest once the interaction ends.
+const INTERACTIVE_READ_MS = 1000;
+
 // Functions called with useFrame
 function performGeometryPass(_gl, _camera, _scene, { mrtRef }) {
   // logWithColor('performGeometryPass', 'blue');
@@ -61,8 +89,21 @@ function performBlitPass(_gl, { screenSceneRef, screenCameraRef }) {
   _gl.render(screenSceneRef.current, screenCameraRef.current);
 }
 
+// Whether the GPU has run the commands before a fence (none: done). Reading
+// buffers back before then blocks until it has, e.g. for a best-quality frame.
+function isFenceDone(_gl, fenceRef) {
+  if (!fenceRef.current) return true;
+  const ctx = _gl.getContext();
+  if (ctx.getSyncParameter(fenceRef.current, ctx.SYNC_STATUS) !== ctx.SIGNALED) return false;
+  ctx.deleteSync(fenceRef.current);
+  // eslint-disable-next-line no-param-reassign
+  fenceRef.current = null;
+  return true;
+}
+
 function handleRequests(_gl, {
   frameRef, dataManager, mrtRef, bufRequest, bufUsage, geometryPassRef, requestReadPassRef,
+  canRead, canStartReadCycle, readCycleRef,
 }) {
   // logWithColor('handleRequests');
   // log.debug('handleRequests', frameRef.current);
@@ -78,7 +119,8 @@ function handleRequests(_gl, {
   // Only read the buffers back when the data manager can take new requests.
   // Reading stalls the GPU, and while a batch is loading the result would be dropped.
   // Each batch sets triggerUsage when it completes, so the reads resume on the next frame.
-  if (dataManager.isBusy) {
+  // Nor while the last frame drawn is still rendering, or is missing bricks (canRead).
+  if (dataManager.isBusy || !canRead) {
     return;
   }
   const readRequestBuffer = () => {
@@ -103,7 +145,10 @@ function handleRequests(_gl, {
       // Default sigmaNormalized = 0.25; can be tuned
       sigmaNormalized: DEFAULT_SIGMA_NORMALIZED,
     });
-  } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false) {
+  } else if (dataManager.triggerUsage === true && dataManager.noNewRequests === false
+    && canStartReadCycle) {
+    // eslint-disable-next-line no-param-reassign
+    readCycleRef.current = performance.now();
     // Read the pixels of the usage buffer into the width*height*RGBA bufUsage.current array.
     ctx.bindFramebuffer(ctx.READ_FRAMEBUFFER, framebufferFor(_gl, mrtRef.current));
     ctx.readBuffer(ctx.COLOR_ATTACHMENT2);
@@ -133,33 +178,94 @@ function handleRequests(_gl, {
   }
 }
 
-function handleAdaptiveQuality(clock, params) {
+// Whether the last frame drawn, held while loading slowly, predates bricks of
+// the last batch, so that its request buffer would ask for them again.
+function isHeldFrameBehindBatch(slowLoading, drawn) {
+  return slowLoading.isSlow && (drawn.uploads ?? -1) < slowLoading.uploadsAtBatchEnd;
+}
+
+// Blur of the screen pass for frames drawn at a ray step level: none at best
+// quality, more the coarser the steps.
+function blurForLevel(level) {
+  return level === 0 ? 0 : Math.min(7, 1 + 2 * level);
+}
+
+/**
+ * Track whether loading is slow: a batch has taken longer than SLOW_LOADING_MS.
+ * It stays slow until a batch ends sooner, or the user interacts.
+ */
+function trackSlowLoading(now, { isInteracting, dataManager, slowLoadingRef }) {
+  const slowLoading = slowLoadingRef.current;
+  if (isInteracting) {
+    Object.assign(slowLoading, { busySince: null, isSlow: false });
+    return;
+  }
+  if (dataManager.isBusy) {
+    if (slowLoading.busySince === null) slowLoading.busySince = now;
+    if (now - slowLoading.busySince > SLOW_LOADING_MS) slowLoading.isSlow = true;
+    return;
+  }
+  if (slowLoading.busySince === null) return;
+  slowLoading.isSlow = now - slowLoading.busySince > SLOW_LOADING_MS;
+  slowLoading.busySince = null;
+  // The next request read needs a frame with the bricks of this batch. Bricks
+  // that arrive later, from batches that bailed out, do not hold it back.
+  slowLoading.uploadsAtBatchEnd = dataManager.uploadCount;
+}
+
+/**
+ * Render quality (the shader's renderRes: ray step level, 0 the best) and
+ * whether to draw the next frame (stillRef: hold the last one instead).
+ * While interacting: the finest level whose frames keep up with the display
+ * (INTERACTIVE_MIN_FPS), going finer while no frame drops, starting one level
+ * coarser than where the last interaction left it (the coarsest at first). Afterwards, one
+ * level finer every RAMP_STEP_MS down to the best quality, with less blur each
+ * step. While loading is done or slow, frames are only drawn for those steps
+ * and for bricks that arrived since, and held otherwise. While loading quickly,
+ * frames are drawn continuously: the steps then stop at the finest level that
+ * keeps MIN_FPS.
+ */
+function handleAdaptiveQuality(params) {
   const {
-    invalidate,
     isInteracting,
     dataManager,
     spatialRenderingModeChanging,
     meshRef,
     stillRef,
     screenQuadRef,
-    lastSampleRef,
     frameRef,
-    lastFrameCountRef,
+    slowLoadingRef,
+    rampRef,
+    drawnRef,
+    now,
   } = params;
-
-  // Moved out of useEffect
-  if (screenQuadRef.current) {
-    if (!stillRef.current) {
-      // log.debug('stillRef is false');
-      screenQuadRef.current.material.uniforms.gaussian.value = 7;
-    } else {
-      // log.debug('stillRef is true');
-      screenQuadRef.current.material.uniforms.gaussian.value = 0;
-    }
-  }
-  // End moved out of useEffect
+  const ramp = rampRef.current;
 
   if (isInteracting) {
+    // Checked every RAMP_STEP_MS; the ramp starts once the interaction has ended.
+    const uniforms = meshRef.current?.material?.uniforms;
+    if (uniforms?.renderRes && dataManager.PT && screenQuadRef.current
+      && now - ramp.lastStep >= RAMP_STEP_MS) {
+      const lowest = dataManager.PT.lowestDataRes;
+      const level = Math.min(uniforms.renderRes.value, lowest);
+      const fps = ((frameRef.current - ramp.lastStepFrame) * 1000) / (now - ramp.lastStep);
+      let nextLevel = level;
+      if (fps < INTERACTIVE_COARSEST_FPS) {
+        // Far too slow, e.g. zoomed in on many more bricks: the coarsest right away.
+        nextLevel = lowest;
+      } else if (fps < INTERACTIVE_MIN_FPS) {
+        nextLevel = Math.min(lowest, level + 1);
+      } else if (fps >= INTERACTIVE_FINER_FPS && level > ramp.floor) {
+        nextLevel = level - 1;
+      }
+      // Not finer again within this interaction, so that it does not alternate.
+      if (nextLevel > level) ramp.floor = nextLevel;
+      uniforms.renderRes.value = nextLevel;
+      screenQuadRef.current.material.uniforms.gaussian.value = blurForLevel(nextLevel);
+      ramp.interactiveLevel = nextLevel;
+      ramp.lastStep = now;
+      ramp.lastStepFrame = frameRef.current;
+    }
     // While the user is interacting, we want to ensure that the next frame's handleRequests call
     // will trigger the processUsageData call, and subsequently the processRequestData call
     // (since processUsageData will set triggerRequest to true its conclusion).
@@ -178,66 +284,62 @@ function handleAdaptiveQuality(clock, params) {
     }
     return;
   }
-  if (spatialRenderingModeChanging) return;
-
-  const meshRefUniforms = meshRef.current?.material?.uniforms;
-  const renderSpeed = meshRefUniforms?.renderRes?.value ?? dataManager?.PT?.lowestDataRes;
-
-  if (dataManager.noNewRequests) {
-    // If there are no more new requests, we can render in higher resolution.
-    if (renderSpeed !== 0) {
-      if (meshRefUniforms) {
-        meshRefUniforms.renderRes.value = 0; // Set to best quality
-      }
-      log.debug('Adaptive Quality: No new requests. Setting renderSpeed to 0 (best quality).');
-      stillRef.current = false;
-      screenQuadRef.current.material.uniforms.gaussian.value = 7;
-      invalidate();
-    } else if (!stillRef.current) {
-      log.debug('Adaptive Quality: No new requests and already at best quality. Setting stillRef to true.');
-      stillRef.current = true;
-      screenQuadRef.current.material.uniforms.gaussian.value = 0;
-    }
+  const uniforms = meshRef.current?.material?.uniforms;
+  if (spatialRenderingModeChanging || !uniforms?.renderRes || !dataManager.PT
+    || !screenQuadRef.current) {
     return;
   }
 
-  if (stillRef.current) {
+  const lowest = dataManager.PT.lowestDataRes;
+  const level = Math.min(uniforms.renderRes.value, lowest);
+  const isStepDue = now - ramp.lastStep >= RAMP_STEP_MS;
+  const slowLoading = slowLoadingRef.current;
+  let nextLevel = level;
+  if (dataManager.noNewRequests || slowLoading.isSlow) {
+    // Loading is done or slow: draw a frame only for a ramp step, or for bricks
+    // that arrived since the last one, and hold it otherwise.
+    const drawn = drawnRef.current;
+    let isDrawDue = false;
+    if (level > 0 && isStepDue) {
+      nextLevel = level - 1;
+      ramp.lastStep = now;
+      isDrawDue = true;
+    } else if (drawn.uploads !== dataManager.uploadCount) {
+      // The next request read needs the last batch's bricks right away; other
+      // bricks are drawn at most every SLOW_LOADING_REDRAW_MS.
+      const isReadDue = !dataManager.isBusy && !dataManager.noNewRequests
+        && (dataManager.triggerUsage || dataManager.triggerRequest);
+      isDrawDue = (isReadDue && isHeldFrameBehindBatch(slowLoading, drawn))
+        || now - drawn.at > SLOW_LOADING_REDRAW_MS;
+    }
+    stillRef.current = !isDrawDue;
+  } else {
+    // Loading quickly: frames are drawn continuously. Step finer while they
+    // keep MIN_FPS; once they do not, step back and stay there.
     stillRef.current = false;
-    invalidate();
-  }
-
-  const t = clock.getElapsedTime();
-  if (t - lastSampleRef.current < 1) {
-    return;
-  }
-
-  const timeElapsedDuringSample = t - lastSampleRef.current;
-  const framesRenderedDuringSample = frameRef.current - lastFrameCountRef.current;
-  let fps = 0;
-  if (timeElapsedDuringSample > 0) {
-    fps = framesRenderedDuringSample / timeElapsedDuringSample;
-  }
-
-  lastSampleRef.current = t;
-  lastFrameCountRef.current = frameRef.current;
-
-  const upscale = fps > 100 && renderSpeed > 0; // Can't go below 0
-  const downscale = fps < 30 && renderSpeed < dataManager.PT.lowestDataRes; // Can't go above
-
-  if (upscale || downscale) {
-    const newSpeed = renderSpeed + (downscale ? 1 : -1);
-    if (meshRefUniforms) {
-      meshRefUniforms.renderRes.value = newSpeed;
+    if (isStepDue) {
+      const fps = ((frameRef.current - ramp.lastStepFrame) * 1000) / (now - ramp.lastStep);
+      if (fps < MIN_FPS && level < lowest) {
+        nextLevel = level + 1;
+        ramp.floor = nextLevel;
+      } else if (level > ramp.floor) {
+        nextLevel = level - 1;
+      }
+      ramp.lastStep = now;
+      ramp.lastStepFrame = frameRef.current;
     }
-    invalidate(); // Ensure the change takes effect
+  }
+  if (!stillRef.current) {
+    uniforms.renderRes.value = nextLevel;
+    screenQuadRef.current.material.uniforms.gaussian.value = blurForLevel(nextLevel);
   }
 }
 
 // END Functions called with useFrame
 
 // How long after the last interaction the view stays in interactive (fast) mode
-// before stepping up to high quality.
-const INTERACTION_SETTLE_MS = 600;
+// before stepping up to high quality (one RAMP_STEP_MS, as each later step).
+const INTERACTION_SETTLE_MS = RAMP_STEP_MS;
 
 export function VolumeView(props) {
   const {
@@ -319,8 +421,21 @@ export function VolumeView(props) {
   // Geometry passes drawn, and the one whose request buffer was last read.
   const geometryPassRef = useRef(0);
   const requestReadPassRef = useRef(0);
-  const lastSampleRef = useRef(0);
-  const lastFrameCountRef = useRef(0); // For more stable FPS calculation
+  // Placed after a frame that is then held; buffers are read back once it is done.
+  const fenceRef = useRef(null);
+  // When the last buffer read cycle started (see INTERACTIVE_READ_MS).
+  const readCycleRef = useRef(0);
+  // Slow loading (see trackSlowLoading): since when the current batch has run,
+  // and the brick uploads when the last batch ended.
+  const slowLoadingRef = useRef({ busySince: null, isSlow: false, uploadsAtBatchEnd: 0 });
+  // Render quality steps (see handleAdaptiveQuality): when the last step was
+  // taken, the frame count then, the finest level that keeps up (within an
+  // interaction, or while loading quickly), and the level interaction left off at.
+  const rampRef = useRef({
+    lastStep: 0, lastStepFrame: 0, floor: 0, interactiveLevel: null,
+  });
+  // The last frame drawn: the brick uploads it shows, and when it was drawn.
+  const drawnRef = useRef({ uploads: null, at: 0 });
 
   // const mainOrbitControlsRef = useRef(null); // Added for main view OrbitControls
 
@@ -555,10 +670,22 @@ export function VolumeView(props) {
     logWithColor('startInteraction callback');
     clearTimeout(interactionTimeoutRef.current);
     isInteractingRef.current = true;
+    const ramp = rampRef.current;
     const meshRefUniforms = meshRef.current?.material?.uniforms;
-    if (meshRefUniforms) {
-      meshRefUniforms.renderRes.value = dataManager.PT.lowestDataRes;
+    if (meshRefUniforms && dataManager.PT) {
+      // One level coarser than where the last interaction left off, which kept
+      // up with this view, so that the first frames have room to spare.
+      const lowest = dataManager.PT.lowestDataRes;
+      const level = Math.min((ramp.interactiveLevel ?? lowest) + 1, lowest);
+      meshRefUniforms.renderRes.value = level;
+      if (screenQuadRef.current) {
+        screenQuadRef.current.material.uniforms.gaussian.value = blurForLevel(level);
+      }
     }
+    // Levels may get as fine as frames keep up with again, measured from now.
+    ramp.floor = 0;
+    ramp.lastStep = performance.now();
+    ramp.lastStepFrame = frameRef.current;
     stillRef.current = false;
     invalidate();
   });
@@ -661,7 +788,6 @@ export function VolumeView(props) {
       gl: frameGl,
       camera: frameCamera,
       scene: frameScene,
-      clock,
     } = state;
 
     // Pixels per voxel change with the view size and field of view.
@@ -693,26 +819,51 @@ export function VolumeView(props) {
       uniforms.minRequestRes.value = dataManager.getMinRequestLevel();
     }
 
+    const now = performance.now();
+    const slowLoading = slowLoadingRef.current;
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
       geometryPassRef.current += 1;
+      drawnRef.current = { uploads: dataManager.uploadCount, at: now };
+      // A frame that is then held (loading done or slow) may be at best quality,
+      // which can take long: its buffers are read once it is done. Not frames
+      // drawn continuously, which would each push the reads back.
+      if (slowLoading.isSlow || dataManager.noNewRequests) {
+        const ctx = frameGl.getContext();
+        if (fenceRef.current) ctx.deleteSync(fenceRef.current);
+        fenceRef.current = ctx.fenceSync(ctx.SYNC_GPU_COMMANDS_COMPLETE, 0);
+      }
     }
 
     performBlitPass(frameGl, { screenSceneRef, screenCameraRef });
     handleRequests(frameGl, {
-      frameRef, dataManager, mrtRef, bufRequest, bufUsage, geometryPassRef, requestReadPassRef,
+      frameRef,
+      dataManager,
+      mrtRef,
+      bufRequest,
+      bufUsage,
+      geometryPassRef,
+      requestReadPassRef,
+      // A held image without the last batch's bricks is drawn again first.
+      canRead: !isHeldFrameBehindBatch(slowLoading, drawnRef.current)
+        && isFenceDone(frameGl, fenceRef),
+      canStartReadCycle: !isInteractingRef.current
+        || now - readCycleRef.current >= INTERACTIVE_READ_MS,
+      readCycleRef,
     });
-    handleAdaptiveQuality(clock, {
-      invalidate,
+    trackSlowLoading(now, { isInteracting: isInteractingRef.current, dataManager, slowLoadingRef });
+    handleAdaptiveQuality({
       isInteracting: isInteractingRef.current,
       dataManager,
       spatialRenderingModeChanging,
       meshRef,
       stillRef,
       screenQuadRef,
-      lastSampleRef,
       frameRef,
-      lastFrameCountRef,
+      slowLoadingRef,
+      rampRef,
+      drawnRef,
+      now,
     });
 
     frameRef.current += 1;

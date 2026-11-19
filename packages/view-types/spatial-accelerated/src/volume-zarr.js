@@ -212,6 +212,9 @@ export function createChunkCache(
 ) {
   const cache = new Map();
   let bytes = 0;
+  // Decoded bytes of every chunk loaded so far, including chunks loaded again
+  // after eviction: what the view has read from the source.
+  let loadedBytes = 0;
   // Entries loading, with a function that fails them.
   const loading = new Map();
   let lastLoadTime = Date.now();
@@ -284,6 +287,7 @@ export function createChunkCache(
     entry.promise = Promise.race([loader(controller.signal), stalled]).then((chunk) => {
       entry.shared.release();
       loaded(entry);
+      loadedBytes += chunk.data.byteLength;
       if (cache.get(key) === entry) {
         entry.isReady = true;
         entry.bytes = chunk.data.byteLength;
@@ -314,7 +318,7 @@ export function createChunkCache(
     load,
     // Whether a chunk is decoded and retained, without touching its recency.
     isReady: key => cache.get(key)?.isReady === true,
-    stats: () => ({ entries: cache.size, bytes }),
+    stats: () => ({ entries: cache.size, bytes, loadedBytes }),
     clear: () => { cache.clear(); bytes = 0; },
   };
 }

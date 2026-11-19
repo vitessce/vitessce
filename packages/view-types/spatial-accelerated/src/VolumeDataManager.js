@@ -938,6 +938,9 @@ export class VolumeDataManager {
 
     // this.bricksAllocated = 0;
     this.bricksEverLoaded = new Set();
+    // Bricks written to the brick cache, so that the view can tell whether a
+    // frame it holds is missing any.
+    this.uploadCount = 0;
 
     // Properties for volume rendering
     // this.originalScale = [1, 1, 1]; // Original dimensions
@@ -1038,6 +1041,15 @@ export class VolumeDataManager {
       percentage,
       noNewRequests: this.noNewRequests,
     };
+  }
+
+  /**
+   * Decoded bytes of the source chunks read so far, for the volume info panel.
+   * Chunks read again after leaving the chunk cache count again.
+   * @returns {number}
+   */
+  getLoadedBytes() {
+    return this.brickSource?.cache?.stats().loadedBytes ?? 0;
   }
 
   /**
@@ -2468,6 +2480,7 @@ export class VolumeDataManager {
     this.BCTimeStamps[bcSlot.bcIndex] = this.timeStamp;
     this.BCMinMax[bcSlot.bcIndex] = [min, max];
     this.bc2pt[bcSlot.bcIndex] = ptCoord;
+    this.uploadCount += 1;
     // log.debug('bookkeeping');
     return true;
   }

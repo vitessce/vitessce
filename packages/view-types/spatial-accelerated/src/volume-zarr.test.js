@@ -122,6 +122,15 @@ describe('volume-zarr', () => {
       await expect(cache.load('b', () => after(10))).resolves.toBe(chunk);
     });
 
+    it('counts the bytes loaded, including chunks loaded again after eviction', async () => {
+      const cache = createChunkCache(4); // room for one chunk
+      await cache.load('a', async () => chunk);
+      await cache.load('a', async () => chunk); // cached: not loaded again
+      await cache.load('b', async () => chunk); // evicts a
+      await cache.load('a', async () => chunk);
+      expect(cache.stats()).toMatchObject({ entries: 1, bytes: 4, loadedBytes: 12 });
+    });
+
     it('does not fail slow loads while other chunks keep arriving', async () => {
       const cache = createChunkCache(1024, { stallMs: 30 });
       const after = ms => new Promise((resolve) => { setTimeout(() => resolve(chunk), ms); });

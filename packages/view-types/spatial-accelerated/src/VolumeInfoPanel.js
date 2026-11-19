@@ -115,6 +115,15 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
   const cellClass = classes.volumeInfoCell;
   const [isExpanded, setIsExpanded] = useState(false);
   const [queueStatus, setQueueStatus] = useState(null);
+  const [loadedBytes, setLoadedBytes] = useState(0);
+
+  // Data downloaded so far (decoded size), next to the data size in the summary.
+  useEffect(() => {
+    const update = () => setLoadedBytes(dataManager.getLoadedBytes());
+    update();
+    const intervalId = setInterval(update, 1000);
+    return () => clearInterval(intervalId);
+  }, [dataManager]);
 
   // Only the table shows the queue, so it is only polled while expanded.
   useEffect(() => {
@@ -164,9 +173,13 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
   return (
     <div className={classes.volumeInfoPanel}>
       <div className={classes.volumeInfoHeader}>
-        <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoHeaderText}`}>
+        <Typography
+          className={`${classes.volumeInfoText} ${classes.volumeInfoHeaderText}`}
+          title="Downloaded: the decoded size of the chunks loaded so far (compressed chunks transfer less)"
+        >
           {formatExtent(sourceLevels[0].shape)}
-          {` · ${info.channelCount} ch · ${info.dtype} · ${formatBytes(sourceLevels[0].bytes)}`}
+          {` · ${info.channelCount} ch · ${info.dtype}`
+            + ` · ${formatBytes(loadedBytes)} downloaded / ${formatBytes(sourceLevels[0].bytes)}`}
         </Typography>
         {hints.length > 0 && !isExpanded ? (
           <WarningIcon

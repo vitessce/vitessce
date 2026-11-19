@@ -155,5 +155,6 @@ export function formatChunkWarning({ shape, chunks, brickReadFactor }) {
   if (brickReadFactor <= 1 || !(isTooShallow || isTooLarge)) return null;
   return `Slow loading: each brick downloads and decodes ${Math.round(brickReadFactor)}×`
     + ` the data it needs (chunks ${formatExtent(chunks)});`
-    + ` chunks with Z ≥ ${BRICK_SIZE} and X, Y, Z ≤ ${MAX_RECOMMENDED_CHUNK} load faster`;
+    + ` chunks with Z ≥ ${BRICK_SIZE} and X, Y, Z ≤ ${MAX_RECOMMENDED_CHUNK}, or a lower LOD,`
+    + ' load faster';
 }

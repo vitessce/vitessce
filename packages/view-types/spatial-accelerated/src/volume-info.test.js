@@ -113,7 +113,7 @@ describe('volume info', () => {
     expect(planes.brickReadFactor).toBe(4096);
     expect(formatChunkWarning(planes)).toBe('Slow loading: each brick downloads and decodes'
       + ' 4096× the data it needs (chunks 2048 × 2048 × 1);'
-      + ' chunks with Z ≥ 32 and X, Y, Z ≤ 256 load faster');
+      + ' chunks with Z ≥ 32 and X, Y, Z ≤ 256, or a lower LOD, load faster');
     // At the recommended limits, and with a stack shallower than a brick.
     expect(formatChunkWarning(levelOf([500, 2048, 2048], [32, 256, 256]))).toBe(null);
     expect(formatChunkWarning(levelOf([500, 2048, 2048], [256, 256, 256]))).toBe(null);
