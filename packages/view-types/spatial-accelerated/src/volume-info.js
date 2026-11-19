@@ -3,6 +3,10 @@
 import { getBytesPerElement } from './volume-zarr.js';
 
 const DTYPE_KINDS = { u: 'uint', i: 'int', f: 'float' };
+const BRICK_SIZE = 32;
+// Chunk sizes recommended for loading bricks: at least a brick deep, and at
+// most this along every axis.
+const MAX_RECOMMENDED_CHUNK = 256;
 // NGFF units are spelled out; OME-XML ones are already symbols.
 const UNIT_SYMBOLS = {
   nanometer: 'nm', micrometer: 'µm', millimeter: 'mm', centimeter: 'cm', meter: 'm',
@@ -28,6 +32,20 @@ export function formatDtype(dtype) {
 }
 
 /**
+ * How many times its own size one brick at full resolution of a source level
+ * reads in source chunks, with bricks aligned to chunks.
+ * @param {number[]} shape ZYX.
+ * @param {number[]} chunks ZYX.
+ * @returns {number}
+ */
+function getBrickReadFactor(shape, chunks) {
+  const brick = shape.map(size => Math.min(BRICK_SIZE, size));
+  const read = brick.map((size, i) => Math.min(Math.ceil(size / chunks[i]) * chunks[i], shape[i]));
+  const voxels = sizes => sizes.reduce((product, size) => product * size, 1);
+  return voxels(read) / voxels(brick);
+}
+
+/**
  * @param {object} options
  * @param {object[]} options.sourceArrays Every source level, with shape, chunks, dtype.
  * @param {string[]} options.labels Axis labels of the arrays.
@@ -40,6 +58,7 @@ export function formatDtype(dtype) {
  * sources index sourceLevels. Sizes in bytes are for the one timepoint the view
  * shows: channelBytes for one channel, bytes for all channels. A source level
  * isOverMaxXY (dropped) or isOverMaxZ (binned in Z) when larger than maxShape.
+ * brickReadFactor: see getBrickReadFactor.
  */
 export function getVolumeInfo({
   sourceArrays, labels, levels, firstSource, maxShape = [Infinity, Infinity, Infinity],
@@ -60,10 +79,12 @@ export function getVolumeInfo({
     maxShape,
     sourceLevels: sourceArrays.map((array, index) => {
       const shape = zyx(array.shape);
+      const chunks = zyx(array.chunks);
       const channelBytes = shape.reduce((product, size) => product * size, 1) * bytesPerElement;
       return {
         shape,
-        chunks: zyx(array.chunks),
+        chunks,
+        brickReadFactor: getBrickReadFactor(shape, chunks),
         channelBytes,
         bytes: channelBytes * channelCount,
         isRendered: index >= firstSource,
@@ -118,4 +139,21 @@ export function formatRangeWarning(channels, channelCount) {
   let which = `channel ${channels.join(', ')}`;
   if (channels.length === channelCount) which = channelCount === 1 ? 'the channel' : 'any channel';
   return `No value range in the metadata for ${which}: stored over the range of its overview ± 100%`;
+}
+
+/**
+ * Hint for chunks outside the recommended sizes that make every brick read
+ * more than it needs, e.g. one-plane chunks or TIFF tiles (32 planes of a whole
+ * chunk each). Chunks are compared as clipped to the volume.
+ * @param {object} sourceLevel From getVolumeInfo: the finest one rendered.
+ * @returns {string|null} Null when the chunks are within the recommended sizes.
+ */
+export function formatChunkWarning({ shape, chunks, brickReadFactor }) {
+  const clipped = chunks.map((size, i) => Math.min(size, shape[i]));
+  const isTooShallow = clipped[0] < Math.min(BRICK_SIZE, shape[0]);
+  const isTooLarge = clipped.some(size => size > MAX_RECOMMENDED_CHUNK);
+  if (brickReadFactor <= 1 || !(isTooShallow || isTooLarge)) return null;
+  return `Slow loading: each brick downloads and decodes ${Math.round(brickReadFactor)}×`
+    + ` the data it needs (chunks ${formatExtent(chunks)});`
+    + ` chunks with Z ≥ ${BRICK_SIZE} and X, Y, Z ≤ ${MAX_RECOMMENDED_CHUNK} load faster`;
 }

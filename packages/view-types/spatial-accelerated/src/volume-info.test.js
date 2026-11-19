@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   getVolumeInfo, formatBytes, formatExtent, formatDtype, formatRangeWarning,
+  formatChunkWarning,
 } from './volume-info.js';
 
 describe('volume info', () => {
@@ -97,5 +98,32 @@ describe('volume info', () => {
       .toBe(`No value range in the metadata for the channel: ${fallback}`);
     expect(formatRangeWarning([2, 5], 70))
       .toBe(`No value range in the metadata for channel 2, 5: ${fallback}`);
+  });
+
+  it('hints at chunks outside the recommended sizes', () => {
+    const levelOf = (shape, chunks, dtype = 'uint16') => getVolumeInfo({
+      sourceArrays: [{ shape, chunks, dtype }],
+      labels: ['z', 'y', 'x'],
+      levels: [{ source: 0, dataShape: shape, zFactor: 1, zMode: 'sample' }],
+      firstSource: 0,
+      spacing: [1, 1, 1],
+    }).sourceLevels[0];
+    // idr0066: one-plane chunks of the whole 2048 x 2048 plane.
+    const planes = levelOf([1937, 2048, 2048], [1, 2048, 2048]);
+    expect(planes.brickReadFactor).toBe(4096);
+    expect(formatChunkWarning(planes)).toBe('Slow loading: each brick downloads and decodes'
+      + ' 4096× the data it needs (chunks 2048 × 2048 × 1);'
+      + ' chunks with Z ≥ 32 and X, Y, Z ≤ 256 load faster');
+    // At the recommended limits, and with a stack shallower than a brick.
+    expect(formatChunkWarning(levelOf([500, 2048, 2048], [32, 256, 256]))).toBe(null);
+    expect(formatChunkWarning(levelOf([500, 2048, 2048], [256, 256, 256]))).toBe(null);
+    expect(formatChunkWarning(levelOf([1, 2048, 2048], [1, 256, 256]))).toBe(null);
+    // Too shallow, or too deep, though within XY.
+    expect(formatChunkWarning(levelOf([500, 2048, 2048], [1, 256, 256]))).toMatch(/64×/);
+    expect(formatChunkWarning(levelOf([2000, 2048, 2048], [512, 64, 64]))).toMatch(/64×/);
+    // Small chunks read no more than the brick: no hint.
+    expect(formatChunkWarning(levelOf([500, 2048, 2048], [16, 32, 32]))).toBe(null);
+    // TIFF tiles of 512 x 512 read 32 planes: 256 times the brick.
+    expect(levelOf([100, 2048, 2048], [1, 512, 512]).brickReadFactor).toBe(256);
   });
 });

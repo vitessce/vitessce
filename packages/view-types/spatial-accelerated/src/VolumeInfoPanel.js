@@ -10,8 +10,11 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   ContentCopy as ContentCopyIcon,
+  Warning as WarningIcon,
 } from '@vitessce/styles';
-import { formatBytes, formatExtent, formatRangeWarning } from './volume-info.js';
+import {
+  formatBytes, formatExtent, formatRangeWarning, formatChunkWarning,
+} from './volume-info.js';
 import { roundViewState } from './camera-utils.js';
 
 const useStyles = makeStyles()(theme => ({
@@ -51,6 +54,12 @@ const useStyles = makeStyles()(theme => ({
     margin: 0,
     fontSize: '11px',
     lineHeight: 1.4,
+  },
+  // Stands for the range and chunk hints while the panel is collapsed.
+  volumeInfoWarningIcon: {
+    flexShrink: 0,
+    fontSize: '13px',
+    color: theme.palette.warning.main,
   },
   volumeInfoCopyButton: {
     padding: 0,
@@ -136,6 +145,11 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
   const finestLevel = renderLevels[0];
   const isZBinned = sourceLevels[finestLevel.source].isOverMaxZ && finestLevel.zFactor > 1;
   const rangeWarning = formatRangeWarning(info.channelsWithoutRange, info.channelCount);
+  const chunkWarning = formatChunkWarning(sourceLevels[firstSource]);
+  // The address limit only matters for data over it.
+  const isOverMaxShape = sourceLevels[0].isOverMaxXY || sourceLevels[0].isOverMaxZ;
+  // Hints about the data, shown when expanded; collapsed, a warning sign stands for them.
+  const hints = [rangeWarning, chunkWarning].filter(Boolean);
   const sizeCells = (sourceLevel, isShown, className = cellClass) => (hasChannels
     ? [sourceLevel.channelBytes, sourceLevel.bytes] : [sourceLevel.bytes]
   ).map((bytes, i) => (
@@ -154,6 +168,12 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
           {formatExtent(sourceLevels[0].shape)}
           {` · ${info.channelCount} ch · ${info.dtype} · ${formatBytes(sourceLevels[0].bytes)}`}
         </Typography>
+        {hints.length > 0 && !isExpanded ? (
+          <WarningIcon
+            className={classes.volumeInfoWarningIcon}
+            titleAccess={hints.join('\n')}
+          />
+        ) : null}
         <IconButton
           size="small"
           className={classes.volumeInfoExpandButton}
@@ -178,14 +198,14 @@ export function VolumeInfoPanel({ dataManager, viewState }) {
             + ` (${finestLevel.zMode}, ${formatExtent(finestLevel.shape)})`}
         </Typography>
       ) : null}
-      {rangeWarning ? (
-        <Typography className={`${classes.volumeInfoText} ${classes.volumeInfoZWarning}`}>
-          {rangeWarning}
-        </Typography>
-      ) : null}
       {isExpanded ? (
         <>
-          {info.maxShape.every(Number.isFinite) ? (
+          {hints.map(hint => (
+            <Typography key={hint} className={`${classes.volumeInfoText} ${classes.volumeInfoZWarning}`}>
+              {hint}
+            </Typography>
+          ))}
+          {isOverMaxShape ? (
             <Typography className={classes.volumeInfoText}>
               {`Largest loadable level: ${formatExtent(info.maxShape)}`}
             </Typography>
