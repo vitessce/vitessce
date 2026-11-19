@@ -1104,6 +1104,25 @@ float sampleBrick(vec3 brickCacheCoord, vec3 voxelInBrick) {
     return texture(brickCacheTex, brickCacheCoordNormalized).r;
 }
 
+// Sample a neighbouring brick for interblock interpolation.
+// The neighbour may be resident only at a coarser level than the current brick
+// (getBrickLocation falls back to coarser levels): the sample position is then
+// converted to that level's voxels, so that it reads the same place.
+//
+// Parameters:
+//   info - ivec4: Result of getBrickLocation for the neighbour (w >= 0: its level)
+//   voxel - vec3: Sample position, in voxels of level res (a voxel centre)
+//   res - int: Level of the current brick
+//
+// Returns:
+//   float: Sampled voxel value from the neighbouring brick
+float sampleNeighbor(ivec4 info, vec3 voxel, int res) {
+    vec3 voxelAtLevel = info.w == res
+        ? voxel
+        : getVoxelFromNormalized(getNormalizedFromVoxel(voxel, res), info.w);
+    return sampleBrick(vec3(info.xyz), clamp(mod(voxelAtLevel, 32.0), 0.5, 31.5));
+}
+
 /**
  * main renderloop
 */
@@ -1544,7 +1563,7 @@ void main(void) {
                                 otherVoxelVal = val;
                             } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {
                                 // Use cached adjacent brick
-                                otherVoxelVal = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick);
+                                otherVoxelVal = sampleNeighbor(ivec4(c_brick_XYZ_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);
                             } else {
                                 // Load new adjacent brick
                                 ivec4 otherBrickCacheInfo = ivec4(-1);
@@ -1560,8 +1579,7 @@ void main(void) {
                                 } else if (otherBrickCacheInfo.w == -4) {
                                     otherVoxelVal = float(otherBrickCacheInfo.x);
                                 } else {
-                                    // TODO: we do not recalculate the voxelInBrick based on the resolution
-                                    otherVoxelVal = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick);
+                                    otherVoxelVal = sampleNeighbor(otherBrickCacheInfo, otherGlobalVoxelPos - diff, c_res_current[c]);
                                 }
                                 c_PT_XYZ_adjacent[c] = getBrickFromVoxel(otherGlobalVoxelPos, c_res_current[c]); 
                                 c_brick_XYZ_adjacent[c] = vec4(otherBrickCacheInfo);
@@ -1608,16 +1626,16 @@ void main(void) {
                                                                                                         \
                                     bool matched = false;                                               \
                                     if (otherPTcoord == c_PT_X_adjacent[c].xyz && c_brick_X_adjacent[c].w >= 0.0)   {                         \
-                                        DEST = sampleBrick(c_brick_X_adjacent[c].xyz, otherVoxelInBrick);   \
+                                        DEST = sampleNeighbor(ivec4(c_brick_X_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         matched = true;                                                 \
                                     } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz && c_brick_Y_adjacent[c].w >= 0.0) {                    \
-                                        DEST = sampleBrick(c_brick_Y_adjacent[c].xyz, otherVoxelInBrick);   \
+                                        DEST = sampleNeighbor(ivec4(c_brick_Y_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         matched = true;                                                 \
                                     } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz && c_brick_Z_adjacent[c].w >= 0.0) {                    \
-                                        DEST = sampleBrick(c_brick_Z_adjacent[c].xyz, otherVoxelInBrick);   \
+                                        DEST = sampleNeighbor(ivec4(c_brick_Z_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         matched = true;                                                 \
                                     } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {                  \
-                                        DEST = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick); \
+                                        DEST = sampleNeighbor(ivec4(c_brick_XYZ_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]); \
                                         matched = true;                                                 \
                                     }             \
                                     ivec4 info = ivec4(-1); \
@@ -1635,7 +1653,7 @@ void main(void) {
                                         } else if (info.w == -4) {                                      \
                                             DEST = float(info.x);                                       \
                                         } else {                                                        \
-                                            DEST = sampleBrick(vec3(info.xyz), otherVoxelInBrick);      \
+                                            DEST = sampleNeighbor(info, otherGlobalVoxelPos - diff, c_res_current[c]);      \
                                         }                                                               \
                                         if (abs((OFF).x) > 0.5 && abs((OFF).y) < 0.5 && abs((OFF).z) < 0.5) {             \
                                             c_PT_X_adjacent[c]  = otherPTcoord;                                     \
@@ -1690,13 +1708,13 @@ void main(void) {
                                         vec3 otherPTcoord      = getBrickFromNormalized(otherP, c_res_current[c]);             \
                                         vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff;     \
                                         if (otherPTcoord == c_PT_X_adjacent[c] && c_brick_X_adjacent[c].w >= 0.0)   {                         \
-                                            DEST = sampleBrick(c_brick_X_adjacent[c].xyz, otherVoxelInBrick);   \
+                                            DEST = sampleNeighbor(ivec4(c_brick_X_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         } else if (otherPTcoord == c_PT_Y_adjacent[c].xyz && c_brick_Y_adjacent[c].w >= 0.0) {                    \
-                                            DEST = sampleBrick(c_brick_Y_adjacent[c].xyz, otherVoxelInBrick);   \
+                                            DEST = sampleNeighbor(ivec4(c_brick_Y_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         } else if (otherPTcoord == c_PT_Z_adjacent[c].xyz && c_brick_Z_adjacent[c].w >= 0.0) {                    \
-                                            DEST = sampleBrick(c_brick_Z_adjacent[c].xyz, otherVoxelInBrick);   \
+                                            DEST = sampleNeighbor(ivec4(c_brick_Z_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]);   \
                                         } else if (otherPTcoord == c_PT_XYZ_adjacent[c].xyz && c_brick_XYZ_adjacent[c].w >= 0.0) {                  \
-                                            DEST = sampleBrick(c_brick_XYZ_adjacent[c].xyz, otherVoxelInBrick); \
+                                            DEST = sampleNeighbor(ivec4(c_brick_XYZ_adjacent[c]), otherGlobalVoxelPos - diff, c_res_current[c]); \
                                         } else {                                                               \
                                             ivec4 otherBrickCacheInfo = getBrickLocation(otherP, c_res_current[c], slot, rnd, false, c); \
                                             vec3 otherVoxelInBrick = mod(otherGlobalVoxelPos, 32.0) - diff; \
@@ -1707,7 +1725,7 @@ void main(void) {
                                             } else if (otherBrickCacheInfo.w == -4) { \
                                                 DEST = float(otherBrickCacheInfo.x); \
                                             } else { \
-                                                DEST = sampleBrick(vec3(otherBrickCacheInfo.xyz), otherVoxelInBrick); \
+                                                DEST = sampleNeighbor(otherBrickCacheInfo, otherGlobalVoxelPos - diff, c_res_current[c]); \
                                             } \
                                         } \
                                     } \
