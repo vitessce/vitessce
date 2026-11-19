@@ -957,6 +957,8 @@ export class VolumeDataManager {
       isLoading,
       percentage,
       noNewRequests: this.noNewRequests,
+      // Unlike noNewRequests, which is also set once nothing is left to load.
+      isManuallyStopped: this.manuallyStopped === true,
     };
   }
 

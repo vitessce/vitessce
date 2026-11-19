@@ -69,7 +69,7 @@ export default function SpatialOptions(props) {
     spatialBackgroundTheme,
     setSpatialBackgroundTheme,
   } = props;
-  
+
   const optionsId = useId();
   const toggleAxisId = useId();
   const backgroundId = useId();
@@ -126,7 +126,7 @@ export default function SpatialOptions(props) {
           <TableRow>
             <TableCell className={classes.spatialBetaCameraLabel} variant="head" scope="row">
               <label htmlFor={`spatial-volume-max-concurrent-bricks-${optionsId}`}>
-                Max Concurrent Brick Requests
+                Max Concurrent Chunk Requests
               </label>
             </TableCell>
             <TableCell variant="body">
@@ -136,7 +136,7 @@ export default function SpatialOptions(props) {
                 onChange={handleMaxConcurrentBrickRequestsChange}
                 disabled={!use3d}
                 inputProps={{
-                  'aria-label': 'Maximum number of volume bricks fetched at once',
+                  'aria-label': 'Maximum number of volume chunks fetched at once',
                   id: `spatial-volume-max-concurrent-bricks-${optionsId}`,
                 }}
               >
