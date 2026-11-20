@@ -1,7 +1,7 @@
 import {
   describe, it, expect, vi, beforeEach, afterEach,
 } from 'vitest';
-import { DicomLoader } from './DicomLoader.js';
+import { DicomLoader, DicomSeriesLoader, DicomSeriesZipLoader } from './DicomLoader.js';
 import { RadiologySource } from './RadiologySource.js';
 import { CODEC_FIXTURES } from './codecs.test.fixtures.js';
 
@@ -204,13 +204,109 @@ function mockServer({ supportsRange = true, ...fileOptions }: {
   return fetchMock;
 }
 
-const URLS = ['https://example.com/z10.dcm', 'https://example.com/z0.dcm', 'https://example.com/z5.dcm'];
+const DIRECTORY_URL = 'https://example.com/series/';
+const FILES = ['z10.dcm', 'z0.dcm', 'z5.dcm'];
+const FILE_URL = 'https://example.com/z0.dcm';
+const ZIP_URL = 'https://example.com/series.zip';
 
-function makeLoader(urls = URLS) {
-  return new DicomLoader(new RadiologySource({}), {
-    type: 'image', fileType: 'image.dicom', options: { urls },
+/** A loader for a series of files in a directory. */
+function makeLoader(files = FILES) {
+  return new DicomSeriesLoader(new RadiologySource({ url: DIRECTORY_URL }), {
+    type: 'image', fileType: 'image.dicom-series', url: DIRECTORY_URL, options: { files },
   });
 }
+
+/** A loader for a single file. */
+function makeFileLoader() {
+  return new DicomLoader(new RadiologySource({ url: FILE_URL }), {
+    type: 'image', fileType: 'image.dicom', url: FILE_URL,
+  });
+}
+
+function makeZipLoader() {
+  return new DicomSeriesZipLoader(new RadiologySource({ url: ZIP_URL }), {
+    type: 'image', fileType: 'image.dicom-series.zip', url: ZIP_URL,
+  });
+}
+
+/**
+ * A zip file of the given files, stored uncompressed or compressed with deflate.
+ * The CRC-32 values are left as 0, which unzipit does not check.
+ */
+async function deflateRaw(data: Uint8Array) {
+  const stream = (new Response(data).body as ReadableStream<Uint8Array>)
+    .pipeThrough(new CompressionStream('deflate-raw' as CompressionFormat));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function makeZip(files: { name: string; data: Uint8Array }[], isCompressed: boolean) {
+  const uint = (values: [number, number][]) => {
+    const view = new DataView(new ArrayBuffer(values.reduce((sum, [, size]) => sum + size, 0)));
+    values.reduce((offset, [value, size]) => {
+      if (size === 2) view.setUint16(offset, value, true);
+      else view.setUint32(offset, value, true);
+      return offset + size;
+    }, 0);
+    return new Uint8Array(view.buffer);
+  };
+  const method = isCompressed ? 8 : 0;
+  const localParts: Uint8Array[] = [];
+  const centralParts: Uint8Array[] = [];
+  let offset = 0;
+  const storedFiles = await Promise.all(files.map(async ({ name, data }) => ({
+    name, data, stored: isCompressed ? await deflateRaw(data) : data,
+  })));
+  storedFiles.forEach(({ name, data, stored }) => {
+    const nameBytes = new TextEncoder().encode(name);
+    // Version, flags, method, time, date, CRC-32, sizes, name length, extra field length.
+    const common: [number, number][] = [
+      [20, 2], [0, 2], [method, 2], [0, 2], [0, 2], [0, 4],
+      [stored.length, 4], [data.length, 4], [nameBytes.length, 2], [0, 2],
+    ];
+    const local = concat([uint([[0x04034b50, 4], ...common]), nameBytes, stored]);
+    centralParts.push(concat([
+      uint([[0x02014b50, 4], [20, 2], ...common, [0, 2], [0, 2], [0, 2], [0, 4], [offset, 4]]),
+      nameBytes,
+    ]));
+    localParts.push(local);
+    offset += local.length;
+  });
+  const central = concat(centralParts);
+  const end = uint([
+    [0x06054b50, 4], [0, 2], [0, 2], [files.length, 2], [files.length, 2],
+    [central.length, 4], [offset, 4], [0, 2],
+  ]);
+  return concat([...localParts, central, end]);
+}
+
+/** Serve a zip file of DICOM files, with range requests. */
+async function mockZipServer(files: { name: string; data: Uint8Array }[], isCompressed = false) {
+  const zip = await makeZip(files, isCompressed);
+  const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+    if (init?.method === 'HEAD') {
+      return new Response(null, { headers: { 'Content-Length': String(zip.length) } });
+    }
+    const range = /bytes=(\d+)-(\d*)/.exec(new Headers(init?.headers).get('Range') ?? '');
+    if (range) {
+      const end = range[2] ? Number(range[2]) + 1 : undefined;
+      return new Response(zip.slice(Number(range[1]), end), { status: 206 });
+    }
+    return new Response(zip);
+  });
+  vi.stubGlobal('fetch', fetchMock);
+  return fetchMock;
+}
+
+// unzipit decompresses with DecompressionStream. Node supports deflate-raw from 20.12.
+const supportsDeflateRaw = (() => {
+  try {
+    // eslint-disable-next-line no-new
+    new DecompressionStream('deflate-raw' as CompressionFormat);
+    return true;
+  } catch {
+    return false;
+  }
+})();
 
 describe('DicomLoader', () => {
   beforeEach(() => {
@@ -247,7 +343,7 @@ describe('DicomLoader', () => {
     const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 2 } });
     expect(Array.from(raster.data)).toEqual(new Array(6).fill(1000 - 1024));
     // The whole file was kept, so pixels need no second request.
-    expect(fetchMock).toHaveBeenCalledTimes(URLS.length);
+    expect(fetchMock).toHaveBeenCalledTimes(FILES.length);
   });
 
   it.each([true, false])('decodes compressed files (range requests: %s)', async (supportsRange) => {
@@ -265,7 +361,7 @@ describe('DicomLoader', () => {
 
   it('reads a multi-frame file with a frame per slice', async () => {
     mockServer({ frameZs: [10, 0, 5] });
-    const image = (await makeLoader(['https://example.com/z0.dcm']).load()).data.image.instance;
+    const image = (await makeFileLoader().load()).data.image.instance;
     expect(image.getNumZ()).toEqual(3);
     expect(image.getModelMatrix()[10]).toEqual(5000);
 
@@ -285,7 +381,7 @@ describe('DicomLoader', () => {
       fragments: frameZs.map(z => rleFrame(1000 + z, 6)),
       hasOffsetTable,
     });
-    const [source] = (await makeLoader(['https://example.com/z0.dcm']).load()).data.image.instance.getData();
+    const [source] = (await makeFileLoader().load()).data.image.instance.getData();
     const rasters = await Promise.all([0, 1, 2].map(z => (
       source.getRaster({ selection: { t: 0, c: 0, z } })
     )));
@@ -301,7 +397,7 @@ describe('DicomLoader', () => {
   it('reads frames without per-frame positions as time points', async () => {
     // Such as an ultrasound cine loop. Pixel values are 1000 + the frame's z.
     mockServer({ frameZs: [3, 1, 2], hasFrameGroups: false });
-    const image = (await makeLoader(['https://example.com/z0.dcm']).load()).data.image.instance;
+    const image = (await makeFileLoader().load()).data.image.instance;
     expect(image.getNumZ()).toEqual(1);
     expect(image.getNumT()).toEqual(3);
     const [source] = image.getData();
@@ -318,7 +414,7 @@ describe('DicomLoader', () => {
 
   it('inverts MONOCHROME1 images, and places a single image without a position', async () => {
     mockServer({ photometricInterpretation: 'MONOCHROME1', hasPosition: false });
-    const image = (await makeLoader(['https://example.com/z0.dcm']).load()).data.image.instance;
+    const image = (await makeFileLoader().load()).data.image.instance;
     // Stored values 0 to 4095 are displayed from 3071 to -1024 (2047 - HU).
     expect(image.getChannelObjects()[0].defaultWindow).toEqual([2047 - 240, 2047 + 160]);
     expect(image.getModelMatrix()[12]).toEqual(-250);
@@ -331,7 +427,7 @@ describe('DicomLoader', () => {
     // Six interleaved RGB pixels: (0, 100, 200), (1, 101, 201), ...
     const rgbPixels = [0, 1, 2, 3, 4, 5].flatMap(i => [i, 100 + i, 200 + i]);
     mockServer({ rgbPixels });
-    const { data, coordinationValues } = await makeLoader(['https://example.com/z0.dcm']).load();
+    const { data, coordinationValues } = await makeFileLoader().load();
     const image = data.image.instance;
     expect(image.getPhotometricInterpretation()).toEqual('RGB');
     expect(image.getChannelNames()).toEqual(['Red', 'Green', 'Blue']);
@@ -343,6 +439,54 @@ describe('DicomLoader', () => {
     const [source] = image.getData();
     const blue = await source.getRaster({ selection: { t: 0, c: 2, z: 0 } });
     expect(Array.from(blue.data)).toEqual([200, 201, 202, 203, 204, 205]);
+  });
+
+  it('reads a single file', async () => {
+    const fetchMock = mockServer();
+    const image = (await makeFileLoader().load()).data.image.instance;
+    expect(image.getNumZ()).toEqual(1);
+    expect(fetchMock.mock.calls[0][0]).toEqual(FILE_URL);
+  });
+
+  it('reads the files of a series from their directory', async () => {
+    const fetchMock = mockServer();
+    await makeLoader().load();
+    const urls = new Set(fetchMock.mock.calls.map(([url]) => url));
+    expect(urls).toEqual(new Set(FILES.map(file => `https://example.com/series/${file}`)));
+  });
+
+  it.each(['https://example.com/z0.dcm', '/z0.dcm', '../z0.dcm'])('rejects file names outside the directory (%s)', async (file) => {
+    mockServer();
+    await expect(makeLoader([file]).load()).rejects.toThrow('must be the name of a file within the directory');
+  });
+
+  it('reads uncompressed files from a zip file with range requests', async () => {
+    const fetchMock = await mockZipServer([
+      ...[10, 0, 5].map(z => ({ name: `series/z${z}.dcm`, data: makeFile(z) })),
+      // Entries that are not files of the series are skipped.
+      { name: 'series/', data: new Uint8Array(0) },
+      { name: 'series/DICOMDIR', data: new Uint8Array(1) },
+      { name: '__MACOSX/series/._z0.dcm', data: new Uint8Array(1) },
+    ]);
+    const image = (await makeZipLoader().load()).data.image.instance;
+    expect(image.getNumZ()).toEqual(3);
+    const [source] = image.getData();
+    const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 0 } });
+    expect(Array.from(raster.data)).toEqual(new Array(6).fill(1000 + 10 - 1024));
+
+    const requests = fetchMock.mock.calls.map(([, init]) => (
+      init?.method === 'HEAD' ? 'HEAD' : new Headers(init?.headers).get('Range')
+    ));
+    expect(requests.every(Boolean)).toBe(true);
+  });
+
+  it.skipIf(!supportsDeflateRaw)('reads compressed files from a zip file', async () => {
+    await mockZipServer([10, 0, 5].map(z => ({ name: `z${z}.dcm`, data: makeFile(z) })), true);
+    const image = (await makeZipLoader().load()).data.image.instance;
+    expect(image.getNumZ()).toEqual(3);
+    const [source] = image.getData();
+    const raster = await source.getRaster({ selection: { t: 0, c: 0, z: 2 } });
+    expect(Array.from(raster.data)).toEqual(new Array(6).fill(1000 - 1024));
   });
 
   it('rejects unsupported transfer syntaxes', async () => {

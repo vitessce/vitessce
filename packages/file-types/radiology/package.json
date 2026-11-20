@@ -38,7 +38,8 @@
     "@vitessce/types": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "dicom-parser": "catalog:",
-    "nifti-reader-js": "catalog:"
+    "nifti-reader-js": "catalog:",
+    "unzipit": "catalog:"
   },
   "devDependencies": {
     "@cornerstonejs/codec-charls": "catalog:",

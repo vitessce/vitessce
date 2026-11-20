@@ -1679,7 +1679,7 @@ options={`{
 
 ## Radiology images
 
-The `image.nifti`, `image.dicomweb`, and `image.dicom` file types load radiology volumes (such as CT and MR) for the `spatialBeta` and `layerControllerBeta` views. DICOM images can also be in color (such as ultrasound).
+The `image.nifti`, `image.dicomweb`, `image.dicom`, `image.dicom-series`, and `image.dicom-series.zip` file types load radiology volumes (such as CT and MR) for the `spatialBeta` and `layerControllerBeta` views. DICOM images can also be in color (such as ultrasound).
 
 - Values are rescaled to physical units (for example, Hounsfield units for CT) using the NIfTI `scl_slope`/`scl_inter` or DICOM `RescaleSlope`/`RescaleIntercept`.
 - The initial window comes from the DICOM `WindowCenter`/`WindowWidth` or NIfTI `cal_min`/`cal_max`. When these are missing, the 2nd to 98th percentile of the values is used.
@@ -1721,21 +1721,46 @@ fileConst="IMAGE_DICOMWEB"
 
 ### `image.dicom`
 
-Points to the DICOM files (`.dcm`) of one series, listed in `options.urls` in any order: one image per file, or multi-frame files with a frame per slice (positioned by their per-frame functional groups). Compressed multi-frame files are read one frame at a time when they have a Basic Offset Table, and are read whole otherwise.
-Only the start of each file is read when the series loads; the pixel data of each slice is read when it is displayed.
-This requires a server that supports HTTP range requests and allows the `Range` header for cross-origin requests. Otherwise, whole files are downloaded.
-For compressed files, the pixel data is read from its start to the end of the file.
+Points to a single DICOM file (`.dcm`): one image, or a multi-frame image with a frame per slice (positioned by its per-frame functional groups).
+Only the start of the file is read when the image loads; the pixel data of each slice is read when it is displayed.
+This requires a server that supports HTTP range requests and allows the `Range` header for cross-origin requests. Otherwise, the whole file is downloaded.
+For compressed files, the pixel data is read from its start to the end of the file. Compressed multi-frame files are read one frame at a time when they have a Basic Offset Table, and are read whole otherwise.
 
 <FileDefTabs
+fileName="my_image.dcm"
 fileType="image.dicom"
 fileConst="IMAGE_DICOM"
+/>
+
+### `image.dicom-series`
+
+Points to a directory that contains the DICOM files (`.dcm`) of one series. The names of the files are listed in `options.files`, in any order, and must be within the directory.
+The files can have one image each, or be multi-frame files. They are read as for [`image.dicom`](#imagedicom).
+
+<FileDefTabs
+fileName="my_series"
+fileType="image.dicom-series"
+fileConst="IMAGE_DICOM_SERIES"
 options={`{
-    "urls": [
-      "https://example.com/my_series/slice_001.dcm",
-      "https://example.com/my_series/slice_002.dcm",
-      "https://example.com/my_series/slice_003.dcm"
+    "files": [
+      "slice_001.dcm",
+      "slice_002.dcm",
+      "slice_003.dcm"
     ]
 }`}
+/>
+
+### `image.dicom-series.zip`
+
+Points to a zip file of the DICOM files of one series (a zipped `image.dicom-series` directory). The files are listed from the zip file's central directory, so they do not need to be listed in `options`.
+Directories, hidden files, `__MACOSX` metadata, and `DICOMDIR` files are skipped; every other file in the zip file must be a DICOM file of the series.
+Files that are stored uncompressed in the zip file (for example, with `zip -0`) are read as for [`image.dicom`](#imagedicom), with range requests. Compressed files are downloaded and decompressed whole when the series loads.
+The server must support HTTP range requests and `HEAD` requests (for the size of the zip file).
+
+<FileDefTabs
+fileName="my_series.zip"
+fileType="image.dicom-series.zip"
+fileConst="IMAGE_DICOM_SERIES_ZIP"
 />
 
 ## `obsSegmentations.ng-precomputed`

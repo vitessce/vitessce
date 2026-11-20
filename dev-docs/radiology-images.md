@@ -1,6 +1,6 @@
 # Radiology images (DICOMweb, `.dcm`, NIfTI)
 
-Design notes for `@vitessce/radiology` (`image.dicomweb`, `image.dicom`, `image.nifti`) and `@vitessce/radiology-workers`. User-facing behavior is documented in `sites/docs/docs/data-file-types.mdx`.
+Design notes for `@vitessce/radiology` (`image.dicomweb`, `image.dicom`, `image.dicom-series`, `image.dicom-series.zip`, `image.nifti`) and `@vitessce/radiology-workers`. User-facing behavior is documented in `sites/docs/docs/data-file-types.mdx`.
 
 ## Rendering through Viv
 
@@ -10,13 +10,14 @@ Only `spatialBeta` and `layerControllerBeta` are targeted, not the legacy `spati
 
 ## Architecture
 
-- Each loader (`NiftiLoader`, `DicomWebLoader`, `DicomLoader`) reads its format into a format-independent `Volume` (`volume.ts`): dimensions, an LPS affine, rescale slope and intercept, a default window, and a `loadRawSlice(z, t)` function.
-- `toVolume()` (`dicom.ts`) turns the images of a DICOM series into a `Volume`. The two DICOM loaders read attributes through a small `DicomAttributes` adapter (over DICOM JSON or a dicom-parser `DataSet`), so `readImage()` and `readFrames()` (which splits multi-frame images into frames, using their functional groups) are shared.
+- Each loader (`NiftiLoader`, `DicomWebLoader`, and the `.dcm` loaders `DicomLoader`, `DicomSeriesLoader`, and `DicomSeriesZipLoader`) reads its format into a format-independent `Volume` (`volume.ts`): dimensions, an LPS affine, rescale slope and intercept, a default window, and a `loadRawSlice(z, t)` function.
+- `toVolume()` (`dicom.ts`) turns the images of a DICOM series into a `Volume`. The DICOMweb and `.dcm` loaders read attributes through a small `DicomAttributes` adapter (over DICOM JSON or a dicom-parser `DataSet`), so `readImage()` and `readFrames()` (which splits multi-frame images into frames, using their functional groups) are shared.
 - `VolumeLoader` turns a `Volume` into an `ImageWrapper`, using:
   - `createSliceSource()`: a single-resolution Viv `PixelSource` that loads and caches one slice per `getRaster` call.
   - `toNgffMetadata()`: synthesized OME-NGFF `multiscales` and `omero` metadata, which `ImageWrapper` already understands.
   - The `ImageWrapper` is created with the image type `'radiology'`, so `getType()` does not report the synthesized metadata as OME-Zarr.
-- `dicom-parser` and `nifti-reader-js` are imported on first use, so they are not in the main bundle.
+- The three `.dcm` loaders differ only in how they list files, as `ByteSource`s (`byte-sources.ts`) that read a byte range: a file at a URL (`image.dicom`), files named in `options.files` within the directory at the URL (`image.dicom-series`), or the entries of a zip file (`image.dicom-series.zip`).
+- `dicom-parser`, `nifti-reader-js`, and `unzipit` are imported on first use, so they are not in the main bundle.
 
 ## Geometry
 
@@ -52,6 +53,7 @@ Only `spatialBeta` and `layerControllerBeta` are targeted, not the legacy `spati
 
 - **DICOMweb**: the `url` is the series URL. Each frame of a multi-frame instance is requested from `frames/{n}`. Grayscale frames are requested as Explicit VR Little Endian. Color frames are requested as stored, because a server that decompresses a `YBR_FULL_422` JPEG may convert it to RGB, while the metadata still says `YBR_FULL_422`. The `image/jpeg` media type is used for both lossy and lossless JPEG, so the transfer syntax of these frames is read from their start-of-frame marker. A server that cannot transcode answers 406, and the request is repeated with `transfer-syntax=*`. Some servers (such as OHIF's static demo server) ignore the requested transfer syntax and return compressed frames, which are decoded. OHIF's demo server also omits the multipart `boundary` parameter, so the delimiter is read from the first line of the body.
 - **`.dcm`**: headers are read with growing range requests until the PixelData tag, and the pixel data of each slice is read with a range request when it is displayed. When a server ignores `Range` and sends the whole file, the file is kept. Compressed pixel data is read to the end of the file and its fragments are joined (one frame per file). Multi-frame files are split into one slice per frame, using the per-frame and shared functional groups. For compressed multi-frame files, the Basic Offset Table is read with one more range request, and gives the bytes of each frame. Without an offset table, the whole file is read once, and each frame must be one fragment. The Extended Offset Table is not supported: dicom-parser 1.8 does not know its value representation (`OV`), so these files fail with a parse error.
+- **Zipped series**: the zip file is listed with unzipit (`unzipRaw`), which reads the central directory with range requests (and a `HEAD` request for the length), using a range reader that applies `requestInit`. Stored (uncompressed) entries are read like `.dcm` files at a URL, with range requests offset by where the entry's data starts. unzipit does not expose that offset, so it is read from the entry's local file header, found with the private `_rawEntry.relativeOffsetOfLocalHeader` (as in the `ZipFileStore` of `@zarrita/storage`). Compressed (deflated) entries are read and decompressed whole, so the whole series is downloaded up front. Directories, hidden files, `__MACOSX`, and `DICOMDIR` are skipped.
 - Explicit VR Big Endian (retired, but found in older archives) is parsed by dicom-parser, and its pixel values are swapped to little-endian by the decoder. 8-bit big-endian pixel data stored as 16-bit words (`OW`) would need its bytes swapped in pairs, across frame boundaries, so it is rejected.
 - The frames of a multi-frame image without per-frame functional groups (such as an ultrasound cine loop, or a multi-frame secondary capture) are time points of one slice, in frame order.
 - A single image without `ImagePositionPatient` and `ImageOrientationPatient`, such as a radiograph, is placed at the origin, with `ImagerPixelSpacing` when it has no `PixelSpacing`. A spacing of 0 (seen in radiographs whose spacing is unknown) is treated as 1 mm.
@@ -72,7 +74,7 @@ Ordered by value to radiology users. Items 4 and 5 are mostly done; the others a
 4. ~~**Compressed multi-frame files.**~~ Done, except for the Extended Offset Table, which needs dicom-parser to support `OV`. Multi-frame instances over DICOMweb are also done.
 5. ~~**Rarer formats.**~~ `MONOCHROME1`, big-endian data, color, lossy JPEG, and ultrasound cine loops are done. Remaining: `PALETTE COLOR` and the physical size of ultrasound pixels.
 6. **Window presets.** A menu of common CT windows in the layer controller, such as brain (40/80), soft tissue (40/400), lung (-600/1500), and bone (400/1800). MR values have no standard units, so presets only apply to CT.
-7. **Python package.** Check whether the `vitessce` Python package needs the new file types (`image.nifti`, `image.dicomweb`, `image.dicom`) before they can be used from Jupyter.
+7. **Python package.** Check whether the `vitessce` Python package needs the new file types (`image.nifti`, `image.dicomweb`, `image.dicom`, `image.dicom-series`, `image.dicom-series.zip`) before they can be used from Jupyter.
 
 ## Validation
 

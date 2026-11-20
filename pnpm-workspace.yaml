@@ -32,6 +32,7 @@ catalog:
   # nifti-reader-js is pinned: 0.8.1 was published after a 20-month gap and has not been reviewed.
   "nifti-reader-js": 0.8.0
   "dicom-parser": 1.8.21
+  "unzipit": ^2.0.1
   "jpeg-lossless-decoder-js": 2.1.2
   # Exact versions: the bundled codec JS must match the .wasm files that
   # @vitessce/radiology fetches at runtime (see WASM_URLS in its codecs.ts).

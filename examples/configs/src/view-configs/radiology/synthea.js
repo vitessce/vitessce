@@ -27,8 +27,9 @@ function makeDataset(uid) {
     description,
     files: [{
       fileType: 'image.dicom',
+      url,
       // The files have placeholder series descriptions ("UNKNOWN").
-      options: { urls: [url], name: `${name.split(' ')[0]} - brain MRI` },
+      options: { name: `${name.split(' ')[0]} - brain MRI` },
     }],
   };
 }
