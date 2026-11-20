@@ -157,6 +157,9 @@ catalogs:
     d3-shape:
       specifier: ^3.2.0
       version: 3.2.0
+    hdf5-as-virtual-zarr:
+      specifier: 0.2.2
+      version: 0.2.2
     internmap:
       specifier: ^2.0.3
       version: 2.0.3
@@ -1830,6 +1833,9 @@ importers:
       '@zarrita/storage':
         specifier: 'catalog:'
         version: 0.2.0
+      hdf5-as-virtual-zarr:
+        specifier: 'catalog:'
+        version: 0.2.2
       zarrita:
         specifier: 'catalog:'
         version: 0.7.5
@@ -10884,6 +10890,9 @@ packages:
   hastscript@9.0.1:
     resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
 
+  hdf5-as-virtual-zarr@0.2.2:
+    resolution: {integrity: sha512-HQP/J9RDlgZ7I2DgLIrWhx3XVQgGtz/pkYUeDNr0os/Ry1Uv+cPULLXYxOBCSqP+P0kEjK30u+m0dajdN5G0QQ==}
+
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
@@ -12465,6 +12474,7 @@ packages:
 
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
+    deprecated: This package is no longer needed on supported Node.js versions. Node.js 16+ includes AbortController and AbortSignal as built-in globals. All Node.js versions requiring this polyfill are end-of-life. Use the built-in globals instead.
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
@@ -13771,6 +13781,10 @@ packages:
   quick-lru@6.1.1:
     resolution: {integrity: sha512-S27GBT+F0NTRiehtbrgaSE1idUAJ5bX8dPAQTdylEyNlrdcH5X4Lz7Edz3DYzecbsCluD5zO8ZNEe04z3D3u6Q==}
     engines: {node: '>=12'}
+
+  quick-lru@8.0.0:
+    resolution: {integrity: sha512-wuV1TowawrTfnwGvYbjYE1vwKAO0yO0rcEgHz0y9/Lz+v79WqQtRLLpLYYCZJY/tacCb9zVDMDJCJ04DKVZgfg==}
+    engines: {node: '>=22'}
 
   quickselect@2.0.0:
     resolution: {integrity: sha512-RKJ22hX8mHe3Y6wH/N3wCM6BWtjaxIyyUIkpHOvfFnxdI4yD4tBXEBKSbriGujF6jnSVkJrffuo6vxACiSSxIw==}
@@ -26691,6 +26705,12 @@ snapshots:
       property-information: 7.1.0
       space-separated-tokens: 2.0.2
 
+  hdf5-as-virtual-zarr@0.2.2:
+    dependencies:
+      '@zarrita/storage': 0.2.0
+      quick-lru: 8.0.0
+      reference-spec-reader: 0.2.0
+
   he@1.2.0: {}
 
   higlass-register@0.3.0: {}
@@ -30121,6 +30141,8 @@ snapshots:
   quick-lru@5.1.1: {}
 
   quick-lru@6.1.1: {}
+
+  quick-lru@8.0.0: {}
 
   quickselect@2.0.0: {}
 
