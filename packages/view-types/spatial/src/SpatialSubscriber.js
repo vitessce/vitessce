@@ -80,6 +80,7 @@ export function SpatialSubscriber(props) {
     helpText = ViewHelpMapping.SPATIAL,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -700,6 +701,8 @@ export function SpatialSubscriber(props) {
       options={options}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.SPATIAL}
     >
       <div style={{
         position: 'absolute',

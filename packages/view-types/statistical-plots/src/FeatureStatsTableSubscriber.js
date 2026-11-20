@@ -26,6 +26,7 @@ export function FeatureStatsTableSubscriber(props) {
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.FEATURE_STATS_TABLE,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -116,6 +117,8 @@ export function FeatureStatsTableSubscriber(props) {
       helpText={helpText}
       errors={errors}
       withPadding={false}
+      helpViews={helpViews}
+      componentType={ViewType.FEATURE_STATS_TABLE}
     >
       {featureStats ? (
         <FeatureStatsTable

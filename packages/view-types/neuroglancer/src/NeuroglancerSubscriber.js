@@ -117,6 +117,7 @@ export function NeuroglancerSubscriber(props) {
     // If either column is missing from the CSV, IDs are assumed identical.
     meshIdColumn = 'MeshID',
     cellIdColumn = 'CellID',
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -1767,6 +1768,9 @@ export function NeuroglancerSubscriber(props) {
           setBackgroundTheme={setSpatialBackgroundTheme}
         />
       )}
+      helpViews={helpViews}
+      componentType={ViewType.NEUROGLANCER
+      }
     >
       {hasLayers && hasResolvedInitialCamera ? (
         <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={setContainerNode}>

@@ -25,6 +25,7 @@ export function Vitessce(props: any) {
     pluginCoordinationTypes: pluginCoordinationTypesProp,
     pluginJointFileTypes: pluginJointFileTypesProp,
     pluginAsyncFunctions: pluginAsyncFunctionsProp,
+    pluginHelpViews: pluginHelpViewsProp,
   } = props;
 
   // If config.uid exists, then use it for hook dependencies to detect changes
@@ -71,6 +72,10 @@ export function Vitessce(props: any) {
     ...baseAsyncFunctions, ...(pluginAsyncFunctionsProp || []),
   ]), [pluginAsyncFunctionsProp]);
 
+  const mergedPluginHelpViews = useMemo(() => (
+    pluginHelpViewsProp || []
+  ), [pluginHelpViewsProp]);
+
   return (
     <VitSContainer
       {...props}
@@ -80,6 +85,7 @@ export function Vitessce(props: any) {
       jointFileTypes={mergedPluginJointFileTypes}
       coordinationTypes={mergedPluginCoordinationTypes}
       asyncFunctions={mergedPluginAsyncFunctions}
+      helpViews={mergedPluginHelpViews}
       warning={(success ? null : configOrWarning)}
     />
   );

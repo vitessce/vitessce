@@ -5,6 +5,7 @@ export {
   PluginCoordinationType,
   PluginJointFileType,
   PluginAsyncFunction,
+  PluginHelpView,
 } from '@vitessce/plugins';
 export { z } from '@vitessce/schemas';
 export {

@@ -25,6 +25,7 @@ export function VitessceGridLayout(props) {
     onRemoveComponent, onLayoutChange: onLayoutChangeProp,
     isBounded, areAnnotationsEditable,
     pageMode, children,
+    helpViews,
   } = props;
 
   const getComponent = useCallback((viewType) => {
@@ -147,6 +148,7 @@ export function VitessceGridLayout(props) {
               coordinationTypes={coordinationTypes}
               stores={stores}
               areAnnotationsEditable={areAnnotationsEditable}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
@@ -176,12 +178,13 @@ export function VitessceGridLayout(props) {
               coordinationTypes={coordinationTypes}
               stores={stores}
               areAnnotationsEditable={areAnnotationsEditable}
+              helpViews={helpViews}
             />
           </ErrorBoundary>
         </div>
       );
     }), contextValue];
-  }, [gridComponents, getComponent, onRemoveComponent, theme, areAnnotationsEditable]);
+  }, [gridComponents, getComponent, onRemoveComponent, theme, areAnnotationsEditable, helpViews]);
 
   return (pageMode
     ? (

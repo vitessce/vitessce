@@ -166,6 +166,7 @@ export function SpatialSubscriber(props) {
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -1109,6 +1110,8 @@ export function SpatialSubscriber(props) {
           setSpatialBackgroundTheme={setSpatialBackgroundTheme}
         />
       )}
+      helpViews={helpViews}
+      componentType={ViewType.SPATIAL_BETA}
     >
       {
         shouldUseThree ? (

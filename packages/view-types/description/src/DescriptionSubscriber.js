@@ -30,6 +30,7 @@ export function DescriptionSubscriber(props) {
     title = 'Description',
     closeButtonVisible,
     helpText = ViewHelpMapping.DESCRIPTION,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -82,6 +83,8 @@ export function DescriptionSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.DESCRIPTION}
     >
       <Description
         description={descriptionOverride || description}
