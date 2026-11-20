@@ -82,6 +82,13 @@ export function FeatureStatsTableSubscriber(props) {
   const sampleSetsLoader = useMatchingLoader(
     loaders, dataset, DataType.SAMPLE_SETS, { sampleType },
   );
+  const featureStatsLoader = useMatchingLoader(
+    loaders, dataset, DataType.FEATURE_STATS, { obsType, featureType, sampleType },
+  );
+  // Only show the optional columns when they are specified via the file definition options.
+  const hasPercentExpressing = Boolean(featureStatsLoader?.options?.percentExpressing);
+  const hasMeanExpression = Boolean(featureStatsLoader?.options?.meanExpression);
+
   const obsSetsColumnNameMapping = useColumnNameMapping(obsSetsLoader);
   const obsSetsColumnNameMappingReversed = useColumnNameMapping(obsSetsLoader, true);
   const sampleSetsColumnNameMapping = useColumnNameMapping(sampleSetsLoader);
@@ -136,6 +143,8 @@ export function FeatureStatsTableSubscriber(props) {
           setFeatureAggregationStrategy={setFeatureAggregationStrategy}
           featurePointSignificanceThreshold={featurePointSignificanceThreshold}
           featurePointFoldChangeThreshold={featurePointFoldChangeThreshold}
+          hasPercentExpressing={hasPercentExpressing}
+          hasMeanExpression={hasMeanExpression}
         />
       ) : (
         <p style={{ padding: '12px' }}>Select at least one {obsType} set.</p>
