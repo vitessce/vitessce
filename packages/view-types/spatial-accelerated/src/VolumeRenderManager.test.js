@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getScreenLodFactor, getClippingBounds, sliceToClip, windowToClim,
+  getScreenLodFactor, getClippingBounds, sliceToClip, windowToClim, srgbToLinear,
 } from './VolumeRenderManager.js';
 
 describe('clipping', () => {
@@ -58,5 +58,23 @@ describe('windowToClim', () => {
     // Windows beyond the stored range go beyond 0-1.
     expect(windowToClim([0, 255], [0, 255])).toEqual([0, 1]);
     expect(windowToClim([-10, 300], [0, 100])).toEqual([-0.1, 3]);
+  });
+});
+
+describe('srgbToLinear', () => {
+  // The shader's conversion of its result back to sRGB.
+  const linearToSrgb = x => (x <= 0.0031308 ? 12.92 * x : 1.055 * (x ** (1 / 2.4)) - 0.055);
+
+  it('keeps black and white', () => {
+    expect(srgbToLinear(0)).toBe(0);
+    expect(srgbToLinear(255)).toBe(1);
+  });
+
+  it('gives back the picked color after the shader output conversion', () => {
+    // #FF8000 showed as about #FFBC00 without the conversion.
+    expect(srgbToLinear(128)).toBeCloseTo(0.216, 3);
+    [1, 10, 64, 128, 200].forEach((value) => {
+      expect(linearToSrgb(srgbToLinear(value)) * 255).toBeCloseTo(value, 6);
+    });
   });
 });
