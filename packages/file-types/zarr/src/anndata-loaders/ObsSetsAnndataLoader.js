@@ -1,4 +1,5 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+/* eslint-disable no-unused-vars */
 import {
   treeToMembershipMap,
   initializeCellSetColor,

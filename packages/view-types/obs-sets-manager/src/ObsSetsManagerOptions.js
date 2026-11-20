@@ -52,7 +52,3 @@ export default function ObsSetsManagerOptions(props) {
     </OptionsContainer>
   );
 }
-
-
-
-

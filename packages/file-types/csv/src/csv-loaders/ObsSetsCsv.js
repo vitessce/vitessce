@@ -1,4 +1,5 @@
 import { LoaderResult } from '@vitessce/abstract';
+/* eslint-disable no-unused-vars */
 import { initializeCellSetColor, lazyTreeToMembershipMap, dataToCellSetsTree, treeToMembershipMap } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 

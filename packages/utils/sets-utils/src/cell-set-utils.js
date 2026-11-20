@@ -414,12 +414,12 @@ function colorMixWithUncertainty(originalColor, p, mixingColor = [128, 128, 128]
  * and cellColors is an object mapping cellIds to color [r,g,b] arrays.
  */
 export function treeToCellColorsBySetNames(
-    currTree,
-    selectedNamePaths,
-    cellSetColor,
-    theme,
-    obsSetColormap,
-  ) {
+  currTree,
+  selectedNamePaths,
+  cellSetColor,
+  theme,
+  obsSetColormap,
+) {
   // Insert into the Map directly rather than accumulating an intermediate array of
   // [cellId, color] tuples. Spreading the accumulator once per selected set is
   // O(numObservations * numSelectedSets); this is O(numObservations).

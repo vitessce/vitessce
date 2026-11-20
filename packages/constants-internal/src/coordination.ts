@@ -601,7 +601,7 @@ export const COMPONENT_COORDINATION_TYPES = {
     CoordinationType.OBS_SET_HIGHLIGHT,
     CoordinationType.OBS_SET_COLOR,
     CoordinationType.OBS_SET_COLORMAP,
-    
+
     CoordinationType.ADDITIONAL_OBS_SETS,
   ],
   [ViewType.DESCRIPTION]: [

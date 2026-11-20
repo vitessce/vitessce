@@ -555,8 +555,8 @@ export function ObsSetsManagerSubscriber(props) {
       //   ...obsSetColor,
       //   ...importAutoSetColors,
       // ]);
-     // No action needed — imported nodes without explicit colors will be
-     // colored live via the obsSetColormap fallback.
+      // No action needed — imported nodes without explicit colors will be
+      // colored live via the obsSetColormap fallback.
     }
   }, [additionalObsSets, mergedObsSets, setAdditionalObsSets,
   ]);
@@ -628,11 +628,11 @@ export function ObsSetsManagerSubscriber(props) {
       hasCheckedSetsToComplement={obsSetSelection?.length > 0}
       theme={theme}
     />
-  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetColormap, obsSetExpansion, obsSetSelection,
-    cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
+  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetColormap, obsSetExpansion,
+    obsSetSelection, cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
-    onNodeSetName, onNodeView, onUnion, setWarning, theme,
+    onNodeSetName, onNodeView, onUnion, setWarning, theme, onCreateLevelZeroNode,
   ]);
 
 
