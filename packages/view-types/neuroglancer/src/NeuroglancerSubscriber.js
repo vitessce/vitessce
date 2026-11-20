@@ -39,13 +39,17 @@ import {
   mergeObsSets, getCellColors, setObsSelection, colorArrayToString as rgbToHex,
 } from '@vitessce/sets-utils';
 import { MultiLegend } from '@vitessce/legend';
+import { commaNumber, pluralize } from '@vitessce/utils';
 import { NeuroglancerComp } from './Neuroglancer.js';
 import {
   useNeuroglancerViewerState,
   getSegmentationCentroidSources,
   sanitizeNgCameraState,
   getObsSetColumnsByName,
+  CENTROID_POINT_STROKE_WIDTH,
+  countSelectedObs,
 } from './data-hook-ng-utils.js';
+import { DEFAULT_POINT_MARKER_SIZE } from './shader-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import NeuroglancerTooltipSubscriber from './NeuroglancerTooltipSubscriber.js';
 import { useStyles } from './styles.js';
@@ -215,8 +219,11 @@ export function NeuroglancerSubscriber(props) {
     if (csvUrlRef.current) return csvUrlRef.current;
     const obsSetsMap = loaders?.[dataset]?.loaders?.obsSets;
     if (!obsSetsMap) return null;
-    const firstLoader = obsSetsMap.values().next().value;
-    const url = firstLoader?.url ?? null;
+    // Only a CSV obsSets file can carry the MeshID/CellID columns
+    // (obsSets.json / anndata have none: mesh ids == cell ids).
+    const csvLoader = Array.from(obsSetsMap.values())
+      .find(loader => typeof loader?.dataSource?.loadCsv === 'function');
+    const url = csvLoader?.url ?? null;
     if (url) csvUrlRef.current = url;
     return url;
   }, [loaders, dataset]);
@@ -278,6 +285,9 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.FEATURE_TYPE,
       CoordinationType.FEATURE_VALUE_TYPE,
       CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
+      CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -628,13 +638,27 @@ export function NeuroglancerSubscriber(props) {
     incrementLatestViewerStateIteration();
   }, [spatialCameraSnapshot, hasSpatialCameraSnapshot, detailMode, cameraZoomFactor]);
 
+  // Segmentation layers that have meshes (an obsSegmentations file with a URL).
+  // Layers without meshes only render their centroids, which are colored in
+  // the annotation shader from enum properties, so they need no per-segment
+  // colors -- building those for millions of centroids slows the app
+  const meshLayerScopesKey = (segmentationLayerScopes ?? [])
+    .filter(layerScope => obsSegmentationsUrls?.[layerScope]?.[0]?.url)
+    .join(',');
+
+
   const segmentationColorMapping = useMemoCustomComparison(() => {
     // TODO: ultimately, segmentationColorMapping becomes cellColorMapping, and makes its way into the viewerState.
     // It may make sense to merge the multiple useMemoCustomComparisons upstream of derivedViewerState into one.
     // This would complicate the comparison function, but the multiple separate useMemos are not really necessary.
     const result = {};
+    const meshLayerScopes = new Set(meshLayerScopesKey.split(','));
     segmentationLayerScopes?.forEach((layerScope) => {
       result[layerScope] = {};
+      if (!meshLayerScopes.has(layerScope)) {
+        // Centroid-only layer: nothing to color per segment.
+        return;
+      }
       segmentationChannelScopesByLayer?.[layerScope]?.forEach((channelScope) => {
         // Prefer obsFeatureMatrix.obsIndex from segmentationMultiIndicesData,
         // but fall back to obsSets.obsIndex if not available.
@@ -644,14 +668,17 @@ export function NeuroglancerSubscriber(props) {
           ?.[layerScope]?.[channelScope] || {};
         const { obsIndex: layerIndexFromColors, obsColorMap } = obsSegmentationsColorsData
           ?.[layerScope]?.[channelScope] || {};
+          // Set coloring must cover every cell in the sets, not only those in the
+        // feature matrix (e.g. cells excluded from quantification).
+        const channelEncoding = segmentationChannelCoordination?.[0]
+          ?.[layerScope]?.[channelScope]?.obsColorEncoding;
 
         // Prefer the observation index from obsFeatureMatrix,
         // then from the per-observation colors,
         // and finally, if neither of those are provided, from obsSets.
-        const rawLayerIndex = layerIndexFromMatrix
-        ?? (layerIndexFromColors
-          ?? (layerIndexFromSets ?? null)
-        );
+        const rawLayerIndex = (channelEncoding === 'cellSetSelection' && layerIndexFromSets)
+          ? layerIndexFromSets
+          : (layerIndexFromMatrix ?? layerIndexFromColors ?? layerIndexFromSets ?? null);
         // obsFeatureMatrix's own index can carry a dataset-specific prefix
         // (e.g. "F8iia-quantification3_1") for the same segment IDs NG's
         // own mesh/segments use in plain numeric form ("1") -- normalize so
@@ -842,6 +869,7 @@ export function NeuroglancerSubscriber(props) {
     segmentationMultiExpressionNormData,
     segmentationMultiIndicesData,
     csvLoaded,
+    meshLayerScopesKey,
   }, customIsEqualForCellColors);
 
   // TODO: For debugging in console uncomment
@@ -883,7 +911,8 @@ export function NeuroglancerSubscriber(props) {
         // TODO: For debugging
         // window.__meshIdToCellId = meshIdToCellIdRef.current;
         // window.__cellIdToMeshIdRef = cellIdToMeshIdRef.current
-      });
+      })
+      .catch(() => setCsvLoaded(true)); // no map: mesh ids == cell ids
   }, [csvUrl, meshIdColumn, cellIdColumn]);
 
   // clear cache when annotation source changes
@@ -1692,21 +1721,47 @@ export function NeuroglancerSubscriber(props) {
   const orthographicEffective = spatialRenderingMode !== '3D';
   const scaleBarVisibleEffective = spatialScaleBarVisible ?? true;
 
-  // One options group per point layer (includes centroid layers).
+  // One options group per point layer and per centroid layer.
   // Spacing display = effective value NG received (coordination > file option > 1.0).
-  const pointLayersForOptions = useMemo(() => (pointLayerScopes || []).map((scope) => {
-    const values = pointLayerCoordination[0]?.[scope] ?? {};
-    const setters = pointLayerCoordination[1]?.[scope] ?? {};
-    const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
-    return {
-      scope,
-      label: values.spatialLayerLabel || `Points ${scope}`,
-      strokeWidth: values.spatialPointStrokeWidth,
-      setStrokeWidth: setters.setSpatialPointStrokeWidth,
-      spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
-      setSpacing: setters.setSpatialPointProjectionSpacing,
-    };
-  }), [pointLayerScopes, pointLayerCoordination, derivedViewerState]);
+  const pointLayersForOptions = useMemo(() => [
+    ...(pointLayerScopes || []).map((scope) => {
+      const values = pointLayerCoordination[0]?.[scope] ?? {};
+      const setters = pointLayerCoordination[1]?.[scope] ?? {};
+      const ngLayer = derivedViewerState?.layers?.find(l => l?.name === `obsPoints-${scope}`);
+      return {
+        scope,
+        label: values.spatialLayerLabel || `Points ${scope}`,
+        strokeWidth: values.spatialPointStrokeWidth,
+        setStrokeWidth: setters.setSpatialPointStrokeWidth,
+        spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+        setSpacing: setters.setSpatialPointProjectionSpacing,
+      };
+    }),
+    // Centroid layers: spacing is stored on their segmentation channel.
+    ...centroidSources.map(({ layerScope, channelScope, name }) => {
+      const values = segmentationChannelCoordination[0]?.[layerScope]?.[channelScope] ?? {};
+      const setters = segmentationChannelCoordination[1]?.[layerScope]?.[channelScope] ?? {};
+      const ngLayer = derivedViewerState?.layers?.find(l => l?.name === name);
+      return {
+        scope: name,
+        label: 'Centroids',
+        spacing: ngLayer?.projectionAnnotationSpacing ?? values.spatialPointProjectionSpacing,
+        setSpacing: setters.setSpatialPointProjectionSpacing,
+        // Point layers have these in the layer controller; centroids have no
+        // layer controller row of their own, so they get them here.
+        strokeWidth: values.spatialPointStrokeWidth
+       ?? values.spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+        setStrokeWidth: setters.setSpatialPointStrokeWidth,
+        pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
+        setPointRadius: setters.setSpatialPointRadius,
+        showMarkerControls: true,
+      };
+    }),
+  ], [
+    pointLayerScopes, pointLayerCoordination, derivedViewerState, centroidSources,
+    segmentationChannelCoordination, segmentationLayerCoordination,
+  ]);
+
 
   // "Hide unselected" = unselected opacity 0 on all segmentation channels (+ their centroid layers).
   // Meshes can only hide (NG has no per-segment alpha); centroids fade via the same value.
@@ -1744,11 +1799,83 @@ export function NeuroglancerSubscriber(props) {
   }, [spatialCameraSnapshot]);
 
   const backgroundTheme = spatialBackgroundTheme ?? 'dark';
+  // Number of observations per obsType, as in the spatialBeta subtitle.
+  // Counts come from the tabular data (obsSets / obsFeatureMatrix index), since
+  // the precomputed annotation info does not include the number of annotations.
+  // With a set selection (cellSetSelection), shows "<selected> of <total>".
+  const countsSubtitle = useMemo(() => {
+    const parts = [];
+    const totals = new Map();
+    const selected = new Map();
+    const add = (map, label, n) => {
+      if (n > 0) map.set(label, (map.get(label) ?? 0) + n);
+    };
+
+    // Segmentation observations (cells): total, or "<selected> of <total>"
+    // when colored by a set selection.
+    (segmentationLayerScopes ?? []).forEach((layerScope) => {
+      (segmentationChannelScopesByLayer?.[layerScope] ?? []).forEach((channelScope) => {
+        const channel = segmentationChannelCoordination[0]?.[layerScope]?.[channelScope] ?? {};
+        const obsTypeLabel = channel.obsType ?? 'segmentation';
+        const setsData = obsSegmentationsSetsData?.[layerScope]?.[channelScope];
+        const obsIndex = setsData?.obsIndex
+          ?? segmentationMultiIndicesData?.[layerScope]?.[channelScope]?.obsIndex;
+        add(totals, obsTypeLabel, obsIndex?.length ?? 0);
+        if (channel.obsColorEncoding === 'cellSetSelection' && setsData?.obsSets) {
+          const n = countSelectedObs(
+            setsData.obsSets,
+            mergeObsSets(setsData.obsSets, channel.additionalObsSets),
+            channel.obsSetSelection,
+          );
+          if (n !== null) add(selected, obsTypeLabel, n);
+        }
+      });
+    });
+    totals.forEach((n, obsTypeLabel) => {
+      parts.push(selected.has(obsTypeLabel)
+        ? `${commaNumber(selected.get(obsTypeLabel))} of ${commaNumber(n)} ${pluralize(obsTypeLabel, n)} selected`
+        : `${commaNumber(n)} ${pluralize(obsTypeLabel, n)}`);
+    });
+
+    // Meshes shown by on-demand loading: only for layers that have meshes and
+    // are culled via their centroids (otherwise all meshes are shown).
+    const onDemandMeshLayers = (meshLayerScopesKey ? meshLayerScopesKey.split(',') : [])
+      .filter(layerScope => centroidLayerRoles.culledSegLayerScopes.has(layerScope));
+    if (onDemandMeshLayers.length > 0) {
+      // Count what NG is given (after culling + hide unselected), not the raw culled ids.
+      const shownMeshes = (derivedViewerState?.layers ?? [])
+        .filter(layer => layer?.type === 'segmentation'
+          && onDemandMeshLayers.some(layerScope => layer.name?.includes(layerScope)))
+        .reduce((sum, layer) => sum + (layer.segments?.length ?? 0), 0);
+      parts.push(`${commaNumber(shownMeshes)} ${pluralize('mesh', shownMeshes)} shown`);
+    }
+
+    // Point layers (e.g. transcripts), labeled by their layer label or obsType,
+    // counted separately from the cells.
+    const pointTotals = new Map();
+    (pointLayerScopes ?? []).forEach((layerScope) => {
+      const values = pointLayerCoordination[0]?.[layerScope] ?? {};
+      const pointLabel = values.spatialLayerLabel || values.obsType || 'point';
+      add(pointTotals, pointLabel, pointMultiIndicesData?.[layerScope]?.obsIndex?.length ?? 0);
+    });
+    pointTotals.forEach((n, pointLabel) => {
+      parts.push(`${commaNumber(n)} ${pluralize(pointLabel, n)}`);
+    });
+
+    return parts.join(', ');
+  }, [
+    segmentationLayerScopes, segmentationChannelScopesByLayer, segmentationChannelCoordination,
+    obsSegmentationsSetsData, segmentationMultiIndicesData,
+    meshLayerScopesKey, derivedViewerState, centroidLayerRoles,
+    pointLayerScopes, pointLayerCoordination, pointMultiIndicesData,
+  ]);
+  const infoText = [countsSubtitle, subtitle].filter(Boolean).join(' | ');
+
   return (
 
     <TitleInfo
       title={title}
-      info={subtitle}
+      info={infoText}
       helpText={helpText}
       isSpatial
       theme={theme}

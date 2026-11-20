@@ -1,7 +1,7 @@
 import { DataType } from '@vitessce/constants-internal';
 import { cloneDeep, isEqual } from 'lodash-es';
 import { useMemoCustomComparison } from '@vitessce/vit-s';
-import { mergeObsSets, treeFindNodeByNamePath, treeToLeafSets } from '@vitessce/sets-utils';
+import { mergeObsSets, treeFindNodeByNamePath, treeToLeafSets, nodeToSet } from '@vitessce/sets-utils';
 import { getDefaultColor } from '@vitessce/utils';
 import { customIsEqualForInitialViewerState } from './use-memo-custom-equals.js';
 import { NG_CAMERA_VALIDATORS } from './utils.js';
@@ -32,10 +32,48 @@ export const DEFAULT_NG_PROPS = {
   layers: [],
 };
 
+// Border width of the centroid point markers.
+export const CENTROID_POINT_STROKE_WIDTH = 0.2;
+
 // NG annotation render-scale target range (render_scale_statistics.ts): [2^-4, 2^16].
 const MIN_ANNOTATION_SPACING = 0.0625;
 const MAX_ANNOTATION_SPACING = 65536;
 const INTEGER_ANNOTATION_TYPES = ['uint8', 'int8', 'uint16', 'int16', 'uint32', 'int32'];
+
+function countNodeObs(node) {
+  if (!node) return 0;
+  if (!node.children) return node.set?.length ?? 0;
+  return node.children.reduce((sum, child) => sum + countNodeObs(child), 0);
+}
+
+/**
+ * Count the observations in the selected obsSets, for the view subtitle.
+ * Sets of one group from the loaded obsSets are categories of a single
+ * column, so they are disjoint and their sizes can be summed without
+ * building the (possibly millions of) member IDs. Otherwise (several groups,
+ * or user-defined sets which may overlap), the union of members is counted.
+ * @param {object} obsSets The obsSets tree object (loaded sets only).
+ * @param {object} mergedObsSets The obsSets tree merged with additionalObsSets.
+ * @param {string[][]} selectedNamePaths
+ * @returns {number|null} null when there is no selection to count.
+ */
+export function countSelectedObs(obsSets, mergedObsSets, selectedNamePaths) {
+  if (!mergedObsSets || !selectedNamePaths?.length) return null;
+  // Drop paths whose ancestor is also selected.
+  const paths = selectedNamePaths.filter(path => !selectedNamePaths.some(other => (
+    other.length < path.length && other.every((part, k) => part === path[k])
+  )));
+  const nodes = paths.map(path => treeFindNodeByNamePath(mergedObsSets, path)).filter(Boolean);
+  const groups = new Set(paths.map(path => path[0]));
+  const isLoadedGroup = groups.size === 1
+    && (obsSets?.tree ?? []).some(node => node.name === paths[0]?.[0]);
+  if (isLoadedGroup) {
+    return nodes.reduce((sum, node) => sum + countNodeObs(node), 0);
+  }
+  const ids = new Set();
+  nodes.forEach(node => nodeToSet(node).forEach(([id]) => ids.add(id)));
+  return ids.size;
+}
 
 /**
  * Get the obsSet group name -> column name mapping from the options
@@ -379,9 +417,6 @@ export function getSegmentationCentroidSources({
   ));
 }
 
-// Border width of the centroid point markers.
-const CENTROID_POINT_STROKE_WIDTH = 0.2;
-
 /**
  * Map segmentation layer/channel coordination values onto the parameters
  * of getPointsShader, so that centroids share the visual properties
@@ -405,6 +440,8 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetSelection,
     additionalObsSets,
     spatialSegmentationStrokeWidth,
+    spatialPointStrokeWidth,
+    spatialPointRadius,
   } = channelCoordination || {};
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
@@ -421,7 +458,12 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     additionalObsSets,
     // Only show the centroids of the selected obsSets.
     featureFilterMode: 'featureSelection',
-    pointMarkerBorderWidth: spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+    // Gear menu value (spatialPointStrokeWidth) first, as for point layers;
+    // spatialSegmentationStrokeWidth is kept as a fallback for existing configs.
+    pointMarkerBorderWidth: spatialPointStrokeWidth
+      ?? spatialSegmentationStrokeWidth ?? CENTROID_POINT_STROKE_WIDTH,
+    // spatialPointRadius is a radius (as for point layers); NG's marker size is a diameter.
+    pointMarkerSize: (spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2) * 2,
     // The points represent the centroids of the segmentations.
     // We pass this down to the getPointsShader, to determine whether to interpret
     // `obsColorEncoding === 'geneSelection'` as a
@@ -616,9 +658,17 @@ export function useNeuroglancerViewerState(
             shader,
             name,
             // Both layer and channel visibility must be true, as for the segmentation layer.
+            // A centroid point size of 0 (gear menu) hides only the centroids:
+            // the layer is made invisible, so NG also stops loading its chunks.
             visible: Boolean(layerCoordination?.spatialLayerVisible
-              && channelCoordination?.spatialChannelVisible),
-            projectionAnnotationSpacing: ngOptions.projectionAnnotationSpacing ?? 1.0,
+              && channelCoordination?.spatialChannelVisible
+              && (channelCoordination?.spatialPointRadius ?? 1) > 0),
+            // Coordination value (gear menu) > file option > 1.0, as for point layers.
+            projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
+              MIN_ANNOTATION_SPACING,
+              channelCoordination?.spatialPointProjectionSpacing
+                ?? ngOptions.projectionAnnotationSpacing ?? 1.0,
+            )),
           },
         ],
         selectedLayer: {

@@ -9,13 +9,22 @@ import {
 
 const MX1SPOTS_MAX = 78; // computed for this data
 
-
-// groups (broad/fine/finer/spatial k-means) without redefining the color.
+const GROUP_LEAVES = {
+  'Phenotype (broad)': ['CD4 T', 'CD8 T', 'Excluded', 'Immune', 'Myeloid cells', 'Treg', 'Tumor', 'Unknown'],
+  'Phenotype (fine)': ['CD4 T', 'Excluded', 'Immune', 'Myeloid cells', 'Partial Tex', 'TCF1+ PD1+', 'Tex', 'Tmem',
+    'Tpx', 'Treg', 'Tumor', 'Unknown', 'activated CD8 T', 'naive CD8 T'],
+  'Phenotype (finer)': ['CD4 T', 'Excluded', 'Immune', 'Myeloid cells', 'Partial Tex', 'TCF1+ PD1+', 'Tmem', 'Treg',
+    'Tumor', 'Unknown', 'activated CD8 T', 'naive CD8 T', 'non-proliferative Tex',
+    'non-proliferative Tpx', 'proliferative Tex', 'proliferative Tpx'],
+};
 const phenotypeColorByName = {
   Tumor: [213, 94, 0], // Vermilion
   Tmem: [0, 114, 178], // Blue
   'CD4 T': [86, 180, 233], // Sky blue
   Treg: [86, 180, 233], // Sky blue
+  'CD8 T': [86, 180, 233], // Sky blue
+  Tex: [86, 180, 233], // Sky blue
+  Tpx: [86, 180, 233], // Sky blue
   'activated CD8 T': [86, 180, 233], // Sky blue
   'naive CD8 T': [86, 180, 233], // Sky blue
   'non-proliferative Tex': [86, 180, 233], // Sky blue
@@ -27,16 +36,20 @@ const phenotypeColorByName = {
   Immune: [230, 159, 0], // Orange
   'Myeloid cells': [240, 228, 66], // Yellow
   Unknown: [51, 51, 51], // Dark gray
+  Excluded: [211, 211, 211], // Light grey
 };
 
+// Only pair names that actually exist in each group.
 function colorsForGroups(groupNames, colorByName = phenotypeColorByName) {
-  return groupNames.flatMap(groupName => (
-    Object.entries(colorByName).map(([name, color]) => ({ path: [groupName, name], color }))
-  ));
+  return groupNames.flatMap(groupName => GROUP_LEAVES[groupName]
+    .filter(name => colorByName[name])
+    .map(name => ({ path: [groupName, name], color: colorByName[name] })));
 }
-
-const cellTypeColors = colorsForGroups(['Phenotype (broad)', 'Phenotype (fine)', 'Phenotype (finer)']);
-
+// 'Excluded' is a subcategory of every group (incl. Spatial k-means) in obs_sets_metastatic.csv.
+const cellTypeColors = [
+  ...colorsForGroups(['Phenotype (broad)', 'Phenotype (fine)', 'Phenotype (finer)']),
+  { path: ['Spatial k-means', 'Excluded'], color: phenotypeColorByName.Excluded }, // light grey
+];
 
 function generateNeuroglancerMetastatic() {
   const config = new VitessceConfig({
@@ -68,7 +81,7 @@ function generateNeuroglancerMetastatic() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/sorger/metastatic/phenotype_metastatic.csv',
+    url: 'https://data-2.vitessce.io/data/sorger/metastatic/obs_sets_metastatic.csv',
     coordinationValues: {
       obsType: 'cell',
     },
@@ -97,7 +110,7 @@ function generateNeuroglancerMetastatic() {
   // Cell centroids: rendered with the segmentation layer of the same obsType.
   dataset.addFile({
     fileType: 'obsLocations.ng-annotations',
-    url: 'https://data-2.vitessce.io/data/sorger/metastatic/cell_centroids_precomputed/points_50000',
+    url: 'https://data-2.vitessce.io/data/sorger/metastatic/cell_centroids_precomputed_with_excluded/points_50000',
     options: {
       projectionAnnotationSpacing: 1,
       segmentIdProp: 'cell_id',
@@ -117,17 +130,14 @@ function generateNeuroglancerMetastatic() {
     showAxisLines: false,
     // Max projectionScale at which meshes start loading (same units as projectionScale).
     meshLoadProjectionScaleThreshold: 333600,
+    cellIdColumn: 'CELLID',
+    meshIdColumn: 'CELLID',
   });
   const spatialView = config.addView(dataset, 'spatialBeta');
   const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
   const featureList = config.addView(dataset, 'featureList').setProps({ title: 'Cell Types' });
   const violin = config.addView(dataset, 'obsSetFeatureValueDistribution');
-
-  config.linkViewsByObject([obsSets], {
-    obsType: 'cell',
-    obsSetColor: cellTypeColors,
-  }, { meta: false });
 
   const [featureSelectionScope] = config.addCoordination('featureSelection');
   featureSelectionScope.setValue(['MX1SPOTS']);
@@ -141,10 +151,10 @@ function generateNeuroglancerMetastatic() {
   );
 
   obsSetColorScope.setValue(cellTypeColors);
+  // Initial selection: all broad phenotypes, including 'Excluded'.
   obsSetSelectionScope.setValue(
     colorsForGroups(['Phenotype (broad)']).map(({ path }) => path),
   );
-
   // Shared 3D camera between Neuroglancer and spatialBeta (as in the Sorger config).
   config.linkViewsByObject([spatialView, neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
@@ -191,11 +201,11 @@ function generateNeuroglancerMetastatic() {
             featureType: 'gene',
             featureValueType: 'expression',
             spatialChannelVisible: true,
-            spatialChannelOpacity: 0.6,
+            spatialChannelOpacity: 1.0,
             obsHighlight: null,
             spatialChannelColor: [255, 165, 0],
             obsColorEncoding: 'cellSetSelection',
-            obsSetColor: cellTypeColors,
+            obsSetColor: obsSetColorScope,
             featureSelection: featureSelectionScope,
             obsSetSelection: obsSetSelectionScope,
             featureValueColormap: 'plasma',
@@ -211,7 +221,7 @@ function generateNeuroglancerMetastatic() {
   config.linkViews([featureList, violin, obsSets], ['obsType', 'featureType', 'featureValueType'], ['cell', 'gene', 'expression']);
 
   featureList.useCoordination(featureSelectionScope, obsColorEncodingScope);
-  violin.useCoordination(featureSelectionScope, obsSetSelectionScope, obsSetColorScope);
+  violin.useCoordination(featureSelectionScope, obsSetColorScope);
   obsSets.useCoordination(obsColorEncodingScope, obsSetSelectionScope, obsSetColorScope);
 
   config.layout(hconcat(
