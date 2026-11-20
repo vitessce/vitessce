@@ -118,6 +118,8 @@ export function useFilteredVolcanoData(props) {
       logFoldChange: obj.df.logFoldChange[i],
       featureSignificance: obj.df.featureSignificance[i],
       minusLog10p: obj.df.minusLog10p[i],
+      percentExpressing: obj.df.featurePercentExpressing?.[i],
+      meanExpression: obj.df.featureMeanExpression?.[i],
     })).filter(d => (
       (Math.abs(d.logFoldChange) >= (featurePointFoldChangeThreshold ?? 1.0))
       && (d.featureSignificance <= (featurePointSignificanceThreshold ?? 0.05))

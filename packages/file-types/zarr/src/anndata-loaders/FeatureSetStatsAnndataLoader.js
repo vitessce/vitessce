@@ -3,7 +3,7 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { getDebugMode } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
-import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
+import { isMatchingSampleSetFilter, loadComparisonMetadata } from './comparative-utils.js';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureStatsData } from '@vitessce/types' */
@@ -157,15 +157,21 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
               if (isEqual([obsSetPath], coordination_values.obsSetFilter)) {
                 // The obsSetSelection matches.
                 // Now check whether the sampleSetSelection matches.
-                if (isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
+                if (isMatchingSampleSetFilter(
+                  rawSampleSetSelection, coordination_values.sampleSetFilter,
+                )) {
                   matchingComparisons.push(resultObject);
                 }
               }
             });
           } else if (obsSetSelection) {
             // Comparing no sample groups but have selected cell type(s) of interest.
+            // Only match results that were not filtered to a subset of samples.
             rawObsSetSelection.forEach((obsSetPath) => {
-              if (isEqual([obsSetPath], coordination_values.obsSetSelection)) {
+              if (
+                isEqual([obsSetPath], coordination_values.obsSetSelection)
+                && isMatchingSampleSetFilter(null, coordination_values.sampleSetFilter)
+              ) {
                 matchingComparisons.push(resultObject);
               }
             });

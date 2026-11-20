@@ -51,6 +51,9 @@ export type FeatureStatsData = {
   featureId: string[]; // (Not "featureIndex" since feature values may repeat)
   featureSignificance: number[];
   featureFoldChange: number[];
+  // Optional columns, null if not specified via the file definition options.
+  featurePercentExpressing?: number[] | null;
+  featureMeanExpression?: number[] | null;
   // Used when faceting by sample
   sampleId: string[] | null; // Null if not per-sample stats
   // Used when faceting by obsSet

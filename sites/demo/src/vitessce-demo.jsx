@@ -206,7 +206,7 @@ export function VitessceDemo() {
           ) : null}
           <UncontrolledComparative
             singleCellDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr"
-            singleNucleusDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-june-2026.adata.zarr"
+            singleNucleusDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-nov-2026.adata.zarr"
           />
         </ContainerComponent>
       );
