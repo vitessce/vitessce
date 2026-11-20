@@ -1119,6 +1119,7 @@ export function SpatialSubscriber(props) {
               width={width}
               height={height}
               theme={theme}
+              spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
               hideTools={!isSelectable}
               rotation={[rotationX, rotationY, rotationZ]}
               setRotationX={setRotationX}
