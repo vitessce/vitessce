@@ -268,7 +268,7 @@ function makeZarrFileTypes<T1 extends DataLoader, T2 extends DataSource>(name: s
     new PluginFileType(name, dataType, dataLoaderClass as T1, dataSourceClass as T2, optionsSchema),
     ...Object.entries(altFileTypes).map(([key, fileType]) => {
       const extendedOptionsSchema = key === 'h5ad' ? optionsSchema.extend({
-        refSpecUrl: z.string(),
+        refSpecUrl: z.string().optional(),
       }) : optionsSchema;
       return new PluginFileType(fileType, dataType, dataLoaderClass as T1, dataSourceClass as T2, extendedOptionsSchema);
     }),
@@ -466,13 +466,15 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_ORBIT, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ORBIT_AXIS, 'Y', z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_FIXED, false, z.boolean().nullable()),
-  // A raw 3D camera state, shared between spatialBeta and neuroglancer views.
-  // A non-null value indicates that both views are present and should be synchronized.
+  // A raw 3D camera state, shared between 3D views: neuroglancer, and spatialBeta
+  // in 3D mode (both the Deck.gl and the accelerated volume rendering).
+  // A non-null value indicates that the views should be synchronized.
   new PluginCoordinationType(
     CoordinationType.SPATIAL_CAMERA_SNAPSHOT,
     null,
     z.object({
-      // Orbit target / pivot point.
+      // Orbit target / pivot point, in the physical units of the data
+      // (see metersPerUnit, which neuroglancer and spatialBeta also set).
       position: z.array(z.number()).length(3),
       // Camera orientation [x, y, z, w], in the Y-up frame used by spatialBeta.
       quaternion: z.array(z.number()).length(4),
@@ -565,6 +567,9 @@ export const baseCoordinationTypes = [
     ]),
     // An index of a featureSelection array element.
     z.number(),
+    // The name of a featureSelection array element.
+    // Any string other than the reserved values above is treated as a feature name.
+    z.string(),
   ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,
@@ -647,7 +652,17 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
+  // null = fall back to the neuroglancer view's showAxisLines prop / NG default.
+  new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_LINES_VISIBLE, null, z.boolean().nullable()),
+  // Neuroglancer default annotations (data-source bounding boxes).
+  new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
+  // null = use the file's projectionAnnotationSpacing option. NG valid range [0.0625, 65536].
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
+  // Default matches Neuroglancer's own default point marker diameter
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_RADIUS, 2.5, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
@@ -659,6 +674,7 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPOT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.POINT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_RADIUS, 25.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_SHAPE, 'circle', z.enum(['circle', 'square']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),

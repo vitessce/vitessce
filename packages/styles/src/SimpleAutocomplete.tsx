@@ -33,6 +33,11 @@ export interface SimpleAutocompleteProps {
    * Function to get the label for an option, used in rendering the dropdown.
    */
   getItemLabel?: (option: AutocompleteItem) => string;
+  /**
+   * The currently-selected item. If provided (including null),
+   * the autocomplete is controlled. Otherwise, it is uncontrolled.
+   */
+  value?: AutocompleteItem | null;
 }
 
 const LIST_ROW_HEIGHT = 48;
@@ -130,6 +135,7 @@ export function SimpleAutocomplete(props: SimpleAutocompleteProps) {
     onChange,
     textInputLabel = 'Enter a gene',
     getItemLabel = (option: AutocompleteItem) => option.label,
+    value: selectedItem,
   } = props;
   const { classes } = useStyles();
 
@@ -147,9 +153,20 @@ export function SimpleAutocomplete(props: SimpleAutocompleteProps) {
     setPotentialItems(results);
   };
 
+  const isItemEqual = (a: AutocompleteItem, b: AutocompleteItem) => (
+    getItemLabel(a) === getItemLabel(b)
+  );
+  // When controlled, ensure the value is among the options
+  // (e.g., prior to any search, or when the value is set from outside).
+  const options = (selectedItem && !potentialItems.some(item => isItemEqual(item, selectedItem)))
+    ? [selectedItem, ...potentialItems]
+    : potentialItems;
+
   return (
     <Autocomplete
-      options={potentialItems}
+      options={options}
+      {...(selectedItem !== undefined ? { value: selectedItem } : {})}
+      isOptionEqualToValue={isItemEqual}
       autoComplete
       includeInputInList
       onInputChange={handleInputChange}

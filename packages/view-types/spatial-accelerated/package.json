@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/spatial-accelerated",
-  "version": "4.1.2",
+  "version": "4.2.1",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -38,6 +38,7 @@
     "@vitessce/tooltip": "workspace:*",
     "@vitessce/utils": "workspace:*",
     "@vitessce/vit-s": "workspace:*",
+    "@vitessce/zarr-utils": "workspace:*",
     "@vitessce/styles": "workspace:*",
     "@vitessce/globals": "workspace:*",
     "d3-array": "catalog:",

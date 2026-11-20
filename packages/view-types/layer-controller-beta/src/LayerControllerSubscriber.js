@@ -61,8 +61,10 @@ export function LayerControllerSubscriber(props) {
     uuid,
     layerPerFeatureForPoints = false,
     globalDisable3d = false,
+    forceEnable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
+    showViewerOptions = false,
   } = props;
 
   const loaders = useLoaders();
@@ -78,6 +80,8 @@ export function LayerControllerSubscriber(props) {
       spatialTargetT: targetT,
       spatialTargetZ: targetZ,
       spatialRenderingMode,
+      spatialAxisLinesVisible,
+      spatialBoundsVisible,
     },
     {
       setSpatialTargetX: setTargetX,
@@ -88,6 +92,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
       setSpatialRenderingMode,
+      setSpatialAxisLinesVisible,
+      setSpatialBoundsVisible,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
@@ -184,6 +190,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.TOOLTIPS_VISIBLE,
@@ -251,6 +258,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.SPATIAL_LAYER_COLOR,
@@ -282,6 +290,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -410,6 +420,7 @@ export function LayerControllerSubscriber(props) {
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
         globalDisable3d={globalDisable3d}
+        forceEnable3d={forceEnable3d}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />

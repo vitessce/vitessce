@@ -86,4 +86,11 @@ export const useTitleStyles = makeStyles()(theme => ({
       color: theme.palette.white,
     },
   },
+  spatialCardLight: {
+    backgroundColor: theme.palette.white,
+    color: theme.palette.black,
+    '& a': {
+      color: theme.palette.black,
+    },
+  },
 }));

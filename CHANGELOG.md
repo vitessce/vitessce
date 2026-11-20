@@ -1,4 +1,48 @@
 
+## 4.2.1
+
+### Patch Changes
+
+- Fix bug that caused errors reading .h5ad files. Add support for reading .h5ad files without a corresponding reference JSON file. (`@vitessce/zarr-utils`) ([#2700](https://github.com/vitessce/vitessce/pull/2700))
+
+- The accelerated 3D view now reads and writes its camera via the `spatialCameraSnapshot` coordination type (in the physical units of the image), rather than `spatialZoom`/`spatialTarget*`/`spatialRotation*` in the units of its scene, so that its camera can be synchronized with Neuroglancer and other `spatialBeta` 3D views. (`@vitessce/spatial-accelerated`, `@vitessce/spatial-beta`, `@vitessce/all`, `@vitessce/example-configs`) ([#2686](https://github.com/vitessce/vitessce/pull/2686))
+
+- Improve the accelerated 3D view: load levels within the page table address limits (binning Z of stacks deeper than 4096 planes), show volume size and loading levels in an info panel, prioritize overview bricks, coalesce range reads of sharded Zarr, accept uppercase OME-Zarr axis names, and add a `volumeZReduction` option. Brick requests that are still pending when the camera moves are aborted if those bricks are no longer needed. Implement an opt-in `volumeProgressiveLoading` mode that loads requested bricks after their missing coarser-level ancestors. (`@vitessce/spatial-accelerated`, `@vitessce/spatial-beta`, `@vitessce/layer-controller-beta`, `@vitessce/spatial-utils`, `@vitessce/zarr-utils`, `@vitessce/example-configs`) ([#2686](https://github.com/vitessce/vitessce/pull/2686))
+  The layer controller's LOD slider now halves the LOD factor every 25 steps (75% is the default, while 100% gives 2–4 voxels per pixel).
+
+
+## 4.2.0
+
+### Minor Changes
+
+- Upgrade from the `@janelia-flyem/neuroglancer@2.37.5` fork to mainline `neuroglancer@2.41.2`, with worker code (including WASM decoders) inlined as Blob-URL workers that are lazy-loaded when a Neuroglancer view mounts. (`@vitessce/neuroglancer`, `@vitessce/neuroglancer-workers`) ([#2693](https://github.com/vitessce/vitessce/pull/2693))
+
+### Patch Changes
+
+- Fix linting issues with PR 2691. (`@vitessce/comparative`) ([#2699](https://github.com/vitessce/vitessce/pull/2699))
+
+- Support both single-cell and single-nucleus datasets in the comparative UI by changing the `datasetUrl` prop of `UncontrolledComparative` and `ControlledComparative` components to the explicit `singleCellDatasetUrl` and `singleNucleusDatasetUrl` props. Fix bugs with URL state management syncing. (`@vitessce/comparative`, `@vitessce/biomarker-select`, `@vitessce/styles`, `demo`) ([#2691](https://github.com/vitessce/vitessce/pull/2691))
+
+- Adjust vite and webpack configurations to account for latest Neuroglancer package version styling setup. Update the Neuroglancer styling overrides within Vitessce. (`@vitessce/neuroglancer`) ([#2693](https://github.com/vitessce/vitessce/pull/2693))
+
+- Fix on-demand mesh loading in the docs build, where Docusaurus’s Babel transform broke Set spread ([...set] -> [set]). (`@vitessce/example-configs`, `docs`) ([#2689](https://github.com/vitessce/vitessce/pull/2689))
+
+
+## 4.1.3
+
+### Patch Changes
+
+- Publish `config-<latestVersion>.base-plugins.schema.json`, a JSON schema built with the base plugins that also validates file definition options, view component names, and coordination values. (`@vitessce/json-schema`) ([#2683](https://github.com/vitessce/vitessce/pull/2683))
+
+- Move `react` from `dependencies` to `peerDependencies` in `@vitessce/neuroglancer` so that consumers are not forced to install an exact React version. (`@vitessce/neuroglancer`) ([#2680](https://github.com/vitessce/vitessce/pull/2680))
+
+- Add `spatialSpotShape` coordination type (`"circle"` or `"square"`). Add a dropdown for selection of a single gene among multiple for segmentation channels and spot layers in the layer-controller-beta view. (`@vitessce/constants-internal`, `@vitessce/gl`, `@vitessce/all`, `@vitessce/spatial-beta`, `@vitessce/annotation-controller`) ([#2644](https://github.com/vitessce/vitessce/pull/2644))
+
+- Added options to enhance Neuroglancer view, such as tooltip, crosshair, axisLines and bounds visibility. (`@vitessce/all`, `@vitessce/example-configs`) ([#2668](https://github.com/vitessce/vitessce/pull/2668))
+
+- Terminate AsyncComputation worker in neuroglancer to avoid piling up of workers on vc.widget() runs within jupyter notebooks -- avoiding a kernel stuck position and wasm out of memory errors. (`@vitessce/neuroglancer`) ([#2687](https://github.com/vitessce/vitessce/pull/2687))
+
+
 ## 4.1.2
 
 ### Patch Changes

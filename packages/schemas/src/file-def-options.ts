@@ -477,7 +477,7 @@ export const anndataZarrSchema = z.object({
 }).partial();
 
 export const anndataH5adSchema = anndataZarrSchema.extend({
-  refSpecUrl: z.string(),
+  refSpecUrl: z.string().optional(),
 });
 
 export const spatialdataZarrSchema = z.object({

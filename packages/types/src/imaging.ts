@@ -33,6 +33,27 @@ export type ResolutionObject = {
   dims: Record<string, number>;
 };
 
+/**
+ * One resolution level of an image, as stored.
+ * chunks are the Zarr chunk shape, or for OME-TIFF the level's own TIFF tile
+ * (one plane deep), in the order of labels.
+ */
+export type ResolutionLevel = {
+  shape: number[];
+  labels: string[];
+  chunks: number[];
+  // viv dtype name, e.g. 'Uint16'.
+  dtype: string;
+  // OME-Zarr: the scale of the level's multiscales dataset, in the order of
+  // labels. Undefined when the metadata has none (and for OME-TIFF).
+  scale?: number[];
+  // What reads the level: the zarrita array (OME-Zarr)
+  // or the viv TiffPixelSource (OME-TIFF).
+  data: unknown;
+};
+
+export type ChannelWindow = [number, number] | undefined;
+
 export type BoundingCube = [
   [number, number],
   [number, number],
@@ -92,4 +113,14 @@ export interface AbstractImageWrapper {
   getBoundingCube(): BoundingCube;
 
   isInterleaved(): boolean;
+
+  getSpatialUnit(): string | null;
+
+  getSceneMetersPerUnit(): number | null;
+
+  getVoxelSpacing(): [number, number, number];
+
+  getResolutionLevels(): Promise<ResolutionLevel[]>;
+
+  getChannelWindows(): Promise<ChannelWindow[]>;
 }

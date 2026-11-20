@@ -651,6 +651,25 @@ export function normalizeCoordinateTransformations(coordinateTransformations, da
 }
 
 /**
+ * Scale of one OME-NGFF multiscales dataset (resolution level) per axis:
+ * the product of its scale transformations, including those within
+ * sequences (as proposed in https://github.com/ome/ngff/pull/138).
+ * Translations do not change the scale; other types are not supported.
+ * @param {object} dataset An element of multiscales[0].datasets.
+ * @returns {number[]|undefined} One factor per axis, in the order of the
+ * multiscales axes, or undefined when the dataset has no scale.
+ */
+export function getDatasetScale(dataset) {
+  const scales = normalizeCoordinateTransformations(dataset?.coordinateTransformations, null)
+    .filter(transform => transform?.type === 'scale' && Array.isArray(transform.scale))
+    .map(transform => transform.scale);
+  if (scales.length === 0) {
+    return undefined;
+  }
+  return scales.reduce((product, scale) => product.map((factor, axis) => factor * scale[axis]));
+}
+
+/**
  * Convert coordinate transformations to a 4x4 matrix for SpatialData
  * spatial elements. This function is intended to be used with SpatialData
  * objects which have named coordinate systems. This function should

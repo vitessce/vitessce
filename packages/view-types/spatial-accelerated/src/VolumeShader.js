@@ -20,6 +20,8 @@ export const VolumeShader = {
     u_vol_scale: { value: new Vector3(1, 1, 1) },
     // Set renderstyle to 3 or 4 for debugging modes
     u_renderstyle: { value: 2 },
+    // Parallel rays and no foreshortening (see VolumeVertexShader)
+    u_orthographic: { value: false },
     brickCacheTex: { type: 'sampler3D', value: null },
     pageTableTex: { type: 'usampler3D', value: null },
     color0: { value: new Vector4(0, 0, 0) },
@@ -48,6 +50,7 @@ export const VolumeShader = {
     volumeCount: { value: 0 },
     boxSize: { value: new Vector3(1, 1, 1) },
     renderRes: { value: 1000 },
+    minRequestRes: { value: 0 },
     voxelExtents: { value: new Vector3(1, 1, 1) },
     anchor0: { value: new Vector3(0, 0, 0) },
     anchor1: { value: new Vector3(0, 0, 0) },

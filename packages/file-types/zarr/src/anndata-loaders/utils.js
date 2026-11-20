@@ -74,29 +74,6 @@ export function bigInt64ToNumberArray(data) {
   return data;
 }
 
-const BYTES_PER_ELEMENT = {
-  bool: 1,
-  int8: 1,
-  uint8: 1,
-  int16: 2,
-  uint16: 2,
-  int32: 4,
-  uint32: 4,
-  float32: 4,
-  int64: 8,
-  uint64: 8,
-  float64: 8,
-};
-
-/**
- * Bytes per element for a zarrita data type name.
- * @param {string} dtype A dtype such as 'int32' or 'float32'.
- * @returns {number} Bytes per element; 8 (conservative) when unknown.
- */
-export function getBytesPerElement(dtype) {
-  return BYTES_PER_ELEMENT[dtype] ?? 8;
-}
-
 /**
  * Create a function that runs async tasks with bounded concurrency.
  * @param {number} concurrency Maximum number of tasks in flight.

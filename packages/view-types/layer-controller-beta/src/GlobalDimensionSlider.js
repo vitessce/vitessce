@@ -97,7 +97,11 @@ export default function GlobalDimensionSlider(props) {
             </Typography>
           </Grid>
           <Grid size={8} sx={channelSliderCellSx}>
-            {!is3dMode ? (
+            {/* max > min: there's an actual range of slices to pick between. Without this,
+            * forceEnable3d (used to show the 3D switch for Neuroglancer-only configs with no
+            * Z-stack image, e.g. meshes/points only) would also show a useless slider stuck
+            * at a single value. */}
+            {!is3dMode && max > min ? (
               <Slider
                 value={targetValue}
                 min={min}

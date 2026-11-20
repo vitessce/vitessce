@@ -101,6 +101,7 @@ export { default as Image } from '@mui/icons-material/Image';
 export { default as Info } from '@mui/icons-material/Info';
 export { default as Lens } from '@mui/icons-material/Lens';
 export { default as MoreVert } from '@mui/icons-material/MoreVert';
+export { default as Pause } from '@mui/icons-material/Pause';
 export { default as RemoveCircle } from '@mui/icons-material/RemoveCircle';
 export { default as Replay } from '@mui/icons-material/Replay';
 export { default as Settings } from '@mui/icons-material/Settings';

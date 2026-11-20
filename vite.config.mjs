@@ -8,14 +8,11 @@ import { resolve } from 'path';
 const { getExtractedSVG } = svgInlineLoader;
 
 /**
- * The @janelia-flyem/neuroglancer package in node_modules
- * includes code in its production bundle like this:
- * `import save_icon from './save_icon.svg'` without
- * inlining the SVG file contents.
- * This means we need to do this asset inlining ourselves.
- * Bundlers like vite generally do not perform asset inlining
- * for code in node_modules by default, which is why we
- * define a custom Vite plugin here.
+ * Inlines `import icon from './icon.svg'` as a string.
+ * Originally needed for the @janelia-flyem/neuroglancer fork, whose production
+ * bundle imported SVG icons without inlining them. Mainline neuroglancer imports
+ * them as `./icon.svg?raw`, which Vite handles natively (this plugin only matches
+ * ids ending in `.svg`, so it does not affect those).
  * @param {*} options 
  * @param {[string]} options.classPrefix
  * @param {[string]} options.idPrefix
@@ -38,6 +35,59 @@ export function svgLoaderForNeuroglancerIcons(options) {
     }
   };
 };
+
+const NEUROGLANCER_PATH_RE = /[\\/]node_modules[\\/]neuroglancer[\\/]/;
+const CSS_RE = /\.css(\?|$)/;
+const IGNORED_NEUROGLANCER_CSS_ID = '\0ignored-neuroglancer-css';
+
+/**
+ * Drops the CSS imported by Neuroglancer's modules (e.g. `import "#src/viewer.css"`).
+ * Without this, the Vite dev server injects that CSS globally (unscoped),
+ * while library builds extract it to a separate .css file that consumers
+ * never load, so the dev demo and the published bundle would look different.
+ * The styles that we need are defined in `@vitessce/neuroglancer` (see its `styles.js`).
+ *
+ * Covers both Vite's own module resolution (builds, non-prebundled modules)
+ * and esbuild dependency pre-bundling (`optimizeDeps`) in the dev server.
+ */
+export function ignoreNeuroglancerCss() {
+  const esbuildPlugin = {
+    name: 'ignore-neuroglancer-css',
+    setup(build) {
+      build.onResolve({ filter: /\.css$/ }, args => (
+        NEUROGLANCER_PATH_RE.test(args.importer)
+          ? { path: args.path, namespace: 'ignored-neuroglancer-css' }
+          : undefined
+      ));
+      build.onLoad({ filter: /.*/, namespace: 'ignored-neuroglancer-css' }, () => ({
+        contents: '',
+        loader: 'js',
+      }));
+    },
+  };
+  return {
+    name: 'ignore-neuroglancer-css',
+    enforce: 'pre',
+    config() {
+      return {
+        optimizeDeps: {
+          esbuildOptions: {
+            plugins: [esbuildPlugin],
+          },
+        },
+      };
+    },
+    resolveId(source, importer) {
+      if (importer && CSS_RE.test(source) && NEUROGLANCER_PATH_RE.test(importer)) {
+        return IGNORED_NEUROGLANCER_CSS_ID;
+      }
+      return null;
+    },
+    load(id) {
+      return id === IGNORED_NEUROGLANCER_CSS_ID ? 'export default "";' : null;
+    },
+  };
+}
 
 /**
  * Vite plugins to serves contents of `packages/file-types/zarr/fixtures` during testing.
@@ -92,6 +142,7 @@ export default defineConfig({
     }),
     serveTestFixtures(),
     svgLoaderForNeuroglancerIcons(),
+    ignoreNeuroglancerCss(),
   ],
   test: {
     api: 4204,
