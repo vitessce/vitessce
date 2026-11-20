@@ -10,6 +10,7 @@ import {
   useObsLocationsMultiLevel,
   useObsSetsMultiLevel,
   useObsLabelsMultiLevel,
+  useObsColorsMultiLevel,
 } from './data-hooks-multilevel-utils.js';
 
 
@@ -318,4 +319,35 @@ export function useSegmentationMultiObsSets(
     loaders, dataset, false, matchOnObj, 2,
   );
   return [indicesData, indicesDataStatus, indicesDataErrors];
+}
+
+/**
+ * Wrapper around useObsColorsMultiLevel.
+ * @param {object} coordinationScopes
+ * @param {object} coordinationScopesBy
+ * @param {object} loaders
+ * @param {string} dataset
+ * @returns {array} [data, status, errors]
+ */
+export function useSegmentationMultiObsColors(
+  coordinationScopes, coordinationScopesBy, loaders, dataset,
+) {
+  const obsTypeCoordination = useComplexCoordinationSecondary(
+    [
+      CoordinationType.OBS_TYPE,
+    ],
+    coordinationScopes,
+    coordinationScopesBy,
+    CoordinationType.SEGMENTATION_LAYER,
+    CoordinationType.SEGMENTATION_CHANNEL,
+  );
+  const matchOnObj = useMemo(() => obsTypeCoordination[0],
+    // imageCoordination reference changes each render,
+    // use coordinationScopes and coordinationScopesBy which are
+    // indirect dependencies here.
+    [coordinationScopes, coordinationScopesBy]);
+  const [colorsData, colorsDataStatus, colorsDataErrors] = useObsColorsMultiLevel(
+    loaders, dataset, false, matchOnObj, 2,
+  );
+  return [colorsData, colorsDataStatus, colorsDataErrors];
 }

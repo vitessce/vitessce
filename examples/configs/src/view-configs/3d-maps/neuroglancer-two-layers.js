@@ -76,22 +76,7 @@ function generateNeuroglancerTwoLayerConfig() {
   const glomSets = config.addView(dataset, 'obsSets');
   const layerController = config.addView(dataset, 'layerControllerBeta');
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    initialNgCameraState: {
-      position: [
-        666.0850830078125,
-        542.7763671875,
-        469.30426025390625,
-      ],
-      projectionScale: 256,
-      projectionOrientation: [
-        -0.0765402764081955,
-        0.8923467993736267,
-        0.3026740550994873,
-        -0.3259558379650116,
-      ],
-    },
-  });
+  const neuroglancerView = config.addView(dataset, 'neuroglancer');
 
   const [
     nerveSetSelectionScope,

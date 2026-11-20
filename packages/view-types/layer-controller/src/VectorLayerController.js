@@ -39,7 +39,13 @@ export default function VectorLayerController(props) {
         >
           {label}
         </Typography>
-        <Grid container direction="row" justifyContent="space-between">
+        <Grid
+          container
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+          }}
+        >
           <Grid size={2}>
             <Checkbox
               color="primary"

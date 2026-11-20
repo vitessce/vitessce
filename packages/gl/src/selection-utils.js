@@ -30,6 +30,10 @@ const onSelectNoop = ({ pickingInfos }) => {};
  * @param {string} cellBaseLayerId
  * @param {object[]} obsLayers Objects with properties
  * getObsCoords, obsIndex, obsQuadTree, onSelect.
+ * @param {boolean} flipY
+ * @param {null|((isBusy: boolean) => void)} onSelectionBusy Called with true
+ * just before a drawn selection's blocking hit test and application begin,
+ * and with false once they finish, so views can show a busy indicator.
  * @returns {object[]} The array of DeckGL selection layers.
  */
 export function getSelectionLayer(
@@ -38,6 +42,7 @@ export function getSelectionLayer(
   layerId,
   obsLayers,
   flipY = false,
+  onSelectionBusy = null,
 ) {
   if (!tool) {
     return [];
@@ -50,6 +55,7 @@ export function getSelectionLayer(
     id: 'selection',
     flipY,
     obsLayers,
+    onSelectionBusy,
     coordinateSystem: COORDINATE_SYSTEM.CARTESIAN,
     selectionType: tool,
     // This onSelect is no longer used since

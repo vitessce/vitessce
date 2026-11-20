@@ -10,6 +10,7 @@ export {
   obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
+  obsColorsCsvSchema,
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
@@ -46,6 +47,7 @@ export {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  ngLocationsAnnotationSchema,
 } from './file-def-options.js';
 export {
   anndataCellsZarrSchema,
@@ -65,4 +67,10 @@ export {
   neighborhoodsLayerObj,
   moleculesLayerObj,
 } from './spatial-layers.js';
+export {
+  annotationFrameObj,
+  annotationShapesArray,
+  annotationShapeObj,
+  annotationStoryObj,
+} from './annotation-frames.js';
 export { z } from 'zod';

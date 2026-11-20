@@ -55,6 +55,16 @@ import { visiumHdSpatialdata2025 } from './view-configs/spatial-beta/spatialdata
 import { exemplarSmall2024, exemplarSmallPartialInit } from './view-configs/spatial-beta/exemplar-small.js';
 import { salcher2022 } from './view-configs/salcher_2022.js';
 import { emptyConfig } from './view-configs/empty.js';
+
+// Annotations
+import { annotationsDemoSpraggins } from './view-configs/annotations-demo-spraggins.js';
+import { annotationsDemoSpragginsData } from './view-configs/annotations-demo-spraggins-data.js';
+import { annotationsDemoNeumannData } from './view-configs/annotations-demo-neumann-data.js';
+import { annotationsDemoNeumann2 } from './view-configs/annotations-demo-neumann-2.js';
+import { annotationsDemoLung3Data } from './view-configs/annotations-demo-lung3-data.js';
+import { annotationsDemoCodeluppi } from './view-configs/annotations-demo-codeluppi.js';
+import { annotationsMinervaOrionCrc04 } from './view-configs/annotations-minerva-orion.js';
+
 // TODO(spatialBeta):
 import { kpmpOop2023 } from './view-configs/spatial-beta/kpmp-oop.js';
 import { kpmpAutoInit2023 } from './view-configs/spatial-beta/kpmp-auto-init.js';
@@ -83,17 +93,29 @@ import { humanLiver } from './view-configs/3d-maps/human-liver.js';
 import { bloodVessel } from './view-configs/3d-maps/blood-vessel.js';
 import { bloodVesselNamed } from './view-configs/3d-maps/blood-vessel-named.js';
 import { bloodVesselNeighborhood } from './view-configs/3d-maps/blood-vessel-neighborhood.js';
-import { melanomaNeuroglancer } from './view-configs/3d-maps/melanoma-neuroglancer.js';
-import { melanomaNeuroglancerFiltered } from './view-configs/3d-maps/melanoma-neuroglancer-filtered.js';
+import { melanomaNeuroglancerSegments } from './view-configs/3d-maps/melanoma-neuroglancer-with-segments.js';
 import { neuroglancerMerfish } from './view-configs/3d-maps/neuroglancer-merfish.js';
 import { sorgerBiggerNeighborhood } from './view-configs/3d-maps/sorger-bigger.js';
 import { cellNeighborhood } from './view-configs/3d-maps/cell-neighborhood-named.js';
 import { saGloria, saKingsnake, saLsp1, saLsp2, saLsp3 } from './view-configs/3d-maps/three-spatial-accelerated.js';
 import { threeMinimal } from './view-configs/3d-maps/three-minimal.js';
+import { anisotropicVolume } from './view-configs/3d-maps/anisotropic-volume.js';
 import { threeMinimalLight } from './view-configs/3d-maps/three-minimal-light.js';
 import { linkControllerDemo } from './view-configs/3d-maps/link-controller.js';
 import { linkControllerMinimal } from './view-configs/3d-maps/link-controller-minimal.js';
 import { neuroglancerTwoLayers } from './view-configs/3d-maps/neuroglancer-two-layers.js';
+import { neuroglancerSorger } from './view-configs/3d-maps/neuroglancer-sorger.js';
+import { neuroglancerInvasive } from './view-configs/3d-maps/neuroglancer-invasive.js';
+import { neuroglancerMisCellOnly } from './view-configs/3d-maps/neuroglancer-mis-cell-only.js';
+import { neuroglancerInterscellar } from './view-configs/3d-maps/neuroglancer-mis-interscellar.js';
+import { neuroglancerInterscellarDetail } from './view-configs/3d-maps/neuroglancer-mis-interscellar-detail.js';
+import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko.js';
+import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
+import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
+import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
+import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
+import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
+import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -173,6 +195,16 @@ export const configs = {
   'maynard-2021': maynard2021,
   'nakshatri-2024': nakshatri2024natureMedH5ad,
   empty: emptyConfig,
+
+  // Annotation configs
+  'annotations-demo-spraggins': annotationsDemoSpraggins,
+  'annotations-demo-spraggins-data': annotationsDemoSpragginsData,
+  'annotations-demo-neumann-data': annotationsDemoNeumannData,
+  'annotations-demo-neumann-2': annotationsDemoNeumann2,
+  'annotations-demo-lung3-data': annotationsDemoLung3Data,
+  'annotations-demo-codeluppi': annotationsDemoCodeluppi,
+  'annotations-demo-minerva-orion': annotationsMinervaOrionCrc04,
+
   'sdata-merfish': sdataMerfishConfig,
   'sdata-xenium_rep1_io': sdataXeniumConfig,
 
@@ -206,14 +238,26 @@ export const configs = {
   'sorger-2024-4': bloodVesselNeighborhood,
   'sorger-2024-5': cellNeighborhood,
   'kiemen-2024': threeMinimal,
+  'anisotropic-volume': anisotropicVolume,
   'hakimian-2021': threeMinimalLight,
   'link-controller': linkControllerDemo,
   'link-controller-minimal': linkControllerMinimal,
   // Neuroglancer
-  'melanoma-neuroglancer': melanomaNeuroglancer,
-  'melanoma-neuroglancer-filtered': melanomaNeuroglancerFiltered,
+  'melanoma-neuroglancer-segments': melanomaNeuroglancerSegments,
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
+  'neuroglancer-sorger': neuroglancerSorger,
+  'neuroglancer-invasive': neuroglancerInvasive,
+  'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
+  'neuroglancer-interscellar': neuroglancerInterscellar,
+  'neuroglancer-interscellar-detail': neuroglancerInterscellarDetail,
+  'neuroglancer-macosko': neuroglancerMacosko,
+  'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
+  'neuroglancer-cube': testCubeNeuroglancer,
+  'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
+  'neuroglancer-washu-kidney': neuroglancerWashuKidney,
+  'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
+  'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,
   's-a-lsp2': saLsp2,

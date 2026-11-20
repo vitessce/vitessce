@@ -2,6 +2,7 @@
 // eslint gets confused by the "id" being within MUI's inputProps.
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useId } from 'react-aria';
+import { CHANNELS_SORT_ORDER_OPTIONS } from '@vitessce/layer-controller';
 import {
   makeStyles,
   Grid,
@@ -33,6 +34,11 @@ import {
   useControllerSectionStyles,
   useSelectStyles,
   useEllipsisMenuStyles,
+  channelRowContainerSx,
+  channelSelectorCellSx,
+  channelControlCellSx,
+  channelSliderCellSx,
+  channelSpacerCellSx,
 } from './styles.js';
 import ImageChannelController from './ImageChannelController.js';
 import ClippingSliders from './ClippingSliders.js';
@@ -122,6 +128,8 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelsOrientation,
     channelLabelSize,
     setChannelLabelSize,
+    channelsSortOrder,
+    setChannelsSortOrder,
   } = props;
   const [open, setOpen] = useState(false);
   const { classes: selectClasses } = useSelectStyles();
@@ -163,6 +171,10 @@ function ImageLayerEllipsisMenu(props) {
     setChannelLabelsOrientation(event.target.value);
   }
 
+  function handleChannelsSortOrderChange(event) {
+    setChannelsSortOrder(event.target.value);
+  }
+
   // Update local LOD slider value immediately on drag
   function handleLodFactorChange(event, value) {
     setLocalLodSliderValue(value);
@@ -189,6 +201,7 @@ function ImageLayerEllipsisMenu(props) {
   const channelLabelsOrientationId = useId();
   const channelLabelSizeId = useId();
   const lodFactorId = useId();
+  const channelsSortOrderId = useId();
 
   return (
     <PopperMenu
@@ -217,7 +230,10 @@ function ImageLayerEllipsisMenu(props) {
             valueLabelDisplay="off"
             {...lodSliderRangeConfig}
           />
-          <Box px={1} />
+          <Box sx={{
+            px: 1,
+          }}
+          />
           <Input
             value={localLodSliderValue}
             onChange={handleLodFactorInputChange}
@@ -375,6 +391,21 @@ function ImageLayerEllipsisMenu(props) {
           aria-label="Channel labels text size slider"
         />
       </MenuItem>
+      <MenuItem dense disableGutters classes={menuClasses.menuItem}>
+        <label className={menuClasses.imageLayerMenuLabel} htmlFor={channelsSortOrderId}>
+          Channel Ordering:&nbsp;
+        </label>
+        <NativeSelect
+          onChange={handleChannelsSortOrderChange}
+          value={channelsSortOrder}
+          inputProps={{ id: channelsSortOrderId, 'aria-label': 'Channel sort order selector' }}
+          classes={{ root: selectClasses.selectRoot }}
+        >
+          {CHANNELS_SORT_ORDER_OPTIONS.map(({ value, label }) => (
+            <option key={value} aria-label={label} value={value}>{label}</option>
+          ))}
+        </NativeSelect>
+      </MenuItem>
     </PopperMenu>
   );
 }
@@ -416,9 +447,11 @@ export default function ImageLayerController(props) {
     spatialSliceY,
     spatialSliceZ,
     tooltipsVisible,
+    spatialLayerLabel,
     spatialChannelLabelsVisible: channelLabelsVisible,
     spatialChannelLabelsOrientation: channelLabelsOrientation,
     spatialChannelLabelSize: channelLabelSize,
+    spatialChannelsSortOrder: channelsSortOrder,
   } = layerCoordination;
   const {
     setSpatialLayerVisible: setVisible,
@@ -436,6 +469,7 @@ export default function ImageLayerController(props) {
     setSpatialChannelLabelsVisible: setChannelLabelsVisible,
     setSpatialChannelLabelsOrientation: setChannelLabelsOrientation,
     setSpatialChannelLabelSize: setChannelLabelSize,
+    setSpatialChannelsSortOrder: setChannelsSortOrder,
   } = setLayerCoordination;
 
   const addChannel = useAddImageChannelInMetaCoordinationScopes();
@@ -447,7 +481,7 @@ export default function ImageLayerController(props) {
       : VisibilityOffIcon
   ), [visibleSetting]);
 
-  const label = image?.getName();
+  const label = spatialLayerLabel || image?.getName();
   const imageNumChannels = image?.getNumChannels();
   const is3dMode = spatialRenderingMode === '3D';
 
@@ -473,8 +507,14 @@ export default function ImageLayerController(props) {
   return (
     <Grid className={controllerSectionClasses.layerControllerGrid}>
       <Paper elevation={4} className={controllerSectionClasses.layerControllerRoot}>
-        <Grid container direction="row" justifyContent="space-between">
-          <Grid size={1}>
+        <Grid
+          container
+          direction="row"
+          sx={[{
+            justifyContent: 'space-between',
+          }, channelRowContainerSx]}
+        >
+          <Grid size={1} sx={channelControlCellSx}>
             <Button
               className={menuClasses.imageLayerVisibleButton}
               onClick={handleVisibleChange}
@@ -483,13 +523,15 @@ export default function ImageLayerController(props) {
               <Visibility />
             </Button>
           </Grid>
-          <Grid size={1} />
-          <Grid size={6}>
-            <Typography className={menuClasses.imageLayerName}>
+          {/* Empty cell to align the label with the channel rows' labels;
+              it keeps its width at every container size. */}
+          <Grid size={1} sx={channelSpacerCellSx} />
+          <Grid size={6} sx={channelSelectorCellSx}>
+            <Typography className={menuClasses.imageLayerName} title={label}>
               {label}
             </Typography>
           </Grid>
-          <Grid size={2}>
+          <Grid size={2} sx={channelSliderCellSx}>
             <Slider
               value={opacity}
               min={0}
@@ -501,7 +543,7 @@ export default function ImageLayerController(props) {
               aria-label={`Adjust opacity for layer ${label}`}
             />
           </Grid>
-          <Grid size={1}>
+          <Grid size={1} sx={channelControlCellSx}>
             <ImageLayerEllipsisMenu
               colormap={colormap}
               setColormap={setColormap}
@@ -526,9 +568,11 @@ export default function ImageLayerController(props) {
               setChannelLabelsOrientation={setChannelLabelsOrientation}
               channelLabelSize={channelLabelSize}
               setChannelLabelSize={setChannelLabelSize}
+              channelsSortOrder={channelsSortOrder}
+              setChannelsSortOrder={setChannelsSortOrder}
             />
           </Grid>
-          <Grid size={1} container direction="row">
+          <Grid size={1} container direction="row" sx={channelControlCellSx}>
             <ImageIcon className={classes.layerTypeImageIcon} />
             {isMultiChannel ? (
               <Button
@@ -544,9 +588,11 @@ export default function ImageLayerController(props) {
         {isMultiChannel && open ? (
           <Grid
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             {channelScopes.map((cScope) => {
               const {
@@ -591,6 +637,7 @@ export default function ImageLayerController(props) {
                   colormapOn={colormap !== null}
                   featureIndex={featureIndex}
                   image={image}
+                  channelsSortOrder={channelsSortOrder}
                   spatialRenderingMode={spatialRenderingMode}
                   numResolutions={numResolutions}
                   spatialMaxResolution={spatialMaxResolution}
@@ -618,9 +665,11 @@ export default function ImageLayerController(props) {
         {is3dMode && image ? (
           <Grid
             container
-            direction="column"
-            justifyContent="space-between"
             className={classes.imageChannelControllerGrid}
+            sx={{
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
           >
             <Typography className={classes.clippingPanesLabel}>Clipping planes:</Typography>
             <Grid size={12} className={classes.clippingSliders}>

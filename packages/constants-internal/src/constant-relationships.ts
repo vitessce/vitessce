@@ -12,12 +12,14 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_POINTS_CSV]: DataType.OBS_POINTS,
   [FileType.OBS_LOCATIONS_CSV]: DataType.OBS_LOCATIONS,
   [FileType.OBS_LABELS_CSV]: DataType.OBS_LABELS,
+  [FileType.OBS_COLORS_CSV]: DataType.OBS_COLORS,
   [FileType.FEATURE_LABELS_CSV]: DataType.FEATURE_LABELS,
   [FileType.SAMPLE_SETS_CSV]: DataType.SAMPLE_SETS,
   [FileType.OBS_FEATURE_MATRIX_CSV]: DataType.OBS_FEATURE_MATRIX,
   [FileType.OBS_SEGMENTATIONS_JSON]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SETS_CSV]: DataType.OBS_SETS,
   [FileType.OBS_SETS_JSON]: DataType.OBS_SETS,
+  [FileType.ANNOTATION_STORY_JSON]: DataType.ANNOTATION_STORY,
   [FileType.IMAGE_OME_ZARR]: DataType.IMAGE,
   [FileType.OBS_SEGMENTATIONS_OME_ZARR]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_FEATURE_MATRIX_ANNDATA_ZARR]: DataType.OBS_FEATURE_MATRIX,
@@ -50,6 +52,7 @@ export const FILE_TYPE_DATA_TYPE_MAPPING = {
   [FileType.OBS_SEGMENTATIONS_GLB]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED]: DataType.OBS_SEGMENTATIONS,
   [FileType.OBS_POINTS_NG_ANNOTATIONS]: DataType.OBS_POINTS,
+  [FileType.OBS_LOCATIONS_NG_ANNOTATIONS]: DataType.OBS_LOCATIONS,
 
   [FileType.IMAGE_SPATIALDATA_ZARR]: DataType.IMAGE,
   [FileType.LABELS_SPATIALDATA_ZARR]: DataType.OBS_SEGMENTATIONS,
@@ -107,6 +110,9 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.OBS_TYPE,
     CoordinationType.OBS_LABELS_TYPE,
   ],
+  [DataType.OBS_COLORS]: [
+    CoordinationType.OBS_TYPE,
+  ],
   [DataType.FEATURE_LABELS]: [
     CoordinationType.FEATURE_TYPE,
   ],
@@ -146,6 +152,7 @@ export const DATA_TYPE_COORDINATION_VALUE_USAGE = {
     CoordinationType.OBS_TYPE,
     // TODO: should sampleType, obsSetSelection, and/or sampleSetSelection be used here?
   ],
+  [DataType.ANNOTATION_STORY]: [],
 };
 
 // For Zarr-based file types, we keep a mapping to file types

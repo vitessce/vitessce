@@ -107,7 +107,8 @@ export const Popper = React.forwardRef<HTMLDivElement, PopperProps>(
     useEnhancedEffect(() => {
       handlePopperRefRef.current = handlePopperRef;
     }, [handlePopperRef]);
-    React.useImperativeHandle(popperRefProp, () => popperRef.current, []);
+    React.useImperativeHandle<PopperJs | null, PopperJs | null>(popperRefProp,
+      () => popperRef.current, []);
 
     const [exited, setExited] = React.useState(true);
 

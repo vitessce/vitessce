@@ -5,3 +5,4 @@ export {
   getSourceAndLoaderFromFileType,
   getDataTypeFromFileType,
 } from './loader-registry.js';
+export { allocateDenseMatrix } from './matrix-guard.js';

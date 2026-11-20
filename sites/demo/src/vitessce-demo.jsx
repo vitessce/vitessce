@@ -1,10 +1,20 @@
 /* eslint-disable no-console */
 import React, {
   useEffect, useRef, useState, useMemo,
+  useCallback,
 } from 'react';
-import { Vitessce } from 'vitessce';
+import {
+  Vitessce,
+  hasAnnotationControllerView,
+  addAnnotationControllerView,
+  removeAnnotationControllerView,
+  hasAnyAnnotationStory,
+  enableAnnotationEditing,
+  disableAnnotationEditing,
+} from 'vitessce';
 import { UncontrolledComparative } from '@vitessce/comparative';
 import { DEFAULT_LOG_LEVEL, LogLevel } from '@vitessce/globals';
+import { fetchConfigFromGist } from '@vitessce/config';
 import { getConfig, listConfigs, getPlugins, getStores, getPage } from './api.js';
 import { Welcome } from './welcome.jsx';
 import { Warning } from './warning.jsx';
@@ -46,6 +56,30 @@ function logConfigUpgrade(prevConfig, nextConfig) {
   console.log(nextConfig);
 }
 
+function tryConfigText(configText, theme, debug) {
+  try {
+    const config = JSON.parse(configText);
+    return Promise.resolve(() => (
+      <Vitessce
+        config={config}
+        theme={theme}
+        onConfigChange={debug ? console.log : undefined}
+        onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+        validateOnConfigChange={debug}
+      />
+    ));
+  } catch (e) {
+    return Promise.resolve(() => (
+      <Warning
+        title="Error parsing JSON"
+        preformatted="Error parsing config JSON."
+        unformatted={`${e.message}: ${configText}`}
+        theme={theme}
+      />
+    ));
+  }
+}
+
 function checkResponse(response, theme, debug) {
   if (!response.ok) {
     return Promise.resolve(
@@ -58,30 +92,9 @@ function checkResponse(response, theme, debug) {
       ),
     );
   }
-  return response.text().then((text) => {
-    try {
-      const config = JSON.parse(text);
-      return Promise.resolve(() => (
-        <Vitessce
-          config={config}
-          theme={theme}
-          onConfigChange={debug ? console.log : undefined}
-          onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-          validateOnConfigChange={debug}
-        />
-      ));
-    } catch (e) {
-      return Promise.resolve(() => (
-        <Warning
-          title="Error parsing JSON"
-          preformatted={preformattedDetails(response)}
-          unformatted={`${e.message}: ${text}`}
-          theme={theme}
-        />
-      ));
-    }
-  });
+  return response.text().then(text => tryConfigText(text, theme, debug));
 }
+
 
 /**
  * Use the theme provided if it is valid, otherwise fall back to the 'dark' theme.
@@ -107,6 +120,54 @@ function validateLogLevel(logLevel) {
   return DEFAULT_LOG_LEVEL;
 }
 
+function AnnotatableVitessce(props) {
+  const {
+    config: initialConfig,
+  } = props;
+
+  const [config, setConfig] = useState(initialConfig);
+  const [areAnnotationsEditable, setAreAnnotationsEditable] = useState(false);
+
+  const handleAnnotating = useCallback(() => {
+    const configWithController = hasAnnotationControllerView(config)
+      ? config
+      : addAnnotationControllerView(config, { closeButtonVisible: false });
+    const nextConfig = enableAnnotationEditing(configWithController);
+    // Set a new uid so that Vitessce detects the updated config.
+    setConfig({ ...nextConfig, uid: `annotating-${Date.now()}` });
+    setAreAnnotationsEditable(true);
+  }, [config]);
+
+  const handleEditing = useCallback(() => {
+    let nextConfig = config;
+    if (hasAnnotationControllerView(nextConfig)) {
+      nextConfig = disableAnnotationEditing(nextConfig);
+      if (!hasAnyAnnotationStory(nextConfig)) {
+        nextConfig = removeAnnotationControllerView(nextConfig);
+      }
+    }
+    if (nextConfig !== config) {
+      // Set a new uid so that Vitessce detects the updated config.
+      setConfig({ ...nextConfig, uid: `editing-${Date.now()}` });
+    }
+    setAreAnnotationsEditable(false);
+  }, [config]);
+
+  return (
+    <>
+      <Vitessce
+        {...props}
+        config={config}
+        onConfigChange={setConfig}
+        remountOnUidChange={false}
+        areAnnotationsEditable={areAnnotationsEditable}
+      />
+      <button type="button" onClick={handleAnnotating}>Annotating</button>
+      <button type="button" onClick={handleEditing}>Editing</button>
+    </>
+  );
+}
+
 export function VitessceDemo() {
   const result = useMemo(() => {
     const { rowHeight = null } = {};
@@ -115,6 +176,7 @@ export function VitessceDemo() {
     const isComparative = urlParams.get('comparative') === 'true';
     const debug = urlParams.get('debug') === 'true';
     const datasetUrl = urlParams.get('url');
+    const datasetGist = urlParams.get('gist');
     const showAll = urlParams.get('show') === 'all';
     const theme = validateTheme(urlParams.get('theme'));
     const isBounded = urlParams.get('isBounded') === 'true';
@@ -122,11 +184,14 @@ export function VitessceDemo() {
     const pageMode = urlParams.get('pageMode') === 'true';
     const debugMode = urlParams.get('debugMode')?.toLowerCase() === 'true';
     const logLevel = validateLogLevel(urlParams.get('logLevel'));
+    // When isAnnotating is true, we "simulate" the usage of the cvh-utils
+    // functions by rendering a toggle between "Editing" and "Annotating" modes,
+    // which use the functions in cvh-utils.
+    const isAnnotating = urlParams.get('isAnnotating') === 'true';
 
     const ContainerComponent = strictMode ? React.StrictMode : React.Fragment;
 
     if (isComparative) {
-      // TODO: props here to pass a comparative anndata.zarr url?
       return (
         <ContainerComponent>
           {!pageMode ? (
@@ -139,7 +204,10 @@ export function VitessceDemo() {
             `}
             </style>
           ) : null}
-          <UncontrolledComparative />
+          <UncontrolledComparative
+            singleCellDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sc-rna-seq/processed/kpmp-aug-2026.adata.zarr"
+            singleNucleusDatasetUrl="https://data-2.vitessce.io/kpmp-atlas-v2/sn-rna-seq/processed/kpmp-june-2026.adata.zarr"
+          />
         </ContainerComponent>
       );
     }
@@ -161,35 +229,52 @@ export function VitessceDemo() {
             `}
             </style>
           ) : null}
-          <Vitessce
-            config={config}
-            rowHeight={rowHeight}
-            theme={theme}
-            onConfigChange={debug ? console.log : undefined}
-            onConfigUpgrade={debug ? logConfigUpgrade : undefined}
-            validateOnConfigChange={debug}
-            isBounded={isBounded}
-            stores={stores}
-            {...pluginProps}
-            pageMode={pageMode}
-            debugMode={debugMode}
-            logLevel={logLevel}
-          >
-            {pageMode ? <PageComponent /> : null}
-          </Vitessce>
+          {isAnnotating ? (
+            <AnnotatableVitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            />
+          ) : (
+            <Vitessce
+              config={config}
+              rowHeight={rowHeight}
+              theme={theme}
+              onConfigChange={debug ? console.log : undefined}
+              onConfigUpgrade={debug ? logConfigUpgrade : undefined}
+              validateOnConfigChange={debug}
+              isBounded={isBounded}
+              stores={stores}
+              {...pluginProps}
+              pageMode={pageMode}
+              debugMode={debugMode}
+              logLevel={logLevel}
+            >
+              {pageMode ? <PageComponent /> : null}
+            </Vitessce>
+          )}
         </ContainerComponent>
       );
     }
-    if (datasetUrl) {
-      const responsePromise = fetch(datasetUrl)
-        .then(response => checkResponse(response, theme, debug))
-        .catch(error => Promise.resolve(() => (
-          <Warning
-            title="Error fetching"
-            unformatted={error.message}
-            theme={theme}
-          />
-        )));
+    if (datasetUrl || datasetGist) {
+      const responsePromise = (
+        datasetUrl
+          ? fetch(datasetUrl)
+            .then(response => checkResponse(response, theme, debug))
+          : fetchConfigFromGist(datasetGist)
+            .then(gistResult => tryConfigText(gistResult.configContents, theme, debug))
+      ).catch(error => Promise.resolve(() => (
+        <Warning
+          title="Error fetching"
+          unformatted={error.message}
+          theme={theme}
+        />
+      )));
       return (
         <ContainerComponent>
           {!pageMode ? (

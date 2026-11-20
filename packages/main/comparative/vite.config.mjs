@@ -7,6 +7,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
+import { ignoreNeuroglancerCss } from '../../../vite.config.mjs';
 import { visualizer } from "rollup-plugin-visualizer";
 
 const isProduction = process.env.APP_ENV === 'production';
@@ -24,7 +25,15 @@ export default defineConfig({
       // name: 'vitessce', // Used for UMD builds
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: (id) => (
+        id === 'react'
+        || id === 'react-dom'
+        || id.startsWith('react/')
+        || id.startsWith('react-dom/')
+        || id.startsWith('@react-three/')
+        || id === 'three'
+        || id.startsWith('three/')
+      ),
       // output.globals required for UMD builds
       // (e.g., no longer used since only generating ESM build)
       /*
@@ -43,5 +52,6 @@ export default defineConfig({
   plugins: [
     react(),
     visualizer(),
+    ignoreNeuroglancerCss(),
   ],
 });

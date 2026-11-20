@@ -40,10 +40,12 @@ export function origCoordToNormCoord(origCoord, origXMin, origXMax, origYMin, or
   const [origX, origY] = origCoord;
   const origXRange = origXMax - origXMin;
   const origYRange = origYMax - origYMin;
+  // Note: values are not clamped, so coordinates outside of the original
+  // bounding box will map to values outside of [0, 65535].
+  // Clamping is performed in zcoverRectangle.
   return [
-    // Clamp to zero at low end, since using unsigned ints.
-    Math.max(Math.floor(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX), 0),
-    Math.max(Math.floor(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX), 0),
+    Math.floor(((origX - origXMin) / origXRange) * MORTON_CODE_VALUE_MAX),
+    Math.floor(((origY - origYMin) / origYRange) * MORTON_CODE_VALUE_MAX),
   ];
 }
 
@@ -117,6 +119,11 @@ export function mergeAdjacent(intervals) {
  * - If stopLevel is set (0..bits): stop descending at that level, adding
  *   partially-overlapping cells as whole ranges (superset cover).
  *
+ * The rectangle is clamped to the grid, since it may extend beyond
+ * the grid (e.g., for tiles in the final row/column, which can extend
+ * past the bounding box of the points). If the rectangle does not
+ * intersect the grid at all, an empty list is returned.
+ *
  * @param {number} rx0
  * @param {number} ry0
  * @param {number} rx1
@@ -126,14 +133,28 @@ export function mergeAdjacent(intervals) {
  * @param {boolean} merge
  * @returns {Array<[number, number]>}
  */
-export function zcoverRectangle(rx0, ry0, rx1, ry1, bits, stopLevel = null, merge = true) {
+export function zcoverRectangle(
+  unclampedRx0, unclampedRy0, unclampedRx1, unclampedRy1,
+  bits, stopLevel = null, merge = true,
+) {
   const maxCoord = (1 << bits) - 1;
 
-  // TODO: clamp to [0, maxCoord] here instead of throwing. Revert clamping in origCoordToNormCoord.
-
-  if (!(rx0 >= 0 && rx0 <= rx1 && rx1 <= maxCoord && ry0 >= 0 && ry0 <= ry1 && ry1 <= maxCoord)) {
-    throw new Error('Rectangle out of bounds for given bits.');
+  if (!(unclampedRx0 <= unclampedRx1 && unclampedRy0 <= unclampedRy1)) {
+    throw new Error('Rectangle has invalid bounds: min must be less than or equal to max.');
   }
+
+  if (
+    unclampedRx1 < 0 || unclampedRx0 > maxCoord
+    || unclampedRy1 < 0 || unclampedRy0 > maxCoord
+  ) {
+    // The rectangle is entirely outside of the grid.
+    return [];
+  }
+
+  const rx0 = Math.max(unclampedRx0, 0);
+  const ry0 = Math.max(unclampedRy0, 0);
+  const rx1 = Math.min(unclampedRx1, maxCoord);
+  const ry1 = Math.min(unclampedRy1, maxCoord);
 
   const intervals = [];
 

@@ -1,19 +1,36 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { PureComponent, Suspense } from 'react';
-import { ChunkWorker, AsyncComputationWorker } from '@vitessce/neuroglancer-workers';
 import { NeuroglancerGlobalStyles } from './styles.js';
 
 const LazyReactNeuroglancer = React.lazy(() => import('./ReactNeuroglancer.js'));
 
-function createWorker() {
-  const worker = new ChunkWorker();
-  worker.AsyncComputationWorker = AsyncComputationWorker;
-  return worker;
+/**
+ * Resolve the NG managed-layer name of the currently picked annotation.
+ * mouseState.pickedAnnotationLayer is the AnnotationLayerState set by the
+ * annotation render layer (this.base.state), which is one of the user layer's
+ * annotationStates.states; fall back to matching pickedRenderLayer.
+ */
+function getPickedAnnotationLayerName(viewer, mouseState) {
+  const { pickedAnnotationLayer, pickedRenderLayer } = mouseState;
+  // eslint-disable-next-line no-restricted-syntax
+  for (const managedLayer of viewer.layerManager.managedLayers) {
+    const userLayer = managedLayer.layer;
+    if (userLayer) {
+      if (pickedAnnotationLayer
+        && userLayer.annotationStates?.states?.includes(pickedAnnotationLayer)) {
+        return managedLayer.name;
+      }
+      if (pickedRenderLayer && userLayer.renderLayers?.includes(pickedRenderLayer)) {
+        return managedLayer.name;
+      }
+    }
+  }
+  return null;
 }
+
 export class NeuroglancerComp extends PureComponent {
   constructor(props) {
     super(props);
-    this.bundleRoot = createWorker();
     this.cellColorMapping = props.cellColorMapping;
     this.justReceivedExternalUpdate = false;
     this.prevMouseStateChanged = null;
@@ -23,6 +40,7 @@ export class NeuroglancerComp extends PureComponent {
     // To avoid closure for onSegmentClick(), to update the selection
     this.latestOnSegmentClick = props.onSegmentClick;
     this.latestOnSelectHoveredCoords = props.onSelectHoveredCoords;
+    this.state = { createChunkWorker: null };
   }
 
   onRef(viewerRef) {
@@ -62,12 +80,64 @@ export class NeuroglancerComp extends PureComponent {
 
       remapWheelToZoom(viewer.inputEventBindings.perspectiveView);
 
+      const { onViewerReady } = this.props;
+
       this.prevHoverHandler = () => {
-        if (viewer.mouseState.pickedValue !== undefined) {
-          const pickedSegment = viewer.mouseState.pickedValue;
-          this.latestOnSelectHoveredCoords?.(pickedSegment?.low);
+        const ms = viewer.mouseState;
+        // World (global-space) position under the cursor, like spatialBeta's hoverInfo.coordinate.
+        const hoverCoord = ms.active && ms.position?.length >= 3
+          ? [ms.position[0], ms.position[1], ms.position[2]]
+          : null;
+        // Read props at hover time (not at mount) so URLs that resolve later are used.
+        const {
+          getMeshIdToCellId, centroidAnnotationUrlsByLayerName, decodeCentroidById,
+        } = this.props;
+        if (ms.pickedAnnotationId != null) {
+          // Resolve which annotation layer was picked. Only centroid layers
+          // (from obsLocations.ng-annotations) carry a MeshID in their by_id records;
+          // transcript/standalone point layers must not be mapped to cell meshes.
+          const layerName = getPickedAnnotationLayerName(viewer, ms);
+          const annotationUrl = layerName
+            ? centroidAnnotationUrlsByLayerName?.[layerName]
+            : null;
+          if (!annotationUrl) {
+            this.latestOnSelectHoveredCoords?.(null);
+            return;
+          }
+          // For centroid hover: pickedAnnotationId is a by_id lookup key (not MeshID).
+          // Fetch by_id record and decode the mesh segment ID by property name
+          // (from the annotation info), then convert MeshID to CellID.
+          const byIdKey = String(ms.pickedAnnotationId);
+          fetch(`${annotationUrl}/by_id/${byIdKey}`)
+            .then(r => r.arrayBuffer())
+            .then((buf) => {
+              const actualMeshId = decodeCentroidById?.(layerName, buf);
+              if (!actualMeshId) {
+                this.latestOnSelectHoveredCoords?.(null);
+                return;
+              }
+              const cellId = getMeshIdToCellId?.(actualMeshId) ?? actualMeshId;
+              this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
+            })
+            .catch(() => {});
+          return;
         }
+        // TODO: Undo if meshes and cells have same id
+        if (ms.pickedValue !== undefined && ms.pickedValue !== null) {
+          // Mainline NG segment IDs are bigint (fork: Uint64 {low, high}).
+          const meshId = String(ms.pickedValue);
+          const cellId = getMeshIdToCellId?.(meshId) ?? meshId;
+          this.latestOnSelectHoveredCoords?.(cellId, hoverCoord);
+          return;
+        }
+        this.latestOnSelectHoveredCoords?.(null);
       };
+
+      onViewerReady?.(() => {
+        const panel = viewer.display.panels.values().next().value;
+        /* eslint-disable-next-line no-underscore-dangle */
+        return panel?.projectionParameters?.value_?.viewProjectionMat;
+      });
 
       viewer.mouseState.changed.add(this.prevHoverHandler);
     } else {
@@ -91,23 +161,62 @@ export class NeuroglancerComp extends PureComponent {
     }
   }
 
-  render() {
-    const { classes, viewerState, cellColorMapping, onLayerLoadingChange } = this.props;
+  componentDidMount() {
+    // The inlined worker code is several MB, so load it only when a Neuroglancer view mounts.
+    // The viewer creates (and, on dispose, terminates) its own chunk worker from this
+    // factory, so worker lifetime always matches viewer lifetime, including StrictMode
+    // mount/unmount/re-mount cycles.
+    this.isComponentMounted = true;
+    import('@vitessce/neuroglancer-workers').then(({ ChunkWorker }) => {
+      if (!this.isComponentMounted) return;
+      this.setState({ createChunkWorker: ChunkWorker });
+    });
+  }
 
+  componentWillUnmount() {
+    this.isComponentMounted = false;
+  }
+
+  render() {
+    const { classes,
+      viewerState,
+      cellColorMapping,
+      onLayerLoadingChange,
+      onAnnotationSourceReady,
+      onViewerReady,
+      allowEmptySegments,
+      axisLinesVisible,
+      boundsVisible,
+      orthographic,
+      scaleBarVisible,
+      cameraResetRequest,
+      backgroundTheme,
+    } = this.props;
+    const { createChunkWorker } = this.state;
     return (
       <>
         <NeuroglancerGlobalStyles classes={classes} />
         <div className={classes.neuroglancerWrapper}>
           <Suspense fallback={<div>Loading...</div>}>
-            <LazyReactNeuroglancer
-              brainMapsClientId="NOT_A_VALID_ID"
-              viewerState={viewerState}
-              onViewerStateChanged={this.onViewerStateChanged}
-              onLayerLoadingChange={onLayerLoadingChange}
-              bundleRoot={this.bundleRoot}
-              cellColorMapping={cellColorMapping}
-              ref={this.onRef}
-            />
+            {createChunkWorker && (
+              <LazyReactNeuroglancer
+                viewerState={viewerState}
+                onViewerStateChanged={this.onViewerStateChanged}
+                onLayerLoadingChange={onLayerLoadingChange}
+                createChunkWorker={createChunkWorker}
+                cellColorMapping={cellColorMapping}
+                ref={this.onRef}
+                onAnnotationSourceReady={onAnnotationSourceReady}
+                onViewerReady={onViewerReady}
+                allowEmptySegments={allowEmptySegments}
+                axisLinesVisible={axisLinesVisible}
+                boundsVisible={boundsVisible}
+                orthographic={orthographic}
+                scaleBarVisible={scaleBarVisible}
+                cameraResetRequest={cameraResetRequest}
+                backgroundTheme={backgroundTheme}
+              />
+            )}
           </Suspense>
         </div>
       </>

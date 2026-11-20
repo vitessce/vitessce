@@ -339,10 +339,9 @@ class AnndataZarrAutoConfig extends AbstractAutoConfig {
       if (response.ok) {
         return this.setMetadataSummaryWithZmetadata(response);
       }
-      if (response.status === 404) {
-        return this.setMetadataSummaryWithoutZmetadata();
-      }
-      throw new Error(`Could not generate config: ${response.statusText}`);
+      // A missing .zmetadata is a 404, or a 403 when the bucket denies s3:ListBucket
+      // (S3 masks non-existence as AccessDenied). Either way, probe known keys instead.
+      return this.setMetadataSummaryWithoutZmetadata();
     }).catch((error) => {
       throw new Error(`Could not generate config for URL ${this.fileUrl}: ${error}`);
     });

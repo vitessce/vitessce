@@ -1,7 +1,7 @@
 {
   "name": "vitessce-monorepo",
   "private": true,
-  "version": "3.9.11",
+  "version": "4.2.0",
   "description": "Vitessce app and React component library",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io/",
@@ -9,6 +9,7 @@
   "scripts": {
     "start": "pnpm -r --parallel start",
     "start-demo": "pnpm -r --parallel --filter=!docs --filter=!app start",
+    "preview-demo": "pnpm -C sites/demo run preview",
     "start-docs": "pnpm -r --parallel --filter=!demo --filter=!app start",
     "start-app": "pnpm -r --parallel --filter=!demo --filter=!docs start",
     "start-html": "pnpm -r start-html",
@@ -30,7 +31,7 @@
     "clean-all": "pnpm run clean && pnpm run clean-deps",
     "publint": "pnpm -r --filter \"./packages/**\" exec publint",
     "changeset-status": "changeset status --since=origin/main",
-    "check-makestyles-keys": "pnpm exec sg scan --json | node ./scripts/check-makestyles-keys.mjs",
+    "check-makestyles-keys": "sg scan --json | node ./scripts/check-makestyles-keys.mjs",
     "create-view": "node ./scripts/create-view.mjs",
     "sync-cdn": "node ./scripts/sync-cdn.mjs cdn"
   },
@@ -39,7 +40,7 @@
     "@ast-grep/napi": "0.38.1",
     "@changesets/cli": "^2.17.0",
     "@changesets/get-github-info": "^0.5.2",
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.65.0",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
     "@testing-library/react": "catalog:",
@@ -71,7 +72,7 @@
     "react-dom": "catalog:",
     "remark-parse": "^7.0.1",
     "remark-stringify": "^7.0.3",
-    "sass": "1.89.1",
+    "sass": "^1.71.0",
     "serve-static": "^1.15.0",
     "set.prototype.intersection": "^1.1.5",
     "svg-inline-loader": "^0.8.2",
@@ -84,8 +85,13 @@
   },
   "pnpm": {
     "overrides": {
-      "zarr": "0.5.1",
-      "jest-canvas-mock": "2.5.0"
+      "jest-canvas-mock": "2.5.0",
+      "@react-spring/animated": "^10.0.0",
+      "@react-spring/core": "^10.0.0",
+      "@react-spring/rafz": "^10.0.0",
+      "@react-spring/shared": "^10.0.0",
+      "@react-spring/three": "^10.0.0",
+      "@react-spring/types": "^10.0.0"
     },
     "peerDependencyRules": {
       "allowedVersions": {
@@ -94,7 +100,7 @@
       }
     },
     "patchedDependencies": {
-      "@janelia-flyem/neuroglancer@2.37.5": "patches/@janelia-flyem__neuroglancer@2.37.5.patch",
+      "neuroglancer@2.41.2": "patches/neuroglancer@2.41.2.patch",
       "rc-tree@2.1.0": "patches/rc-tree@2.1.0.patch"
     }
   },

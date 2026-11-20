@@ -364,8 +364,8 @@ export function _requestBufferToRequestObjects(buffer, k, optsForWeighting) {
   }
 
   // Get the top K (potentially fewer than K) page table requests by weighted count.
-  const requests = [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
+  const sorted = Array.from(counts.entries()).toSorted((a, b) => b[1] - a[1]);
+  const requests = sorted
     .slice(0, k)
     .map(([packed]) => ({
       x: (packed >> 22) & 0x3FF,
@@ -755,8 +755,14 @@ export class VolumeDataManager {
 
       this.zarrStore.resolutions = resolutions;
 
+      // TODO: The code here should not rely on vivData.meta.physicalSizes,
+      // but should instead use imageWrapper.getModelMatrix() which is more general.
+      // Then, stripPhysicalSizes can be set to true and possibly removed as a parameter,
+      // making stripPhysicalSizes the default behavior in ImageWrapper.getData().
+      const stripPhysicalSizes = false;
+
       // TODO: filter to only those resolutions below the 16k x 16x x 4k limit?
-      const vivData = imageWrapper.getData();
+      const vivData = imageWrapper.getData(stripPhysicalSizes);
 
       if (!Array.isArray(vivData) || vivData.length < 1) {
         throw new Error('Not a multiresolution loader');
@@ -1298,6 +1304,11 @@ export class VolumeDataManager {
    * the center of the render target.
    */
   async processRequestData(buffer, optsForWeighting) {
+    if (this.initStatus !== INIT_STATUS.COMPLETE) {
+      log.debug('processRequestData: not yet initialized, skipping');
+      return;
+    }
+
     if (this.isBusy) {
       log.debug('processRequestData: already busy, skipping');
       return;

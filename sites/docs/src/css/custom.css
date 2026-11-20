@@ -107,6 +107,7 @@ h3 { letter-spacing: -0.005em; }
   left: 0;
   width: 100%;
   height: calc(100vh - var(--ifm-navbar-height));
+  z-index: 2;
 }
 
 .vitessce-and-toolbar.vitessce-page {

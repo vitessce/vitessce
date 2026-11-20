@@ -77,6 +77,7 @@ export function HeatmapSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
   }, {
     setHeatmapZoomX: setZoomX,
     setHeatmapZoomY: setZoomY,
@@ -183,6 +184,7 @@ export function HeatmapSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
   const getObsMembership = useGetObsMembership(obsSetsMembership);

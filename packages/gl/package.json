@@ -1,6 +1,6 @@
 {
   "name": "@vitessce/gl",
-  "version": "3.9.11",
+  "version": "4.2.0",
   "author": "HIDIVE Lab at HMS",
   "homepage": "http://vitessce.io",
   "repository": {
@@ -31,6 +31,9 @@
     "glslify": "cat src/glsl/colormaps.in.glsl | glslify > src/glsl/colormaps.out.glsl"
   },
   "dependencies": {
+    "@vitessce/styles": "workspace:*",
+    "@vitessce/icons": "workspace:*",
+    "clsx": "catalog:",
     "@deck.gl/aggregation-layers": "catalog:deck.gl",
     "@deck.gl/core": "catalog:deck.gl",
     "@deck.gl/extensions": "catalog:deck.gl",
@@ -66,6 +69,7 @@
     "@turf/distance": "catalog:turf",
     "@vitessce/utils": "workspace:*",
     "@vitessce/globals": "workspace:*",
+    "@vitessce/constants-internal": "workspace:*",
     "d3-array": "catalog:",
     "deck.gl": "catalog:deck.gl",
     "glslify": "^7.0.0",
@@ -75,6 +79,7 @@
     "nebula.gl": "catalog:nebula.gl"
   },
   "devDependencies": {
+    "d3-quadtree": "catalog:",
     "glsl-colormap": "^1.0.1",
     "react": "catalog:",
     "react-dom": "catalog:"

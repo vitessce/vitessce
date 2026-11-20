@@ -10,6 +10,7 @@ export { default as PaddedExpressionHeatmapBitmapLayer } from './PaddedExpressio
 export {
   GLSL_COLORMAPS, GLSL_COLORMAP_DEFAULT, DEFAULT_GL_OPTIONS, SELECTION_TYPE,
 } from './constants.js';
+export { colormaps } from './glsl/index.js';
 
 // Layer extensions
 export { default as ScaledExpressionExtension } from './ScaledExpressionExtension/index.js';
@@ -17,7 +18,10 @@ export { default as SelectionExtension } from './SelectionExtension/index.js';
 export { default as BitmaskLayer } from './BitmaskLayer.js';
 export { default as BitmaskLayerBeta } from './BitmaskLayerBeta.js';
 export { default as ContourLayerWithText } from './ContourLayerWithText.js';
+export { default as AnnotationLayer } from './AnnotationLayer.js';
+export { default as SpotLayer } from './SpotLayer.js';
 
+export { default as ToolMenu, IconTool, IconButton } from './ToolMenu.js';
 export {
   TILE_SIZE, MAX_ROW_AGG, MIN_ROW_AGG,
   COLOR_BAR_SIZE,
@@ -36,5 +40,6 @@ export * as viv from './viv.js';
 export * as luma from './luma.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as deck from './deck.js';
+export { createAnnotationLayers, createPreviewLayer, computeArrowhead, getMeasurementLabel } from './annotation-layer-utils.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export * as math from './math.js';

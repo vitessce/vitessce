@@ -4,9 +4,10 @@ import { forceSimulation } from 'd3-force';
 import { isEqual } from 'lodash-es';
 import {
   deck, getSelectionLayer, ScaledExpressionExtension, SelectionExtension,
-  ContourLayerWithText,
+  ContourLayerWithText, AnnotationLayer,
 } from '@vitessce/gl';
 import { getDefaultColor } from '@vitessce/utils';
+import { ViewType } from '@vitessce/constants-internal';
 import {
   AbstractSpatialOrScatterplot, createQuadTree, forceCollideRects, getOnHoverCallback,
 } from './shared-spatial-scatterplot/index.js';
@@ -26,11 +27,39 @@ const TEXT_LAYER_Z_INDEX = 0;
 // certain zoom levels.
 const POINT_LAYER_Z_INDEX = 0;
 
+// The gray that set colors are mixed toward as confidence drops. Must match the
+// mixing color used by treeToCellColorsBySetNames in @vitessce/sets-utils.
+const UNCERTAINTY_MIXING_COLOR = 128;
+
 // Default getter function props.
 const makeDefaultGetCellColors = (cellColors, obsIndex, theme) => (object, { index }) => {
   const [r, g, b, a] = (cellColors && obsIndex && cellColors.get(obsIndex[index]))
     || getDefaultColor(theme);
   return [r, g, b, 255 * (a || 1)];
+};
+// Positional equivalent of makeDefaultGetCellColors, for callers that supply
+// obsColorIndices. Reads a typed array by index rather than hashing an
+// observation ID string on every point.
+const makeColorIndicesGetCellColors = (obsColorIndices, theme) => {
+  const { colorIndices, colorProbs, colors } = obsColorIndices;
+  const defaultColor = getDefaultColor(theme);
+  return (object, { index }) => {
+    const colorIndex = colorIndices[index];
+    if (colorIndex === 0) {
+      return [defaultColor[0], defaultColor[1], defaultColor[2], 255];
+    }
+    const color = colors[colorIndex - 1] || defaultColor;
+    if (colorProbs) {
+      const p = colorProbs[index];
+      return [
+        ((color[0] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        ((color[1] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        ((color[2] - UNCERTAINTY_MIXING_COLOR) * p) + UNCERTAINTY_MIXING_COLOR,
+        255,
+      ];
+    }
+    return [color[0], color[1], color[2], 255];
+  };
 };
 const makeDefaultGetObsCoords = obsEmbedding => i => ([
   obsEmbedding.data[0][i],
@@ -69,8 +98,11 @@ const contourGetPosition = (object, { index, data, target }) => {
  * @param {object} props.cells
  * @param {string} props.mapping The name of the coordinate mapping field,
  * for each cell, for example "PCA" or "t-SNE".
- * @param {Map} props.cellColors Mapping of cell IDs to colors.
- * @param {array} props.cellSelection Array of selected cell IDs.
+ * @param {Map} props.cellColors Mapping of cell IDs to colors. Its keys are also
+ * the set of selected cell IDs. Ignored when props.obsColorIndices is provided.
+ * @param {object} props.obsColorIndices Positional set-color encoding aligned to
+ * props.obsEmbeddingIndex, as returned by treeToColorIndicesArray. Preferred over
+ * props.cellColors, which costs a string hash lookup per point.
  * @param {array} props.cellFilter Array of filtered cell IDs. By default, null.
  * @param {number} props.cellRadius The value for `radiusScale` to pass
  * to the deck.gl cells ScatterplotLayer.
@@ -106,8 +138,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.cellSetsForceSimulation = forceCollideRects();
     this.cellSetsLabelPrevZoom = null;
     this.cellSetsLayers = [];
-
     this.contourLayers = [];
+    this.annotationLayer = null;
 
     // Initialize data and layers.
     this.onUpdateCellsData();
@@ -115,6 +147,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     this.onUpdateCellSetsLayers();
     this.onUpdateStratifiedData();
     this.onUpdateContourLayers();
+    this.onUpdateAnnotationLayer();
   }
 
   // Want to support multiple types of contour layers
@@ -214,6 +247,28 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     return layers;
   }
 
+  createAnnotationLayer() {
+    const {
+      annotationShapes,
+      annotationOverlayVisible,
+      annotationSemanticZoom,
+      annotationInProgressShape,
+    } = this.props;
+    return new AnnotationLayer({
+      data: annotationShapes,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
+      semanticZoom: annotationSemanticZoom,
+      ...this.getAnnotationEditingLayerProps(),
+      viewType: ViewType.SCATTERPLOT, // TODO: is this needed?
+
+      // TODO: these are view-level properties, rather than layer-level.
+      // annotationTransitionDuration,
+      // annotationEditable,
+      // Other coordination types related to editing...
+    });
+  }
+
   createCellsLayer() {
     const {
       obsEmbeddingIndex: obsIndex,
@@ -221,12 +276,14 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellRadius = 1.0,
       cellOpacity = 1.0,
       // cellFilter,
-      cellSelection,
       setCellHighlight,
       setComponentHover,
       getCellIsSelected,
       cellColors,
-      getCellColor = makeDefaultGetCellColors(cellColors, obsIndex, theme),
+      obsColorIndices,
+      getCellColor = (obsColorIndices
+        ? makeColorIndicesGetCellColors(obsColorIndices, theme)
+        : makeDefaultGetCellColors(cellColors, obsIndex, theme)),
       getExpressionValue,
       onCellClick,
       geneExpressionColormap,
@@ -276,8 +333,8 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       onHover: getOnHoverCallback(obsIndex, setCellHighlight, setComponentHover),
       updateTriggers: {
         getExpressionValue,
-        getFillColor: [cellColorEncoding, cellSelection, cellColors],
-        getLineColor: [cellColorEncoding, cellSelection, cellColors],
+        getFillColor: [cellColorEncoding, cellColors, obsColorIndices],
+        getLineColor: [cellColorEncoding, cellColors, obsColorIndices],
         getCellIsSelected,
       },
     });
@@ -354,7 +411,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { cellsQuadTree } = this;
     const flipYTooltip = true;
     const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
     return getSelectionLayer(
@@ -365,13 +421,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
         {
           getObsCoords: getCellCoords,
           obsIndex,
-          obsQuadTree: cellsQuadTree,
+          // The selection layer only visits the quadtree once a selection is
+          // drawn, so it is built on first use rather than per embedding change.
+          obsQuadTree: {
+            visit: callback => this.getCellsQuadTree()?.visit(callback),
+          },
           onSelect: (obsIds) => {
             setCellSelection(obsIds);
           },
         },
       ],
       flipYTooltip,
+      this.props.onSelectionBusy,
     );
   }
 
@@ -380,20 +441,39 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       cellsLayer,
       cellSetsLayers,
       contourLayers,
+      annotationLayer,
     } = this;
     return [
       cellsLayer,
       ...contourLayers,
       ...cellSetsLayers,
       this.createSelectionLayer(),
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
+  }
+
+  /**
+   * The quadtree over the embedding coordinates, used for lasso and rectangle
+   * selection. Built lazily: at millions of points it costs about a second, and
+   * most renders never select.
+   * @returns {object|null} The d3-quadtree, or null without embedding data.
+   */
+  getCellsQuadTree() {
+    const { obsEmbedding } = this.props;
+    if (!this.cellsQuadTree && obsEmbedding) {
+      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
+      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
+    }
+    return this.cellsQuadTree;
   }
 
   onUpdateCellsData() {
     const { obsEmbedding } = this.props;
     if (obsEmbedding) {
-      const getCellCoords = makeDefaultGetObsCoords(obsEmbedding);
-      this.cellsQuadTree = createQuadTree(obsEmbedding, getCellCoords);
+      // Invalidate the lazily built quadtree for the previous embedding.
+      this.cellsQuadTree = null;
       this.cellsData = {
         src: {
           obsEmbedding,
@@ -409,6 +489,17 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.cellsLayer = this.createCellsLayer();
     } else {
       this.cellsLayer = null;
+    }
+  }
+
+  onUpdateAnnotationLayer() {
+    const {
+      annotationShapes, annotationInProgressShape,
+    } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
+      this.annotationLayer = this.createAnnotationLayer();
+    } else {
+      this.annotationLayer = null;
     }
   }
 
@@ -496,17 +587,6 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     );
   }
 
-  componentWillUnmount() {
-    delete this.cellsQuadTree;
-    delete this.cellsLayer;
-    delete this.cellsData;
-    delete this.stratifiedData;
-    delete this.cellSetsForceSimulation;
-    delete this.cellSetsLabelPrevZoom;
-    delete this.cellSetsLayers;
-    delete this.contourLayers;
-  }
-
   /**
    * Here, asynchronously check whether props have
    * updated which require re-computing memoized variables,
@@ -535,7 +615,7 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
     }
 
     if ([
-      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellSelection', 'cellColors',
+      'obsEmbeddingIndex', 'obsEmbedding', 'cellFilter', 'cellColors', 'obsColorIndices',
       'cellRadius', 'cellOpacity', 'cellRadiusMode', 'geneExpressionColormap',
       'geneExpressionColormapRange', 'geneSelection', 'cellColorEncoding',
       'getExpressionValue', 'embeddingPointsVisible',
@@ -569,6 +649,18 @@ class Scatterplot extends AbstractSpatialOrScatterplot {
       this.onUpdateCellSetsLayers(true);
       forceUpdate = true;
     }
+
+    if ([
+      'annotationShapes', 'annotationOverlayVisible',
+      'annotationSemanticZoom', 'annotationTransitionDuration',
+      'annotationEditable', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
+    ].some(shallowDiff)) {
+      // Annotation info changed.
+      this.onUpdateAnnotationLayer();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }

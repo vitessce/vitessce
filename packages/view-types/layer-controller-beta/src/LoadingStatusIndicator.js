@@ -102,9 +102,25 @@ export default function LoadingStatusIndicator(props) {
 
 
   return (
-    <Grid container px={0.5}>
-      <Grid size={6} alignItems="start">
-        <Grid container alignItems="center" gap={1}>
+    <Grid
+      container
+      sx={{
+        px: 0.5,
+      }}
+    >
+      <Grid
+        size={6}
+        sx={{
+          alignItems: 'start',
+        }}
+      >
+        <Grid
+          container
+          sx={{
+            alignItems: 'center',
+            gap: 1,
+          }}
+        >
           {statusColor !== 'success' ? (
             <StatusChip
               label={statusLabel}
@@ -114,7 +130,13 @@ export default function LoadingStatusIndicator(props) {
           ) : null}
         </Grid>
       </Grid>
-      <Grid size={6} px={1} my={0.25}>
+      <Grid
+        size={6}
+        sx={{
+          px: 1,
+          my: 0.25,
+        }}
+      >
         <LoadingText
           bricksLoaded={bricksLoaded}
           currentRequestCount={currentRequestCount}
@@ -123,7 +145,15 @@ export default function LoadingStatusIndicator(props) {
         />
       </Grid>
       <Grid size={12}>
-        <Grid container direction="row" spacing={2} alignItems="center" wrap="nowrap">
+        <Grid
+          container
+          direction="row"
+          spacing={2}
+          wrap="nowrap"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           <LoadingControlButton
             startIcon={<Stop />}
             onClick={onStopLoading}
@@ -142,7 +172,14 @@ export default function LoadingStatusIndicator(props) {
           </LoadingControlButton>
         </Grid>
       </Grid>
-      <Grid size={12} visibility={isLoading ? 'visible' : 'hidden'} mt={1} mb={0.5}>
+      <Grid
+        size={12}
+        sx={{
+          visibility: isLoading ? 'visible' : 'hidden',
+          mt: 1,
+          mb: 0.5,
+        }}
+      >
         <LinearProgress
           variant="determinate"
           value={percentage}

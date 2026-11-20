@@ -24,8 +24,14 @@ import {
   useAuxiliaryCoordination,
   useHasLoader,
   useExpandedFeatureLabelsMap,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
-import { aggregateFeatureArrays } from '@vitessce/utils';
+import {
+  aggregateFeatureArrays, getAnnotationFrameCoordinationValues, resolveFeatureAggregationStrategy,
+} from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import {
   setObsSelection,
   mergeObsSets,
@@ -35,7 +41,9 @@ import {
 import { canLoadResolution } from '@vitessce/spatial-utils';
 import { Legend } from '@vitessce/legend';
 import { log } from '@vitessce/globals';
-import { COMPONENT_COORDINATION_TYPES, ViewType, DataType, STATUS, ViewHelpMapping } from '@vitessce/constants-internal';
+import {
+  COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, DataType, STATUS, ViewHelpMapping,
+} from '@vitessce/constants-internal';
 import { Typography } from '@vitessce/styles';
 import Spatial from './Spatial.js';
 import SpatialOptions from './SpatialOptions.js';
@@ -70,12 +78,18 @@ export function SpatialSubscriber(props) {
     useFullResolutionImage = {},
     channelNamesVisible = false,
     helpText = ViewHelpMapping.SPATIAL,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
     helpViews,
   } = props;
 
   const loaders = useLoaders();
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
 
   // Get "props" from the coordination space.
   const [{
@@ -108,8 +122,16 @@ export function SpatialSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
     photometricInterpretation: photometricInterpretationFromCoordination,
     featureAggregationStrategy,
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -134,7 +156,15 @@ export function SpatialSubscriber(props) {
     setFeatureValueColormapRange: setGeneExpressionColormapRange,
     setTooltipsVisible,
     setFeatureAggregationStrategy,
+    setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL], coordinationScopes);
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -280,6 +310,16 @@ export function SpatialSubscriber(props) {
   const [featureLabelsMap, expandedFeatureLabelsStatus] = useExpandedFeatureLabelsMap(
     featureType, featureLabelsMapOrig, { stripCuriePrefixes: true },
   );
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
 
   const errors = [
     ...obsLabelsErrorsMulti,
@@ -293,6 +333,7 @@ export function SpatialSubscriber(props) {
     imageError,
     neighborhoodsError,
     featureLabelsError,
+    annotationStoryError,
   ];
 
   const photometricInterpretation = (
@@ -313,6 +354,7 @@ export function SpatialSubscriber(props) {
     neighborhoodsStatus,
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     obsLocationsUrls,
@@ -324,6 +366,7 @@ export function SpatialSubscriber(props) {
     imageUrls,
     neighborhoodsUrls,
     featureLabelsUrls,
+    annotationStoryUrls,
   ]);
 
   const obsLocationsFeatureIndex = useMemo(() => {
@@ -336,6 +379,7 @@ export function SpatialSubscriber(props) {
   const locationsCount = obsLocationsIndex?.length || 0;
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -416,6 +460,7 @@ export function SpatialSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
   const getTooltipObsInfo = useCallback((tooltipObsId, tooltipObsType) => {
@@ -457,6 +502,21 @@ export function SpatialSubscriber(props) {
     return null;
   }, [useHoverInfoForTooltip]);
 
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    use3d ? 0 : annotationTransitionDuration,
+  );
+
   const setViewState = ({
     zoom: newZoom,
     target,
@@ -481,8 +541,10 @@ export function SpatialSubscriber(props) {
     locationsCount,
   });
 
-  const featureAggregationStrategyToUse = featureAggregationStrategy
-  ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  // Convert a feature name into its index within the geneSelection.
+  const featureAggregationStrategyToUse = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const aggregatedExpressionData = useMemo(() => {
     if (featureAggregationStrategyToUse != null && expressionData && expressionData.length > 1) {
@@ -635,7 +697,7 @@ export function SpatialSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       options={options}
       helpText={helpText}
       errors={errors}
@@ -665,6 +727,7 @@ export function SpatialSubscriber(props) {
       <Spatial
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         width={width}
         height={height}
         viewState={{
@@ -675,6 +738,7 @@ export function SpatialSubscriber(props) {
           rotationZ,
           rotationOrbit,
           orbitAxis,
+          ...annotationTransitionProps,
         }}
         setViewState={setViewState}
         originalViewState={originalViewState}
@@ -718,6 +782,10 @@ export function SpatialSubscriber(props) {
         theme={theme}
         useFullResolutionImage={useFullResolutionImage}
         photometricInterpretation={photometricInterpretation}
+        annotationShapes={annotationShapes}
+        annotationOverlayVisible={annotationOverlayVisible}
+        annotationSemanticZoom={annotationSemanticZoom}
+        {...annotationEditingProps}
       />
       {tooltipsVisible && (
         <SpatialTooltipSubscriber

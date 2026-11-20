@@ -69,3 +69,22 @@ export const tree = {
     },
   ],
 };
+
+// A tree whose sets carry per-observation confidence scores, as produced by the
+// `scorePath` obsSets option. Used to exercise the uncertainty-mixing branch of
+// treeToCellColorsBySetNames.
+export const treeWithScores = {
+  version: '0.1.3',
+  datatype: 'cell',
+  tree: [
+    {
+      name: 'Cell Type Annotations',
+      children: [
+        {
+          name: 'Pericytes',
+          set: [['cell_1', 1.0], ['cell_2', 0.5], ['cell_3', 0.0]],
+        },
+      ],
+    },
+  ],
+};

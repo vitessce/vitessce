@@ -11,7 +11,7 @@ import {
 } from '@vitessce/vit-s';
 import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
 import { setObsSelection, getObsInfoFromDataWithinRange } from '@vitessce/sets-utils';
-import { aggregateFeatureArrays } from '@vitessce/utils';
+import { aggregateFeatureArrays, resolveFeatureAggregationStrategy } from '@vitessce/utils';
 import ExpressionHistogram from './ExpressionHistogram.js';
 import { useStyles } from './styles.js';
 /**
@@ -91,10 +91,17 @@ export function ExpressionHistogramSubscriber(props) {
   ]);
 
   const numGenesSelected = geneSelection ? geneSelection.length : 0;
-  const aggregationStrategy = featureAggregationStrategy ?? 'first';
+  // Convert a feature name into its index within the geneSelection.
+  const aggregationStrategy = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? 'first';
+  // Show the feature name rather than its index.
+  const aggregationStrategyLabel = typeof aggregationStrategy === 'number'
+    ? geneSelection[aggregationStrategy]
+    : aggregationStrategy;
   const titleSuffix = (
     // eslint-disable-next-line no-nested-ternary
-    numGenesSelected > 1 ? ` (${numGenesSelected} genes, ${aggregationStrategy})`
+    numGenesSelected > 1 ? ` (${numGenesSelected} genes, ${aggregationStrategyLabel})`
       : (numGenesSelected === 1 ? ` (${geneSelection[0]})` : '')
   );
 
@@ -136,7 +143,7 @@ export function ExpressionHistogramSubscriber(props) {
   const onSelect = useCallback((value) => {
     const geneName = (
       // eslint-disable-next-line no-nested-ternary
-      numGenesSelected > 1 ? `${numGenesSelected} genes (${aggregationStrategy})`
+      numGenesSelected > 1 ? `${numGenesSelected} genes (${aggregationStrategyLabel})`
         : (numGenesSelected === 1 ? ` ${geneSelection[0]}` : 'transcript count')
     );
 
@@ -150,7 +157,7 @@ export function ExpressionHistogramSubscriber(props) {
     );
   }, [additionalCellSets, cellSetColor, data, setAdditionalCellSets,
     setCellColorEncoding, setCellSetColor, setCellSetSelection,
-    numGenesSelected, aggregationStrategy, geneSelection,
+    numGenesSelected, aggregationStrategyLabel, geneSelection,
   ]);
 
   return (

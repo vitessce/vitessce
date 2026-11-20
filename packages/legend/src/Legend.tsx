@@ -4,7 +4,9 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { makeStyles, Slider } from '@vitessce/styles';
-import { capitalize, getDefaultColor, cleanFeatureId, PALETTE } from '@vitessce/utils';
+import {
+  capitalize, getDefaultColor, cleanFeatureId, PALETTE, resolveFeatureAggregationStrategy,
+} from '@vitessce/utils';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom } from 'd3-axis';
@@ -266,7 +268,7 @@ export default function Legend(props: LegendProps) {
     spatialLayerColor,
     obsSetSelection,
     obsSetColor,
-    featureAggregationStrategy,
+    featureAggregationStrategy: featureAggregationStrategyProp,
     extent,
     missing,
     width = 100,
@@ -280,6 +282,11 @@ export default function Legend(props: LegendProps) {
     contourPercentiles,
     contourThresholds,
   } = props;
+
+  // Convert a feature name into its index within the featureSelection.
+  const featureAggregationStrategy = resolveFeatureAggregationStrategy(
+    featureAggregationStrategyProp, featureSelection,
+  ) as FeatureAggregationStrategy;
 
   const svgRef = useRef<SVGSVGElement>(null);
   const { classes } = useStyles();

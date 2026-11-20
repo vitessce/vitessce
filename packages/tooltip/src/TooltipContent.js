@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { MISSING_VALUE_PLACEHOLDER } from '@vitessce/utils';
 import { transformInfoValues } from './utils.js';
 
 export default function TooltipContent(props) {
@@ -21,7 +22,7 @@ export default function TooltipContent(props) {
         {Object.entries(mappedInfo).map(([key, value]) => (
           <tr key={key}>
             <th>{key}</th>
-            <td>{value}</td>
+            <td>{value ?? MISSING_VALUE_PLACEHOLDER}</td>
           </tr>
         ))}
       </tbody>

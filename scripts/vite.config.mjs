@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { resolve, basename } from 'path';
 import { existsSync } from 'fs';
-import { svgLoaderForNeuroglancerIcons } from '../vite.config.mjs';
+import { svgLoaderForNeuroglancerIcons, ignoreNeuroglancerCss } from '../vite.config.mjs';
 
 
 const cwd = process.cwd();
@@ -26,7 +26,18 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['react', 'react-dom', ...moreExternals],
+      // Externalize react (including subpath imports like react/jsx-runtime),
+      // react-three, and three (including subpath imports like three/addons/...).
+      external: (id) => (
+        id === 'react'
+        || id === 'react-dom'
+        || id.startsWith('react/')
+        || id.startsWith('react-dom/')
+        || id.startsWith('@react-three/')
+        || id === 'three'
+        || id.startsWith('three/')
+        || moreExternals.includes(id)
+      ),
       // output.globals required for UMD builds
       // (e.g., no longer used since only generating ESM build)
       /*
@@ -47,6 +58,7 @@ export default defineConfig({
       jsxRuntime: 'classic'
     }),
     svgLoaderForNeuroglancerIcons(),
+    ignoreNeuroglancerCss(),
   ],
   // To enable .js files that contain JSX to be imported.
   // Reference: https://github.com/vitest-dev/vitest/issues/1564

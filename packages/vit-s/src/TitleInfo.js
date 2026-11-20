@@ -232,6 +232,8 @@ export function TitleInfo(props) {
     title, info, children, isScroll, isSpatial, removeGridComponent, urls,
     isReady, options, closeButtonVisible = true, downloadButtonVisible = true,
     helpText, withPadding = true, errors: errorsProp, guideUrl,
+    // 'dark' (default) or 'light'; only applies when isSpatial.
+    spatialBackgroundTheme = 'dark',
     helpViews, componentType,
   } = props;
 
@@ -287,7 +289,8 @@ export function TitleInfo(props) {
           classes.card,
           {
             [classes.scrollCard]: isScroll,
-            [classes.spatialCard]: isSpatial,
+            [classes.spatialCard]: isSpatial && spatialBackgroundTheme !== 'light',
+            [classes.spatialCardLight]: isSpatial && spatialBackgroundTheme === 'light',
             [classes.noScrollCard]: !isScroll && !isSpatial,
             [classes.noPaddingCard]: !withPadding,
             [classes.paddingCard]: withPadding,

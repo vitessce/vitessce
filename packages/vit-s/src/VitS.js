@@ -14,6 +14,7 @@ import {
 } from '@tanstack/react-query';
 import { isEqual } from 'lodash-es';
 import { buildConfigSchema, latestConfigSchema } from '@vitessce/schemas';
+import { MatrixTooLargeError } from '@vitessce/error';
 import {
   log,
   setLogLevel, setDebugMode,
@@ -26,6 +27,10 @@ import {
   AuxiliaryProvider,
   createAuxiliaryStore,
 } from './state/hooks.js';
+import {
+  AnnotationEditingProvider,
+  createAnnotationEditingStore,
+} from './state/annotation-editing.js';
 import VitessceGrid from './VitessceGrid.js';
 import { Warning } from './Warning.js';
 import { DebugWindow } from './DebugWindow.js';
@@ -76,6 +81,8 @@ import { AsyncFunctionsContext } from './contexts.js';
  * @param {boolean} props.debugMode Whether to display the debugWindow. By default, false.
  * @param {null|string} props.logLevel To set the log level in the console.
  * provided by the parent.
+ * @param {boolean} props.areAnnotationsEditable Whether annotations can be edited.
+ * By default, true.
  */
 export function VitS(props) {
   const {
@@ -103,6 +110,7 @@ export function VitS(props) {
     children,
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
+    areAnnotationsEditable = true,
     helpViews: helpViewsProp,
   } = props;
 
@@ -250,7 +258,12 @@ export function VitS(props) {
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        retry: 2,
+        // A matrix that does not fit the browser's budget will not fit on a
+        // retry either; surface that message immediately rather than after
+        // two more attempts and their backoff.
+        retry: (failureCount, error) => (
+          failureCount < 2 && !(error instanceof MatrixTooLargeError)
+        ),
       },
     },
     // Reference: https://tkdodo.eu/blog/react-query-error-handling#the-global-callbacks
@@ -334,33 +347,36 @@ export function VitS(props) {
             key={(remountOnUidChange ? configKey : undefined)}
           >
             <AuxiliaryProvider createStore={createAuxiliaryStore}>
-              <AsyncFunctionsContext.Provider value={asyncFunctions}>
-                <VitessceGrid
-                  pageMode={pageMode}
-                  success={success}
-                  configKey={configKey}
-                  viewTypes={viewTypes}
-                  fileTypes={fileTypes}
-                  coordinationTypes={coordinationTypes}
-                  config={configOrWarning}
-                  rowHeight={rowHeight}
-                  height={height}
-                  theme={theme}
-                  isBounded={isBounded}
-                  stores={mergedStores}
-                  queryClient={queryClient}
-                  helpViews={helpViews}
+              <AnnotationEditingProvider createStore={createAnnotationEditingStore}>
+                <AsyncFunctionsContext.Provider value={asyncFunctions}>
+                  <VitessceGrid
+                    pageMode={pageMode}
+                    success={success}
+                    configKey={configKey}
+                    viewTypes={viewTypes}
+                    fileTypes={fileTypes}
+                    coordinationTypes={coordinationTypes}
+                    config={configOrWarning}
+                    rowHeight={rowHeight}
+                    height={height}
+                    theme={theme}
+                    isBounded={isBounded}
+                    stores={mergedStores}
+                    queryClient={queryClient}
+                    areAnnotationsEditable={areAnnotationsEditable}
+                    helpViews={helpViews}
                 >
-                  {children}
-                </VitessceGrid>
-                <CallbackPublisher
-                  onWarn={onWarn}
-                  onConfigChange={onConfigChange}
-                  onLoaderChange={onLoaderChange}
-                  validateOnConfigChange={validateOnConfigChange}
-                  pluginSpecificConfigSchema={pluginSpecificConfigSchema}
-                />
-              </AsyncFunctionsContext.Provider>
+                    {children}
+                  </VitessceGrid>
+                  <CallbackPublisher
+                    onWarn={onWarn}
+                    onConfigChange={onConfigChange}
+                    onLoaderChange={onLoaderChange}
+                    validateOnConfigChange={validateOnConfigChange}
+                    pluginSpecificConfigSchema={pluginSpecificConfigSchema}
+                  />
+                </AsyncFunctionsContext.Provider>
+              </AnnotationEditingProvider>
             </AuxiliaryProvider>
           </ViewConfigProvider>
         </QueryClientProvider>

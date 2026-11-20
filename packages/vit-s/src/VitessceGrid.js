@@ -59,6 +59,7 @@ export default function VitessceGrid(props) {
     pageMode,
     children,
     queryClient,
+    areAnnotationsEditable,
     helpViews,
   } = props;
 
@@ -141,6 +142,7 @@ export default function VitessceGrid(props) {
           isBounded={isBounded}
           onResize={onResize}
           onResizeStop={onResize}
+          areAnnotationsEditable={areAnnotationsEditable}
           helpViews={helpViews}
         >
           {children}
