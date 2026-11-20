@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import {
-  Vector2,
   UniformsUtils,
 } from 'three';
 import { CoordinationType } from '@vitessce/constants-internal';
@@ -17,13 +16,72 @@ function logWithColor(message) {
 }
 
 /**
- * Normalize a value based on the volume's min/max range
- * @param {number} value - Value to normalize
- * @param {Array} minMax - [min, max] values of the volume
- * @returns {number} Normalized value
+ * A contrast window in data values as the shader's contrast limits: fractions
+ * of the value range its channel is stored over (as 0-1) in the brick cache.
+ * @param {[number, number]} window [low, high] in data values.
+ * @param {[number, number]} storageRange [min, max] stored as 0-1.
+ * @returns {[number, number]}
  */
-function normalizeValue(value, minMax) {
-  return value / minMax[1];
+export function windowToClim([low, high], [min, max]) {
+  const range = (max - min) || 1;
+  return [(low - min) / range, (high - min) / range];
+}
+
+/**
+ * The shader's LOD factor for a spatialLodFactor value, so that 1 targets about
+ * one level-0 voxel per screen pixel, whatever the view size, field of view, or
+ * volume shape. The shader scales its factor by voxelEdge / 256, and the volume
+ * box is one unit wide in x.
+ * @param {number} lodFactor The spatialLodFactor coordination value.
+ * @param {number} fov The camera's vertical field of view, in degrees.
+ * @param {number} heightPx Height of the rendered image, in screen (CSS) pixels.
+ * @param {number[]} shape Level-0 shape, TCZYX.
+ * @returns {number}
+ */
+export function getScreenLodFactor(lodFactor, fov, heightPx, shape) {
+  const fovRadians = fov * Math.PI / 180;
+  const shapeX = shape[4];
+  const voxelEdge = Math.max(shape[2], shape[3], shape[4]);
+  return lodFactor * 2 * Math.tan(fovRadians / 2) * shapeX * 256 / (heightPx * voxelEdge);
+}
+
+/**
+ * The range of the layer controller's clipping sliders per axis, XYZ, as
+ * ImageWrapper.getBoundingCube computes it: 0 to the level-0 extent, in
+ * physical units when the image has physical sizes. Also accepts uppercase
+ * axis names.
+ * @param {number[]} shape Level-0 shape of the loader.
+ * @param {string[]} labels Axis names of the loader.
+ * @param {number[]} modelMatrix The image's model matrix (column-major 4x4).
+ * @returns {number[][]} [[0, xMax], [0, yMax], [0, zMax]]
+ */
+export function getClippingBounds(shape, labels, modelMatrix) {
+  const axisSize = (axis) => {
+    const index = labels.indexOf(axis);
+    return shape[index === -1 ? labels.indexOf(axis.toUpperCase()) : index];
+  };
+  return [
+    [0, modelMatrix[0] * axisSize('x')],
+    [0, modelMatrix[5] * axisSize('y')],
+    [0, modelMatrix[10] * axisSize('z')],
+  ];
+}
+
+/**
+ * Map a clipping slider range to the shader's box coordinates (0 to boxSize),
+ * as a fraction of the slider's range. This holds whatever the slider units
+ * are, and whichever levels the volume renders from.
+ * @param {number[]|null} slice The slider range, or null when not set.
+ * @param {number[]} bounds The slider's [min, max].
+ * @param {number} boxSize The box extent along this axis.
+ * @returns {number[]} [min, max] in box coordinates, or the shader's inactive
+ * value (-1, 100000) without a slice or valid bounds.
+ */
+export function sliceToClip(slice, bounds, boxSize) {
+  const [min, max] = bounds;
+  if (!Array.isArray(slice) || !(max > min)) return [-1, 100000];
+  const toBox = value => ((value - min) / (max - min)) * boxSize;
+  return [toBox(slice[0]), toBox(slice[1])];
 }
 
 /**
@@ -49,15 +107,15 @@ export class VolumeRenderManager {
     this.colors = [];
     this.contrastLimits = [];
     this.layerTransparency = 1.0;
-    this.xSlice = new Vector2(-1, 100000);
-    this.ySlice = new Vector2(-1, 100000);
-    this.zSlice = new Vector2(-1, 100000);
+    this.xSlice = null;
+    this.ySlice = null;
+    this.zSlice = null;
+    this.clippingBounds = [[0, 1], [0, 1], [0, 1]]; // range of the clipping sliders, XYZ
     this.originalScale = [1, 1, 1];
     this.physicalDimensions = [1, 1, 1]; // can be used later, currently our props scale by pixel
     this.maxResolution = [1, 1, 1];
-
-    this.maxRange = 255;
-    this.maxRangeSet = false;
+    this.finestRes = 0; // finest renderable level, set in setZarrUniforms
+    this.lodFactor = 1.0; // spatialLodFactor; VolumeView sets the shader's factor from it
 
     // Additional state
     // this.mrt = null; // Single MRT reference
@@ -80,6 +138,7 @@ export class VolumeRenderManager {
    * @param {Object} props - Component props
    * @returns {Object} Extracted rendering settings
    */
+  // eslint-disable-next-line class-methods-use-this
   extractRenderingSettingsFromProps(props) {
     const {
       images = {},
@@ -118,8 +177,6 @@ export class VolumeRenderManager {
       // but their range will be much larger (e.g., 0-65535).
 
       // TODO(mark): the defaults should be set based on the image dtype.
-      // TODO(mark): wait for all channel IQR ranges to be computed before initializing,
-      // as we do not want this.maxRange to be incorrect.
       logWithColor('Extracting rendering settings from props - no channel window set');
       return {
         valid: false,
@@ -151,11 +208,6 @@ export class VolumeRenderManager {
          || ([0, 255])
     ));
 
-    if (!this.maxRangeSet) {
-      this.maxRange = Math.max(...contrastLimits.map(limit => limit[1]));
-      this.maxRangeSet = true;
-    }
-
     // Extract channel visibility
     const channelsVisible = isRgb ? ([
       visible && true,
@@ -186,15 +238,16 @@ export class VolumeRenderManager {
     ));
 
 
-    // Get slice planes
-    let xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X];
-    let ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y];
-    let zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z];
+    // Get slice planes (null when not set)
+    const xSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_X] ?? null;
+    const ySlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Y] ?? null;
+    const zSlice = layerCoordination[CoordinationType.SPATIAL_SLICE_Z] ?? null;
     const lodFactor = layerCoordination[CoordinationType.SPATIAL_LOD_FACTOR] ?? 1.0;
 
-    xSlice = xSlice !== null ? xSlice : new Vector2(-1, 100000);
-    ySlice = ySlice !== null ? ySlice : new Vector2(-1, 100000);
-    zSlice = zSlice !== null ? zSlice : new Vector2(-1, 100000);
+    const source = Array.isArray(data) ? data[0] : data;
+    const clippingBounds = getClippingBounds(
+      source.shape, source.labels, imageWrapperInstance.getModelMatrix(),
+    );
 
     const allChannels = images[layerScope].image.loaders[0].channels;
 
@@ -214,6 +267,7 @@ export class VolumeRenderManager {
       xSlice,
       ySlice,
       zSlice,
+      clippingBounds,
       lodFactor,
     };
   }
@@ -242,14 +296,35 @@ export class VolumeRenderManager {
     this.xSlice = settings.xSlice;
     this.ySlice = settings.ySlice;
     this.zSlice = settings.zSlice;
-    this.uniforms.lodFactor.value = settings.lodFactor;
+    this.clippingBounds = settings.clippingBounds;
+    // Converted to the shader's factor every frame (getScreenLodFactor), since
+    // that depends on the view size.
+    this.lodFactor = settings.lodFactor;
 
     logWithColor(`lodFactor ${settings.lodFactor}`);
 
-    this.shader.uniforms.lodFactor.value = settings.lodFactor;
-
     logWithColor('Updating from props - success');
     return true;
+  }
+
+  /**
+   * The settings from props that change the rendered image. updateFromProps
+   * replaces rather than mutates them, so a snapshot can be compared later.
+   * @returns {object}
+   */
+  getImageSettings() {
+    return {
+      channelsVisible: this.channelsVisible,
+      channelTargetC: this.channelTargetC,
+      channelMaxResolutionIndex: this.channelMaxResolutionIndex,
+      colors: this.colors,
+      contrastLimits: this.contrastLimits,
+      layerTransparency: this.layerTransparency,
+      xSlice: this.xSlice,
+      ySlice: this.ySlice,
+      zSlice: this.zSlice,
+      lodFactor: this.lodFactor,
+    };
   }
 
   /**
@@ -296,7 +371,6 @@ export class VolumeRenderManager {
     // Collect settings for active channels
     const texturesList = [];
     const colorsSave = [];
-    const contrastLimitsList = [];
 
     // ', this);
 
@@ -310,12 +384,6 @@ export class VolumeRenderManager {
       // log.debug('id', id);
       // log.debug('this.channelsVisible', this.channelsVisible);
       if (this.channelsVisible[id] || true) { // TODO: remove true
-        // Since we don't have volume-based minMax, use fixed values
-        // or get them from your brick cache metadata if available
-        // big TODO
-        const max = this.maxRange ? this.maxRange : 255;
-        const minMax = [0, max]; // Default values
-
         // log.debug('this.colors[id]', this.colors[id]);
         // log.debug('this.channelsVisible[id]', this.channelsVisible[id]);
 
@@ -327,18 +395,6 @@ export class VolumeRenderManager {
         ]);
 
         log.debug('colorsSave', colorsSave);
-
-        if (this.contrastLimits[id][0] === 0 && this.contrastLimits[id][1] === 255) {
-          contrastLimitsList.push([
-            normalizeValue(minMax[0], minMax),
-            normalizeValue(minMax[1], minMax),
-          ]);
-        } else {
-          contrastLimitsList.push([
-            normalizeValue(this.contrastLimits[id][0], minMax),
-            normalizeValue(this.contrastLimits[id][1], minMax),
-          ]);
-        }
       }
     });
 
@@ -374,7 +430,6 @@ export class VolumeRenderManager {
       texturesList,
       dimensions, // Pass dimensions object instead of volume
       this.renderingMode,
-      contrastLimitsList,
       colorsSave,
       this.layerTransparency,
       this.xSlice, this.ySlice, this.zSlice,
@@ -396,15 +451,14 @@ export class VolumeRenderManager {
    * @param {Array} textures - List of 3D textures
    * @param {Object} dimensions - Dimensions object
    * @param {number} renderstyle - Rendering mode value
-   * @param {Array} contrastLimits - List of contrast limits for each channel
    * @param {Array} colors - List of colors for each channel
    * @param {number} layerTransparency - Overall transparency value
-   * @param {Vector2} xSlice - X clipping plane
-   * @param {Vector2} ySlice - Y clipping plane
-   * @param {Vector2} zSlice - Z clipping plane
+   * @param {number[]|null} xSlice - X clipping slider range
+   * @param {number[]|null} ySlice - Y clipping slider range
+   * @param {number[]|null} zSlice - Z clipping slider range
    */
   updateUniforms(
-    textures, dimensions, renderstyle, contrastLimits, colors, layerTransparency,
+    textures, dimensions, renderstyle, colors, layerTransparency,
     xSlice, ySlice, zSlice,
     brickCacheTexture, pageTableTexture,
   ) {
@@ -431,49 +485,14 @@ export class VolumeRenderManager {
       1.0 / dimensions.zLength * 2.0,
     );
 
-    // Set contrast limits (up to 6 channels)
-    this.uniforms.clim0.value.set(
-      contrastLimits.length > 0 ? contrastLimits[0][0] : null,
-      contrastLimits.length > 0 ? contrastLimits[0][1] : null,
-    );
-    this.uniforms.clim1.value.set(
-      contrastLimits.length > 1 ? contrastLimits[1][0] : null,
-      contrastLimits.length > 1 ? contrastLimits[1][1] : null,
-    );
-    this.uniforms.clim2.value.set(
-      contrastLimits.length > 2 ? contrastLimits[2][0] : null,
-      contrastLimits.length > 2 ? contrastLimits[2][1] : null,
-    );
-    this.uniforms.clim3.value.set(
-      contrastLimits.length > 3 ? contrastLimits[3][0] : null,
-      contrastLimits.length > 3 ? contrastLimits[3][1] : null,
-    );
-    this.uniforms.clim4.value.set(
-      contrastLimits.length > 4 ? contrastLimits[4][0] : null,
-      contrastLimits.length > 4 ? contrastLimits[4][1] : null,
-    );
-    this.uniforms.clim5.value.set(
-      contrastLimits.length > 5 ? contrastLimits[5][0] : null,
-      contrastLimits.length > 5 ? contrastLimits[5][1] : null,
-    );
-    this.uniforms.clim6.value.set(
-      contrastLimits.length > 6 ? contrastLimits[6][0] : null,
-      contrastLimits.length > 6 ? contrastLimits[6][1] : null,
-    );
+    // Contrast limits (clim0-6) depend on the storage range of each channel,
+    // known only once its first brick loads: VolumeView sets them every frame.
 
-    // Set clipping planes
-    this.uniforms.xClip.value.set(
-      xSlice[0] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
-      xSlice[1] * (1.0 / this.maxResolution[0]) * this.boxSize[0],
-    );
-    this.uniforms.yClip.value.set(
-      ySlice[0] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
-      ySlice[1] * (1.0 / this.maxResolution[1]) * this.boxSize[1],
-    );
-    this.uniforms.zClip.value.set(
-      zSlice[0] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
-      zSlice[1] * (1.0 / this.maxResolution[2]) * this.boxSize[2],
-    );
+    // Set clipping planes. The slider values are in the units of the slider
+    // range (physical when the image has physical sizes), not voxels.
+    this.uniforms.xClip.value.set(...sliceToClip(xSlice, this.clippingBounds[0], this.boxSize[0]));
+    this.uniforms.yClip.value.set(...sliceToClip(ySlice, this.clippingBounds[1], this.boxSize[1]));
+    this.uniforms.zClip.value.set(...sliceToClip(zSlice, this.clippingBounds[2], this.boxSize[2]));
 
     // Set colors (up to 7 channels)
     this.uniforms.color0.value.set(
@@ -520,8 +539,10 @@ export class VolumeRenderManager {
     );
     for (let i = 0; i < 7; i++) {
       if (typeof this.channelMaxResolutionIndex[i] === 'number') {
+        // Never finer than finestRes.
         this.uniforms[`res${i}`].value.set(
-          Math.max(1, this.channelMaxResolutionIndex[i]), this.zarrStoreNumResolutions - 1,
+          Math.max(this.finestRes, this.channelMaxResolutionIndex[i]),
+          this.zarrStoreNumResolutions - 1,
         );
       }
     }
@@ -576,14 +597,16 @@ export class VolumeRenderManager {
     }
     log.debug('zarrStore.brickLayout', zarrStore.brickLayout);
     this.zarrStoreNumResolutions = zarrStore.brickLayout.length;
+    // The finest level rendered: level 0 (full resolution) unless restricted.
+    this.finestRes = zarrStore.finestLevel ?? 0;
     for (let i = 0; i < 7; i++) {
       this.uniforms[`res${i}`].value.set(
         // TODO(mark) make this dependent on the per-channel maxResolution slider value.
-        1, zarrStore.brickLayout.length - 1,
+        this.finestRes, zarrStore.brickLayout.length - 1,
       );
     }
     this.uniforms.resGlobal.value.set(
-      1, zarrStore.brickLayout.length - 1,
+      this.finestRes, zarrStore.brickLayout.length - 1,
     );
     this.uniforms.voxelExtents.value.set(
       zarrStore.shapes[0][4],

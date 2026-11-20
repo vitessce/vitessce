@@ -4,6 +4,7 @@ import {
   normalizeCoordinateTransformations,
   getSwapAxesMatrix,
   coordinateTransformationsToMatrixForSpatialData,
+  getDatasetScale,
 } from './spatial.js';
 
 const defaultAxes = [
@@ -863,6 +864,40 @@ describe('Spatial.js', () => {
         0, 0, 1, 0,
         257.07, 24102.79, 0, 1,
       ]);
+    });
+  });
+
+  describe('getDatasetScale', () => {
+    it('gives the scale of a dataset, ignoring translations', () => {
+      expect(getDatasetScale({
+        path: '1',
+        coordinateTransformations: [
+          { type: 'scale', scale: [1, 1, 0.4, 0.2, 0.2] },
+          { type: 'translation', translation: [0, 0, 0, 0.1, 0.1] },
+        ],
+      })).toEqual([1, 1, 0.4, 0.2, 0.2]);
+    });
+
+    it('multiplies scales, including those within sequences', () => {
+      expect(getDatasetScale({
+        coordinateTransformations: [{
+          type: 'sequence',
+          input: 'array',
+          output: 'physical',
+          transformations: [
+            { type: 'scale', scale: [2, 4, 4] },
+            { type: 'scale', scale: [1, 0.5, 0.25] },
+          ],
+        }],
+      })).toEqual([2, 2, 1]);
+    });
+
+    it('gives undefined without a scale', () => {
+      expect(getDatasetScale({ path: '0' })).toBeUndefined();
+      expect(getDatasetScale(undefined)).toBeUndefined();
+      expect(getDatasetScale({
+        coordinateTransformations: [{ type: 'identity' }],
+      })).toBeUndefined();
     });
   });
 });

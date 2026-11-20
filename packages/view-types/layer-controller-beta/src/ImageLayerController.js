@@ -79,21 +79,22 @@ const useStyles = makeStyles()(() => ({
 
 
 // Convert LOD slider value (0-100) to LOD factor (inverse relationship)
-// Higher slider values = higher quality = lower LOD factor
-// Slider 0 -> LOD factor 10 (lowest quality)
-// Slider 50 -> LOD factor 1 (default quality)
-// Slider 100 -> LOD factor 0.1 (highest quality)
+// Higher slider values = higher quality = lower LOD factor. Each 25 halves it.
+// The LOD factor f gives 1/f to 2/f voxels of the level drawn per screen pixel.
+// Slider 0 -> LOD factor 8 (lowest quality: each voxel spans 4-8 pixels)
+// Slider 75 -> LOD factor 1 (default quality: 1-2 voxels per pixel)
+// Slider 100 -> LOD factor 0.5 (highest quality: 2-4 voxels per pixel)
+const LOD_SLIDER_DEFAULT = 75;
+const LOD_SLIDER_STEPS_PER_HALVING = 25;
 
 function convertLogarithmicSliderValueToLodFactor(sliderValue) {
-  // Invert the slider value so higher slider = lower LOD factor (higher quality)
-  const invertedValue = 100 - sliderValue;
-  return 10 ** ((invertedValue - 50) / 25);
+  return 2 ** ((LOD_SLIDER_DEFAULT - sliderValue) / LOD_SLIDER_STEPS_PER_HALVING);
 }
 
+// LOD factors beyond the slider range (e.g. 0.1 in a view config) show at its end.
 function convertLodFactorToLogarithmicSliderValue(lodFactor) {
-  // Convert LOD factor back to inverted slider value
-  const invertedValue = 50 + 25 * Math.log10(lodFactor);
-  return 100 - invertedValue;
+  const sliderValue = LOD_SLIDER_DEFAULT - LOD_SLIDER_STEPS_PER_HALVING * Math.log2(lodFactor);
+  return Math.min(100, Math.max(0, sliderValue));
 }
 
 const lodSliderRangeConfig = {

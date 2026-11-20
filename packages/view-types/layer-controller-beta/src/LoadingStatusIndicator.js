@@ -1,11 +1,12 @@
 import React from 'react';
 import {
   Grid,
-  Typography,
   LinearProgress,
   Button,
   Chip,
-  Stop,
+  Box,
+  Tooltip,
+  Pause,
   Replay,
 } from '@vitessce/styles';
 
@@ -20,13 +21,13 @@ function useStatusChipProps(isLoading, stillRef, noNewRequests, initializing) {
     statusLabel = 'Initializing';
   } else if (isLoading) {
     statusColor = 'primary';
-    statusLabel = 'Loading Data';
+    statusLabel = 'Loading';
   } else if (stillRef) {
     statusColor = 'success';
     statusLabel = 'High Quality';
   } else if (noNewRequests) {
     statusColor = 'warning';
-    statusLabel = 'Loading Stopped';
+    statusLabel = 'Loading Paused';
   } else {
     statusColor = 'success';
     statusLabel = 'Ready';
@@ -44,28 +45,26 @@ function StatusChip({ label, color }) {
   );
 }
 
-function LoadingControlButton({ startIcon, onClick, disabled, ariaLabel, children }) {
+function LoadingControlButton({ startIcon, onClick, disabled, tooltip, children }) {
+  // A disabled button fires no mouse events, so the Tooltip listens on a
+  // wrapping element instead, and shows the explanation in either state.
+  // The wrapper has a fixed half width, so the button stays put as the
+  // status chip beside it appears and disappears.
   return (
-    <Button
-      size="small"
-      variant="outlined"
-      startIcon={startIcon}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={ariaLabel}
-      fullWidth
-    >
-      {children}
-    </Button>
-  );
-}
-
-function LoadingText({ bricksLoaded, currentRequestCount, totalBricksRequested, isLoading }) {
-  return (
-    <Typography variant="body2">
-      Bricks loaded: {bricksLoaded}
-      {isLoading && totalBricksRequested > 0 && ` (${totalBricksRequested - currentRequestCount}/${totalBricksRequested})`}
-    </Typography>
+    <Tooltip title={tooltip} placement="top" describeChild>
+      <Box component="span" sx={{ flex: '0 0 50%', display: 'flex' }}>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={startIcon}
+          onClick={onClick}
+          disabled={disabled}
+          fullWidth
+        >
+          {children}
+        </Button>
+      </Box>
+    </Tooltip>
   );
 }
 
@@ -80,11 +79,11 @@ export default function LoadingStatusIndicator(props) {
 
   const {
     bricksLoaded = 0,
-    currentRequestCount = 0,
     totalBricksRequested = 0,
     isLoading = false,
     percentage = 0,
     noNewRequests = false,
+    isManuallyStopped = false,
   } = loadingProgress || {};
 
   const initializing = !loadingProgress || (bricksLoaded === 0 && totalBricksRequested === 0);
@@ -108,68 +107,41 @@ export default function LoadingStatusIndicator(props) {
         px: 0.5,
       }}
     >
-      <Grid
-        size={6}
-        sx={{
-          alignItems: 'start',
-        }}
-      >
+      <Grid size={12}>
         <Grid
           container
+          direction="row"
+          wrap="nowrap"
           sx={{
             alignItems: 'center',
             gap: 1,
           }}
         >
+          {isManuallyStopped ? (
+            <LoadingControlButton
+              startIcon={<Replay />}
+              onClick={onRestartLoading}
+              tooltip="Resume fetching data."
+            >
+              Resume&nbsp;Loading
+            </LoadingControlButton>
+          ) : (
+            // Disabled once nothing is left to load.
+            <LoadingControlButton
+              startIcon={<Pause />}
+              onClick={onStopLoading}
+              disabled={noNewRequests}
+              tooltip="Stop fetching data. Rendering will then use only the data that has already been loaded (until loading resumes)."
+            >
+              Pause&nbsp;Loading
+            </LoadingControlButton>
+          )}
           {statusColor !== 'success' ? (
             <StatusChip
               label={statusLabel}
               color={statusColor}
-              size="small"
             />
           ) : null}
-        </Grid>
-      </Grid>
-      <Grid
-        size={6}
-        sx={{
-          px: 1,
-          my: 0.25,
-        }}
-      >
-        <LoadingText
-          bricksLoaded={bricksLoaded}
-          currentRequestCount={currentRequestCount}
-          totalBricksRequested={totalBricksRequested}
-          isLoading={isLoading}
-        />
-      </Grid>
-      <Grid size={12}>
-        <Grid
-          container
-          direction="row"
-          spacing={2}
-          wrap="nowrap"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          <LoadingControlButton
-            startIcon={<Stop />}
-            onClick={onStopLoading}
-            disabled={noNewRequests}
-            ariaLabel="Stop loading data and render at highest resolution"
-          >
-            Stop&nbsp;Loading
-          </LoadingControlButton>
-          <LoadingControlButton
-            startIcon={<Replay />}
-            onClick={onRestartLoading}
-            disabled={!noNewRequests && !isLoading}
-            ariaLabel="Restart data loading"
-          >
-            Restart&nbsp;Loading
-          </LoadingControlButton>
         </Grid>
       </Grid>
       <Grid

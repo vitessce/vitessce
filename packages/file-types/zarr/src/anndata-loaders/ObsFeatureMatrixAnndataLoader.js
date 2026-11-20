@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { open as zarrOpen, get as zarrGet, slice } from 'zarrita';
-import { createZarrArrayAdapter, UNCACHED_READ } from '@vitessce/zarr-utils';
+import { createZarrArrayAdapter, UNCACHED_READ, getBytesPerElement } from '@vitessce/zarr-utils';
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { MatrixTooLargeError } from '@vitessce/error';
 import { log } from '@vitessce/globals';
@@ -14,7 +14,6 @@ import {
   maybeDowncastInt64,
   concatenateColumnVectors,
   bigInt64ToNumberArray,
-  getBytesPerElement,
   extractCsrColumns,
   createLimiter,
 } from './utils.js';

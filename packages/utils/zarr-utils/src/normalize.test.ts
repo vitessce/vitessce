@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { type AbsolutePath, AsyncReadable, type RangeQuery, extendStore } from 'zarrita';
-import { withQueryClientCache, UNCACHED_READ, type QueryClientLike } from './normalize.js';
+import {
+  withQueryClientCache, applyStoreExtensions, UNCACHED_READ, type QueryClientLike,
+} from './normalize.js';
 
 // A store whose responses resolve only when released, for testing coalescing.
 function makeGatedStore(withGetRange = true) {
@@ -173,5 +175,113 @@ describe('CachedStore', () => {
     await cached.get('/X/indices/1');
     expect(getFetchQueryCalls()).toEqual(2);
     expect(seen.filter(([label]) => label === 'get:/X/indices/1').length).toEqual(1);
+  });
+
+  it('aborts a shared read only once all of its callers have aborted', async () => {
+    const signals: AbortSignal[] = [];
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const store = {
+      async get(key: AbsolutePath, opts?: RequestInit) {
+        if (opts?.signal) signals.push(opts.signal);
+        await gate;
+        return new TextEncoder().encode(key);
+      },
+    };
+    const cached = getCachedStore(store, 'http://example.com/a.zarr');
+    const [a, b] = [new AbortController(), new AbortController()];
+    const readA = cached.get('/X/0.0', { signal: a.signal });
+    const readB = cached.get('/X/0.0', { signal: b.signal });
+    expect(signals).toHaveLength(1);
+    a.abort();
+    // The caller that aborted stops waiting; the read continues for the other.
+    await expect(readA).rejects.toThrow(/abort/i);
+    expect(signals[0].aborted).toBe(false);
+    b.abort();
+    await expect(readB).rejects.toThrow(/abort/i);
+    expect(signals[0].aborted).toBe(true);
+    // The aborted read is forgotten: the next caller starts a new one.
+    const readC = cached.get('/X/0.0');
+    expect(signals).toHaveLength(2);
+    release();
+    expect(new TextDecoder().decode(await readC)).toEqual('/X/0.0');
+  });
+
+  it('never aborts a shared read that a caller without a signal waits for', async () => {
+    const signals: AbortSignal[] = [];
+    const store = {
+      async get(key: AbsolutePath, opts?: RequestInit) {
+        if (opts?.signal) signals.push(opts.signal);
+        await new Promise(resolve => setTimeout(resolve, 1));
+        return new TextEncoder().encode(key);
+      },
+    };
+    const cached = getCachedStore(store, 'http://example.com/a.zarr');
+    const controller = new AbortController();
+    const aborted = cached.get('/X/0.0', { signal: controller.signal });
+    const kept = cached.get('/X/0.0');
+    controller.abort();
+    await expect(aborted).rejects.toThrow(/abort/i);
+    expect(new TextDecoder().decode(await kept)).toEqual('/X/0.0');
+    expect(signals[0].aborted).toBe(false);
+  });
+});
+
+describe('applyStoreExtensions', () => {
+  it('merges concurrent nearby range reads of one file, as for inner chunks of a shard', async () => {
+    const file = Uint8Array.from({ length: 1000 }, (_, i) => i % 251);
+    const ranges: string[] = [];
+    const store = {
+      async get() { return undefined; },
+      async getRange(key: AbsolutePath, range: RangeQuery) {
+        ranges.push(`${key}:${JSON.stringify(range)}`);
+        if ('suffixLength' in range) return file.slice(-range.suffixLength);
+        return file.slice(range.offset, range.offset + range.length);
+      },
+    };
+    const extended = applyStoreExtensions(store, 'http://example.com/a.zarr');
+    // Three adjacent inner chunks and one far away in the same shard.
+    const reads = [[0, 100], [100, 50], [150, 200], [900, 50]]
+      .map(([offset, length]) => ({ offset, length }));
+    const results = await Promise.all(reads.map(range => extended.getRange?.('/X/c/0/0', range)));
+    results.forEach((bytes, i) => {
+      expect(bytes).toEqual(file.slice(reads[i].offset, reads[i].offset + reads[i].length));
+    });
+    // The far chunk is within the default 32 KiB gap, so all four share one request.
+    expect(ranges).toEqual(['/X/c/0/0:{"offset":0,"length":950}']);
+  });
+
+  it('reads a range again when a coalesced neighbor aborted the merged request', async () => {
+    const file = Uint8Array.from({ length: 1000 }, (_, i) => i % 251);
+    const ranges: string[] = [];
+    const store = {
+      async get() { return undefined; },
+      async getRange(key: AbsolutePath, range: RangeQuery, opts?: RequestInit) {
+        if ('suffixLength' in range) return file.slice(-range.suffixLength);
+        ranges.push(JSON.stringify(range));
+        await new Promise(resolve => setTimeout(resolve, 1));
+        opts?.signal?.throwIfAborted();
+        return file.slice(range.offset, range.offset + range.length);
+      },
+    };
+    const extended = applyStoreExtensions(store, 'http://example.com/a.zarr');
+    const controller = new AbortController();
+    // Inner chunks of one shard, read by different callers in one microtask.
+    const aborted = extended.getRange?.(
+      '/X/c/0/0', { offset: 0, length: 100 }, { signal: controller.signal },
+    );
+    const kept = extended.getRange?.(
+      '/X/c/0/0', { offset: 100, length: 50 }, { signal: new AbortController().signal },
+    );
+    await Promise.resolve();
+    controller.abort();
+    await expect(aborted).rejects.toThrow(/abort/i);
+    // zarrita aborts the merged request when any of its ranges aborts; the
+    // other range is read again rather than failing for a caller that did not abort.
+    expect(await kept).toEqual(file.slice(100, 150));
+    expect(ranges).toEqual([
+      '{"offset":0,"length":150}',
+      '{"offset":100,"length":50}',
+    ]);
   });
 });

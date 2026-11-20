@@ -153,6 +153,16 @@ export function SpatialSubscriber(props) {
     bitmaskValueIsIndex = false, // TODO: move to coordination type
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
+    // Z reduction of coarse levels in the accelerated 3D view:
+    // 'auto' | 'none' | 'sample' | 'mean' | 'max'. Read once when the volume loads.
+    volumeZReduction = 'auto',
+    // Maximum number of bricks the accelerated 3D view fetches at once: a positive
+    // integer, or Infinity for no limit. Unset uses the default (6). Batches grow
+    // with it (at least 40 bricks, at most a quarter of the brick cache).
+    volumeMaxConcurrentBrickRequests = 6,
+    // Opt in to the accelerated 3D view loading the missing coarser levels of a
+    // region before the requested level, so that zooming in refines gradually.
+    volumeProgressiveLoading = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
@@ -245,8 +255,8 @@ export function SpatialSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
 
-  // A non-null camera snapshot in the coordination space indicates
-  // that a neuroglancer view is present and is publishing its camera state.
+  // A non-null camera snapshot in the coordination space indicates that
+  // another 3D view (neuroglancer, accelerated spatialBeta) is publishing its camera state.
   const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
   const requestCameraReset = useCallback(() => {
     setSpatialCameraSnapshot(null);
@@ -466,6 +476,24 @@ export function SpatialSubscriber(props) {
 
   const is3dMode = spatialRenderingMode === '3D';
   const shouldUseThree = threeFor3d && is3dMode;
+  // spatialAxisFixed is only read by the DeckGL renderer.
+  const hasCameraAxisOption = !shouldUseThree;
+  const hasVolumeLoadingOptions = threeFor3d && acceleratedFor3d;
+
+  // Brick loading options of the accelerated 3D view. The props set the initial
+  // values; the options menu changes them for this view (until the props change).
+  const [maxConcurrentBrickRequests, setMaxConcurrentBrickRequests] = useState(
+    volumeMaxConcurrentBrickRequests,
+  );
+  const [isProgressiveLoadingEnabled, setIsProgressiveLoadingEnabled] = useState(
+    volumeProgressiveLoading,
+  );
+  useEffect(() => {
+    setMaxConcurrentBrickRequests(volumeMaxConcurrentBrickRequests);
+  }, [volumeMaxConcurrentBrickRequests]);
+  useEffect(() => {
+    setIsProgressiveLoadingEnabled(volumeProgressiveLoading);
+  }, [volumeProgressiveLoading]);
 
   const [deckWidth, deckHeight, deckRef] = useDeckCanvasSize();
   const [threeWidth, threeHeight, threeRef] = useGridItemSize();
@@ -1071,6 +1099,12 @@ export function SpatialSubscriber(props) {
           spatialAxisFixed={spatialAxisFixed}
           setSpatialAxisFixed={setSpatialAxisFixed}
           use3d={is3dMode}
+          hasCameraAxisOption={hasCameraAxisOption}
+          hasVolumeLoadingOptions={hasVolumeLoadingOptions}
+          volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+          setVolumeMaxConcurrentBrickRequests={setMaxConcurrentBrickRequests}
+          volumeProgressiveLoading={isProgressiveLoadingEnabled}
+          setVolumeProgressiveLoading={setIsProgressiveLoadingEnabled}
           spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
           setSpatialBackgroundTheme={setSpatialBackgroundTheme}
         />
@@ -1092,21 +1126,22 @@ export function SpatialSubscriber(props) {
               setRotationZ={setRotationZ}
               targetT={targetT}
               targetZ={targetZ}
-              viewState={isValidViewState ? ({
-                zoom,
-                target: [targetX, targetY, targetZ],
-                rotationX,
-                rotationOrbit,
-              }) : DEFAULT_VIEW_STATE}
+              // The camera is shared with the other 3D views (spatialBeta,
+              // Neuroglancer) via the snapshot, which the view converts to
+              // the units of its scene, rather than via spatialZoom etc.
+              spatialCameraSnapshot={is3dMode ? spatialCameraSnapshot : null}
+              setSpatialCameraSnapshot={is3dMode ? setSpatialCameraSnapshot : null}
               orbitAxis={orbitAxis}
               spatialAxisFixed={spatialAxisFixed}
-              setViewState={isValidViewState ? setViewState : SET_VIEW_STATE_NOOP}
               originalViewState={originalViewState}
               spatialRenderingMode={spatialRenderingMode}
               updateViewInfo={setComponentViewInfo}
               delegateHover={delegateHover}
               onEntitySelected={onEntitySelected}
               onVolumeLoadingUpdate={handleVolumeLoadingUpdate}
+              volumeZReduction={volumeZReduction}
+              volumeMaxConcurrentBrickRequests={maxConcurrentBrickRequests}
+              volumeProgressiveLoading={isProgressiveLoadingEnabled}
               obsPoints={obsPointsData}
               pointLayerScopes={pointLayerScopes}
               pointLayerCoordination={pointLayerCoordination}
