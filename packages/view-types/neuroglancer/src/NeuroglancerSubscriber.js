@@ -44,6 +44,7 @@ import {
   useNeuroglancerViewerState,
   getSegmentationCentroidSources,
   sanitizeNgCameraState,
+  getObsSetColumnsByName,
 } from './data-hook-ng-utils.js';
 import { customIsEqualForCellColors } from './use-memo-custom-equals.js';
 import NeuroglancerTooltipSubscriber from './NeuroglancerTooltipSubscriber.js';
@@ -202,6 +203,12 @@ export function NeuroglancerSubscriber(props) {
     COMPONENT_COORDINATION_TYPES[ViewType.NEUROGLANCER],
     coordinationScopes,
   );
+
+  // obsSet group name -> column name, from the obsSets file options.
+  // Used to match obsSet groups to the annotation properties of the centroids.
+  const obsSetColumnsByName = useMemo(() => getObsSetColumnsByName(
+    Array.from(loaders?.[dataset]?.loaders?.obsSets?.values() ?? []),
+  ), [loaders, dataset]);
 
   const csvUrlRef = useRef(null);
   const csvUrl = useMemo(() => {
@@ -378,6 +385,8 @@ export function NeuroglancerSubscriber(props) {
     obsPointsData,
     pointMultiIndicesData,
     viewerDimensionsOverride,
+    obsSegmentationsSetsData,
+    obsSetColumnsByName,
   );
 
   // Validate the initial camera once. Invalid orientation falls back to Q_Y_UP,

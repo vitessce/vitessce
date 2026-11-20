@@ -6,6 +6,24 @@ import {
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
+
+const cellTypeColors = [
+  { path: ['Cell Types', 'Tumor'], color: [213, 94, 0] }, // Vermilion
+  { path: ['Cell Types', 'keratinocytes'], color: [0, 158, 115] }, // Bluish green
+  { path: ['Cell Types', 'endothelial'], color: [204, 121, 167] }, // Reddish purple
+  { path: ['Cell Types', 'Tissue T'], color: [0, 114, 178] }, // Blue
+  { path: ['Cell Types', 'CD4 T'], color: [86, 180, 233] }, // Sky blue
+  { path: ['Cell Types', 'CD8 T'], color: [86, 180, 233] }, // Sky blue
+  { path: ['Cell Types', 'T reg'], color: [86, 180, 233] }, // Sky blue
+  { path: ['Cell Types', 'B cells'], color: [230, 159, 0] }, // Orange
+  { path: ['Cell Types', 'Other Immune'], color: [230, 159, 0] }, // Orange
+  { path: ['Cell Types', 'Myeloid'], color: [240, 228, 66] }, // Yellow
+  { path: ['Cell Types', 'Macrophage'], color: [240, 228, 66] }, // Yellow
+  { path: ['Cell Types', 'Dendritic cells'], color: [240, 228, 66] }, // Yellow
+  { path: ['Cell Types', 'Unknown'], color: [51, 51, 51] }, // Dark gray
+];
+
+
 function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
@@ -98,6 +116,10 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   const layerController = config.addView(dataset, 'layerControllerBeta');
   const obsSets = config.addView(dataset, 'obsSets');
 
+  config.linkViewsByObject([obsSets], {
+    obsType: 'cell',
+    obsSetColor: cellTypeColors,
+  }, { meta: false });
 
   config.linkViewsByObject([neuroglancerView, layerController], {
     spatialRenderingMode: '3D',
@@ -115,8 +137,8 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             spatialChannelVisible: true,
             spatialChannelOpacity: 0.6,
             obsHighlight: null,
-            spatialChannelColor: [255, 165, 0],
-            obsColorEncoding: 'spatialChannelColor',
+            obsColorEncoding: 'cellSetSelection',
+            obsSetColor: cellTypeColors,
           },
         ]),
       },
