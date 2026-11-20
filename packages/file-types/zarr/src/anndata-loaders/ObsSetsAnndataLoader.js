@@ -1,5 +1,7 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
+/* eslint-disable no-unused-vars */
 import {
+  treeToMembershipMap,
   initializeCellSetColor,
   lazyTreeToMembershipMap,
   dataToCellSetsTree,
@@ -137,8 +139,7 @@ export default class ObsSetsAnndataLoader extends AbstractTwoStepLoader {
       newAutoSetSelectionParentName,
       node.name,
     ]);
-    // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(obsSets, []);
+    const newAutoSetColors = [];
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return new LoaderResult({

@@ -32,6 +32,7 @@ export {
   treeToMembershipMap,
   treeToLeafSets,
   nodeToSet,
+  computeNodeColorIndices,
 } from './cell-set-utils.js';
 export {
   lazyTreeToMembershipMap,

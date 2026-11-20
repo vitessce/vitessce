@@ -1,5 +1,6 @@
 import { LoaderResult } from '@vitessce/abstract';
-import { initializeCellSetColor, lazyTreeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
+/* eslint-disable no-unused-vars */
+import { initializeCellSetColor, lazyTreeToMembershipMap, dataToCellSetsTree, treeToMembershipMap } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 
 export default class ObsSetsCsvLoader extends CsvLoader {
@@ -35,8 +36,9 @@ export default class ObsSetsCsvLoader extends CsvLoader {
       newAutoSetSelectionParentName,
       node.name,
     ]);
-    // Create a list of cell set objects with color mappings.
-    const newAutoSetColors = initializeCellSetColor(cellSetsTree, []);
+    // Colors are resolved live from obsSetColormap for nodes without an
+    // explicit override, so no default colors need to be baked in here.
+    const newAutoSetColors = [];
     coordinationValues.obsSetSelection = newAutoSetSelections;
     coordinationValues.obsSetColor = newAutoSetColors;
     return [obsIndex, cellSetsTree, obsSetsMembership, coordinationValues];
