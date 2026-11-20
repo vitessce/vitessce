@@ -52,7 +52,7 @@ An evolving set of guidelines to ensure that features remain maintainable, scala
 
 This section contains an evolving set of code style guidelines that are not currently automated via linting.
 
-- Use MUI style utilities to define styles ([makeStyles](https://v4.mui.com/styles/api/#makestyles-styles-options-hook), at least until we migrate to MUI v5).
+- Use [makeStyles](https://docs.tss-react.dev/api/makestyles) to define styles. Import it, along with MUI components and icons, from `@vitessce/styles` rather than from `@mui/*` or `tss-react` directly, so that MUI upgrades only need to touch one file.
 - Use `false`, `null`, and `undefined` as false-y values unless the corresponding truth-y value is a number (to align with [JSX boolean handling](https://legacy.reactjs.org/docs/jsx-in-depth.html#booleans-null-and-undefined-are-ignored)).
 - Use `lodash/isEqual` for set path equality checks and comparisons.
 - Prefer more specific naming for utility functions (despite length/verbosity) to help readability.
@@ -62,6 +62,6 @@ This section contains an evolving set of code style guidelines that are not curr
 - Use `.js` extensions for relative imports, [even in TypeScript contexts](https://github.com/microsoft/TypeScript/issues/42151#issuecomment-914472944).
 - Do not use `.js` extensions for third-party packages, unless either:
   - The function or variable that needs to be accessed is not exported from the main entrypoint of the package.
-  - The package is published as CommonJS or UMD rather than ESM (or the ESM build is broken as with [json2csv](https://github.com/zemirco/json2csv/issues/539) and [react-virtualized](https://github.com/bvaughn/react-virtualized/issues/1632)).
+  - The package is published as CommonJS or UMD rather than ESM (or the ESM build is broken).
 
 

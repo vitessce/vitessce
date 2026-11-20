@@ -167,6 +167,21 @@ export function buildConfigSchema<
           .optional(),
         coordinationScopesBy: componentCoordinationScopesBy
           .optional(),
+        coordinationValues: z.object(
+          // For view-level coordinationValues, the value schemas are used directly
+          // (there is no coordination scope name as an intermediary).
+          Object.fromEntries(
+            pluginCoordinationTypes
+              .map(ct => ([
+                ct.name,
+                ct.valueSchema.optional(),
+              ])),
+          ),
+        )
+          .describe(
+            'Mapping from coordination types to values, for values which do not need to be coordinated with other views. These take precedence over coordinationScopes.',
+          )
+          .optional(),
       }),
     )
       .describe(

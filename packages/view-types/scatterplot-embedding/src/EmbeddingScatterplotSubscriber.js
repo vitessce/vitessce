@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback, useMemo,
+  useState, useEffect, useCallback, useMemo, useDeferredValue,
 } from 'react';
 import { extent, quantileSorted } from 'd3-array';
 import { isEqual } from 'lodash-es';
@@ -13,6 +13,9 @@ import {
   useGetObsInfo,
   useObsEmbeddingData,
   useObsSetsData,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
   useFeatureSelection,
   useObsFeatureMatrixIndices,
   useFeatureLabelsData,
@@ -25,20 +28,26 @@ import {
   useSetComponentViewInfo,
   useInitialCoordination,
   useExpandedFeatureLabelsMap,
-  useCoordinationScopes,
+  useViewMapping,
 } from '@vitessce/vit-s';
 import {
-  setObsSelection, mergeObsSets, getCellSetPolygons, getCellColors,
-  stratifyArrays,
+  setObsSelection, mergeObsSets, getCellSetPolygons, treeToColorIndicesArray,
+  colorIndicesFromCodes, getObsIndexMap, stratifyArrays,
 } from '@vitessce/sets-utils';
-import { pluralize as plur, commaNumber, aggregateFeatureArrays } from '@vitessce/utils';
+import {
+  pluralize as plur, commaNumber, aggregateFeatureArrays, getAnnotationFrameCoordinationValues,
+  resolveFeatureAggregationStrategy,
+} from '@vitessce/utils';
 import {
   Scatterplot, ScatterplotTooltipSubscriber, ScatterplotOptions,
   getPointSizeDevicePixels,
   getPointOpacity,
+  useAnnotationFrameTransition,
 } from '@vitessce/scatterplot';
 import { Legend } from '@vitessce/legend';
-import { ViewType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping } from '@vitessce/constants-internal';
+import {
+  ViewType, CoordinationType, COMPONENT_COORDINATION_TYPES, ViewHelpMapping,
+} from '@vitessce/constants-internal';
 import { DEFAULT_CONTOUR_PERCENTILES } from './constants.js';
 
 const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
@@ -47,9 +56,11 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
  * A subscriber component for the scatterplot.
  * @param {object} props
  * @param {number} props.uuid The unique identifier for this component.
+ * @param {string} props.viewUid The uid of the corresponding view in the view config layout,
+ * used for looking up its coordination mapping via `useViewMapping`.
+ * Optional, defaults to `uuid`. Differs from `uuid` when rendered by a parent
+ * (e.g., the dual scatterplot) that renders multiple child scatterplots for one view.
  * @param {string} props.theme The current theme name.
- * @param {object} props.coordinationScopes The mapping from coordination types to coordination
- * scopes.
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title An override value for the component title.
@@ -59,7 +70,7 @@ const DEFAULT_FEATURE_AGGREGATION_STRATEGY = 'first';
 export function EmbeddingScatterplotSubscriber(props) {
   const {
     uuid,
-    coordinationScopes: coordinationScopesRaw,
+    viewUid: viewUidFromProps,
     closeButtonVisible,
     downloadButtonVisible,
     removeGridComponent,
@@ -73,12 +84,28 @@ export function EmbeddingScatterplotSubscriber(props) {
     sampleSetSelection: sampleSetSelectionFromProps,
     // Circle scale factor:
     circleScaleFactor = 0.8,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
+  const viewUid = viewUidFromProps ?? uuid;
   const loaders = useLoaders();
-  const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
+  // useViewMapping looks up this view's coordination mapping directly from the
+  // view config (by uuid), after accounting for meta-coordination, so there is
+  // no need for a `coordinationScopes` prop to be threaded down from a parent.
+  // coordinationValues are values which this view defines directly, which take
+  // precedence over values obtained via coordinationScopes.
+  const [
+    // eslint-disable-next-line no-unused-vars
+    coordinationScopes, _coordinationScopesBy, coordinationValues,
+  ] = useViewMapping(viewUid);
   const setComponentHover = useSetComponentHover();
   const setComponentViewInfo = useSetComponentViewInfo(uuid);
+
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // TODO: handle the rendering of alternative views/layouts (in vit-s?)
+  useAnnotationFrameCoordination(viewUid, coordinationScopes, coordinationValues);
 
   // Get "props" from the coordination space.
   const [{
@@ -109,6 +136,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureValueColormap: geneExpressionColormap,
     featureValueColormapRange: geneExpressionColormapRange,
     tooltipsVisible,
+    tooltipObsSetsMode,
     sampleSetSelection: sampleSetSelectionFromCoordination,
     sampleSetColor,
     embeddingPointsVisible,
@@ -118,6 +146,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     contourColorEncoding,
     contourColor,
     featureAggregationStrategy,
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setEmbeddingZoom: setZoom,
     setEmbeddingTargetX: setTargetX,
@@ -145,7 +180,18 @@ export function EmbeddingScatterplotSubscriber(props) {
     setEmbeddingContourPercentiles: setContourPercentiles,
     setContourColorEncoding,
     setFeatureAggregationStrategy,
-  }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes);
+    setAnnotationStory,
+  }] = useCoordination(
+    COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues, viewUid,
+  );
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    viewUid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     embeddingZoom: initialZoom,
@@ -153,6 +199,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     embeddingTargetY: initialTargetY,
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SCATTERPLOT], coordinationScopes,
+    coordinationValues,
   );
 
   const observationsLabel = observationsLabelOverride || obsType;
@@ -161,12 +208,28 @@ export function EmbeddingScatterplotSubscriber(props) {
     || sampleSetSelectionFromCoordination
   );
 
-  const featureAggregationStrategyToUse = featureAggregationStrategy
-    ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
+  // Convert a feature name into its index within the geneSelection.
+  const featureAggregationStrategyToUse = resolveFeatureAggregationStrategy(
+    featureAggregationStrategy, geneSelection,
+  ) ?? DEFAULT_FEATURE_AGGREGATION_STRATEGY;
 
   const [width, height, deckRef] = useDeckCanvasSize();
 
   const title = titleOverride || `Scatterplot (${mapping})`;
+
+
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  // Note that this hook appears after the useCoordination for annotationStory above,
+  // but hopefully that does not cause any issues.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
+  );
 
   const [
     // eslint-disable-next-line no-unused-vars
@@ -187,7 +250,8 @@ export function EmbeddingScatterplotSubscriber(props) {
   );
   const cellsCount = obsEmbeddingIndex?.length || 0;
   const [
-    { obsSets: cellSets, obsSetsMembership }, obsSetsStatus, obsSetsUrls, obsSetsError,
+    { obsSets: cellSets, obsSetsMembership, obsSetsColumns },
+    obsSetsStatus, obsSetsUrls, obsSetsError,
   ] = useObsSetsData(
     loaders, dataset, false,
     { setObsSetSelection: setCellSetSelection, setObsSetColor: setCellSetColor },
@@ -239,11 +303,13 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsError,
     sampleSetsError,
     sampleEdgesError,
+    annotationStoryError,
   ];
 
   const isReady = useReady([
     obsEmbeddingStatus,
     obsSetsStatus,
+    annotationStoryStatus,
     featureSelectionStatus,
     featureLabelsStatus,
     expandedFeatureLabelsStatus,
@@ -258,9 +324,11 @@ export function EmbeddingScatterplotSubscriber(props) {
     featureLabelsUrls,
     sampleSetsUrl,
     sampleEdgesUrl,
+    annotationStoryUrls,
   ]);
 
   const [dynamicCellRadius, setDynamicCellRadius] = useState(cellRadiusFixed);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
   const [dynamicCellOpacity, setDynamicCellOpacity] = useState(cellOpacityFixed);
 
   const [originalViewState, setOriginalViewState] = useState(null);
@@ -278,14 +346,42 @@ export function EmbeddingScatterplotSubscriber(props) {
   }, [additionalCellSets, cellSetColor, setCellColorEncoding,
     setAdditionalCellSets, setCellSetColor, setCellSetSelection]);
 
-  const cellColors = useMemo(() => getCellColors({
-    cellSets: mergedCellSets,
-    cellSetSelection,
-    cellSetColor,
-    obsIndex: matrixObsIndex,
-    theme,
-  }), [mergedCellSets, theme,
-    cellSetSelection, cellSetColor, matrixObsIndex]);
+  // A set selection or color change re-encodes every observation in the memos
+  // below, which at atlas scale takes longer than a frame. Deferring these values
+  // lets React commit the urgent update first — the sets manager checkbox that
+  // initiated the change paints immediately — and re-render this view afterwards.
+  // The urgent render sees the previous values, so the memos below keep their
+  // cached results and cost nothing in that first commit.
+  const deferredCellSetSelection = useDeferredValue(cellSetSelection);
+  const deferredCellSetColor = useDeferredValue(cellSetColor);
+  // A lasso selection made while coloring by feature values also switches the
+  // encoding to set selection. Defer it with the selection and colors, so the
+  // points do not first show the previous selection's colors for every cell.
+  const deferredCellColorEncoding = useDeferredValue(cellColorEncoding);
+  const deferredSampleSetSelection = useDeferredValue(sampleSetSelection);
+
+  // Positional rather than keyed by observation ID: at atlas scale an ID-keyed color
+  // Map costs one string hash lookup per point per render, plus a per-observation
+  // color array whenever the selected sets carry confidence scores.
+  const obsColorIndices = useMemo(() => (
+    // When the loader provides raw categorical codes over this same observation
+    // axis (checked by reference), the encoding is one typed-array pass with no
+    // tree walk. colorIndicesFromCodes returns null for selections it cannot
+    // resolve (e.g. user-defined lasso selections), falling back to the tree.
+    (obsSetsColumns && obsSetsColumns.obsIndex === obsEmbeddingIndex
+      && colorIndicesFromCodes({
+        columns: obsSetsColumns.columns,
+        obsIndex: obsEmbeddingIndex,
+        selectedNamePaths: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
+        theme,
+      }))
+    || treeToColorIndicesArray(
+      mergedCellSets, deferredCellSetSelection, deferredCellSetColor,
+      obsEmbeddingIndex, theme,
+    )
+  ), [mergedCellSets, deferredCellSetSelection, deferredCellSetColor,
+    obsEmbeddingIndex, theme, obsSetsColumns]);
 
   // cellSetPolygonCache is an array of tuples like [(key0, val0), (key1, val1), ...],
   // where the keys are cellSetSelection arrays.
@@ -294,28 +390,29 @@ export function EmbeddingScatterplotSubscriber(props) {
   const cacheGet = (cache, key) => cache.find(el => isEqual(el[0], key))?.[1];
   const cellSetPolygons = useMemo(() => {
     if ((cellSetLabelsVisible || cellSetPolygonsVisible)
-      && !cacheHas(cellSetPolygonCache, cellSetSelection)
+      && !cacheHas(cellSetPolygonCache, deferredCellSetSelection)
       && mergedCellSets?.tree?.length
       && obsEmbedding
       && obsEmbeddingIndex
-      && cellSetColor?.length) {
+      && deferredCellSetColor?.length) {
       const newCellSetPolygons = getCellSetPolygons({
         obsIndex: obsEmbeddingIndex,
         obsEmbedding,
         cellSets: mergedCellSets,
-        cellSetSelection,
-        cellSetColor,
+        cellSetSelection: deferredCellSetSelection,
+        cellSetColor: deferredCellSetColor,
         theme,
       });
-      setCellSetPolygonCache(cache => [...cache, [cellSetSelection, newCellSetPolygons]]);
+      setCellSetPolygonCache(
+        cache => [...cache, [deferredCellSetSelection, newCellSetPolygons]],
+      );
       return newCellSetPolygons;
     }
-    return cacheGet(cellSetPolygonCache, cellSetSelection) || [];
+    return cacheGet(cellSetPolygonCache, deferredCellSetSelection) || [];
   }, [cellSetPolygonsVisible, cellSetPolygonCache, cellSetLabelsVisible, theme,
-    obsEmbeddingIndex, obsEmbedding, mergedCellSets, cellSetSelection, cellSetColor]);
+    obsEmbeddingIndex, obsEmbedding, mergedCellSets, deferredCellSetSelection,
+    deferredCellSetColor]);
 
-
-  const cellSelection = useMemo(() => Array.from(cellColors.keys()), [cellColors]);
 
   const [xRange, yRange, xExtent, yExtent, numCells] = useMemo(() => {
     if (obsEmbedding && obsEmbedding.data && obsEmbedding.shape) {
@@ -371,12 +468,16 @@ export function EmbeddingScatterplotSubscriber(props) {
 
   const getObsInfo = useGetObsInfo(
     observationsLabel, obsLabelsTypes, obsLabelsData, obsSetsMembership,
+    cellSetSelection, tooltipObsSetsMode,
   );
 
-  const cellSelectionSet = useMemo(() => new Set(cellSelection), [cellSelection]);
+  // With no set selection every observation counts as selected, matching the
+  // behavior of the ID-keyed color map this replaced. Uses the deferred selection
+  // so that it stays consistent with obsColorIndices within each commit.
+  const allCellsSelected = !(deferredCellSetSelection && mergedCellSets);
   const getCellIsSelected = useCallback((object, { index }) => (
-    (cellSelectionSet || new Set([])).has(obsEmbeddingIndex[index]) ? 1.0 : 0.0
-  ), [cellSelectionSet, obsEmbeddingIndex]);
+    (allCellsSelected || obsColorIndices.colorIndices[index] !== 0) ? 1.0 : 0.0
+  ), [allCellsSelected, obsColorIndices]);
 
   const cellRadius = (cellRadiusMode === 'manual' ? cellRadiusFixed : dynamicCellRadius);
   const cellOpacity = (cellOpacityMode === 'manual' ? cellOpacityFixed : dynamicCellOpacity);
@@ -468,8 +569,11 @@ export function EmbeddingScatterplotSubscriber(props) {
   // useExpressionValueGetter hook and getter function.
   const [alignedEmbeddingIndex, alignedEmbeddingData] = useMemo(() => {
     // Sort the embedding data according to the matrix obsIndex.
-    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex) {
-      const matrixIndexMap = new Map(matrixObsIndex.map((key, i) => ([key, i])));
+    if (obsEmbedding?.data && obsEmbeddingIndex && matrixObsIndex
+      && obsEmbeddingIndex !== matrixObsIndex) {
+      // (The same index array, as when both come from one data source,
+      // is already aligned and skips this copy.)
+      const matrixIndexMap = getObsIndexMap(matrixObsIndex);
       const toMatrixIndex = obsEmbeddingIndex.map(key => matrixIndexMap.get(key));
 
       const newEmbeddingIndex = new Array(obsEmbeddingIndex.length);
@@ -489,43 +593,50 @@ export function EmbeddingScatterplotSubscriber(props) {
     return [obsEmbeddingIndex, obsEmbedding];
   }, [matrixObsIndex, obsEmbeddingIndex, obsEmbedding]);
 
-  const sampleIdToObsIdsMap = useMemo(() => {
-    // sampleEdges maps obsId -> sampleId.
-    // However when we stratify we want to map sampleId -> [obsId1, obsId2, ...].
-    // Here we create this reverse mapping.
-    if (sampleEdges) {
-      const result = new Map();
-      Array.from(sampleEdges.entries()).forEach(([obsId, sampleId]) => {
-        if (!result.has(sampleId)) {
-          result.set(sampleId, [obsId]);
-        } else {
-          result.get(sampleId).push(obsId);
-        }
-      });
-      return result;
-    }
-    return null;
-  }, [sampleEdges]);
-
   // Stratify multiple arrays: per-cellSet and per-sampleSet.
+  // The strata feed only the contour layers and, when the points are hidden, the
+  // observation count shown in the title — so with contours off and points on,
+  // this per-observation pass is skipped entirely rather than recomputed on
+  // every selection change.
+  const isStratifiedDataNeeded = embeddingContoursVisible || !embeddingPointsVisible;
   const [stratifiedData, stratifiedDataCount] = useMemo(() => {
-    if (alignedEmbeddingData?.data) {
+    if (isStratifiedDataNeeded && alignedEmbeddingData?.data) {
       const [result, cellCountResult] = stratifyArrays(
-        sampleEdges, sampleIdToObsIdsMap,
-        sampleSets, sampleSetSelection,
-        alignedEmbeddingIndex, mergedCellSets, cellSetSelection, {
+        sampleEdges,
+        sampleSets, deferredSampleSetSelection,
+        alignedEmbeddingIndex, mergedCellSets, deferredCellSetSelection, {
           obsEmbeddingX: alignedEmbeddingData.data[0],
           obsEmbeddingY: alignedEmbeddingData.data[1],
           ...(uint8ExpressionData?.[0] ? { featureValue: uint8ExpressionData } : {}),
-        }, featureAggregationStrategyToUse,
+        },
+        // The featureAggregationStrategy has already been applied above
+        // (uint8ExpressionData contains a single, aggregated array),
+        // so we must not apply it again here.
+        'first',
+        // Raw codes let the strata come from typed arrays when the indices match.
+        { obsSetsColumns },
       );
       return [result, cellCountResult];
     }
     return [null, null];
-  }, [alignedEmbeddingIndex, alignedEmbeddingData, uint8ExpressionData,
-    sampleEdges, sampleIdToObsIdsMap, sampleSets, sampleSetSelection,
-    cellSetSelection, mergedCellSets, featureAggregationStrategyToUse,
+  }, [isStratifiedDataNeeded, alignedEmbeddingIndex, alignedEmbeddingData,
+    uint8ExpressionData, sampleEdges, sampleSets, deferredSampleSetSelection,
+    deferredCellSetSelection, mergedCellSets, obsSetsColumns,
   ]);
+
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, viewUid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.EMBEDDING_TARGET_Y],
+    },
+    annotationTransitionDuration,
+  );
 
   const setViewState = ({ zoom: newZoom, target }) => {
     setZoom(newZoom);
@@ -548,7 +659,7 @@ export function EmbeddingScatterplotSubscriber(props) {
       removeGridComponent={removeGridComponent}
       urls={urls}
       theme={theme}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
       options={(
@@ -595,16 +706,16 @@ export function EmbeddingScatterplotSubscriber(props) {
       <Scatterplot
         ref={deckRef}
         uuid={uuid}
+        onSelectionBusy={setIsSelectionPending}
         theme={theme}
-        viewState={{ zoom, target: [targetX, targetY, targetZ] }}
+        viewState={{ zoom, target: [targetX, targetY, targetZ], ...annotationTransitionProps }}
         setViewState={setViewState}
         originalViewState={originalViewState}
         obsEmbeddingIndex={obsEmbeddingIndex}
         obsEmbedding={obsEmbedding}
         cellFilter={cellFilter}
-        cellSelection={cellSelection}
         cellHighlight={cellHighlight}
-        cellColors={cellColors}
+        obsColorIndices={obsColorIndices}
         cellSetPolygons={cellSetPolygons}
         cellSetLabelSize={cellSetLabelSize}
         cellSetLabelsVisible={cellSetLabelsVisible}
@@ -614,7 +725,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         setCellHighlight={setCellHighlight}
         cellRadius={cellRadius}
         cellOpacity={cellOpacity}
-        cellColorEncoding={cellColorEncoding}
+        cellColorEncoding={deferredCellColorEncoding}
         geneExpressionColormap={geneExpressionColormap}
         geneExpressionColormapRange={geneExpressionColormapRange}
         setComponentHover={() => {
@@ -624,12 +735,12 @@ export function EmbeddingScatterplotSubscriber(props) {
         getExpressionValue={getExpressionValue}
         getCellIsSelected={getCellIsSelected}
 
-        obsSetSelection={cellSetSelection}
-        sampleSetSelection={sampleSetSelection}
+        obsSetSelection={deferredCellSetSelection}
+        sampleSetSelection={deferredSampleSetSelection}
         // InternMap data structures where keys are
         // obsSet -> sampleSet -> arrayKey -> [].
         stratifiedData={stratifiedData}
-        obsSetColor={cellSetColor}
+        obsSetColor={deferredCellSetColor}
         sampleSetColor={sampleSetColor}
         contourThresholds={contourThresholds}
         contourColorEncoding={contourColorEncoding}
@@ -640,6 +751,14 @@ export function EmbeddingScatterplotSubscriber(props) {
 
         circleInfo={circleInfo}
         featureSelection={geneSelection}
+
+        // Annotation stuff
+        annotationShapes={annotationShapes}
+        annotationOverlayVisible={annotationOverlayVisible}
+        annotationSemanticZoom={annotationSemanticZoom}
+        annotationTransitionDuration={annotationTransitionDuration}
+        annotationEditable={annotationEditable}
+        {...annotationEditingProps}
       />
       {tooltipsVisible && width && height ? (
         <ScatterplotTooltipSubscriber
@@ -657,7 +776,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         theme={theme}
         featureType={featureType}
         featureValueType={featureValueType}
-        obsColorEncoding={cellColorEncoding}
+        obsColorEncoding={deferredCellColorEncoding}
         featureSelection={geneSelection}
         featureLabelsMap={featureLabelsMap}
         featureValueColormap={geneExpressionColormap}
@@ -674,6 +793,7 @@ export function EmbeddingScatterplotSubscriber(props) {
         contourThresholds={contourThresholds}
         featureAggregationStrategy={featureAggregationStrategyToUse}
       />
+
     </TitleInfo>
   );
 }

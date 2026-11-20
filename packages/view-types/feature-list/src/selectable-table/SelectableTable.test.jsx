@@ -104,6 +104,34 @@ describe('SelectableTable.js', () => {
       await p;
     });
 
+    it('toggles rows without shift when requireShiftForMultiSelect is false', async () => {
+      const selections = [];
+      render(
+        <SelectableTable
+          data={tableData}
+          columns={tableColumns}
+          columnLabels={columnLabels}
+          idKey={tableIdKey}
+          allowMultiple
+          allowUncheck
+          requireShiftForMultiSelect={false}
+          onChange={(selection) => {
+            selections.push(selection.map(item => item.Name));
+          }}
+          testHeight={500}
+          testWidth={500}
+        />,
+      );
+      await user.click(await screen.findByText('Tile 1'));
+      await user.click(await screen.findByText('Tile 3'));
+      await user.click(await screen.findByText('Tile 1'));
+      expect(selections).toEqual([
+        ['Tile 1'],
+        ['Tile 1', 'Tile 3'],
+        ['Tile 3'],
+      ]);
+    });
+
     it('renders single column values', async () => {
       const customTableColumns = [
         'Name',

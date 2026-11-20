@@ -41,6 +41,8 @@ import LayerController from './LayerController.js';
  * @param {function} props.removeGridComponent The callback function to pass to TitleInfo,
  * to call when the component has been removed from the grid.
  * @param {string} props.title The component title.
+ * @param {boolean} props.globalDisable3d Hide the 3D rendering-mode switch, so this view cannot
+ * enter volume rendering. Named to match the equivalent prop on the legacy `layerController`.
  * @param {object[]} props.cameraPresets An array of camera preset objects,
  * which can be applied by the user by pressing CTRL+[0-9].
  * Each preset object can have the following coordination properties:
@@ -58,8 +60,11 @@ export function LayerControllerSubscriber(props) {
     title = 'Spatial Layers',
     uuid,
     layerPerFeatureForPoints = false,
+    globalDisable3d = false,
+    forceEnable3d = false,
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
+    showViewerOptions = false,
   } = props;
 
   const loaders = useLoaders();
@@ -75,6 +80,8 @@ export function LayerControllerSubscriber(props) {
       spatialTargetT: targetT,
       spatialTargetZ: targetZ,
       spatialRenderingMode,
+      spatialAxisLinesVisible,
+      spatialBoundsVisible,
     },
     {
       setSpatialTargetX: setTargetX,
@@ -85,6 +92,8 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
       setSpatialRenderingMode,
+      setSpatialAxisLinesVisible,
+      setSpatialBoundsVisible,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER_BETA],
@@ -161,6 +170,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.FILE_UID,
       CoordinationType.SEGMENTATION_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
     ],
     coordinationScopes,
@@ -180,6 +190,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.TOOLTIPS_VISIBLE,
@@ -197,6 +208,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.FILE_UID,
       CoordinationType.IMAGE_CHANNEL,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_LAYER_COLORMAP,
       CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR,
@@ -212,6 +224,7 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE,
       CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION,
       CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE,
+      CoordinationType.SPATIAL_CHANNELS_SORT_ORDER,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -238,12 +251,14 @@ export function LayerControllerSubscriber(props) {
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_SELECTION,
+      CoordinationType.FEATURE_AGGREGATION_STRATEGY,
       CoordinationType.FEATURE_VALUE_COLORMAP,
       CoordinationType.FEATURE_VALUE_COLORMAP_RANGE,
       CoordinationType.SPATIAL_LAYER_COLOR,
@@ -261,7 +276,9 @@ export function LayerControllerSubscriber(props) {
     [
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
+      CoordinationType.SPATIAL_LAYER_LABEL,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.SPATIAL_SPOT_RADIUS,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_COLOR,
@@ -273,6 +290,8 @@ export function LayerControllerSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
+      CoordinationType.SPATIAL_POINT_RADIUS,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -400,6 +419,8 @@ export function LayerControllerSubscriber(props) {
         pointLayerCoordination={pointLayerCoordination}
         pointMultiIndicesData={pointMultiIndicesData}
         layerPerFeatureForPoints={layerPerFeatureForPoints}
+        globalDisable3d={globalDisable3d}
+        forceEnable3d={forceEnable3d}
         volumeLoadingStatus={volumeLoadingStatus}
         tiledPointsLoadingProgress={tiledPointsLoadingProgress}
       />

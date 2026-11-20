@@ -34,10 +34,13 @@ export const ViewType = {
   TREEMAP: 'treemap',
   SAMPLE_SET_PAIR_MANAGER: 'sampleSetPairManager',
   FEATURE_STATS_TABLE: 'featureStatsTable',
+  SINGLE_OBS_SET_SELECTOR: 'singleObsSetSelector',
+  ANNOTATION_CONTROLLER: 'annotationController',
 };
 
 export const DataType = {
   OBS_LABELS: 'obsLabels',
+  OBS_COLORS: 'obsColors',
   OBS_EMBEDDING: 'obsEmbedding',
   OBS_FEATURE_MATRIX: 'obsFeatureMatrix',
   OBS_SETS: 'obsSets',
@@ -55,6 +58,7 @@ export const DataType = {
   FEATURE_STATS: 'featureStats',
   FEATURE_SET_STATS: 'featureSetStats',
   OBS_SET_STATS: 'obsSetStats',
+  ANNOTATION_STORY: 'annotationStory',
 };
 
 export const AsyncFunctionType = {
@@ -86,12 +90,14 @@ export const FileType = {
   OBS_POINTS_CSV: 'obsPoints.csv',
   OBS_LOCATIONS_CSV: 'obsLocations.csv',
   OBS_LABELS_CSV: 'obsLabels.csv',
+  OBS_COLORS_CSV: 'obsColors.csv',
   FEATURE_LABELS_CSV: 'featureLabels.csv',
   OBS_FEATURE_MATRIX_CSV: 'obsFeatureMatrix.csv',
   OBS_SEGMENTATIONS_JSON: 'obsSegmentations.json',
   OBS_SETS_CSV: 'obsSets.csv',
   OBS_SETS_JSON: 'obsSets.json',
   SAMPLE_SETS_CSV: 'sampleSets.csv',
+  ANNOTATION_STORY_JSON: 'annotationStory.json',
   // OME-Zarr
   IMAGE_OME_ZARR: 'image.ome-zarr',
   OBS_SEGMENTATIONS_OME_ZARR: 'obsSegmentations.ome-zarr',
@@ -198,6 +204,7 @@ export const FileType = {
   // Precomputed (mesh) format
   OBS_SEGMENTATIONS_NG_PRECOMPUTED: 'obsSegmentations.ng-precomputed',
   OBS_POINTS_NG_ANNOTATIONS: 'obsPoints.ng-annotations',
+  OBS_LOCATIONS_NG_ANNOTATIONS: 'obsLocations.ng-annotations',
   // New file types to support old file types:
   // - cells.json
   OBS_EMBEDDING_CELLS_JSON: 'obsEmbedding.cells.json',
@@ -272,6 +279,7 @@ export const CoordinationType = {
   SPATIAL_ROTATION_ORBIT: 'spatialRotationOrbit',
   SPATIAL_ORBIT_AXIS: 'spatialOrbitAxis',
   SPATIAL_AXIS_FIXED: 'spatialAxisFixed',
+  SPATIAL_CAMERA_SNAPSHOT: 'spatialCameraSnapshot',
   HEATMAP_ZOOM_X: 'heatmapZoomX',
   HEATMAP_ZOOM_Y: 'heatmapZoomY',
   HEATMAP_TARGET_X: 'heatmapTargetX',
@@ -324,12 +332,16 @@ export const CoordinationType = {
   SPATIAL_TARGET_C: 'spatialTargetC',
   SPATIAL_LAYER_VISIBLE: 'spatialLayerVisible',
   SPATIAL_LAYER_OPACITY: 'spatialLayerOpacity',
+  SPATIAL_LAYER_OPACITY_UNSELECTED: 'spatialLayerOpacityUnselected',
   SPATIAL_LAYER_COLORMAP: 'spatialLayerColormap',
+  SPATIAL_LAYER_LABEL: 'spatialLayerLabel',
   SPATIAL_LAYER_TRANSPARENT_COLOR: 'spatialLayerTransparentColor',
   SPATIAL_LAYER_MODEL_MATRIX: 'spatialLayerModelMatrix',
   SPATIAL_SEGMENTATION_FILLED: 'spatialSegmentationFilled',
   SPATIAL_SEGMENTATION_STROKE_WIDTH: 'spatialSegmentationStrokeWidth',
   SPATIAL_POINT_STROKE_WIDTH: 'spatialPointStrokeWidth',
+  SPATIAL_POINT_RADIUS: 'spatialPointRadius',
+  SPATIAL_POINT_PROJECTION_SPACING: 'spatialPointProjectionSpacing',
   SPATIAL_CHANNEL_COLOR: 'spatialChannelColor',
   SPATIAL_CHANNEL_VISIBLE: 'spatialChannelVisible',
   SPATIAL_CHANNEL_OPACITY: 'spatialChannelOpacity',
@@ -341,6 +353,10 @@ export const CoordinationType = {
   SPATIAL_TARGET_RESOLUTION: 'spatialTargetResolution', // Per-spatial-layer
   SPATIAL_MAX_RESOLUTION: 'spatialMaxResolution', // Per-image-channel (for spatial-accelerated)
   SPATIAL_LOD_FACTOR: 'spatialLodFactor', // LOD factor for 3D volume rendering
+  SPATIAL_AXIS_LINES_VISIBLE: 'spatialAxisLinesVisible', // axisLines' visibility in  Neuroglancer View
+  SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
+  SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
+  SPATIAL_BACKGROUND_THEME: 'spatialBackgroundTheme',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',
@@ -349,15 +365,18 @@ export const CoordinationType = {
   SPOT_LAYER: 'spotLayer',
   POINT_LAYER: 'pointLayer',
   SPATIAL_SPOT_RADIUS: 'spatialSpotRadius', // In micrometers?
+  SPATIAL_SPOT_SHAPE: 'spatialSpotShape',
   SPATIAL_SPOT_FILLED: 'spatialSpotFilled',
   SPATIAL_SPOT_STROKE_WIDTH: 'spatialSpotStrokeWidth',
   SPATIAL_LAYER_COLOR: 'spatialLayerColor',
   PIXEL_HIGHLIGHT: 'pixelHighlight', // Per-image-layer
   TOOLTIP_CROSSHAIRS_VISIBLE: 'tooltipCrosshairsVisible',
+  TOOLTIP_OBS_SETS_MODE: 'tooltipObsSetsMode',
   LEGEND_VISIBLE: 'legendVisible',
   SPATIAL_CHANNEL_LABELS_VISIBLE: 'spatialChannelLabelsVisible',
   SPATIAL_CHANNEL_LABELS_ORIENTATION: 'spatialChannelLabelsOrientation',
   SPATIAL_CHANNEL_LABEL_SIZE: 'spatialChannelLabelSize',
+  SPATIAL_CHANNELS_SORT_ORDER: 'spatialChannelsSortOrder',
   // Multi-sample / comparative
   SAMPLE_TYPE: 'sampleType',
   SAMPLE_SELECTION: 'sampleSelection',
@@ -381,6 +400,14 @@ export const CoordinationType = {
   FEATURE_LABEL_FOLD_CHANGE_THRESHOLD: 'featureLabelFoldChangeThreshold',
   // Treemap
   HIERARCHY_LEVELS: 'hierarchyLevels',
+  // Annotation frames
+  ANNOTATION_STORY: 'annotationStory',
+  ANNOTATION_FRAME_INDEX: 'annotationFrameIndex',
+  ANNOTATION_SHAPES: 'annotationShapes',
+  ANNOTATION_OVERLAY_VISIBLE: 'annotationOverlayVisible',
+  ANNOTATION_TRANSITION_DURATION: 'annotationTransitionDuration',
+  ANNOTATION_SEMANTIC_ZOOM: 'annotationSemanticZoom',
+  ANNOTATION_EDITABLE: 'annotationEditable',
 };
 
 export const STATUS = {
@@ -423,4 +450,5 @@ export const ViewHelpMapping = {
   FEATURE_STATS_TABLE: 'This table displays per-feature statistics, for example, from a differential expression test.',
   LAYER_CONTROLLER_BETA: 'The spatial layer controller provides an interface for manipulating the visualization layers displayed in the spatial view.',
   SPATIAL_BETA: 'The spatial view displays (potentially layered) spatially-resolved data including RGB or multiplexed images, segmentations of observations (bitmask- or polygon-based), and/or points (e.g., representing FISH transcripts).',
+  ANNOTATION_CONTROLLER: 'The annotation controller displays a guided sequence of narrative frames, each with descriptive text and optional shapes (rectangles, lines, arrows, ellipses, or polygons).',
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useId } from 'react-aria';
+import { capitalize } from '@vitessce/utils';
 import { OptionsContainer, OptionSelect, usePlotOptionsStyles } from '@vitessce/vit-s';
 import { TableCell, TableRow, Checkbox } from '@vitessce/styles';
 import { FEATURELIST_SORT_OPTIONS, ALT_COLNAME } from './constants.js';
@@ -51,7 +52,7 @@ export default function FeatureListOptions(props) {
             }}
           >
             {FEATURELIST_SORT_OPTIONS.map(option => (
-              <option key={option} value={option}>{option}</option>
+              <option key={option} value={option}>{capitalize(option)}</option>
             ))}
           </OptionSelect>
         </TableCell>

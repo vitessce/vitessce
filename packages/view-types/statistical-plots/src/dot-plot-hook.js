@@ -37,6 +37,7 @@ export function useExpressionSummaries(
   geneSelection, cellSetSelection, cellSetColor,
   featureValueTransform, featureValueTransformCoefficient,
   posThreshold, featureLabelsMap,
+  obsSetsColumns,
 ) {
   const mergedCellSets = useMemo(
     () => mergeObsSets(cellSets, additionalCellSets),
@@ -51,6 +52,8 @@ export function useExpressionSummaries(
       expressionData, obsIndex, mergedCellSets,
       geneSelection, cellSetSelection, cellSetColor,
       featureValueTransform, featureValueTransformCoefficient,
+      // Raw codes let the strata come from typed arrays when the indices match.
+      { obsSetsColumns },
     );
     if (stratifiedData) {
       const dotData = dotStratifiedExpressionData(
@@ -99,7 +102,7 @@ export function useExpressionSummaries(
     mergedCellSets, cellSetSelection,
     featureValueTransform, featureValueTransformCoefficient,
     posThreshold, featureLabelsMap,
-    sampleEdges, sampleSets, sampleSetSelection,
+    sampleEdges, sampleSets, sampleSetSelection, obsSetsColumns,
   ]);
 
   return [resultArr, meanExpressionMax];

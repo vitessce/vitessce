@@ -46,6 +46,7 @@
     { "path": "packages/file-types/zarr" },
     { "path": "packages/file-types/spatial-zarr" },
     { "path": "packages/vega" },
+    { "path": "packages/view-types/annotation-controller" },
     { "path": "packages/view-types/description" },
     { "path": "packages/view-types/feature-list" },
     { "path": "packages/view-types/genomic-profiles" },

@@ -1,0 +1,2 @@
+We vendor `PerspectiveCamera` and `OrbitControls` from `three` and `three-stdlib` here, as we only need this camera control functionality, and do not need the rest of ThreeJS for this purpose.
+This helps us to avoid dependency conflicts, as some 3D rendering functionality requires particular ThreeJS versions, as documented in the [upgrade guide](https://vitessce.io/docs/upgrade-guide/#threejs-and-react-three-fiber-peer-dependencies).

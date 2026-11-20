@@ -28,6 +28,7 @@ import {
   obsPointsCsvSchema,
   obsLocationsCsvSchema,
   obsLabelsCsvSchema,
+  obsColorsCsvSchema,
   featureLabelsCsvSchema,
   sampleSetsCsvSchema,
   obsSetsAnndataSchema,
@@ -75,6 +76,9 @@ import {
   meshGlbSchema,
   ngPrecomputedMeshSchema,
   ngPointAnnotationSchema,
+  ngLocationsAnnotationSchema,
+  annotationStoryObj,
+  annotationShapesArray,
 } from '@vitessce/schemas';
 
 // Register view type plugins
@@ -92,6 +96,7 @@ import { FeatureListSubscriber } from '@vitessce/feature-list';
 import { LayerControllerSubscriber } from '@vitessce/layer-controller';
 import { LayerControllerBetaSubscriber } from '@vitessce/layer-controller-beta';
 import { LinkControllerSubscriber } from '@vitessce/link-controller';
+import { AnnotationControllerSubscriber } from '@vitessce/annotation-controller';
 import { StatusSubscriber } from '@vitessce/status';
 import { HiGlassSubscriber, GenomicProfilesSubscriber } from '@vitessce/genomic-profiles';
 import { NeuroglancerSubscriber } from '@vitessce/neuroglancer';
@@ -106,6 +111,7 @@ import {
   FeatureStatsTableSubscriber,
   CellSetCompositionBarPlotSubscriber,
   FeatureSetEnrichmentBarPlotSubscriber,
+  SingleCellSetSelectorSubscriber,
 } from '@vitessce/statistical-plots';
 
 // Register file type plugins
@@ -118,6 +124,7 @@ import {
   ObsPointsCsvLoader,
   ObsLocationsCsvLoader,
   ObsLabelsCsvLoader,
+  ObsColorsCsvLoader,
   ObsFeatureMatrixCsvLoader,
   FeatureLabelsCsvLoader,
   SampleSetsCsvLoader,
@@ -128,6 +135,7 @@ import {
   JsonLoader,
   ObsSegmentationsJsonLoader,
   ObsSetsJsonLoader,
+  AnnotationStoryJsonLoader,
   // Legacy
   RasterJsonAsImageLoader,
   RasterJsonAsObsSegmentationsLoader,
@@ -187,6 +195,7 @@ import {
   NgPassthroughSource,
   NgPrecomputedMeshLoader,
   NgAnnotationPointsLoader,
+  NgAnnotationLocationsLoader,
 } from '@vitessce/spatial-zarr';
 
 import {
@@ -278,6 +287,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.DOT_PLOT, DotPlotSubscriber),
   makeViewType(ViewType.VOLCANO_PLOT, VolcanoPlotSubscriber),
   makeViewType(ViewType.FEATURE_STATS_TABLE, FeatureStatsTableSubscriber),
+  makeViewType(ViewType.SINGLE_OBS_SET_SELECTOR, SingleCellSetSelectorSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT, BiomarkerSelectSubscriber),
   makeViewType(ViewType.BIOMARKER_SELECT_ALT, BiomarkerSelectAltSubscriber),
   makeViewType(ViewType.LINK_CONTROLLER, LinkControllerSubscriber),
@@ -287,6 +297,7 @@ export const baseViewTypes = [
   makeViewType(ViewType.SAMPLE_SET_PAIR_MANAGER, SampleSetPairManagerSubscriber),
   makeViewType(ViewType.OBS_SET_COMPOSITION_BAR_PLOT, CellSetCompositionBarPlotSubscriber),
   makeViewType(ViewType.FEATURE_SET_ENRICHMENT_BAR_PLOT, FeatureSetEnrichmentBarPlotSubscriber),
+  makeViewType(ViewType.ANNOTATION_CONTROLLER, AnnotationControllerSubscriber),
 ];
 
 export const baseFileTypes = [
@@ -297,12 +308,14 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_POINTS_CSV, DataType.OBS_POINTS, ObsPointsCsvLoader, CsvSource, obsPointsCsvSchema),
   makeFileType(FileType.OBS_LOCATIONS_CSV, DataType.OBS_LOCATIONS, ObsLocationsCsvLoader, CsvSource, obsLocationsCsvSchema),
   makeFileType(FileType.OBS_LABELS_CSV, DataType.OBS_LABELS, ObsLabelsCsvLoader, CsvSource, obsLabelsCsvSchema),
+  makeFileType(FileType.OBS_COLORS_CSV, DataType.OBS_COLORS, ObsColorsCsvLoader, CsvSource, obsColorsCsvSchema),
   makeFileType(FileType.OBS_FEATURE_MATRIX_CSV, DataType.OBS_FEATURE_MATRIX, ObsFeatureMatrixCsvLoader, CsvSource, z.null()),
   makeFileType(FileType.FEATURE_LABELS_CSV, DataType.FEATURE_LABELS, FeatureLabelsCsvLoader, CsvSource, featureLabelsCsvSchema),
   makeFileType(FileType.SAMPLE_SETS_CSV, DataType.SAMPLE_SETS, SampleSetsCsvLoader, CsvSource, sampleSetsCsvSchema),
   // All JSON file types
   makeFileType(FileType.OBS_SEGMENTATIONS_JSON, DataType.OBS_SEGMENTATIONS, ObsSegmentationsJsonLoader, JsonSource, z.null()),
   makeFileType(FileType.OBS_SETS_JSON, DataType.OBS_SETS, ObsSetsJsonLoader, JsonSource, z.null()),
+  makeFileType(FileType.ANNOTATION_STORY_JSON, DataType.ANNOTATION_STORY, AnnotationStoryJsonLoader, JsonSource, z.null()),
   // All AnnData file types
   ...makeZarrFileTypes(FileType.OBS_SETS_ANNDATA_ZARR, DataType.OBS_SETS, ObsSetsAnndataLoader, AnnDataSource, obsSetsAnndataSchema),
   ...makeZarrFileTypes(FileType.OBS_EMBEDDING_ANNDATA_ZARR, DataType.OBS_EMBEDDING, ObsEmbeddingAnndataLoader, AnnDataSource, obsEmbeddingAnndataSchema),
@@ -350,6 +363,7 @@ export const baseFileTypes = [
   makeFileType(FileType.OBS_SEGMENTATIONS_GLB, DataType.OBS_SEGMENTATIONS, GlbLoader, GlbSource, meshGlbSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_NG_PRECOMPUTED, DataType.OBS_SEGMENTATIONS, NgPrecomputedMeshLoader, NgPassthroughSource, ngPrecomputedMeshSchema),
   makeFileType(FileType.OBS_POINTS_NG_ANNOTATIONS, DataType.OBS_POINTS, NgAnnotationPointsLoader, NgPassthroughSource, ngPointAnnotationSchema),
+  makeFileType(FileType.OBS_LOCATIONS_NG_ANNOTATIONS, DataType.OBS_LOCATIONS, NgAnnotationLocationsLoader, NgPassthroughSource, ngLocationsAnnotationSchema),
 
   // All legacy file types
   makeFileType(FileType.OBS_FEATURE_MATRIX_EXPRESSION_MATRIX_ZARR, DataType.OBS_FEATURE_MATRIX, MatrixZarrAsObsFeatureMatrixLoader, ZarrDataSource, z.null()),
@@ -436,6 +450,21 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_ROTATION_ORBIT, 0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_ORBIT_AXIS, 'Y', z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_FIXED, false, z.boolean().nullable()),
+  // A raw 3D camera state, shared between spatialBeta and neuroglancer views.
+  // A non-null value indicates that both views are present and should be synchronized.
+  new PluginCoordinationType(
+    CoordinationType.SPATIAL_CAMERA_SNAPSHOT,
+    null,
+    z.object({
+      // Orbit target / pivot point.
+      position: z.array(z.number()).length(3),
+      // Camera orientation [x, y, z, w], in the Y-up frame used by spatialBeta.
+      quaternion: z.array(z.number()).length(4),
+      // Height of the visible region at the pivot (Neuroglancer's projectionScale).
+      projectionScale: z.number(),
+      fovDegrees: z.number(),
+    }).nullable(),
+  ),
   new PluginCoordinationType(CoordinationType.SPATIAL_IMAGE_LAYER, null, imageLayerObj.nullable()),
   new PluginCoordinationType(
     CoordinationType.SPATIAL_SEGMENTATION_LAYER,
@@ -501,6 +530,7 @@ export const baseCoordinationTypes = [
     z.array(z.object({
       name: z.string(),
       color: rgbArray,
+      opacity: z.number().min(0).max(1).optional(),
     })).nullable(),
   ),
   new PluginCoordinationType(
@@ -508,6 +538,8 @@ export const baseCoordinationTypes = [
     'cellSetSelection',
     z.enum([
       'geneSelection', 'cellSetSelection', 'spatialChannelColor', 'spatialLayerColor', 'obsLabels',
+      // For per-observation colors loaded from an obsColors data type.
+      'obsColors',
       // For point coloring.
       'random', 'randomByFeature',
     ]),
@@ -525,6 +557,9 @@ export const baseCoordinationTypes = [
     ]),
     // An index of a featureSelection array element.
     z.number(),
+    // The name of a featureSelection array element.
+    // Any string other than the reserved values above is treated as a feature name.
+    z.string(),
   ]).nullable()),
   new PluginCoordinationType(
     CoordinationType.FEATURE_SET_SELECTION,
@@ -590,10 +625,12 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SEGMENTATION_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SEGMENTATION_CHANNEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_C, null, z.number().or(z.string()).nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_LABEL, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_Z, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_TARGET_T, null, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY, 1.0, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED, 0.25, z.number().min(0).max(1)),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLORMAP, null, z.string().nullable()), // TODO: enum to be more strict
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_TRANSPARENT_COLOR, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_MODEL_MATRIX, null, z.array(z.number()).length(16).nullable()),
@@ -605,7 +642,17 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SEGMENTATION_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_STROKE_WIDTH, 0.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LOD_FACTOR, 1.0, z.number()),
+  // null = fall back to the neuroglancer view's showAxisLines prop / NG default.
+  new PluginCoordinationType(CoordinationType.SPATIAL_AXIS_LINES_VISIBLE, null, z.boolean().nullable()),
+  // Neuroglancer default annotations (data-source bounding boxes).
+  new PluginCoordinationType(CoordinationType.SPATIAL_BOUNDS_VISIBLE, null, z.boolean().nullable()),
   // Reference: https://www.awaresystems.be/imaging/tiff/tifftags/photometricinterpretation.html
+  // null = use the file's projectionAnnotationSpacing option. NG valid range [0.0625, 65536].
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_PROJECTION_SPACING, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
+  // Default matches Neuroglancer's own default point marker diameter
+  new PluginCoordinationType(CoordinationType.SPATIAL_POINT_RADIUS, 2.5, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
   new PluginCoordinationType(CoordinationType.VOLUMETRIC_RENDERING_ALGORITHM, 'additive', z.enum(['maximumIntensityProjection', 'additive'])),
@@ -617,15 +664,18 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPOT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.POINT_LAYER, null, z.string().nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_RADIUS, 25.0, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_SHAPE, 'circle', z.enum(['circle', 'square']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_FILLED, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_SPOT_STROKE_WIDTH, 1.0, z.number()),
   new PluginCoordinationType(CoordinationType.SPATIAL_LAYER_COLOR, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.PIXEL_HIGHLIGHT, null, z.array(z.number()).length(3).nullable()),
   new PluginCoordinationType(CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.TOOLTIP_OBS_SETS_MODE, 'all', z.enum(['all', 'selected'])),
   new PluginCoordinationType(CoordinationType.LEGEND_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABELS_ORIENTATION, 'vertical', z.enum(['vertical', 'horizontal'])),
   new PluginCoordinationType(CoordinationType.SPATIAL_CHANNEL_LABEL_SIZE, 14, z.number()),
+  new PluginCoordinationType(CoordinationType.SPATIAL_CHANNELS_SORT_ORDER, 'original', z.enum(['original', 'alphabetical'])),
   new PluginCoordinationType(CoordinationType.SAMPLE_TYPE, 'sample', z.string().nullable()),
   // TODO: remove one array level and use multi-coordination for sampleSetSelection?
   new PluginCoordinationType(CoordinationType.SAMPLE_FILTER, null, z.array(z.string()).nullable()),
@@ -655,6 +705,14 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_SIGNIFICANCE_THRESHOLD, 0.01, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_POINT_FOLD_CHANGE_THRESHOLD, 1.0, z.number().nullable()),
   new PluginCoordinationType(CoordinationType.FEATURE_LABEL_FOLD_CHANGE_THRESHOLD, 5.0, z.number().nullable()),
+  // Annotation frames
+  new PluginCoordinationType(CoordinationType.ANNOTATION_STORY, null, annotationStoryObj.nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SHAPES, null, annotationShapesArray.nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_FRAME_INDEX, null, z.number().nullable()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_OVERLAY_VISIBLE, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_TRANSITION_DURATION, 500, z.number()), // TODO: make this non-zero by default?
+  new PluginCoordinationType(CoordinationType.ANNOTATION_SEMANTIC_ZOOM, true, z.boolean()),
+  new PluginCoordinationType(CoordinationType.ANNOTATION_EDITABLE, false, z.boolean()),
 ];
 
 export const baseAsyncFunctions = [

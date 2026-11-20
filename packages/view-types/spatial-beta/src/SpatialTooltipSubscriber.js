@@ -3,6 +3,7 @@ import React from 'react';
 import { Tooltip2D, TooltipContent } from '@vitessce/tooltip';
 import { useComponentHover, useComponentViewInfo } from '@vitessce/vit-s';
 import { capitalize } from '@vitessce/utils';
+import { filterObsMembershipForTooltip } from '@vitessce/sets-utils';
 
 function TooltipChild(props) {
   const {
@@ -53,7 +54,7 @@ function getXY(
   return [projectedObsCoord?.[0], projectedObsCoord?.[1]];
 }
 
-function getObsInfo(obsSetsData, obsType, obsId) {
+function getObsInfo(obsSetsData, obsType, obsId, obsSetSelection, tooltipObsSetsMode) {
   let result = {
     [`${capitalize(obsType)} ID`]: obsId,
   };
@@ -63,7 +64,9 @@ function getObsInfo(obsSetsData, obsType, obsId) {
       result = {
         ...result,
         ...Object.fromEntries(
-          obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => [
+          filterObsMembershipForTooltip(
+            obsMembership, obsSetSelection, tooltipObsSetsMode,
+          ).flatMap(path => path.slice(1).map((pathEl, elLevel) => [
             `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
             pathEl,
           ])),
@@ -144,10 +147,13 @@ export default function SpatialTooltipSubscriber(props) {
         segmentationChannelScopesByLayer?.[layerScope]?.map((channelScope) => {
           const {
             obsType, obsHighlight, tooltipsVisible, tooltipCrosshairsVisible, spatialChannelVisible,
+            obsSetSelection, tooltipObsSetsMode,
           } = segmentationChannelCoordination?.[0]
             ?.[layerScope]?.[channelScope] || {};
           const obsSetsData = obsSegmentationsSetsData?.[layerScope]?.[channelScope];
-          const obsInfo = getObsInfo(obsSetsData, obsType, obsHighlight);
+          const obsInfo = getObsInfo(
+            obsSetsData, obsType, obsHighlight, obsSetSelection, tooltipObsSetsMode,
+          );
           if (
             !obsHighlight
             || !spatialChannelVisible

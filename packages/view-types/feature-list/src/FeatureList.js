@@ -27,6 +27,7 @@ export default function FeatureList(props) {
     geneFilter = null,
     setGeneSelection,
     enableMultiSelect,
+    requireShiftForMultiSelect,
     showFeatureTable,
     featureListSort,
     featureListSortKey,
@@ -139,6 +140,7 @@ export default function FeatureList(props) {
         onChange={onChange}
         allowMultiple={enableMultiSelect}
         allowUncheck={enableMultiSelect}
+        requireShiftForMultiSelect={requireShiftForMultiSelect}
         showTableHead={columnLabels.length > 1}
         width={width}
         height={height - 34}

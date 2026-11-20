@@ -14,7 +14,7 @@ import { LoaderResult } from '@vitessce/abstract';
 import { rasterJsonSchema as rasterSchema } from '@vitessce/schemas';
 import JsonLoader from '../json-loaders/JsonLoader.js';
 
-async function initLoader(imageData) {
+async function initLoader(imageData, queryClient) {
   try {
     const {
       type, url, metadata, requestInit,
@@ -90,7 +90,7 @@ async function initLoader(imageData) {
         // Reference: https://github.com/vitessce/vitessce/blob/fb0e7f/packages/file-types/zarr/src/ome-loaders/OmeZarrLoader.js#L29
         const { coordinateTransformations: coordinateTransformationsFromOptions } = metadata || {};
 
-        const root = await zarrOpenRoot(url, null, { requestInit });
+        const root = await zarrOpenRoot(url, null, { requestInit, queryClient });
         const loader = await loadOmeZarr(root);
         const { metadata: loaderMetadata } = loader;
         const { omero, multiscales } = loaderMetadata;
@@ -134,6 +134,7 @@ async function initLoader(imageData) {
 
 export default class RasterLoader extends JsonLoader {
   constructor(dataSource, params) {
+    const { queryClient } = dataSource;
     const { url, options } = params;
     if (!url && options) {
       // eslint-disable-next-line no-param-reassign
@@ -141,6 +142,7 @@ export default class RasterLoader extends JsonLoader {
     }
     super(dataSource, params);
     this.schema = rasterSchema;
+    this.queryClient = queryClient;
   }
 
   async load() {
@@ -156,7 +158,7 @@ export default class RasterLoader extends JsonLoader {
     // Add a loaderCreator function for each image layer.
     const imagesWithLoaderCreators = images.map(image => ({
       ...image,
-      loaderCreator: async () => initLoader(image),
+      loaderCreator: async () => initLoader(image, this.queryClient),
     }));
 
     // TODO: use options for initial selection of channels

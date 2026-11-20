@@ -1,5 +1,5 @@
 import { LoaderResult } from '@vitessce/abstract';
-import { initializeCellSetColor, treeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
+import { initializeCellSetColor, lazyTreeToMembershipMap, dataToCellSetsTree } from '@vitessce/sets-utils';
 import CsvLoader from './CsvLoader.js';
 
 export default class SampleSetsCsvLoader extends CsvLoader {
@@ -25,7 +25,7 @@ export default class SampleSetsCsvLoader extends CsvLoader {
       cellSetIds,
       cellSetScores,
     ], setsArr);
-    const obsSetsMembership = treeToMembershipMap(cellSetsTree);
+    const obsSetsMembership = lazyTreeToMembershipMap(cellSetsTree, obsIndex);
 
     const coordinationValues = {};
     // Create a list of sample set objects with color mappings.

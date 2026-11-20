@@ -163,6 +163,20 @@ export default {
   plugins: [
     './plugins/vitessce-plugin',
     './plugins/monaco-editor-plugin',
+    function webpackWorkerThreadsFallbackPlugin() {
+      return {
+        name: 'webpack-worker-threads-fallback',
+        configureWebpack() {
+          return {
+            resolve: {
+              fallback: {
+                worker_threads: false,
+              },
+            },
+          };
+        },
+      };
+    },
     //path.resolve(__dirname, 'plugins', 'vitessce-plugin'),
   ],
   scripts: [

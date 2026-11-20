@@ -6,8 +6,8 @@ import type { Group, Scene } from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
 import { Bvh } from '@react-three/drei';
-import { useXR, useXRInputSourceState } from '@react-three/xr';
 import { FrontSide, Vector3, Box3, Matrix4 } from 'three';
+import { getXRModule } from './xr/xrModule.js';
 import { MeasureLine } from './xr/MeasureLine.js';
 import type { GeometryAndMeshProps, MeasureLineData, ClickEvent, PointerOverEvent } from './types.js';
 import { isValidGeometrySize, stringifyLineData } from './three-utils.js';
@@ -48,6 +48,7 @@ function isPinching(hand: { inputSource: { hand: XRHand } } | null | undefined, 
 // XR-aware version of GeometryAndMesh.
 // Handles both XR and non-XR rendering based on session state.
 export default function GeometryAndMeshXR(props: GeometryAndMeshProps) {
+  const { useXR, useXRInputSourceState } = getXRModule();
   const {
     segmentationGroup, segmentationSettings, segmentationSceneScale,
     renderingSettings, materialRef, highlightEntity, setObsHighlight,

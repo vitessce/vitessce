@@ -31,7 +31,7 @@ export interface VolumeSource {
 export interface ImageWrapper {
   image: {
     instance: {
-      getData(): VolumeSource[];
+      getData(stripPhysicalSizes?: boolean): VolumeSource[];
       isInterleaved(): boolean;
       getChannelIndex(target: number | string): number;
       getAutoTargetResolution(): number;

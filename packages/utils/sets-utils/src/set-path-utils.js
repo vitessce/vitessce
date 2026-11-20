@@ -153,3 +153,22 @@ export function findChangedHierarchy(prevSelectedPaths, currSelectedPaths) {
   // As leaf nodes do not hold hierarchy information, we can remove it.
   return changedPath.slice(0, -1);
 }
+
+/**
+ * Filters the set paths that contain an observation, for display in a tooltip.
+ * @param {string[][]} obsMembership The set paths that contain the observation.
+ * @param {string[][]|null} obsSetSelection The currently selected set paths.
+ * @param {'all'|'selected'} tooltipObsSetsMode When 'selected', only keep the
+ * paths within the same top-level groups as the selected sets.
+ * @returns {string[][]} The set paths to display.
+ */
+export function filterObsMembershipForTooltip(
+  obsMembership, obsSetSelection, tooltipObsSetsMode,
+) {
+  if (tooltipObsSetsMode !== 'selected') {
+    return obsMembership;
+  }
+  return obsMembership.filter(path => (
+    obsSetSelection?.some(selectedPath => selectedPath[0] === path[0])
+  ));
+}

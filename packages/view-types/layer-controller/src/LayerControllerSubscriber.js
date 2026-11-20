@@ -82,6 +82,8 @@ const LayerControllerMemoized = React.memo(
       spatialLayout,
       handleImageAdd,
       enableLayerButtonsWithOneLayer,
+      channelsSortOrder,
+      setChannelsSortOrder,
       helpText,
     } = props;
     const shouldShowImageLayerButton = Boolean(
@@ -194,6 +196,8 @@ const LayerControllerMemoized = React.memo(
                     spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
                     spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                    channelsSortOrder={channelsSortOrder}
+                    setChannelsSortOrder={setChannelsSortOrder}
                   />
                 </Grid>
               ) : null;
@@ -276,6 +280,8 @@ const LayerControllerMemoized = React.memo(
                     spatialHeight={(componentHeight * (spatialLayout ? spatialLayout.h : 1)) / 12}
                     spatialWidth={(componentWidth * (spatialLayout ? spatialLayout.w : 1)) / 12}
                     shouldShowRemoveLayerButton={shouldShowImageLayerButton}
+                    channelsSortOrder={channelsSortOrder}
+                    setChannelsSortOrder={setChannelsSortOrder}
                   />
                 </Grid>
               ) : null;
@@ -337,6 +343,7 @@ export function LayerControllerSubscriber(props) {
       spatialSegmentationLayer: cellsLayer,
       spatialPointLayer: moleculesLayer,
       photometricInterpretation: photometricInterpretationFromCoordination,
+      spatialChannelsSortOrder: channelsSortOrder,
     },
     {
       setSpatialImageLayer: setRasterLayers,
@@ -348,6 +355,7 @@ export function LayerControllerSubscriber(props) {
       setSpatialRotationX: setRotationX,
       setSpatialRotationOrbit: setRotationOrbit,
       setSpatialZoom: setZoom,
+      setSpatialChannelsSortOrder: setChannelsSortOrder,
     },
   ] = useCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.LAYER_CONTROLLER],
@@ -500,6 +508,8 @@ export function LayerControllerSubscriber(props) {
       handleRasterLayerChange={handleRasterLayerChange}
       handleRasterLayerRemove={handleRasterLayerRemove}
       photometricInterpretation={photometricInterpretation}
+      channelsSortOrder={channelsSortOrder}
+      setChannelsSortOrder={setChannelsSortOrder}
 
       obsSegmentationsType={obsSegmentationsType}
       segmentationLayerLoaders={segmentationLayerLoaders}

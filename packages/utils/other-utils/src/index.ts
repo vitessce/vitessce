@@ -11,6 +11,7 @@ export {
   getInitialCoordinationScopePrefix,
   getInitialCoordinationScopeName,
   unnestMap,
+  MISSING_VALUE_PLACEHOLDER,
 } from './root.js';
 // eslint-disable-next-line react-refresh/only-export-components
 export {
@@ -41,10 +42,23 @@ export {
 } from './gating.js';
 export { default as Pool } from './Pool.js';
 export {
+  DEFAULT_MAX_ALLOCATION_BYTES,
+  getJsHeapSizeLimit,
+  getAllocationBudgetBytes,
+  exceedsAllocationBudget,
+} from './memory.js';
+export {
   aggregateFeatureArrays,
   normalizeAggregatedFeatureArray,
   filterValidExpressionArrays,
+  resolveFeatureAggregationStrategy,
+  RESERVED_FEATURE_AGGREGATION_STRATEGIES,
 } from './expr.js';
+export {
+  getAnnotationFrameCoordinationValues,
+  isAnnotationFrameViewStateChange,
+} from './annotation.js';
+export { UNIT_TO_METERS } from './units.js';
 export {
   TOL_BRIGHT,
   TOL_HIGH_CONTRAST,

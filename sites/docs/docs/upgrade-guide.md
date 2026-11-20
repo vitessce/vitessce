@@ -49,13 +49,13 @@ Recommended versions (with React 19):
 
 | Package | Version |
 | --- | --- |
-| `three` | `>=0.159.0` |
+| `three` | `>=0.162.0` |
 | `@react-three/fiber` | `^9.0.0` |
 | `@react-three/drei` | `^10.0.0` |
 | `@react-three/xr` | `^6.0.0` |
 
 If you already had `three` / `@react-three/fiber` installed, bump them to these
-versions. Note that `@react-three/fiber` v9 requires React 19. For more details, visit the [react-three-fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction).
+versions. Note that `@react-three/fiber` v9 requires React 19. For more details, visit the [react-three-fiber documentation](https://r3f.docs.pmnd.rs/getting-started/introduction). We require `three` r162 and above due to the features related to [multiple render targets](https://github.com/mrdoob/three.js/wiki/Migration-Guide#r161--r162).
 
 If you only use 2D views, you do **not** need to install these packages. The 3D
 code is loaded lazily; when the peer dependencies are absent, the 3D view shows a

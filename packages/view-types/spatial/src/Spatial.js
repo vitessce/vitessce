@@ -1,8 +1,9 @@
 import React, { forwardRef } from 'react';
 import { isEqual } from 'lodash-es';
 import {
-  deck, viv, getSelectionLayer, ScaledExpressionExtension,
+  deck, viv, getSelectionLayer, ScaledExpressionExtension, AnnotationLayer,
 } from '@vitessce/gl';
+import { ViewType } from '@vitessce/constants-internal';
 import { getSourceFromLoader, isInterleaved } from '@vitessce/spatial-utils';
 import { Matrix4 } from 'math.gl';
 import { PALETTE, getDefaultColor } from '@vitessce/utils';
@@ -114,6 +115,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.obsSegmentationsPolygonLayer = null;
     this.obsLocationsLayer = null;
     this.neighborhoodsLayer = null;
+    this.annotationLayer = null;
 
     this.layerLoaderSelections = {};
     // Better for the bitmask layer when there is no color data to use this.
@@ -141,6 +143,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
     this.onUpdateNeighborhoodsData();
     this.onUpdateNeighborhoodsLayer();
     this.onUpdateImages();
+    this.onUpdateAnnotationLayer();
   }
 
   createPolygonSegmentationsLayer(layerDef, hasExplicitPolygons) {
@@ -322,7 +325,6 @@ class Spatial extends AbstractSpatialOrScatterplot {
       setCellSelection,
     } = this.props;
     const { tool } = this.state;
-    const { obsSegmentationsQuadTree } = this;
     const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
     return getSelectionLayer(
       tool,
@@ -332,12 +334,18 @@ class Spatial extends AbstractSpatialOrScatterplot {
         {
           getObsCoords: getCellCoords,
           obsIndex: obsCentroidsIndex,
-          obsQuadTree: obsSegmentationsQuadTree,
+          // The selection layer only visits the quadtree once a selection is
+          // drawn, so it is built on first use rather than per data change.
+          obsQuadTree: {
+            visit: callback => this.getObsSegmentationsQuadTree()?.visit(callback),
+          },
           onSelect: (obsIds) => {
             setCellSelection(obsIds);
           },
         },
       ],
+      false,
+      this.props.onSelectionBusy,
     );
   }
 
@@ -582,6 +590,7 @@ class Spatial extends AbstractSpatialOrScatterplot {
       neighborhoodsLayer,
       obsLocationsLayer,
       obsSegmentationsBitmaskLayers,
+      annotationLayer,
     } = this;
     return [
       ...imageLayers,
@@ -591,7 +600,32 @@ class Spatial extends AbstractSpatialOrScatterplot {
       obsLocationsLayer,
       this.createScaleBarLayer(),
       this.createSelectionLayer(),
+      // While drawing, the preview of the in-progress shape follows the mouse,
+      // so the annotation layer is re-created upon each render.
+      this.props.annotationInProgressShape ? this.createAnnotationLayer() : annotationLayer,
     ];
+  }
+
+  /**
+   * The quadtree over the segmentation centroids, used for lasso and rectangle
+   * selection. Built lazily: at millions of observations it costs about a
+   * second, and most renders never select.
+   * @returns {object|null} The d3-quadtree, or null without centroid data.
+   */
+  getObsSegmentationsQuadTree() {
+    const {
+      obsSegmentations,
+      obsSegmentationsType,
+      obsCentroids,
+    } = this.props;
+    if (!this.obsSegmentationsQuadTree
+      && ((obsSegmentations && obsSegmentationsType === 'polygon')
+        || (!obsSegmentations && obsCentroids))
+    ) {
+      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
+      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+    }
+    return this.obsSegmentationsQuadTree;
   }
 
   onUpdateCellsData() {
@@ -603,8 +637,8 @@ class Spatial extends AbstractSpatialOrScatterplot {
     if ((obsSegmentations && obsSegmentationsType === 'polygon')
       || (!obsSegmentations && obsCentroids)
     ) {
-      const getCellCoords = makeDefaultGetObsCoords(obsCentroids);
-      this.obsSegmentationsQuadTree = createQuadTree(obsCentroids, getCellCoords);
+      // Invalidate the lazily built quadtree for the previous data.
+      this.obsSegmentationsQuadTree = null;
       this.obsSegmentationsData = {
         src: {
           obsSegmentations,
@@ -734,6 +768,33 @@ class Spatial extends AbstractSpatialOrScatterplot {
 
   onUpdateImages() {
     this.imageLayers = this.createImageLayers();
+  }
+
+  createAnnotationLayer() {
+    const {
+      annotationShapes,
+      annotationOverlayVisible,
+      annotationSemanticZoom,
+      annotationInProgressShape,
+    } = this.props;
+    return new AnnotationLayer({
+      id: 'annotation-layer',
+      data: annotationShapes,
+      // Always show the preview of a shape that is being drawn.
+      visible: annotationInProgressShape ? true : annotationOverlayVisible,
+      semanticZoom: annotationSemanticZoom,
+      ...this.getAnnotationEditingLayerProps(),
+      viewType: ViewType.SPATIAL,
+    });
+  }
+
+  onUpdateAnnotationLayer() {
+    const { annotationShapes, annotationInProgressShape } = this.props;
+    if (annotationShapes || annotationInProgressShape) {
+      this.annotationLayer = this.createAnnotationLayer();
+    } else {
+      this.annotationLayer = null;
+    }
   }
 
   viewInfoDidUpdate() {
@@ -876,6 +937,17 @@ class Spatial extends AbstractSpatialOrScatterplot {
       this.onUpdateImages();
       forceUpdate = true;
     }
+
+    if ([
+      'annotationShapes', 'annotationOverlayVisible',
+      'annotationSemanticZoom', 'annotationSelectedShapeUid',
+      'annotationInProgressShape',
+    ].some(shallowDiff)) {
+      // Annotation info changed.
+      this.onUpdateAnnotationLayer();
+      forceUpdate = true;
+    }
+
     if (forceUpdate) {
       this.forceUpdate();
     }

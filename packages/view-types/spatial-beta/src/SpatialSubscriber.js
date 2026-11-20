@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useMemo, useCallback, useState } from 'react';
+import React, { useEffect, useMemo, useCallback, useRef, useState } from 'react';
 import {
   TitleInfo,
   useDeckCanvasSize,
@@ -35,9 +35,13 @@ import {
   useSpotMultiFeatureLabels,
   useGridItemSize,
   useAuxiliaryCoordination,
+  useAnnotationStoryData,
+  useAnnotationFrameCoordination,
+  useAnnotationEditingForView,
 } from '@vitessce/vit-s';
 import { COMPONENT_COORDINATION_TYPES, ViewType, CoordinationType, ViewHelpMapping } from '@vitessce/constants-internal';
-import { commaNumber, pluralize } from '@vitessce/utils';
+import { commaNumber, pluralize, getAnnotationFrameCoordinationValues } from '@vitessce/utils';
+import { useAnnotationFrameTransition } from '@vitessce/scatterplot';
 import { setObsSelection } from '@vitessce/sets-utils';
 import { MultiLegend, ChannelNamesLegend } from '@vitessce/legend';
 import Spatial from './Spatial.js';
@@ -45,6 +49,7 @@ import SpatialTooltipSubscriber from './SpatialTooltipSubscriber.js';
 import { getInitialSpatialTargets } from './utils.js';
 import { SpatialThreeAdapter } from './SpatialThreeAdapter.js';
 import { SpatialAcceleratedAdapter } from './SpatialAcceleratedAdapter.js';
+import SpatialOptions from './SpatialOptions.js';
 import {
   useAggregatedNormalizedExpressionDataForLayers,
   useAggregatedNormalizedExpressionDataForChannels,
@@ -149,6 +154,8 @@ export function SpatialSubscriber(props) {
     three: threeFor3d = false,
     accelerated: acceleratedFor3d = false,
     helpText = ViewHelpMapping.SPATIAL_BETA,
+    // Passed down from the ancestor <Vitessce/> or <VitS/> component.
+    areAnnotationsEditable,
   } = props;
 
   const loaders = useLoaders();
@@ -159,6 +166,11 @@ export function SpatialSubscriber(props) {
   // Acccount for possible meta-coordination.
   const coordinationScopes = useCoordinationScopes(coordinationScopesRaw);
   const coordinationScopesBy = useCoordinationScopesBy(coordinationScopes, coordinationScopesByRaw);
+
+  // Merge the coordination values that the current annotation frame defines for this view
+  // into the coordination space, whenever the frame changes. The story itself is read-only.
+  // This includes multi-level (e.g., per-layer/per-channel) coordination values.
+  useAnnotationFrameCoordination(uuid, coordinationScopes);
 
   // Get "props" from the coordination space.
   const [{
@@ -178,12 +190,22 @@ export function SpatialSubscriber(props) {
     spatialRotationOrbit: rotationOrbit,
     spatialOrbitAxis: orbitAxis,
     spatialAxisFixed,
+    spatialBackgroundTheme,
+    spatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     additionalObsSets,
     obsSetColor,
     obsColorEncoding,
     obsSetSelection,
+
+    annotationStory,
+    annotationShapes,
+    annotationOverlayVisible,
+    annotationSemanticZoom,
+    annotationTransitionDuration,
+    annotationEditable,
+    annotationFrameIndex,
   }, {
     setSpatialZoom: setZoom,
     setSpatialTargetX: setTargetX,
@@ -193,13 +215,26 @@ export function SpatialSubscriber(props) {
     setSpatialRotationY: setRotationY,
     setSpatialRotationZ: setRotationZ,
     setSpatialRotationOrbit: setRotationOrbit,
+    setSpatialOrbitAxis: setOrbitAxis,
+    setSpatialAxisFixed,
+    setSpatialBackgroundTheme,
+    setSpatialCameraSnapshot,
 
     // TODO: get obsSets per-layer or per-channel
     setAdditionalObsSets,
     setObsSetColor,
     setObsColorEncoding,
     setObsSetSelection,
+
+    setAnnotationStory,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes);
+
+  // Props for drawing annotation shapes in this view (while authoring the story
+  // via the annotation controller), and for highlighting the selected shape.
+  const annotationEditingProps = useAnnotationEditingForView(
+    uuid,
+    Boolean(areAnnotationsEditable && annotationEditable && typeof annotationFrameIndex === 'number'),
+  );
 
   const {
     spatialZoom: initialZoom,
@@ -209,6 +244,13 @@ export function SpatialSubscriber(props) {
   } = useInitialCoordination(
     COMPONENT_COORDINATION_TYPES[ViewType.SPATIAL_BETA], coordinationScopes,
   );
+
+  // A non-null camera snapshot in the coordination space indicates
+  // that a neuroglancer view is present and is publishing its camera state.
+  const hasSpatialCameraSnapshot = Boolean(spatialCameraSnapshot) && spatialRenderingMode === '3D';
+  const requestCameraReset = useCallback(() => {
+    setSpatialCameraSnapshot(null);
+  }, [setSpatialCameraSnapshot]);
 
   const observationsLabel = observationsLabelOverride || obsType;
 
@@ -270,6 +312,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_HIGHLIGHT,
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
+      CoordinationType.TOOLTIP_OBS_SETS_MODE,
       CoordinationType.LEGEND_VISIBLE,
     ],
     coordinationScopes,
@@ -327,6 +370,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
       CoordinationType.SPATIAL_SPOT_RADIUS,
+      CoordinationType.SPATIAL_SPOT_SHAPE,
       CoordinationType.SPATIAL_SPOT_FILLED,
       CoordinationType.SPATIAL_SPOT_STROKE_WIDTH,
       CoordinationType.OBS_COLOR_ENCODING,
@@ -354,6 +398,7 @@ export function SpatialSubscriber(props) {
       CoordinationType.OBS_TYPE,
       CoordinationType.SPATIAL_LAYER_VISIBLE,
       CoordinationType.SPATIAL_LAYER_OPACITY,
+      CoordinationType.SPATIAL_LAYER_OPACITY_UNSELECTED,
       CoordinationType.OBS_COLOR_ENCODING,
       CoordinationType.FEATURE_COLOR,
       CoordinationType.FEATURE_FILTER_MODE,
@@ -365,6 +410,8 @@ export function SpatialSubscriber(props) {
       CoordinationType.TOOLTIPS_VISIBLE,
       CoordinationType.TOOLTIP_CROSSHAIRS_VISIBLE,
       CoordinationType.LEGEND_VISIBLE,
+      CoordinationType.SPATIAL_POINT_RADIUS,
+      CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -506,7 +553,9 @@ export function SpatialSubscriber(props) {
     spotMultiExpressionNormDataAggregated,
     spotMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForLayers({
-    multiExpressionData: spotMultiExpressionNormData,
+    multiExpressionData: spotMultiExpressionData,
+    multiExpressionNormData: spotMultiExpressionNormData,
+    multiExpressionExtents: spotMultiExpressionExtents,
     layerScopes: spotLayerScopes,
     layerCoordination: spotLayerCoordination,
   });
@@ -515,7 +564,9 @@ export function SpatialSubscriber(props) {
     segmentationMultiExpressionNormDataAggregated,
     segmentationMultiExpressionExtentsAggregated,
   ] = useAggregatedNormalizedExpressionDataForChannels({
-    multiExpressionData: segmentationMultiExpressionNormData,
+    multiExpressionData: segmentationMultiExpressionData,
+    multiExpressionNormData: segmentationMultiExpressionNormData,
+    multiExpressionExtents: segmentationMultiExpressionExtents,
     layerScopes: segmentationLayerScopes,
     layerCoordination: segmentationLayerCoordination,
     channelScopesByLayer: segmentationChannelScopesByLayer,
@@ -526,6 +577,17 @@ export function SpatialSubscriber(props) {
   const [imageData, imageDataStatus, imageUrls, imageDataErrors] = useMultiImages(
     coordinationScopes, coordinationScopesBy, loaders, dataset,
     mergeCoordination, uuid,
+  );
+
+  // The loaded story is only used to initialize the annotationStory
+  // coordination value (when it is currently null), so the data is not needed here.
+  const [
+    , annotationStoryStatus, annotationStoryUrls, annotationStoryError,
+  ] = useAnnotationStoryData(
+    loaders, dataset, false,
+    { setAnnotationStory },
+    { annotationStory },
+    {},
   );
 
   const errors = [
@@ -543,6 +605,7 @@ export function SpatialSubscriber(props) {
     ...segmentationMultiFeatureSelectionErrors,
     ...segmentationMultiIndicesDataErrors,
     ...obsSegmentationsLocationsDataErrors,
+    annotationStoryError,
   ];
 
   /*
@@ -586,17 +649,21 @@ export function SpatialSubscriber(props) {
     obsSegmentationsLocationsDataStatus,
     // Images
     imageDataStatus,
+    // Annotations
+    annotationStoryStatus,
   ]);
   const urls = useUrls([
     Object.values(obsSpotsUrls || {}).flat(),
     Object.values(obsPointsUrls || {}).flat(),
     Object.values(obsSegmentationsUrls || {}).flat(),
     Object.values(imageUrls || {}).flat(),
+    annotationStoryUrls,
     // TODO: more urls
     // TODO: a bit of memoization
   ]);
 
   const [originalViewState, setOriginalViewState] = useState(null);
+  const [isSelectionPending, setIsSelectionPending] = useState(false);
 
   // Compute initial viewState values to use if targetX and targetY are not
   // defined in the initial configuration.
@@ -623,6 +690,37 @@ export function SpatialSubscriber(props) {
     obsSegmentationsLocationsData, obsPointsData,
     segmentationChannelScopesByLayer,
   ]);
+
+  // Physical size of one 3D scene unit (e.g. 1e-6 for µm), taken from the first
+  // image layer. Used to convert camera snapshots coming from other views
+  // (e.g. Neuroglancer in nm) into this view's coordinate space.
+
+  const sceneMetersPerUnit = useMemo(() => {
+    const firstLayer = Object.values(imageData ?? {})[0];
+    return firstLayer?.image?.instance?.getSceneMetersPerUnit() ?? null;
+  }, [imageData]);
+
+  // Rescale an incoming snapshot (position, projectionScale) into scene units.
+  // Passed through unchanged when units already match or either side is unknown,
+  // which also preserves object identity for the echo checks in the renderer.
+  const sceneCameraSnapshot = useMemo(() => {
+    if (!spatialCameraSnapshot) return null;
+    const inMpu = spatialCameraSnapshot.metersPerUnit;
+    if (!sceneMetersPerUnit || !inMpu || inMpu === sceneMetersPerUnit) {
+      return spatialCameraSnapshot;
+    }
+    const k = inMpu / sceneMetersPerUnit;
+    return {
+      ...spatialCameraSnapshot,
+      position: spatialCameraSnapshot.position.map(p => p * k),
+      projectionScale: spatialCameraSnapshot.projectionScale * k,
+      metersPerUnit: sceneMetersPerUnit,
+    };
+  }, [spatialCameraSnapshot, sceneMetersPerUnit]);
+
+  const setSceneCameraSnapshot = useCallback((snapshot) => {
+    setSpatialCameraSnapshot({ ...snapshot, metersPerUnit: sceneMetersPerUnit });
+  }, [setSpatialCameraSnapshot, sceneMetersPerUnit]);
 
   useEffect(() => {
     // If it has not already been set, set the initial view state using
@@ -655,12 +753,67 @@ export function SpatialSubscriber(props) {
     initialTargetX, initialTargetY, initialTargetZ, initialZoom,
   ]);
 
+  // Re-initialize the camera when the user switches between 2D and 3D.
+  //
+  // The effect above deliberately does not re-run after a pan or zoom, so on its
+  // own it leaves the camera wherever the previous mode left it: switch to 3D
+  // after panning in 2D and the volume can be off-screen or framed for a
+  // completely different extent. The legacy layer controller did this reset
+  // explicitly whenever its resolution select moved between 2D and a 3D
+  // resolution (see LayerOptions in @vitessce/layer-controller).
+  const prevIs3dMode = useRef(is3dMode);
+  useEffect(() => {
+    if (prevIs3dMode.current === is3dMode) {
+      return;
+    }
+    if (hasSpatialCameraSnapshot) {
+      // Entering 3D while synced with Neuroglancer: the camera comes from the
+      // snapshot, so resetting the shared camera values would only cause the
+      // Neuroglancer view to jump back to the default camera.
+      prevIs3dMode.current = is3dMode;
+      return;
+    }
+    if (typeof defaultTargetX !== 'number' || typeof defaultTargetY !== 'number') {
+      // Not computable yet. Leave the camera alone and re-run once the data for
+      // the new mode is ready, rather than resetting the target to null.
+      return;
+    }
+    prevIs3dMode.current = is3dMode;
+    setTargetX(defaultTargetX);
+    setTargetY(defaultTargetY);
+    setTargetZ(defaultTargetZ);
+    setZoom(defaultZoom);
+    // Rotation is meaningless outside of the OrbitView used in 3D.
+    setRotationX(is3dMode ? 0 : null);
+    setRotationOrbit(is3dMode ? 0 : null);
+    // Deliberate dependency omissions: the setters, which are not referentially
+    // stable across renders and would re-run this on every one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [is3dMode, hasSpatialCameraSnapshot,
+    defaultTargetX, defaultTargetY, defaultTargetZ, defaultZoom]);
+
+
+  // Animate the 2D zoom/target when they change due to the current annotation frame.
+  const annotationFrameCoordinationValues = getAnnotationFrameCoordinationValues(
+    annotationStory, annotationFrameIndex, uuid,
+  );
+  const annotationTransitionProps = useAnnotationFrameTransition(
+    { zoom, targetX, targetY },
+    {
+      zoom: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_ZOOM],
+      targetX: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_X],
+      targetY: annotationFrameCoordinationValues?.[CoordinationType.SPATIAL_TARGET_Y],
+    },
+    // Only 2D transitions are supported.
+    is3dMode ? 0 : annotationTransitionDuration,
+  );
 
   const setViewState = ({
     zoom: newZoom,
     target,
     rotationX: newRotationX,
     rotationOrbit: newRotationOrbit,
+    orbitAxis: newOrbitAxis,
   }) => {
     setZoom(newZoom);
     setTargetX(target[0]);
@@ -671,6 +824,13 @@ export function SpatialSubscriber(props) {
       }
       setRotationX(newRotationX);
       setRotationOrbit(newRotationOrbit);
+      // spatialOrbitAxis is a declared camera coordination type for this view,
+      // so it has to round-trip through here like the rest of the camera state.
+      // DeckGL does not emit it (orbitAxis is an OrbitView prop rather than part
+      // of its viewState), but callers that reset the camera do supply it.
+      if (newOrbitAxis !== undefined) {
+        setOrbitAxis(newOrbitAxis);
+      }
     }
   };
 
@@ -902,9 +1062,19 @@ export function SpatialSubscriber(props) {
       closeButtonVisible={closeButtonVisible}
       downloadButtonVisible={downloadButtonVisible}
       removeGridComponent={removeGridComponent}
-      isReady={isReady}
+      isReady={isReady && !isSelectionPending}
       errors={errors}
       helpText={helpText}
+      spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+      options={(
+        <SpatialOptions
+          spatialAxisFixed={spatialAxisFixed}
+          setSpatialAxisFixed={setSpatialAxisFixed}
+          use3d={is3dMode}
+          spatialBackgroundTheme={spatialBackgroundTheme ?? 'dark'}
+          setSpatialBackgroundTheme={setSpatialBackgroundTheme}
+        />
+      )}
     >
       {
         shouldUseThree ? (
@@ -1022,6 +1192,7 @@ export function SpatialSubscriber(props) {
           <Spatial
             ref={deckRef}
             uuid={uuid}
+            onSelectionBusy={setIsSelectionPending}
             width={width}
             height={height}
             theme={theme}
@@ -1033,6 +1204,7 @@ export function SpatialSubscriber(props) {
               target: [targetX, targetY, targetZ],
               rotationX,
               rotationOrbit,
+              ...annotationTransitionProps,
             }) : DEFAULT_VIEW_STATE}
             orbitAxis={orbitAxis}
             spatialAxisFixed={spatialAxisFixed}
@@ -1068,6 +1240,14 @@ export function SpatialSubscriber(props) {
             imageChannelScopesByLayer={imageChannelScopesByLayer}
             imageChannelCoordination={imageChannelCoordination}
             setTiledPointsLoadingProgress={setTiledPointsLoadingProgress}
+            spatialCameraSnapshot={hasSpatialCameraSnapshot ? sceneCameraSnapshot : null}
+            setSpatialCameraSnapshot={hasSpatialCameraSnapshot ? setSceneCameraSnapshot : null}
+            annotationShapes={annotationShapes}
+            annotationOverlayVisible={annotationOverlayVisible}
+            annotationSemanticZoom={annotationSemanticZoom}
+            // Synced to Neuroglancer: recenter asks NG to restore its home camera (snapshot follows).
+            onRequestCameraReset={hasSpatialCameraSnapshot ? requestCameraReset : undefined}
+            {...annotationEditingProps}
           />
         )
       }
@@ -1101,8 +1281,8 @@ export function SpatialSubscriber(props) {
         />
       )}
       <MultiLegend
-        // Fix to dark theme due to black background of spatial plot.
-        theme="dark"
+        // Match the plot background, which is configurable.
+        theme={spatialBackgroundTheme ?? 'dark'}
         maxHeight={height}
 
         // Segmentations

@@ -22,6 +22,8 @@ export {
 export {
   useCoordinationScopes,
   useCoordinationScopesBy,
+  useRawViewMapping,
+  useViewMapping,
   useInitialCoordination,
   useCoordination,
   useComplexCoordination,
@@ -35,6 +37,7 @@ export {
   useDatasetUids,
   useLoaders,
   useMergeCoordination,
+  useAnnotationFrameCoordination,
   useMatchingLoader,
   useViewConfigStore,
   useViewConfigStoreApi,
@@ -50,7 +53,15 @@ export {
   useComponentLayout,
   useRemoveImageChannelInMetaCoordinationScopes,
   useAddImageChannelInMetaCoordinationScopes,
+  getAnnotationFrameUpdate,
 } from './state/hooks.js';
+export {
+  useAnnotationEditingStore,
+  useAnnotationEditingStoreApi,
+  useAnnotationEditingStoreShallow,
+  useAnnotationEditingForView,
+  getViewCoordinationValuesForFrame,
+} from './state/annotation-editing.js';
 export {
   useDescription,
   useImageData,
@@ -83,6 +94,7 @@ export {
   useFeatureStatsData,
   useFeatureSetStatsData,
   useObsSetStatsData,
+  useAnnotationStoryData,
 } from './data-hooks.js';
 export {
   usePointMultiObsLabels,
@@ -93,6 +105,7 @@ export {
   useSegmentationMultiObsFeatureMatrixIndices,
   useSegmentationMultiObsLocations,
   useSegmentationMultiObsSets,
+  useSegmentationMultiObsColors,
 } from './data-hooks-multilevel.js';
 export {
   useHasLoader,
@@ -107,3 +120,15 @@ export { logConfig } from './view-config-utils.js';
 export { useAsyncFunction, usePageModeView } from './contexts.js';
 export { createLoaders } from './vitessce-grid-utils.js';
 export { createOnDrop } from './on-drop.js';
+export {
+  useMemoCustomComparison,
+  shallowDiff,
+  shallowDiffByLayer,
+  shallowDiffByLayerWithKeys,
+  shallowDiffByChannel,
+  shallowDiffByChannelWithKeys,
+  shallowDiffByLayerCoordination,
+  shallowDiffByLayerCoordinationWithKeys,
+  shallowDiffByChannelCoordination,
+  shallowDiffByChannelCoordinationWithKeys,
+} from './use-memo-custom-comparison.js';

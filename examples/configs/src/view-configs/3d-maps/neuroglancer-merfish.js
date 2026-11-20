@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
+/* eslint-disable no-unused-vars */
 import {
   VitessceConfig,
   CoordinationLevel as CL,
-  hconcat,
-  vconcat,
   getInitialCoordinationScopePrefix,
 } from '@vitessce/config';
 
@@ -14,9 +13,9 @@ function generateNeuroglancerMerfish() {
   });
 
   const sdataUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse_ileum.sdata.zarr';
-  const pointsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
+  const pointsUrl = 'https://data-2.vitessce.io/data/sorger/tissue-map-tools-output-tab/merfish_mouse_ileum_precomputed_all_prop/molecule_baysor';
+  // const pointsUrl =  'https://data-2.vitessce.io/data/moffitt/merfish_mouse/molecule_baysor2';
 
-  // TODO: check if these meshes are sharded or not (sharded may not be compatible with NG version that we are currently using).
   const segmentationsUrl = 'https://data-2.vitessce.io/data/moffitt/merfish_mouse';
 
   const withPoints = true;
@@ -35,14 +34,6 @@ function generateNeuroglancerMerfish() {
   dataset.addFile({
     fileType: 'obsSegmentations.ng-precomputed',
     url: segmentationsUrl,
-    options: {
-      subsources: {
-        default: true,
-        bounds: false,
-        mesh: true,
-      },
-      enableDefaultSubsources: false,
-    },
     coordinationValues: {
       fileUid: 'merfish-meshes',
       obsType: 'cell',
@@ -54,7 +45,7 @@ function generateNeuroglancerMerfish() {
       fileType: 'obsPoints.ng-annotations',
       url: pointsUrl,
       options: {
-        projectionAnnotationSpacing: 2.4544585683772735,
+        projectionAnnotationSpacing: 0.0625, // NG minimum = draw all levels (all points in view)
 
         // Note: tissue-map-tools creates an AnnotationProperty
         // for every column in the sdata Points element dask dataframe.
@@ -79,14 +70,17 @@ function generateNeuroglancerMerfish() {
     url: sdataUrl,
     options: {
       obsFeatureMatrix: {
-        path: 'tables/gene_expression_baysor/X',
+        path: 'tables/gene_expression_cellpose/layers/log_norm',
       },
+      obsEmbedding: [
+        { path: 'tables/gene_expression_cellpose/obsm/X_umap', embeddingType: 'UMAP' },
+      ],
       obsSets: {
-        tablePath: 'tables/gene_expression_baysor',
+        tablePath: 'tables/gene_expression_cellpose',
         obsSets: [
           {
-            name: 'Region',
-            path: 'tables/gene_expression_baysor/obs/region',
+            name: 'Cell Types',
+            path: 'tables/gene_expression_cellpose/obs/cluster',
           },
         ],
       },
@@ -97,49 +91,30 @@ function generateNeuroglancerMerfish() {
     },
   });
 
-  const neuroglancerView = config.addView(dataset, 'neuroglancer').setProps({
-    // Note: this is a temporary mechanism to pass an initial NG camera state.
-    // Ideally, all camera state should be passed via the existing spatialZoom, spatialTargetX, spatialRotationOrbit, etc,
-    // and then NeuroglancerSubscriber should internally convert to NG-compatible values, which would eliminate the need for this.
+  const neuroglancerView = config.addView(dataset, 'neuroglancer', { x: 0, y: 0, w: 5, h: 7 }).setProps({
     initialNgCameraState: {
-      position: [
-        3630.5,
-        4469.5,
-        7.5,
-      ],
-      projectionScale: 11521.115426462216,
-      projectionOrientation: [
-        -0.0017234950792044401,
-        -0.031710099428892136,
-        0.02632056176662445,
-        0.999148964881897,
-      ],
+      position: [2916001, 4695501, 55073],
+      projectionScale: 10978746,
     },
-    showAxisLines: true,
-  });
-  const lcView = config.addView(dataset, 'layerControllerBeta').setProps({ layerPerFeatureForPoints: true });
-  const geneList = config.addView(dataset, 'featureList').setProps({ enableMultiSelect: true });
-  const obsSets = config.addView(dataset, 'obsSets');
 
+  });
+  const umap = config.addView(dataset, 'scatterplot', { mapping: 'UMAP', x: 5, y: 0, w: 4, h: 7 });
+  const lcView = config.addView(dataset, 'layerControllerBeta', { x: 9, y: 0, w: 3, h: 4 }).setProps({ layerPerFeatureForPoints: true });
+
+  const geneList = config.addView(dataset, 'featureList', { x: 9, y: 4, w: 3, h: 3 }).setProps({ enableMultiSelect: true });
+  const heatmap = config.addView(dataset, 'heatmap', { x: 0, y: 7, w: 6, h: 5 });
+  const obsSets = config.addView(dataset, 'obsSets', { x: 6, y: 7, w: 3, h: 5 });
+  const violin = config.addView(dataset, 'obsSetFeatureValueDistribution', { x: 9, y: 7, w: 3, h: 5 });
+
+  config.linkViewsByObject([violin], { featureValueTransform: 'log1p' }, { meta: false });
   config.linkViewsByObject([neuroglancerView, lcView], {
     spatialRenderingMode: '3D',
-    spatialZoom: 0,
-    spatialTargetT: 0,
-    spatialTargetX: 0,
-    spatialTargetY: 0,
-    spatialTargetZ: 0,
-    spatialRotationX: 0,
-    spatialRotationY: 0,
-    spatialRotationZ: 0,
-    spatialRotationOrbit: 0,
-  }, { meta: false });
-
-  config.linkViewsByObject([neuroglancerView, lcView], {
     segmentationLayer: CL([
       {
         fileUid: 'merfish-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
+        spatialLayerLabel: 'Meshes',
         segmentationChannel: CL([
           {
             obsType: 'cell',
@@ -163,6 +138,8 @@ function generateNeuroglancerMerfish() {
           spatialLayerOpacity: 1,
           spatialLayerVisible: true,
           obsColorEncoding: 'geneSelection',
+          spatialLayerLabel: 'Transcripts',
+          spatialPointRadius: 2.5,
           featureColor: [
             { name: 'Ada', color: [255, 0, 0] },
           ],
@@ -172,7 +149,6 @@ function generateNeuroglancerMerfish() {
     }, { scopePrefix: getInitialCoordinationScopePrefix('A', 'obsPoints') });
   }
 
-  config.layout(hconcat(neuroglancerView, vconcat(lcView, geneList, obsSets)));
   const configJSON = config.toJSON();
   return configJSON;
 }

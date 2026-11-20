@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   makeStyles,
   NativeSelect,
 } from '@vitessce/styles';
+import { getSortedChannelOptions } from '@vitessce/layer-controller';
 import { useSelectStyles } from './styles.js';
-
 
 const useStyles = makeStyles()(() => ({
   oneLineChannelSelect: {
@@ -18,10 +18,12 @@ const useStyles = makeStyles()(() => ({
  * Dropdown for selecting a channel.
  * @prop {boolean} disabled Whether or not the component is disabled.
  * @prop {string[]} featureIndex The feature index.
+ * @prop {string} channelsSortOrder Either 'original' or 'alphabetical'.
  */
 export default function ChannelSelectionDropdown(props) {
   const {
     featureIndex,
+    channelsSortOrder,
     targetC,
     setTargetC,
     setWindow,
@@ -35,6 +37,11 @@ export default function ChannelSelectionDropdown(props) {
     setWindow(null); // Clear the window value so that it can be re-auto-calculated.
     // TODO: also clear the window and re-calculate upon change of Z/T.
   }
+
+  const sortedOptions = useMemo(
+    () => getSortedChannelOptions(featureIndex, channelsSortOrder),
+    [featureIndex, channelsSortOrder],
+  );
   return (Array.isArray(featureIndex) ? (
     <NativeSelect
       classes={{ root: selectClasses.selectRoot }}
@@ -43,8 +50,7 @@ export default function ChannelSelectionDropdown(props) {
       onChange={handleChange}
       inputProps={{ 'aria-label': 'Channel selector' }}
     >
-      {featureIndex.map((channelName, channelIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
+      {sortedOptions.map(({ channelName, channelIndex }) => (
         <option disabled={disabled} key={`${channelName}-${channelIndex}`} value={channelIndex}>
           {channelName}
         </option>
