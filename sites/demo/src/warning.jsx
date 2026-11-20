@@ -8,7 +8,7 @@ export function Warning(props) {
     theme,
   } = props;
   return (
-    <div className={`vitessce-container vitessce-theme-${theme}`}>
+    <div className={`welcome-container welcome-theme-${theme}`}>
       <div className="warning-layout container-fluid">
         <div className="row">
           <div className="col-12">

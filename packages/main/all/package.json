@@ -49,6 +49,7 @@
     "@vitessce/link-controller": "workspace:*",
     "@vitessce/obs-sets-manager": "workspace:*",
     "@vitessce/ome-tiff": "workspace:*",
+    "@vitessce/radiology": "workspace:*",
     "@vitessce/plugins": "workspace:*",
     "@vitessce/scatterplot-embedding": "workspace:*",
     "@vitessce/scatterplot-gating": "workspace:*",
