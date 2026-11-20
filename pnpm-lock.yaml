@@ -164,8 +164,8 @@ catalogs:
       specifier: ^2.0.3
       version: 2.0.3
     lodash-es:
-      specifier: ^4.17.21
-      version: 4.17.21
+      specifier: ^4.18.1
+      version: 4.18.1
     math.gl:
       specifier: ^3.5.6
       version: 3.6.3
@@ -413,7 +413,7 @@ importers:
         version: 1.2.5(lodash@4.17.21)
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       mdast-util-to-string:
         specifier: ^1.0.6
         version: 1.1.0
@@ -518,7 +518,7 @@ importers:
         version: link:../../packages/vit-s
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
     devDependencies:
       react:
         specifier: 'catalog:'
@@ -656,7 +656,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
     devDependencies:
       '@types/three':
         specifier: 'catalog:'
@@ -717,7 +717,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       zarrita:
         specifier: 'catalog:'
         version: 0.7.5
@@ -762,7 +762,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
 
   packages/file-types/spatial-zarr:
     dependencies:
@@ -801,7 +801,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       ol:
         specifier: ^10.2.1
         version: 10.2.1
@@ -859,7 +859,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       ol:
         specifier: ^10.2.1
         version: 10.2.1
@@ -1004,7 +1004,7 @@ importers:
         version: 7.1.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -1164,7 +1164,7 @@ importers:
         version: 3.0.0
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
     devDependencies:
       '@types/d3-axis':
         specifier: 'catalog:'
@@ -1379,7 +1379,7 @@ importers:
         version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       nuqs:
         specifier: ^2.6.0
         version: 2.8.6(react-router-dom@5.3.4(react@18.3.1))(react-router@5.3.4(react@18.3.1))(react@18.3.1)
@@ -1566,7 +1566,7 @@ importers:
         version: link:../utils/other-utils
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       semver:
         specifier: 'catalog:'
         version: 7.6.3
@@ -1739,7 +1739,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       lz-string:
         specifier: ^1.4.4
         version: 1.5.0
@@ -1781,7 +1781,7 @@ importers:
         version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       tinycolor2:
         specifier: ^1.4.1
         version: 1.4.2
@@ -1814,7 +1814,7 @@ importers:
         version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -1900,7 +1900,7 @@ importers:
         version: link:../../vit-s
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-markdown:
         specifier: ^9.0.1
         version: 9.0.1(@types/react@19.1.6)(react@19.2.6)
@@ -1949,7 +1949,7 @@ importers:
         version: 7.0.0
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-window:
         specifier: ^1.8.10
         version: 1.8.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2026,7 +2026,7 @@ importers:
         version: 1.2.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2087,7 +2087,7 @@ importers:
         version: 0.6.0
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
     devDependencies:
       react:
         specifier: 'catalog:'
@@ -2133,7 +2133,7 @@ importers:
         version: link:../../workers
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2182,7 +2182,7 @@ importers:
         version: link:../../vit-s
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2243,7 +2243,7 @@ importers:
         version: 1.2.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2341,7 +2341,7 @@ importers:
         version: link:../../vit-s
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       neuroglancer:
         specifier: 2.41.2
         version: 2.41.2(patch_hash=xgkjojorp5ymcxvecnai3gq3ke)(typescript@5.5.3)
@@ -2393,7 +2393,7 @@ importers:
         version: 1.2.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       rc-tree:
         specifier: 2.1.0
         version: 2.1.0(patch_hash=hn6ocsle7tvl24ochfytc7eqjy)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2448,7 +2448,7 @@ importers:
         version: 1.0.7
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2506,7 +2506,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2549,7 +2549,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2607,7 +2607,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2677,7 +2677,7 @@ importers:
         version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2765,7 +2765,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2832,7 +2832,7 @@ importers:
         version: 2.12.1
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       math.gl:
         specifier: 'catalog:'
         version: 3.6.3
@@ -2926,7 +2926,7 @@ importers:
         version: 2.0.3
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -3045,7 +3045,7 @@ importers:
         version: 10.9.2
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
       react-aria:
         specifier: 'catalog:'
         version: 3.47.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -3091,7 +3091,7 @@ importers:
     dependencies:
       lodash-es:
         specifier: 'catalog:'
-        version: 4.17.21
+        version: 4.18.1
     devDependencies:
       '@rollup/plugin-commonjs':
         specifier: ^23.0.0
@@ -3300,8 +3300,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.6(@docusaurus/core@3.8.0(@mdx-js/react@3.1.0(@types/react@19.1.6)(react@19.2.6))(acorn@6.4.2)(lightningcss@1.22.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.5.3))(sass@1.89.1)(webpack@5.99.9)
       lodash-es:
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: ^4.18.1
+        version: 4.18.1
       monaco-editor:
         specifier: ^0.28.0
         version: 0.28.1
@@ -11089,11 +11089,13 @@ packages:
   image-size@0.7.5:
     resolution: {integrity: sha512-Hiyv+mXHfFEP7LzUL/llg9RwFxxY+o9N3JVLIeG5E7iFIFAalxvRU9UZthBdYDEVnzHMgjnKJPPpay5BWf1g9g==}
     engines: {node: '>=6.9.0'}
+    deprecated: Please migrate to image-size@2.x
     hasBin: true
 
   image-size@2.0.2:
     resolution: {integrity: sha512-IRqXKlaXwgSMAMtpNzZa1ZAe8m+Sa1770Dhk8VkSsP9LS+iHD62Zd8FQKs8fbPiagBE7BzoFX23cxFnwshpV6w==}
     engines: {node: '>=16.x'}
+    deprecated: Use latest 2.x please
     hasBin: true
 
   immediate@3.0.6:
@@ -11872,8 +11874,8 @@ packages:
     resolution: {integrity: sha512-gvVijfZvn7R+2qyPX8mAuKcFGDf6Nc61GdvGafQsHL0sBIxfKzA+usWn4GFC/bk+QdwPUD4kWFJLhElipq+0VA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+  lodash-es@4.18.1:
+    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
 
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
@@ -27817,7 +27819,7 @@ snapshots:
     dependencies:
       p-locate: 6.0.0
 
-  lodash-es@4.17.21: {}
+  lodash-es@4.18.1: {}
 
   lodash.camelcase@4.3.0: {}
 
@@ -28719,7 +28721,7 @@ snapshots:
       crc-32: 1.2.2
       gl-matrix: 3.1.0
       ikonate: https://codeload.github.com/mikolajdobrucki/ikonate/tar.gz/a86b4107c6ec717e7877f880a930d1ccf0b59d89
-      lodash-es: 4.17.21
+      lodash-es: 4.18.1
       msgpackr: 1.12.1
       nifti-reader-js: 0.6.9
       numcodecs: 0.3.2
@@ -30291,7 +30293,7 @@ snapshots:
     dependencies:
       '@icons/material': 0.2.4(react@19.2.6)
       lodash: 4.17.21
-      lodash-es: 4.17.21
+      lodash-es: 4.18.1
       material-colors: 1.2.6
       prop-types: 15.8.1
       react: 19.2.6
