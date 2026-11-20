@@ -1,4 +1,13 @@
 
+## 4.2.2
+
+### Patch Changes
+
+- Update the accelerated 3D spatial view to follow the "Light background" option (`spatialBackgroundTheme`) rather than the overall Vitessce theme. (`@vitessce/spatial-accelerated`, `@vitessce/spatial-beta`) ([#2708](https://github.com/vitessce/vitessce/pull/2708))
+
+- Keep the accelerated 3D view at its best render quality when not interacting, rather than switching to coarser levels while loading, and render channel colors as picked in the controls (they were shown lighter, e.g. `#FF8000` as `#FFBC00`). (`@vitessce/spatial-accelerated`) ([#2710](https://github.com/vitessce/vitessce/pull/2710))
+
+
 ## 4.2.1
 
 ### Patch Changes
