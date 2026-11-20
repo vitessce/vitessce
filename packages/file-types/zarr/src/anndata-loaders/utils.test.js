@@ -3,7 +3,6 @@ import {
   convertBigInt64ArrayToInt32Array,
   IncorrectDataTypeError,
   bigInt64ToNumberArray,
-  getBytesPerElement,
   extractCsrColumns,
 } from './utils.js';
 
@@ -102,16 +101,6 @@ describe('loaders/utils', () => {
     it('passes non-BigInt arrays through by identity', () => {
       const arr = new Int32Array([1, 2]);
       expect(bigInt64ToNumberArray(arr)).toBe(arr);
-    });
-  });
-
-  describe('getBytesPerElement', () => {
-    it('maps zarrita dtypes to byte widths, defaulting conservatively', () => {
-      expect(getBytesPerElement('float32')).toEqual(4);
-      expect(getBytesPerElement('int64')).toEqual(8);
-      expect(getBytesPerElement('uint8')).toEqual(1);
-      expect(getBytesPerElement('bool')).toEqual(1);
-      expect(getBytesPerElement('v2:object')).toEqual(8);
     });
   });
 

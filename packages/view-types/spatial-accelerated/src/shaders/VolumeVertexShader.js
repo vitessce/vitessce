@@ -77,6 +77,10 @@ varying vec4 glPosition;
 // Volume bounding box size uniform
 uniform highp vec3 boxSize;
 
+// Orthographic projection: parallel rays, framed as the perspective camera
+// frames the plane through the volume center
+uniform bool u_orthographic;
+
 void main()
 {
    // Transform vertex positions from [-0.5, 0.5] range to [0, 1] range
@@ -94,13 +98,29 @@ void main()
    // Transform camera position into volume's local coordinate system
    // This gives us the ray origin in volume space
    cameraCorrected = (inverse(modelMatrix) * vec4(cameraPosition, 1.)).xyz;
+
+   vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+   if (u_orthographic) {
+      // Ray origin: the vertex moved back along the view direction onto the
+      // camera plane, so all rays are parallel and start at the camera depth
+      vec3 viewDirection = (inverse(modelViewMatrix) * vec4(0.0, 0.0, -1.0, 0.0)).xyz;
+      cameraCorrected = position + viewDirection * viewPosition.z;
+   }
    
    // Calculate unnormalized ray direction from camera to each vertex
    // Used by fragment shader for ray marching through the volume
    rayDirUnnorm = position - cameraCorrected;
    
    // Apply standard MVP transformation to get clip-space coordinates
-   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+   gl_Position = projectionMatrix * viewPosition;
+   if (u_orthographic) {
+      // Scale as the perspective projection does at the depth of the volume center
+      float centerDepth = -modelViewMatrix[3].z;
+      gl_Position = vec4(
+         projectionMatrix[0][0] * viewPosition.x / centerDepth,
+         projectionMatrix[1][1] * viewPosition.y / centerDepth,
+         0.0, 1.0);
+   }
    
    // Store clip-space position for fragment shader access
    glPosition = gl_Position;

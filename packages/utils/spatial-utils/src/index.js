@@ -22,6 +22,7 @@ export {
   getStatsForResolution,
   canLoadResolution,
   normalizeCoordinateTransformations,
+  getDatasetScale,
   normalizeAxes,
 } from './spatial.js';
 export {
