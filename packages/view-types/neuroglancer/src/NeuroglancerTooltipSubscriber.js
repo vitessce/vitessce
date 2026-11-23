@@ -30,8 +30,12 @@ function getObsInfo(obsSetsData, obsType, obsId) {
   result = {
     ...result,
     ...Object.fromEntries(
-      obsMembership.flatMap(path => path.slice(1).map((pathEl, elLevel) => [
-        `${path[0]}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
+      obsMembership.flatMap((path, membershipIndex) => path.slice(1).map((pathEl, elLevel) => [
+        // Disambiguate keys when an obsId belongs to more than one group sharing
+        // the same top-level tree root (path[0]) -- otherwise multiple memberships
+        // generate identical keys ("Pair Types L1"/"L2") and Object.fromEntries
+        // silently drops all but the last one.
+        `${path[0]}${obsMembership.length > 1 ? ` #${membershipIndex + 1}` : ''}${path.length > 2 ? ` L${elLevel + 1}` : ''}`,
         pathEl,
       ])),
     ),
