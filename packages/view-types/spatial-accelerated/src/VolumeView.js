@@ -47,19 +47,13 @@ function logWithColor(msg) {
   }
 }
 
-// Loading counts as slow once a batch of bricks has taken this long (e.g. large
-// one-plane chunks): the view then holds an image at best quality while it waits.
-const SLOW_LOADING_MS = 1000;
-// While loading slowly, a held image is drawn again for bricks that arrived
-// since, at most this often, so that they show before the batch ends without
-// keeping the GPU busy. Only the batch end reads the buffers back.
-const SLOW_LOADING_REDRAW_MS = 1000;
+// While loading, the held image is drawn again for bricks that arrived since,
+// at most this often, so that they show before the batch ends without keeping
+// the GPU busy. The end of a batch draws them right away, for the next read.
+const LOADING_REDRAW_MS = 1000;
 // After an interaction, the view gets one ray step level finer this often,
 // until it renders at best quality.
 const RAMP_STEP_MS = 200;
-// While loading quickly (frames drawn continuously), the level gets coarser
-// once frames drop below this rate.
-const MIN_FPS = 30;
 // While interacting, frames should keep up with the display (browsers draw at
 // most once per refresh, so 60 fps on most displays): the level gets coarser
 // once they drop below INTERACTIVE_MIN_FPS (two frames dropped in a 200 ms
@@ -179,10 +173,10 @@ function handleRequests(_gl, {
   }
 }
 
-// Whether the last frame drawn, held while loading slowly, predates bricks of
-// the last batch, so that its request buffer would ask for them again.
-function isHeldFrameBehindBatch(slowLoading, drawn) {
-  return slowLoading.isSlow && (drawn.uploads ?? -1) < slowLoading.uploadsAtBatchEnd;
+// Whether the last frame drawn predates bricks of the last batch, so that its
+// request buffer would ask for them again.
+function isHeldFrameBehindBatch(batch, drawn) {
+  return (drawn.uploads ?? -1) < batch.uploadsAtEnd;
 }
 
 // Blur of the screen pass for frames drawn at a ray step level: none at best
@@ -192,26 +186,19 @@ function blurForLevel(level) {
 }
 
 /**
- * Track whether loading is slow: a batch has taken longer than SLOW_LOADING_MS.
- * It stays slow until a batch ends sooner, or the user interacts.
+ * Record the brick uploads when a batch ends: the next buffer read waits for
+ * a frame that shows them (see isHeldFrameBehindBatch).
  */
-function trackSlowLoading(now, { isInteracting, dataManager, slowLoadingRef }) {
-  const slowLoading = slowLoadingRef.current;
-  if (isInteracting) {
-    Object.assign(slowLoading, { busySince: null, isSlow: false });
-    return;
-  }
+function trackBatchEnd({ dataManager, batchRef }) {
+  const batch = batchRef.current;
   if (dataManager.isBusy) {
-    if (slowLoading.busySince === null) slowLoading.busySince = now;
-    if (now - slowLoading.busySince > SLOW_LOADING_MS) slowLoading.isSlow = true;
+    batch.isBusy = true;
     return;
   }
-  if (slowLoading.busySince === null) return;
-  slowLoading.isSlow = now - slowLoading.busySince > SLOW_LOADING_MS;
-  slowLoading.busySince = null;
-  // The next request read needs a frame with the bricks of this batch. Bricks
-  // that arrive later, from batches that bailed out, do not hold it back.
-  slowLoading.uploadsAtBatchEnd = dataManager.uploadCount;
+  if (!batch.isBusy) return;
+  batch.isBusy = false;
+  // Bricks that arrive later, from batches that bailed out, do not hold it back.
+  batch.uploadsAtEnd = dataManager.uploadCount;
 }
 
 /**
@@ -221,10 +208,8 @@ function trackSlowLoading(now, { isInteracting, dataManager, slowLoadingRef }) {
  * (INTERACTIVE_MIN_FPS), going finer while no frame drops, starting one level
  * coarser than where the last interaction left it (the coarsest at first). Afterwards, one
  * level finer every RAMP_STEP_MS down to the best quality, with less blur each
- * step. While loading is done or slow, frames are only drawn for those steps
- * and for bricks that arrived since, and held otherwise. While loading quickly,
- * frames are drawn continuously: the steps then stop at the finest level that
- * keeps MIN_FPS.
+ * step. Otherwise frames are only drawn for those steps and for bricks that
+ * arrived since, and held in between.
  */
 function handleAdaptiveQuality(params) {
   const {
@@ -235,7 +220,7 @@ function handleAdaptiveQuality(params) {
     stillRef,
     screenQuadRef,
     frameRef,
-    slowLoadingRef,
+    batchRef,
     rampRef,
     drawnRef,
     now,
@@ -294,42 +279,24 @@ function handleAdaptiveQuality(params) {
   const lowest = dataManager.PT.lowestDataRes;
   const level = Math.min(uniforms.renderRes.value, lowest);
   const isStepDue = now - ramp.lastStep >= RAMP_STEP_MS;
-  const slowLoading = slowLoadingRef.current;
   let nextLevel = level;
-  if (dataManager.noNewRequests || slowLoading.isSlow) {
-    // Loading is done or slow: draw a frame only for a ramp step, or for bricks
-    // that arrived since the last one, and hold it otherwise.
-    const drawn = drawnRef.current;
-    let isDrawDue = false;
-    if (level > 0 && isStepDue) {
-      nextLevel = level - 1;
-      ramp.lastStep = now;
-      isDrawDue = true;
-    } else if (drawn.uploads !== dataManager.uploadCount) {
-      // The next request read needs the last batch's bricks right away; other
-      // bricks are drawn at most every SLOW_LOADING_REDRAW_MS.
-      const isReadDue = !dataManager.isBusy && !dataManager.noNewRequests
-        && (dataManager.triggerUsage || dataManager.triggerRequest);
-      isDrawDue = (isReadDue && isHeldFrameBehindBatch(slowLoading, drawn))
-        || now - drawn.at > SLOW_LOADING_REDRAW_MS;
-    }
-    stillRef.current = !isDrawDue;
-  } else {
-    // Loading quickly: frames are drawn continuously. Step finer while they
-    // keep MIN_FPS; once they do not, step back and stay there.
-    stillRef.current = false;
-    if (isStepDue) {
-      const fps = ((frameRef.current - ramp.lastStepFrame) * 1000) / (now - ramp.lastStep);
-      if (fps < MIN_FPS && level < lowest) {
-        nextLevel = level + 1;
-        ramp.floor = nextLevel;
-      } else if (level > ramp.floor) {
-        nextLevel = level - 1;
-      }
-      ramp.lastStep = now;
-      ramp.lastStepFrame = frameRef.current;
-    }
+  // Draw a frame only for a ramp step, or for bricks that arrived since the
+  // last one, and hold it otherwise.
+  const drawn = drawnRef.current;
+  let isDrawDue = false;
+  if (level > 0 && isStepDue) {
+    nextLevel = level - 1;
+    ramp.lastStep = now;
+    isDrawDue = true;
+  } else if (drawn.uploads !== dataManager.uploadCount) {
+    // The next request read needs the last batch's bricks right away; other
+    // bricks are drawn at most every LOADING_REDRAW_MS.
+    const isReadDue = !dataManager.isBusy && !dataManager.noNewRequests
+      && (dataManager.triggerUsage || dataManager.triggerRequest);
+    isDrawDue = (isReadDue && isHeldFrameBehindBatch(batchRef.current, drawn))
+      || now - drawn.at > LOADING_REDRAW_MS;
   }
+  stillRef.current = !isDrawDue;
   if (!stillRef.current) {
     uniforms.renderRes.value = nextLevel;
     screenQuadRef.current.material.uniforms.gaussian.value = blurForLevel(nextLevel);
@@ -431,12 +398,12 @@ export function VolumeView(props) {
   const fenceRef = useRef(null);
   // When the last buffer read cycle started (see INTERACTIVE_READ_MS).
   const readCycleRef = useRef(0);
-  // Slow loading (see trackSlowLoading): since when the current batch has run,
-  // and the brick uploads when the last batch ended.
-  const slowLoadingRef = useRef({ busySince: null, isSlow: false, uploadsAtBatchEnd: 0 });
+  // Whether a batch is loading, and the brick uploads when the last one ended
+  // (see trackBatchEnd).
+  const batchRef = useRef({ isBusy: false, uploadsAtEnd: 0 });
   // Render quality steps (see handleAdaptiveQuality): when the last step was
   // taken, the frame count then, the finest level that keeps up (within an
-  // interaction, or while loading quickly), and the level interaction left off at.
+  // interaction), and the level interaction left off at.
   const rampRef = useRef({
     lastStep: 0, lastStepFrame: 0, floor: 0, interactiveLevel: null,
   });
@@ -826,15 +793,15 @@ export function VolumeView(props) {
     }
 
     const now = performance.now();
-    const slowLoading = slowLoadingRef.current;
     if (!stillRef.current) {
       performGeometryPass(frameGl, frameCamera, frameScene, { mrtRef });
       geometryPassRef.current += 1;
       drawnRef.current = { uploads: dataManager.uploadCount, at: now };
-      // A frame that is then held (loading done or slow) may be at best quality,
-      // which can take long: its buffers are read once it is done. Not frames
-      // drawn continuously, which would each push the reads back.
-      if (slowLoading.isSlow || dataManager.noNewRequests) {
+      // A frame drawn outside an interaction is then held, and may be at best
+      // quality, which can take long: its buffers are read once it is done. Not
+      // frames drawn continuously while interacting, which would each push the
+      // reads back.
+      if (!isInteractingRef.current) {
         const ctx = frameGl.getContext();
         if (fenceRef.current) ctx.deleteSync(fenceRef.current);
         fenceRef.current = ctx.fenceSync(ctx.SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -851,13 +818,13 @@ export function VolumeView(props) {
       geometryPassRef,
       requestReadPassRef,
       // A held image without the last batch's bricks is drawn again first.
-      canRead: !isHeldFrameBehindBatch(slowLoading, drawnRef.current)
+      canRead: !isHeldFrameBehindBatch(batchRef.current, drawnRef.current)
         && isFenceDone(frameGl, fenceRef),
       canStartReadCycle: !isInteractingRef.current
         || now - readCycleRef.current >= INTERACTIVE_READ_MS,
       readCycleRef,
     });
-    trackSlowLoading(now, { isInteracting: isInteractingRef.current, dataManager, slowLoadingRef });
+    trackBatchEnd({ dataManager, batchRef });
     handleAdaptiveQuality({
       isInteracting: isInteractingRef.current,
       dataManager,
@@ -866,7 +833,7 @@ export function VolumeView(props) {
       stillRef,
       screenQuadRef,
       frameRef,
-      slowLoadingRef,
+      batchRef,
       rampRef,
       drawnRef,
       now,

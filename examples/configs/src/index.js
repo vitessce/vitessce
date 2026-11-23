@@ -126,9 +126,13 @@ import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko
 import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
 import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
+import { neuroglancerMisGzmb } from './view-configs/3d-maps/neuroglancer-mis-gzmb.js';
+import { neuroglancerInvGzmb } from './view-configs/3d-maps/neuroglancer-inv-gzmb.js';
 import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
+import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
+import { neuroglancerSkin } from './view-configs/3d-maps/neuroglancer-skin.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -269,6 +273,7 @@ export const configs = {
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
   'neuroglancer-sorger': neuroglancerSorger,
+  'neuroglancer-skin': neuroglancerSkin,
   'neuroglancer-invasive': neuroglancerInvasive,
   'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
   'neuroglancer-interscellar': neuroglancerInterscellar,
@@ -277,8 +282,11 @@ export const configs = {
   'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
   'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
+  'neuroglancer-mis-gzmb': neuroglancerMisGzmb,
+  'neuroglancer-inv-gzmb': neuroglancerInvGzmb,
   'neuroglancer-washu-kidney': neuroglancerWashuKidney,
   'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
+  'neuroglancer-metastatic': neuroglancerMetastatic,
   'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,

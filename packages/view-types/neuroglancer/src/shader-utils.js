@@ -127,43 +127,6 @@ export function getSpatialLayerColorWithSelectionShader(
     `;
 }
 
-export function getObsSetSelectionFilteredShader(
-  phenotypeColors,
-  selectedIndices,
-  opacity,
-  borderWidth = 0.0,
-) {
-  const numColors = phenotypeColors.length;
-  const numSelected = selectedIndices.length;
-  const normColors = phenotypeColors.map(c => normalizeColor(c));
-  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
-  const selectedDecl = `int selectedIndices[${numSelected}] = int[${numSelected}](${selectedIndices.join(', ')});`;
-
-  return `
-    void main() {
-      int phenotype = prop_phenotype();
-      ${colorsDecl}
-      ${selectedDecl}
-      bool isSelected = false;
-      for (int i = 0; i < ${numSelected}; ++i) {
-        if (phenotype == selectedIndices[i]) {
-          isSelected = true;
-        }
-      }
-      if (!isSelected) {
-        discard;
-      }
-      vec3 color = vec3(0.5, 0.5, 0.5);
-      if (phenotype >= 0 && phenotype < ${numColors}) {
-        color = phenotypeColors[phenotype];
-      }
-      setColor(vec4(color, ${opacity.toFixed(4)}));
-      ${borderWidthGlsl(borderWidth)}
-    }
-  `;
-}
-
-
 /**
  * Generate a shader for spatialLayerColor encoding with feature selection
  * and featureFilterMode='featureSelection' (hide unselected points).
@@ -679,30 +642,46 @@ export function getRandomPerPointFilteredShader(
 }
 
 /**
- * Generate a shader for obsSetSelection encoding using phenotype index.
- * Colors each point by its phenotype category using colors from obsSetColor.
- * @param {Array} phenotypeColors - Array of 13 RGB colors [r,g,b] indexed by phenotype int8
- * @param {number} opacity
- * @param {number} borderWidth
+ * Generate a shader for obsSet-based (cellSetSelection) coloring of points,
+ * driven by categorical (enum) annotation properties.
+ * Rules are applied in order, so a later rule overrides an earlier one
+ * for points matching both (same precedence as the mesh coloring).
+ * @param {Array<{ prop: string, codes: number[], color: number[] }>} rules
+ * One rule per selected obsSet: the annotation property to read and the
+ * enum values (codes) of that property which belong to the set.
+ * @param {object} params
+ * @param {number} params.opacity Opacity of points in a selected set.
+ * @param {number} params.unselectedOpacity Opacity of the remaining points.
+ * @param {number[]} params.defaultColor RGB (0-255) of the remaining points.
+ * @param {boolean} params.shouldDiscardUnselected Hide points not in any selected set.
+ * @param {number} params.borderWidth
+ * @returns {string} A GLSL shader string.
  */
-export function getObsSetSelectionShader(
-  phenotypeColors,
+export function getObsSetRulesShader(rules, {
   opacity,
+  unselectedOpacity,
+  defaultColor,
+  shouldDiscardUnselected,
   borderWidth = 0.0,
-) {
-  const numColors = phenotypeColors.length;
-  const normColors = phenotypeColors.map(c => normalizeColor(c));
-  const colorsDecl = `vec3 phenotypeColors[${numColors}] = vec3[${numColors}](${normColors.map(c => toVec3(c)).join(', ')});`;
-
+}) {
+  const ruleBlocks = rules.map(({ prop, codes, color }) => {
+    const condition = codes.map(code => `v == ${Math.trunc(code)}`).join(' || ');
+    return `
+      {
+        int v = int(prop_${prop}());
+        if (${condition}) {
+          color = ${toVec3(normalizeColor(color))};
+          isSelected = true;
+        }
+      }`;
+  }).join('');
   return `
     void main() {
-      int phenotype = prop_phenotype();
-      ${colorsDecl}
-      vec3 color = ${toVec3(normalizeColor([128, 128, 128]))};
-      if (phenotype >= 0 && phenotype < ${numColors}) {
-        color = phenotypeColors[phenotype];
-      }
-      setColor(vec4(color, ${opacity.toFixed(4)}));
+      vec3 color = ${toVec3(normalizeColor(defaultColor))};
+      bool isSelected = false;
+      ${ruleBlocks}
+      ${shouldDiscardUnselected ? 'if (!isSelected) { discard; }' : ''}
+      setColor(vec4(color, isSelected ? ${opacity.toFixed(4)} : ${unselectedOpacity.toFixed(4)}));
       ${borderWidthGlsl(borderWidth)}
     }
   `;
@@ -733,8 +712,7 @@ function getPointsShaderInner(layerCoordination) {
     quantitativeColorProp,
     featureValueColormap,
     featureValueColormapRange,
-    obsSetColor,
-    obsSetSelection,
+    obsSetRules,
     quantitativeColorMax,
     pointsAreSegmentationCentroids,
     spatialLayerOpacityUnselected,
@@ -957,51 +935,23 @@ function getPointsShaderInner(layerCoordination) {
   }
 
   if (obsColorEncoding === 'cellSetSelection') {
-    if (!obsSetColor || !obsSetSelection) {
-      // Fall back to static grey until obs sets load
+    // obsSetRules are resolved by the caller (see obsSetRulesFromCodes),
+    // which maps the selected obsSets onto enum annotation properties.
+    if (!Array.isArray(obsSetRules)) {
+      // Fall back to static color until obs sets / annotation info load.
       return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);
     }
-    const colorByName = {};
-    obsSetColor?.forEach(({ path, color }) => {
-      // Only include leaf nodes (path length > 1)
-      // path[0] = group name ('Cell Types'), path[1] = phenotype name
-      if (path?.length > 1) {
-        colorByName[path[path.length - 1]] = color;
-      }
-    });
-
-    // Build phenotype index → color array
-    // Phenotypes are stored as sorted alphabetical indices in binary
-    const uniqueNames = Object.keys(colorByName).sort();
-    const phenotypeColors = uniqueNames.map(name => colorByName[name] ?? defaultColor);
-
-    if (isFiltered) {
-      // Build selected indices from obsSetSelection
-      const selectedNames = new Set(
-        obsSetSelection?.map(path => path[path.length - 1]) ?? [],
-      );
-      const selectedIndices = uniqueNames
-        .map((name, idx) => (selectedNames.has(name) ? idx : -1))
-        .filter(idx => idx >= 0);
-
-      if (selectedIndices.length === 0) {
-        // Nothing selected — hide all points
-        return 'void main() { discard; }';
-      }
-
-      return getObsSetSelectionFilteredShader(
-        phenotypeColors,
-        selectedIndices,
-        opacity,
-        pointMarkerBorderWidth,
-      );
+    if (obsSetRules.length === 0 && shouldDiscardUnselected) {
+      // Nothing selected (or nothing resolvable) — hide all points.
+      return 'void main() { discard; }';
     }
-
-    return getObsSetSelectionShader(
-      phenotypeColors,
+    return getObsSetRulesShader(obsSetRules, {
       opacity,
-      pointMarkerBorderWidth,
-    );
+      unselectedOpacity,
+      defaultColor,
+      shouldDiscardUnselected,
+      borderWidth: pointMarkerBorderWidth,
+    });
   }
   // Fallback: static color.
   return getSpatialLayerColorShader(staticColor, opacity, pointMarkerBorderWidth);

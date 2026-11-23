@@ -16,6 +16,18 @@ function logWithColor(message) {
 }
 
 /**
+ * A color channel (0-255) of an sRGB color, as picked in the controls, in
+ * linear RGB (0-1). The shader blends in linear RGB and converts its result to
+ * sRGB, so a fully bright voxel shows the picked color.
+ * @param {number} value 0-255.
+ * @returns {number} 0-1.
+ */
+export function srgbToLinear(value) {
+  const c = value / 255;
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+}
+
+/**
  * A contrast window in data values as the shader's contrast limits: fractions
  * of the value range its channel is stored over (as 0-1) in the brick cache.
  * @param {[number, number]} window [low, high] in data values.
@@ -388,9 +400,9 @@ export class VolumeRenderManager {
         // log.debug('this.channelsVisible[id]', this.channelsVisible[id]);
 
         colorsSave.push([
-          this.colors[id][0] / 255,
-          this.colors[id][1] / 255,
-          this.colors[id][2] / 255,
+          srgbToLinear(this.colors[id][0]),
+          srgbToLinear(this.colors[id][1]),
+          srgbToLinear(this.colors[id][2]),
           this.channelsVisible[id] ? 1.0 : 0.0,
         ]);
 

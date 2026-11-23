@@ -477,6 +477,25 @@ export default class Neuroglancer extends React.Component {
     }
   };
 
+  // TODO: we would need the following method if we ever update visibleSegments
+  // on the existing layer instead of calling restoreState - as restorestate  disposes every existing layer
+  // syncVisibleSegments = (layers) => {
+  //   if (!this.viewer) return;
+  //   for (const managedLayer of this.viewer.layerManager.managedLayers) {
+  //     if (!(managedLayer.layer instanceof SegmentationUserLayer)) continue;
+  //     const spec = (layers || []).find(l => l.name === managedLayer.name);
+  //     if (!spec || !Array.isArray(spec.segments)) continue;
+  //     const visibleSegments = managedLayer.layer.displayState
+  //       .segmentationGroupState?.value?.visibleSegments;
+  //     if (!visibleSegments) continue;
+  //     const nextIds = new Set(spec.segments.map(String));
+  //     visibleSegments.toJSON()
+  //       .filter(id => !nextIds.has(String(id)))
+  //       .forEach(id => visibleSegments.delete(BigInt(id)));
+  //   }
+  // };
+
+
   // Viewer-level toggles. Applied directly (not via restoreState) because updates
   // after mount only re-apply camera and layers.
   applyViewerToggles = () => {
@@ -628,8 +647,14 @@ export default class Neuroglancer extends React.Component {
       usedDirectUpdate = true;
     }
 
-    // Fallback to restoreState if direct update not possible
-    if (!usedDirectUpdate) {
+    // Fallback to restoreState if direct update not possible.
+    // Skip it when there is nothing to color (e.g. centroid-only segmentation
+    // layers): this runs on every visibleChunksChanged, and restoring the
+    // layers each time while annotation chunks stream in stalls the viewer.
+    const hasSegmentColors = newLayers.some(l => (
+      l.segmentColors && Object.keys(l.segmentColors).length > 0
+    ));
+    if (!usedDirectUpdate && hasSegmentColors) {
       this.withoutEmitting(() => {
         this.preserveDimensions(() => {
           this.viewer.state.restoreState({ layers: newLayers });
