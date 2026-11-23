@@ -128,6 +128,7 @@ import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-was
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
 import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
+import { neuroglancerSkin } from './view-configs/3d-maps/neuroglancer-skin.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -259,6 +260,7 @@ export const configs = {
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
   'neuroglancer-sorger': neuroglancerSorger,
+  'neuroglancer-skin': neuroglancerSkin,
   'neuroglancer-invasive': neuroglancerInvasive,
   'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
   'neuroglancer-interscellar': neuroglancerInterscellar,

@@ -37,6 +37,10 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('csvLoaded')) {
     forceUpdate = true;
   }
+  // A layer gained or lost its meshes (see meshLayerScopesKey).
+  if (curriedShallowDiff('meshLayerScopesKey')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -141,6 +145,9 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'obsSetSelection',
             'additionalObsSets',
             'spatialSegmentationStrokeWidth',
+            'spatialPointProjectionSpacing',
+            'spatialPointStrokeWidth',
+            'spatialPointRadius',
           ]);
           const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
           // The obsSets tree is needed to map selected sets onto annotation properties.
