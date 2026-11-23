@@ -365,7 +365,7 @@ export function VitS(props) {
                     queryClient={queryClient}
                     areAnnotationsEditable={areAnnotationsEditable}
                     helpViews={helpViews}
-                >
+                  >
                     {children}
                   </VitessceGrid>
                   <CallbackPublisher
