@@ -150,7 +150,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
-  config.linkViewsByObject([obsSets, scatterView], {
+  config.linkViewsByObject([obsSets, scatterView, neuroglancerView], {
     obsType: 'cell',
     obsSetColor: cellTypeColors,
   }, { meta: false });
@@ -203,7 +203,6 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
             spatialChannelOpacity: 0.6,
             obsHighlight: null,
             obsColorEncoding: 'cellSetSelection',
-            obsSetColor: cellTypeColors,
             featureSelection: ['MX1_SPOTS'],
             // TODO: viridis colormap is inconsistent between points and meshes.
             // NG GLSL viridis ends at yellow (#fde725), but Vitessce's applyColormap('viridis')
