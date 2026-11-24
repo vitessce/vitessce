@@ -878,7 +878,6 @@ export default class Neuroglancer extends React.Component {
         if (layer.layer instanceof SegmentationUserLayer) {
           const hasVisibleChunk = layer.layer.renderLayers?.some((rl) => {
             const { numVisibleChunksAvailable, numVisibleChunksNeeded } = rl.layerChunkProgressInfo || {};
-            console.log('[overlay] check', numVisibleChunksAvailable);
             if (!numVisibleChunksNeeded || !numVisibleChunksAvailable) return false;
             return (numVisibleChunksAvailable / numVisibleChunksNeeded) > 0.25;
           });
