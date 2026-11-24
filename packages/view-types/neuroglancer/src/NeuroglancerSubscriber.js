@@ -160,6 +160,8 @@ export function NeuroglancerSubscriber(props) {
   const [annotationReadyIteration, bumpAnnotationReady] = useReducer(x => x + 1, 0);
   const [csvLoaded, setCsvLoaded] = useState(false);
   const updateVisibleSegmentsThrottledRef = useRef(null);
+  // Monotonic id so a slow, stale updateVisibleSegments call can't overwrite a newer result.
+  const visibleSegReqIdRef = useRef(0);
   const viewportSizeRef = useRef({ width: 0, height: 0 });
   // Counter that forces derivedViewerState to re-run when visibleSegmentIdsBySegLayerRef changes.
   // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
@@ -847,7 +849,9 @@ export function NeuroglancerSubscriber(props) {
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           // Hide unselected meshes when unselected opacity is 0 (NG can't fade individual segments).
           const { spatialLayerOpacityUnselected } = segmentationChannelCoordination[0][layerScope][channelScope];
-          if (spatialLayerOpacityUnselected === 0 && obsSetSelection?.length > 0) {
+          // An empty selection ([]) must hide everything too; only a null/undefined
+          // (not yet initialized) selection shows all meshes.
+          if (spatialLayerOpacityUnselected === 0 && Array.isArray(obsSetSelection)) {
             // Same cell -> mesh id remap as remapCellColors.
             result[layerScope].visibleMeshIds = new Set(
               selectedCellIds.map(id => String(cellIdToMeshIdRef.current?.[String(id)] ?? id)),
@@ -982,6 +986,7 @@ export function NeuroglancerSubscriber(props) {
     // if (window.__disableCulling) return;
     if (detailMode) return;
     if (!segmentationLayerScopes?.length) return;
+    const reqId = ++visibleSegReqIdRef.current;
     const { centroidToSegLayers } = centroidLayerRoles;
     const infoByScope = annotationInfoByScopeRef.current;
     const transformByScope = annotationTransformByScopeRef.current;
@@ -1090,7 +1095,8 @@ export function NeuroglancerSubscriber(props) {
 
     try {
       const entriesByScope = await Promise.all(readyScopes.map(collectEntriesForScope));
-
+      // A newer call (e.g. zoomed out past the threshold) has started since; drop this result.
+      if (reqId !== visibleSegReqIdRef.current) return;
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
       if (!mat) {
