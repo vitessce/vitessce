@@ -3,6 +3,8 @@
 /* eslint-disable import/no-unresolved */
 // Side-effect import: registers mainline Neuroglancer's frontend layer types
 // (image, segmentation, annotation, ...), datasources, and kvstores.
+// // Must precede all other neuroglancer imports to avoid Safari error (see ReactNeuroglancer.js).
+// import 'neuroglancer/unstable/util/polyfills.js';
 import 'neuroglancer';
 // Side-effect import: registers volume chunk format handlers (raw, compressed_segmentation).
 // Normally pulled in by mainline's ui/minimal_viewer.js, which we do not use.
