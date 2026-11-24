@@ -150,7 +150,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
   const scatterView = config.addView(dataset, 'scatterplot', { mapping: 'TSNE' });
   config.linkViews([scatterView], ['embeddingObsRadiusMode', 'embeddingObsRadius'], ['manual', 4]);
 
-  config.linkViewsByObject([obsSets], {
+  config.linkViewsByObject([obsSets, scatterView], {
     obsType: 'cell',
     obsSetColor: cellTypeColors,
   }, { meta: false });
