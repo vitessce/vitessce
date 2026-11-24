@@ -22,7 +22,7 @@ import React from 'react';
 // defined. Safari lacks native Symbol.dispose; without this, those methods get
 // keyed as "undefined" and calls throw "n[Symbol.dispose] is not a function".
 
-// import 'neuroglancer/unstable/util/polyfills.js';
+import 'neuroglancer/unstable/util/polyfills.js';
 /* eslint-disable import/no-unresolved */
 import { AnnotationUserLayer } from 'neuroglancer/unstable/layer/annotation/index.js';
 import { getObjectColor } from 'neuroglancer/unstable/segmentation_display_state/frontend.js';
