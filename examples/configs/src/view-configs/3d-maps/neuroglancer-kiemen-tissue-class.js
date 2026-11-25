@@ -9,6 +9,24 @@ import {
 import { makeIdsCsvDataUrl, makeColorsCsvDataUrl } from '../../utils.js';
 
 function generateNeuroglancerTissueClasses() {
+  // Tissue class names (received via slack) from the pancreas FTU config (7 = nontissue_space omitted;
+  // 11 = panin_segmented lives in 5xPanIn.ome.tiff, not this mask)
+  const tissueClasses = {
+    1: 'Islets of Langerhans',
+    2: 'Ducts',
+    3: 'Vasculature',
+    4: 'Fat',
+    5: 'Acinar lobules',
+    6: 'Stroma',
+    8: 'PanIN',
+    9: 'Nerves',
+    10: 'Immune cell aggregates',
+  };
+  const tissueClassIds = Object.keys(tissueClasses).map(Number);
+  const tissueClassesCsvUrl = `data:text/csv,${encodeURIComponent(
+    ['id,name', ...Object.entries(tissueClasses).map(([id, name]) => `${id},${name}`)].join('\n'),
+  )}`;
+
   const config = new VitessceConfig({
     schemaVersion: '1.0.16',
     name: 'Pancreas (Kiemen et al.)',
@@ -34,7 +52,7 @@ function generateNeuroglancerTissueClasses() {
 
   dataset.addFile({
     fileType: 'obsFeatureMatrix.csv',
-    url: makeIdsCsvDataUrl([1, 2, 3, 4, 5, 6, 8, 9, 10]),
+    url: makeIdsCsvDataUrl(tissueClassIds),
     coordinationValues: {
       obsType: 'cell',
       featureType: 'feature',
@@ -51,7 +69,7 @@ function generateNeuroglancerTissueClasses() {
       4: '#117733',
       5: '#88ccee',
       6: '#882255',
-      // 7: '#44aa99', //This is the tissue background
+      // 7: '#44aa99', //This is the non-tissue-space
       8: '#999933',
       9: '#aa4499',
       10: '#dddddd',
@@ -67,7 +85,7 @@ function generateNeuroglancerTissueClasses() {
 
   dataset.addFile({
     fileType: 'obsSets.csv',
-    url: 'https://data-2.vitessce.io/data/kiemenetal/3dtm-outputs-sep-2026/5xLabelled.csv',
+    url: tissueClassesCsvUrl,
     coordinationValues: {
       obsType: 'cell',
     },
@@ -76,7 +94,7 @@ function generateNeuroglancerTissueClasses() {
       obsSets: [
         {
           name: 'Tissue Classes',
-          column: 'id',
+          column: 'name',
         },
       ],
     },
