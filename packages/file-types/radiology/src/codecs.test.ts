@@ -1,5 +1,5 @@
 import {
-  describe, it, expect, vi, beforeAll, afterAll,
+  describe, it, expect, vi, beforeAll, afterAll, afterEach,
 } from 'vitest';
 import charlsWasm from '@cornerstonejs/codec-charls/decodewasm?inline';
 import libjpegTurboWasm from '@cornerstonejs/codec-libjpeg-turbo-8bit/decodewasm?inline';
@@ -13,13 +13,18 @@ import {
 
 const EXPECTED = Array.from({ length: 35 }, (_, i) => (i * 97) % 4096);
 
-// Serve the codec .wasm files from node_modules (as data URLs) instead of the CDN.
-const LOCAL_WASM: Record<string, string> = {
-  [WASM_URLS.charls]: charlsWasm,
-  [WASM_URLS.libjpegturbo]: libjpegTurboWasm,
-  [WASM_URLS.openjpeg]: openjpegWasm,
-  [WASM_URLS.openjph]: openjphWasm,
+// Serve the codec .wasm files from node_modules (as data URLs) instead of the CDNs.
+const LOCAL_WASM_BY_NAME: Record<keyof typeof WASM_URLS, string> = {
+  charls: charlsWasm,
+  libjpegturbo: libjpegTurboWasm,
+  openjpeg: openjpegWasm,
+  openjph: openjphWasm,
 };
+const LOCAL_WASM: Record<string, string> = Object.fromEntries(
+  (Object.keys(WASM_URLS) as (keyof typeof WASM_URLS)[]).flatMap(
+    name => WASM_URLS[name].map(url => [url, LOCAL_WASM_BY_NAME[name]]),
+  ),
+);
 
 function fromBase64(base64: string) {
   return Uint8Array.from(atob(base64), c => c.charCodeAt(0));
@@ -129,5 +134,45 @@ describe('decodeFrame', () => {
     // MPEG-4 AVC/H.264
     await expect(decodeFrame('1.2.840.10008.1.2.4.102', new Uint8Array(4), CODEC_FIXTURE_SHAPE))
       .rejects.toThrow('1.2.840.10008.1.2.4.102 is not supported');
+  });
+});
+
+describe('codec .wasm loading', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back to the next CDN when the first fails', async () => {
+    // Import a fresh copy of the decoders, so that no codec module is cached.
+    vi.resetModules();
+    const { decodeFrame: decodeFrameFresh } = await import('./codecs.js');
+    vi.stubGlobal('Worker', undefined);
+    const realFetch = globalThis.fetch;
+    const fetchedUrls: string[] = [];
+    vi.stubGlobal('fetch', (url: string) => {
+      fetchedUrls.push(url);
+      const [primaryUrl, fallbackUrl] = WASM_URLS.openjph;
+      if (url === primaryUrl) {
+        return Promise.reject(new TypeError('Failed to fetch'));
+      }
+      if (url === fallbackUrl) {
+        return realFetch(openjphWasm);
+      }
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+    const { transferSyntax, base64 } = CODEC_FIXTURES.htj2k;
+    const decoded = await decodeFrameFresh(transferSyntax, fromBase64(base64), CODEC_FIXTURE_SHAPE);
+    expect(Array.from(new Uint16Array(decoded))).toEqual(EXPECTED);
+    expect(fetchedUrls).toEqual(WASM_URLS.openjph);
+  });
+
+  it('reports every failed URL when all CDNs fail', async () => {
+    vi.resetModules();
+    const { decodeFrame: decodeFrameFresh } = await import('./codecs.js');
+    vi.stubGlobal('Worker', undefined);
+    vi.stubGlobal('fetch', () => Promise.resolve(new Response(null, { status: 404 })));
+    const { transferSyntax, base64 } = CODEC_FIXTURES.htj2k;
+    const result = decodeFrameFresh(transferSyntax, fromBase64(base64), CODEC_FIXTURE_SHAPE);
+    await expect(result).rejects.toThrow(`404 from ${WASM_URLS.openjph[0]}; 404 from ${WASM_URLS.openjph[1]}`);
   });
 });

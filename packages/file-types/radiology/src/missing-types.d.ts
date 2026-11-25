@@ -4,7 +4,7 @@ declare module '@vitessce/radiology-workers' {
 
 declare module '@vitessce/radiology-workers/decoders' {
   export const UNCOMPRESSED_TRANSFER_SYNTAXES: string[];
-  export const WASM_URLS: Record<'charls' | 'libjpegturbo' | 'openjpeg' | 'openjph', string>;
+  export const WASM_URLS: Record<'charls' | 'libjpegturbo' | 'openjpeg' | 'openjph', string[]>;
   export function isSupportedTransferSyntax(transferSyntax: string): boolean;
   export function decodeFrame(
     transferSyntax: string,

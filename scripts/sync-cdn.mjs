@@ -95,6 +95,12 @@ const packageVersions = {
     "@duckdb/duckdb-wasm": ["1.28.1-dev106.0", "1.29.1-dev132.0"], // TODO: sync with version used in this repo (once using).
     "vitessce": ["latest"],
     "@vitessce/dev": ["latest"],
+    // DICOM image codecs used by @vitessce/radiology-workers (see WASM_URLS in its src/decoders.js).
+    // Versions must match the pnpm-workspace.yaml catalog.
+    "@cornerstonejs/codec-charls": ["1.2.7"],
+    "@cornerstonejs/codec-libjpeg-turbo-8bit": ["1.2.8"],
+    "@cornerstonejs/codec-openjpeg": ["1.3.6"],
+    "@cornerstonejs/codec-openjph": ["2.4.11"],
 };
 
 const outDir = process.argv[2];
