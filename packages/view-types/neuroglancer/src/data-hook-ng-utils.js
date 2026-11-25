@@ -442,7 +442,14 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     spatialSegmentationStrokeWidth,
     spatialPointStrokeWidth,
     spatialPointRadius,
+    spatialLayerOpacityUnselected,
   } = channelCoordination || {};
+  // obsSet coloring follows the meshes: with "Hide unselected" (unselected
+  // opacity 0) unselected centroids are hidden, otherwise they are drawn in
+  // the default (grey) color. NG can't fade individual meshes, so unselected
+  // centroids keep the full opacity too.
+  const showUnselectedObsSetCentroids = obsColorEncoding === 'cellSetSelection'
+    && spatialLayerOpacityUnselected !== 0;
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
     // Segmentation channels use 'spatialChannelColor' for a static color,
@@ -456,8 +463,9 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetColor,
     obsSetSelection,
     additionalObsSets,
-    // Only show the centroids of the selected obsSets.
-    featureFilterMode: 'featureSelection',
+    // Otherwise, only show the centroids of the selected obsSets / features.
+    featureFilterMode: showUnselectedObsSetCentroids ? null : 'featureSelection',
+    spatialLayerOpacityUnselected: showUnselectedObsSetCentroids ? 1.0 : undefined,
     // Gear menu value (spatialPointStrokeWidth) first, as for point layers;
     // spatialSegmentationStrokeWidth is kept as a fallback for existing configs.
     pointMarkerBorderWidth: spatialPointStrokeWidth

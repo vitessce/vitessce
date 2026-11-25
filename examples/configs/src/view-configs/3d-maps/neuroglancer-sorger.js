@@ -193,7 +193,7 @@ function generateNeuroglancerSorgerOnDemandLoadingConfig() {
         fileUid: 'sorger-meshes',
         spatialLayerOpacity: 1,
         spatialLayerVisible: true,
-        spatialLayerLabel: 'Meshes',
+        spatialLayerLabel: 'Meshes & Centroids',
         segmentationChannel: CL([
           {
             obsType: 'cell',
