@@ -1412,6 +1412,39 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination, cellSetSelection, additionalCellSets,
     obsSegmentationsSetsData, cellHighlight, csvLoaded]);
 
+  // Centroid layer name -> true while its meshes are shown (on-demand meshes are
+  // loaded once zoomed in past the mesh-load threshold). Centroids are hidden
+  // after a delay, to give the meshes time to load, and shown again immediately
+  // once the meshes are unloaded (zoomed out, or panned to an empty area).
+  const [centroidsHiddenByMeshes, setCentroidsHiddenByMeshes] = useState({});
+  const hideCentroidsTimerRef = useRef(null);
+  useEffect(() => {
+    const meshesShownNames = Object.entries(centroidLayerRoles.centroidToSegLayers)
+      .filter(([, segLayers]) => segLayers.some(
+        segLayer => (visibleSegmentIdsBySegLayerRef.current?.[segLayer]?.length ?? 0) > 0,
+      ))
+      .map(([name]) => name);
+    // Show immediately.
+    setCentroidsHiddenByMeshes((prev) => {
+      const next = Object.fromEntries(
+        Object.entries(prev).filter(([name]) => meshesShownNames.includes(name)),
+      );
+      return isEqual(prev, next) ? prev : next;
+    });
+    // Hide after a delay.
+    clearTimeout(hideCentroidsTimerRef.current);
+    if (meshesShownNames.length > 0) {
+      hideCentroidsTimerRef.current = setTimeout(() => {
+        setCentroidsHiddenByMeshes((prev) => {
+          const next = { ...prev };
+          meshesShownNames.forEach((name) => { next[name] = true; });
+          return isEqual(prev, next) ? prev : next;
+        });
+      }, 100);
+    }
+  }, [latestViewerStateIteration, centroidLayerRoles]);
+  useEffect(() => () => clearTimeout(hideCentroidsTimerRef.current), []);
+
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -1610,6 +1643,14 @@ export function NeuroglancerSubscriber(props) {
     }
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
+      if (layer.type === 'annotation' && centroidLayerRoles.centroidToSegLayers[layer.name]) {
+        // Centroids hide while their meshes are shown. Recomputed from the
+        // initial state each time: `current` already holds the last output.
+        const baseVisible = initialViewerState?.layers
+          ?.find(l => l.name === layer.name)?.visible ?? true;
+        const visible = Boolean(baseVisible) && !centroidsHiddenByMeshes[layer.name];
+        return layer.visible === visible ? layer : { ...layer, visible };
+      }
       if (layer.type !== 'segmentation') return layer;
 
       const layerScope = segmentationLayerScopes?.find(
@@ -1679,7 +1720,7 @@ export function NeuroglancerSubscriber(props) {
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
     latestViewerStateIteration, detailMode, detailSegmentIds,
-    is3dMode, centroidLayerRoles]);
+    is3dMode, centroidLayerRoles, centroidsHiddenByMeshes]);
 
   // Same pattern as spatialBeta's delegateHover: highlight + hoverCoord + component hover.
   const onSegmentHighlight = useCallback((obsId, coord = null) => {
