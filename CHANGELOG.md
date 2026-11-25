@@ -1,4 +1,19 @@
 
+## 4.3.0
+
+### Minor Changes
+
+- Add the `image.nifti`, `image.dicomweb`, `image.dicom` (a single `.dcm` file), `image.dicom-series` (a directory of `.dcm` files listed in `options.files`), and `image.dicom-series.zip` (a zip file of a series) file types for radiology volumes (such as CT and MR) in the `spatialBeta` and `layerControllerBeta` views. DICOM pixel data can be uncompressed or compressed with lossy JPEG, JPEG Lossless, JPEG-LS, JPEG 2000, HTJ2K, or RLE Lossless. The DICOM file types also read multi-frame images (such as Enhanced CT and MR), big-endian files, `MONOCHROME1` images such as radiographs, and color images such as ultrasound cine loops (shown as RGB, with frames as time points). All of these file types accept an optional `name`. Compressed frames are decoded in a pool of web workers from the new `@vitessce/radiology-workers` package. The `Pool` class in `@vitessce/utils` accepts an optional number of workers. `ImageWrapper` accepts an optional image type, and `getType()` returns `'radiology'` for these images. (`@vitessce/radiology`, `@vitessce/radiology-workers`, `@vitessce/utils`, `@vitessce/image-utils`, `@vitessce/types`, `@vitessce/constants-internal`, `@vitessce/schemas`, `@vitessce/all`) ([#2685](https://github.com/vitessce/vitessce/pull/2685))
+
+### Patch Changes
+
+- Fix the initial camera of the `spatialBeta` view. The zoom backoff was applied twice, so 3D volumes started about eight times too small. In 2D, the initial Z slice from the view config or the image loader is no longer overwritten when the camera is initialized, and switching from 3D back to 2D returns to the previous slice. (`@vitessce/spatial-beta`) ([#2685](https://github.com/vitessce/vitessce/pull/2685))
+
+  Fix the 3D clipping planes of the `spatialBeta` view. The clipping plane sliders use physical units, but the values were passed to Viv as voxel indices, so most of each slider's range clipped the whole volume.
+
+- Fixes the neuroglancer loading issue on Safari (`@vitessce/neuroglancer`) ([#2715](https://github.com/vitessce/vitessce/pull/2715))
+
+
 ## 4.2.2
 
 ### Patch Changes
