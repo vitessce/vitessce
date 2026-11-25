@@ -18,6 +18,51 @@ const initialState = {
 };
 const pageSizeOptions = [10];
 
+// Display-only formatters: sorting still uses the raw numeric values.
+function formatOneDecimal(value) {
+  return typeof value === 'number' && !Number.isNaN(value) ? value.toFixed(1) : '';
+}
+
+const SUPERSCRIPT_CHARS = {
+  '-': '\u207B',
+  0: '\u2070',
+  1: '\u00B9',
+  2: '\u00B2',
+  3: '\u00B3',
+  4: '\u2074',
+  5: '\u2075',
+  6: '\u2076',
+  7: '\u2077',
+  8: '\u2078',
+  9: '\u2079',
+};
+
+function toSuperscript(str) {
+  return str.split('').map(char => SUPERSCRIPT_CHARS[char] ?? char).join('');
+}
+
+// Scientific notation with two decimal places, e.g., 6.17 × 10⁻⁸.
+function formatScientific(value) {
+  if (typeof value !== 'number' || Number.isNaN(value)) {
+    return '';
+  }
+  if (value === 0 || !Number.isFinite(value)) {
+    return String(value);
+  }
+  const [mantissa, exponent] = value.toExponential(2).split('e');
+  const exponentNumber = Number(exponent);
+  if (exponentNumber === 0) {
+    return mantissa;
+  }
+  return `${mantissa} \u00D7 10${toSuperscript(String(exponentNumber))}`;
+}
+
+// Percent expressing values are stored in the range 0-100.
+function formatPercent(value) {
+  const formatted = formatOneDecimal(value);
+  return formatted ? `${formatted}%` : '';
+}
+
 export default function FeatureStatsTable(props) {
   const {
     obsType,
@@ -30,6 +75,8 @@ export default function FeatureStatsTable(props) {
     setFeatureAggregationStrategy,
     featurePointSignificanceThreshold,
     featurePointFoldChangeThreshold,
+    hasPercentExpressing = false,
+    hasMeanExpression = false,
   } = props;
 
   const [
@@ -58,20 +105,36 @@ export default function FeatureStatsTable(props) {
       headerName: 'Log Fold-Change',
       width: 200,
       editable: false,
+      valueFormatter: formatOneDecimal,
     },
     {
       field: 'featureSignificance',
       headerName: 'P-value',
       width: 200,
       editable: false,
+      valueFormatter: formatScientific,
     },
+    ...(hasPercentExpressing ? [{
+      field: 'percentExpressing',
+      headerName: 'Percent Expressing',
+      width: 200,
+      editable: false,
+      valueFormatter: formatPercent,
+    }] : []),
+    ...(hasMeanExpression ? [{
+      field: 'meanExpression',
+      headerName: 'Mean Expression',
+      width: 200,
+      editable: false,
+      valueFormatter: formatOneDecimal,
+    }] : []),
     {
       field: 'obsSetName',
       headerName: `${capitalize(obsType)} Set`,
       width: 200,
       editable: false,
     },
-  ]), [obsType, featureType]);
+  ]), [obsType, featureType, hasPercentExpressing, hasMeanExpression]);
 
   const rows = useMemo(() => {
     let result = [];

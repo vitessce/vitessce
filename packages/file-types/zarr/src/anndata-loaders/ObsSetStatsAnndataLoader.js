@@ -3,7 +3,7 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { getDebugMode } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
-import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
+import { isMatchingSampleSetFilter, loadComparisonMetadata } from './comparative-utils.js';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { ObsSetStatsData } from '@vitessce/types' */
@@ -180,7 +180,9 @@ export default class ObsSetStatsAnndataLoader extends AbstractTwoStepLoader {
             if (isEqual([rawObsSetGroups], coordination_values.obsSetSelection)) {
               // The obsSetSelection matches.
               // Now check whether the sampleSetSelection matches.
-              if (isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
+              if (isMatchingSampleSetFilter(
+                rawSampleSetSelection, coordination_values.sampleSetFilter,
+              )) {
                 matchingComparisons.push(resultObject);
               }
             }

@@ -170,17 +170,24 @@ export default function VolcanoPlot(props) {
 
 
     // Upregulated/downregulated and sampleSet directional indicators.
-    const lhsText = sampleSetSelection && sampleSetSelection.length === 2
+    const isSampleSetPair = sampleSetSelection && sampleSetSelection.length === 2;
+    // When a single sample set is selected, the comparison is between
+    // obs sets within the samples of that group, so note the group in the labels.
+    const singleSampleSetSuffix = sampleSetSelection && sampleSetSelection.length === 1
+      ? ` (${sampleSetSelection[0].at(-1)})`
+      : '';
+
+    const lhsText = isSampleSetPair
       ? sampleSetSelection[0].at(-1)
-      : '__rest__';
+      : `__rest__${singleSampleSetSuffix}`;
 
     // eslint-disable-next-line no-nested-ternary
-    const rhsText = sampleSetSelection && sampleSetSelection.length === 2
+    const rhsText = isSampleSetPair
       ? sampleSetSelection[1].at(-1)
-      : (obsSetSelection && obsSetSelection.length === 1
+      : `${obsSetSelection && obsSetSelection.length === 1
         ? obsSetSelection?.[0]?.at(-1)
         : `${capitalize(obsType)} Set`
-      );
+      }${singleSampleSetSuffix}`;
 
     titleG
       .append('text')

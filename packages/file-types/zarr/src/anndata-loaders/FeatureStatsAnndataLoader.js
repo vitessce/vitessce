@@ -3,7 +3,7 @@
 import { LoaderResult, AbstractTwoStepLoader } from '@vitessce/abstract';
 import { getDebugMode, log } from '@vitessce/globals';
 import { isEqual } from 'lodash-es';
-import { isEqualPathPair, loadComparisonMetadata } from './comparative-utils.js';
+import { isMatchingSampleSetFilter, loadComparisonMetadata } from './comparative-utils.js';
 
 /** @import AnnDataSource from '../AnnDataSource.js' */
 /** @import { FeatureStatsData } from '@vitessce/types' */
@@ -57,21 +57,48 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     return this.dataSource.loadDataFrameIndex(dfPath);
   }
 
+  /**
+   * Load an optional numeric column from the dataframe.
+   * @param {string} dfPath
+   * @param {string|undefined} columnName
+   * @returns {Promise<any|null>} The column values, or null if
+   * the column was not specified or could not be loaded.
+   */
+  async loadOptionalNumericColumn(dfPath, columnName) {
+    if (!columnName) {
+      return null;
+    }
+    try {
+      const values = await this.dataSource.loadNumeric(`${dfPath}/${columnName}`);
+      return values.data;
+    } catch (e) {
+      log.warn(`Column ${columnName} not found in dataframe at`, dfPath);
+      return null;
+    }
+  }
+
   async loadDataFrame(dfPath) {
+    const { percentExpressing, meanExpression } = this.options;
     try {
       const [
         featureId,
         featureFoldChange,
         featureSignificance,
+        featurePercentExpressing,
+        featureMeanExpression,
       ] = await Promise.all([
         this.loadFeatureNames(dfPath),
         this.loadFoldChanges(dfPath),
         this.loadSignificances(dfPath),
+        this.loadOptionalNumericColumn(dfPath, percentExpressing),
+        this.loadOptionalNumericColumn(dfPath, meanExpression),
       ]);
       return {
         featureId,
         featureFoldChange,
         featureSignificance,
+        featurePercentExpressing,
+        featureMeanExpression,
       };
     } catch (e) {
       log.warn('Dataframe not found at', dfPath);
@@ -79,6 +106,8 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
         featureId: [],
         featureFoldChange: [],
         featureSignificance: [],
+        featurePercentExpressing: null,
+        featureMeanExpression: null,
       };
     }
   }
@@ -120,13 +149,15 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
     const rawObsSetSelection = obsSetSelection;
     const rawSampleSetSelection = sampleSetSelection;
 
-    if (sampleSetSelection) {
-      if (sampleSetSelection.length !== 2) {
-        if (getDebugMode()) {
-          return Promise.reject(new Error('Expected exactly two sample sets for volcano plot.'));
-        }
-        return null;
+    // Zero sample sets: compare obs sets across all samples.
+    // One sample set: compare obs sets within the samples of that group.
+    // Two sample sets: compare the two sample groups within an obs set.
+    const numSampleSets = Array.isArray(sampleSetSelection) ? sampleSetSelection.length : 0;
+    if (numSampleSets > 2) {
+      if (getDebugMode()) {
+        return Promise.reject(new Error('Expected at most two sample sets for volcano plot.'));
       }
+      return null;
     }
 
     if (!obsSetSelection) {
@@ -151,21 +182,32 @@ export default class FeatureStatsAnndataLoader extends AbstractTwoStepLoader {
         } = resultObject;
         if (analysis_type === targetAnalysisType) {
           // This is a diff. exp. result.
-          if (sampleSetSelection) {
+          if (numSampleSets === 2) {
             // Comparing two sample groups.
             rawObsSetSelection.forEach((obsSetPath) => {
               if (isEqual([obsSetPath], coordination_values.obsSetFilter)) {
                 // The obsSetSelection matches.
                 // Now check whether the sampleSetSelection matches.
-                if (isEqualPathPair(rawSampleSetSelection, coordination_values.sampleSetFilter)) {
+                if (isMatchingSampleSetFilter(
+                  rawSampleSetSelection, coordination_values.sampleSetFilter,
+                )) {
                   matchingComparisons.push(resultObject);
                 }
               }
             });
-          } else if (obsSetSelection) {
-            // Comparing no sample groups but have selected cell type(s) of interest.
+          } else {
+            // Comparing selected cell type(s) of interest against the rest,
+            // either across all samples (no sample groups selected)
+            // or within the samples of a single selected sample group.
+            // The sampleSetFilter must match exactly, so that results filtered
+            // to a different subset of samples are excluded.
             rawObsSetSelection.forEach((obsSetPath) => {
-              if (isEqual([obsSetPath], coordination_values.obsSetSelection)) {
+              if (
+                isEqual([obsSetPath], coordination_values.obsSetSelection)
+                && isMatchingSampleSetFilter(
+                  rawSampleSetSelection, coordination_values.sampleSetFilter,
+                )
+              ) {
                 matchingComparisons.push(resultObject);
               }
             });

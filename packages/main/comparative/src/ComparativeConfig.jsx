@@ -273,6 +273,8 @@ function addComparativeFiles(dataset, baseUrl) {
       // pValueTransformation: 'minuslog10',
       pValueAdjusted: true,
       foldChangeTransformation: 'log2',
+      percentExpressing: 'pct_expressing',
+      meanExpression: 'mean_expression',
     },
     coordinationValues: {
       obsType: 'cell',
