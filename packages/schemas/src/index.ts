@@ -34,6 +34,8 @@ export {
   spatialdataZarrSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageDicomSeriesSchema,
+  imageRadiologySchema,
   imageSpatialdataSchema,
   obsSegmentationsOmeTiffSchema,
   obsSegmentationsOmeZarrSchema,

@@ -57,6 +57,8 @@ import {
   cellsJsonSchema,
   imageOmeZarrSchema,
   imageOmeTiffSchema,
+  imageDicomSeriesSchema,
+  imageRadiologySchema,
   imageSpatialdataSchema,
   obsSegmentationsOmeTiffSchema,
   obsSegmentationsOmeZarrSchema,
@@ -204,6 +206,14 @@ import {
   OmeTiffSource,
 } from '@vitessce/ome-tiff';
 import {
+  NiftiLoader,
+  DicomLoader,
+  DicomSeriesLoader,
+  DicomSeriesZipLoader,
+  DicomWebLoader,
+  RadiologySource,
+} from '@vitessce/radiology';
+import {
   GlbSource,
   GlbLoader,
 } from '@vitessce/glb';
@@ -349,6 +359,12 @@ export const baseFileTypes = [
   makeFileType(FileType.IMAGE_OME_TIFF, DataType.IMAGE, OmeTiffLoader, OmeTiffSource, imageOmeTiffSchema),
   ...makeZarrFileTypes(FileType.OBS_SEGMENTATIONS_OME_ZARR, DataType.OBS_SEGMENTATIONS, OmeZarrAsObsSegmentationsLoader, ZarrDataSource, obsSegmentationsOmeZarrSchema),
   makeFileType(FileType.OBS_SEGMENTATIONS_OME_TIFF, DataType.OBS_SEGMENTATIONS, OmeTiffAsObsSegmentationsLoader, OmeTiffSource, obsSegmentationsOmeTiffSchema),
+  // Radiology file types
+  makeFileType(FileType.IMAGE_NIFTI, DataType.IMAGE, NiftiLoader, RadiologySource, imageRadiologySchema),
+  makeFileType(FileType.IMAGE_DICOMWEB, DataType.IMAGE, DicomWebLoader, RadiologySource, imageRadiologySchema),
+  makeFileType(FileType.IMAGE_DICOM, DataType.IMAGE, DicomLoader, RadiologySource, imageRadiologySchema),
+  makeFileType(FileType.IMAGE_DICOM_SERIES, DataType.IMAGE, DicomSeriesLoader, RadiologySource, imageDicomSeriesSchema),
+  makeFileType(FileType.IMAGE_DICOM_SERIES_ZIP, DataType.IMAGE, DicomSeriesZipLoader, RadiologySource, imageRadiologySchema),
   // SpatialData file types
   ...makeZarrFileTypes(FileType.IMAGE_SPATIALDATA_ZARR, DataType.IMAGE, SpatialDataImageLoader, ZarrDataSource, imageSpatialdataSchema),
   ...makeZarrFileTypes(FileType.LABELS_SPATIALDATA_ZARR, DataType.OBS_SEGMENTATIONS, SpatialDataLabelsLoader, ZarrDataSource, obsSegmentationsSpatialdataSchema),
