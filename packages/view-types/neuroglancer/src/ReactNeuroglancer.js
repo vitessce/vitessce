@@ -21,6 +21,7 @@ import React from 'react';
 // (core-js) before any neuroglancer class with a [Symbol.dispose]() method is
 // defined. Safari lacks native Symbol.dispose; without this, those methods get
 // keyed as "undefined" and calls throw "n[Symbol.dispose] is not a function".
+// eslint-disable-next-line import/no-unresolved
 import 'neuroglancer/unstable/util/polyfills.js';
 
 import { AnnotationUserLayer } from 'neuroglancer/unstable/layer/annotation/index.js';

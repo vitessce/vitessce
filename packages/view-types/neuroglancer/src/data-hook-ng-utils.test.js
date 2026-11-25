@@ -85,7 +85,7 @@ describe('getCentroidShaderParams', () => {
     expect(params.obsColorEncoding).toBe('geneSelection');
     expect(params.featureValueColormap).toBe('plasma');
     expect(params.featureValueColormapRange).toEqual([0, 1]);
-        // Non-obsSet encodings keep showing only the selected features.
+    // Non-obsSet encodings keep showing only the selected features.
     expect(params.featureFilterMode).toBe('featureSelection');
   });
 
