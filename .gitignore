@@ -23,6 +23,8 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+# Screenshots and logs from the Playwright MCP server.
+.playwright-mcp/
 venv/
 cdn/
 reference/

@@ -198,6 +198,12 @@ export const FileType = {
   // OME-TIFF
   IMAGE_OME_TIFF: 'image.ome-tiff',
   OBS_SEGMENTATIONS_OME_TIFF: 'obsSegmentations.ome-tiff',
+  // Radiology
+  IMAGE_NIFTI: 'image.nifti',
+  IMAGE_DICOMWEB: 'image.dicomweb',
+  IMAGE_DICOM: 'image.dicom',
+  IMAGE_DICOM_SERIES: 'image.dicom-series',
+  IMAGE_DICOM_SERIES_ZIP: 'image.dicom-series.zip',
   // GLB
   OBS_SEGMENTATIONS_GLB: 'obsSegmentations.glb',
   // Neuroglancer

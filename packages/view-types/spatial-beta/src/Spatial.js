@@ -1369,6 +1369,15 @@ class Spatial extends AbstractSpatialOrScatterplot {
       visible && channelCoordination[cScope][CoordinationType.SPATIAL_CHANNEL_VISIBLE]
     ));
 
+    // The clipping planes are in physical units (see ImageWrapper.getBoundingCube),
+    // but viv's VolumeLayer clips in voxels, because getData() strips the physical sizes.
+    const [xSlice, ySlice, zSlice] = [
+      CoordinationType.SPATIAL_SLICE_X,
+      CoordinationType.SPATIAL_SLICE_Y,
+      CoordinationType.SPATIAL_SLICE_Z,
+    ].map((sliceType, axis) => layerCoordination[sliceType]
+      ?.map(value => value / rawModelMatrix[axis * 5]));
+
     const autoTargetResolution = imageWrapperInstance.getAutoTargetResolution();
     const targetResolution = layerCoordination[CoordinationType.SPATIAL_TARGET_RESOLUTION];
 
@@ -1387,9 +1396,9 @@ class Spatial extends AbstractSpatialOrScatterplot {
       useTransparentColor,
       resolution: targetResolution === null ? autoTargetResolution : targetResolution,
       renderingMode: VIV_RENDERING_MODES[renderingMode],
-      xSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_X],
-      ySlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Y],
-      zSlice: layerCoordination[CoordinationType.SPATIAL_SLICE_Z],
+      xSlice,
+      ySlice,
+      zSlice,
       onViewportLoad: () => { }, // layerProps.callback, // TODO: figure out callback implementation
       excludeBackground: useTransparentColor,
       extensions,

@@ -177,6 +177,19 @@ export const obsSegmentationsOmeTiffSchema = imageOmeTiffSchema.extend({
     .optional(),
 });
 
+// Radiology images (NIfTI, DICOMweb, a single DICOM file, and zipped DICOM series).
+export const imageRadiologySchema = z.object({
+  name: z.string()
+    .optional()
+    .describe('Name to display for the image, instead of the name from the file.'),
+});
+
+// A directory of DICOM Part 10 files: one per image of a series, or multi-frame files.
+export const imageDicomSeriesSchema = imageRadiologySchema.extend({
+  files: z.array(z.string())
+    .describe('Name of each .dcm file in the series, in any order. Must be within the directory specified by the file definition URL.'),
+});
+
 // OME-Zarr (NGFF)
 export const imageOmeZarrSchema = z.object({
   coordinateTransformations: omeCoordinateTransformations

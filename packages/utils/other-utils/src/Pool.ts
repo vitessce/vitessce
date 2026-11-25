@@ -18,14 +18,15 @@ export default class Pool {
   /**
    * @constructor
    * @param {object} Worker The worker class to be used for processing.
+   * @param {number} size The number of workers. Defaults to the number of logical processors.
    */
-  constructor(createWorker: () => Worker) {
+  constructor(createWorker: () => Worker, size = defaultPoolSize) {
     this.workers = [];
     this.idleWorkers = [];
     this.waitQueue = [];
 
     // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < defaultPoolSize; ++i) {
+    for (let i = 0; i < size; ++i) {
       const w = createWorker();
       this.workers.push(w);
       this.idleWorkers.push(w);
