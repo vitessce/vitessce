@@ -646,6 +646,8 @@ export const baseCoordinationTypes = [
   new PluginCoordinationType(CoordinationType.SPATIAL_SCALE_BAR_VISIBLE, true, z.boolean().nullable()),
   // Default matches Neuroglancer's own default point marker diameter
   new PluginCoordinationType(CoordinationType.SPATIAL_POINT_RADIUS, 2.5, z.number()),
+  // Neuroglancer segmentation centroids (gear menu checkbox); independent of the meshes.
+  new PluginCoordinationType(CoordinationType.SPATIAL_CENTROIDS_VISIBLE, true, z.boolean()),
   new PluginCoordinationType(CoordinationType.SPATIAL_BACKGROUND_THEME, 'dark', z.enum(['dark', 'light']).nullable()),
   new PluginCoordinationType(CoordinationType.PHOTOMETRIC_INTERPRETATION, null, z.enum(['BlackIsZero', 'RGB']).nullable()),
   new PluginCoordinationType(CoordinationType.SPATIAL_RENDERING_MODE, '2D', z.enum(['2D', '3D']).nullable()),
