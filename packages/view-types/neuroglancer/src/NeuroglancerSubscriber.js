@@ -160,6 +160,8 @@ export function NeuroglancerSubscriber(props) {
   const [annotationReadyIteration, bumpAnnotationReady] = useReducer(x => x + 1, 0);
   const [csvLoaded, setCsvLoaded] = useState(false);
   const updateVisibleSegmentsThrottledRef = useRef(null);
+  // Monotonic id so a slow, stale updateVisibleSegments call can't overwrite a newer result.
+  const visibleSegReqIdRef = useRef(0);
   const viewportSizeRef = useRef({ width: 0, height: 0 });
   // Counter that forces derivedViewerState to re-run when visibleSegmentIdsBySegLayerRef changes.
   // Since refs don't trigger re-renders, incrementing this value (used as a dep in the useMemo)
@@ -288,6 +290,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
       CoordinationType.SPATIAL_POINT_RADIUS,
+      CoordinationType.SPATIAL_CENTROIDS_VISIBLE,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -847,7 +850,9 @@ export function NeuroglancerSubscriber(props) {
           finalizeChannelColors(ngCellColors, spatialChannelOpacity);
           // Hide unselected meshes when unselected opacity is 0 (NG can't fade individual segments).
           const { spatialLayerOpacityUnselected } = segmentationChannelCoordination[0][layerScope][channelScope];
-          if (spatialLayerOpacityUnselected === 0 && obsSetSelection?.length > 0) {
+          // An empty selection ([]) must hide everything too; only a null/undefined
+          // (not yet initialized) selection shows all meshes.
+          if (spatialLayerOpacityUnselected === 0 && Array.isArray(obsSetSelection)) {
             // Same cell -> mesh id remap as remapCellColors.
             result[layerScope].visibleMeshIds = new Set(
               selectedCellIds.map(id => String(cellIdToMeshIdRef.current?.[String(id)] ?? id)),
@@ -982,6 +987,7 @@ export function NeuroglancerSubscriber(props) {
     // if (window.__disableCulling) return;
     if (detailMode) return;
     if (!segmentationLayerScopes?.length) return;
+    const reqId = ++visibleSegReqIdRef.current;
     const { centroidToSegLayers } = centroidLayerRoles;
     const infoByScope = annotationInfoByScopeRef.current;
     const transformByScope = annotationTransformByScopeRef.current;
@@ -1090,7 +1096,8 @@ export function NeuroglancerSubscriber(props) {
 
     try {
       const entriesByScope = await Promise.all(readyScopes.map(collectEntriesForScope));
-
+      // A newer call (e.g. zoomed out past the threshold) has started since; drop this result.
+      if (reqId !== visibleSegReqIdRef.current) return;
       // Get current view-projection matrix from NG panel
       const mat = getViewProjectionMatRef.current?.();
       if (!mat) {
@@ -1405,6 +1412,39 @@ export function NeuroglancerSubscriber(props) {
     segmentationChannelCoordination, cellSetSelection, additionalCellSets,
     obsSegmentationsSetsData, cellHighlight, csvLoaded]);
 
+  // Centroid layer name -> true while its meshes are shown (on-demand meshes are
+  // loaded once zoomed in past the mesh-load threshold). Centroids are hidden
+  // after a delay, to give the meshes time to load, and shown again immediately
+  // once the meshes are unloaded (zoomed out, or panned to an empty area).
+  const [centroidsHiddenByMeshes, setCentroidsHiddenByMeshes] = useState({});
+  const hideCentroidsTimerRef = useRef(null);
+  useEffect(() => {
+    const meshesShownNames = Object.entries(centroidLayerRoles.centroidToSegLayers)
+      .filter(([, segLayers]) => segLayers.some(
+        segLayer => (visibleSegmentIdsBySegLayerRef.current?.[segLayer]?.length ?? 0) > 0,
+      ))
+      .map(([name]) => name);
+    // Show immediately.
+    setCentroidsHiddenByMeshes((prev) => {
+      const next = Object.fromEntries(
+        Object.entries(prev).filter(([name]) => meshesShownNames.includes(name)),
+      );
+      return isEqual(prev, next) ? prev : next;
+    });
+    // Hide after a delay.
+    clearTimeout(hideCentroidsTimerRef.current);
+    if (meshesShownNames.length > 0) {
+      hideCentroidsTimerRef.current = setTimeout(() => {
+        setCentroidsHiddenByMeshes((prev) => {
+          const next = { ...prev };
+          meshesShownNames.forEach((name) => { next[name] = true; });
+          return isEqual(prev, next) ? prev : next;
+        });
+      }, 100);
+    }
+  }, [latestViewerStateIteration, centroidLayerRoles]);
+  useEffect(() => () => clearTimeout(hideCentroidsTimerRef.current), []);
+
   // TODO: try to simplify using useMemoCustomComparison?
   // This would allow us to refactor a lot of the checking-for-changes logic into a comparison function,
   // simplify some of the manual bookkeeping like with prevCoordsRef and lastInteractionSource,
@@ -1603,6 +1643,14 @@ export function NeuroglancerSubscriber(props) {
     }
 
     const updatedLayers = current?.layers?.map((layer, idx) => {
+      if (layer.type === 'annotation' && centroidLayerRoles.centroidToSegLayers[layer.name]) {
+        // Centroids hide while their meshes are shown. Recomputed from the
+        // initial state each time: `current` already holds the last output.
+        const baseVisible = initialViewerState?.layers
+          ?.find(l => l.name === layer.name)?.visible ?? true;
+        const visible = Boolean(baseVisible) && !centroidsHiddenByMeshes[layer.name];
+        return layer.visible === visible ? layer : { ...layer, visible };
+      }
       if (layer.type !== 'segmentation') return layer;
 
       const layerScope = segmentationLayerScopes?.find(
@@ -1672,7 +1720,7 @@ export function NeuroglancerSubscriber(props) {
   }, [cellColorMappingByLayer, spatialZoom, spatialRotationX, spatialRotationY,
     spatialRotationZ, spatialTargetX, spatialTargetY, initialViewerState,
     latestViewerStateIteration, detailMode, detailSegmentIds,
-    is3dMode, centroidLayerRoles]);
+    is3dMode, centroidLayerRoles, centroidsHiddenByMeshes]);
 
   // Same pattern as spatialBeta's delegateHover: highlight + hoverCoord + component hover.
   const onSegmentHighlight = useCallback((obsId, coord = null) => {
@@ -1754,6 +1802,8 @@ export function NeuroglancerSubscriber(props) {
         setStrokeWidth: setters.setSpatialPointStrokeWidth,
         pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
         setPointRadius: setters.setSpatialPointRadius,
+        visible: values.spatialCentroidsVisible ?? true,
+        setVisible: setters.setSpatialCentroidsVisible,
         showMarkerControls: true,
       };
     }),

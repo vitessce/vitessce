@@ -5,6 +5,7 @@ import { usePlotOptionsStyles, OptionsContainer } from '@vitessce/vit-s';
 // Projection spacing slider on a log2 scale: 2^-4 = 0.0625 (NG minimum, all points) .. 2^4 = 16.
 const MIN_EXP = -4;
 const MAX_EXP = 4;
+const MIN_POINT_RADIUS = 0.1;
 const toExp = v => Math.min(MAX_EXP, Math.max(MIN_EXP, Math.log2(v)));
 
 function CheckboxRow({ label, checked, onChange, id, disabled = false }) {
@@ -78,6 +79,7 @@ function PointLayerRows({ layer, baseId }) {
   const {
     label, spacing, setSpacing,
     showMarkerControls, strokeWidth, setStrokeWidth, pointRadius, setPointRadius,
+    visible, setVisible,
   } = layer;
   // Local state so dragging is smooth; spacing commits on release (may load finer chunks).
   const [exp, setExp] = useState(toExp(spacing ?? 1.0));
@@ -86,6 +88,14 @@ function PointLayerRows({ layer, baseId }) {
 
   return (
     <>
+      {setVisible ? (
+        <CheckboxRow
+          label={`${label} visible`}
+          id={`${baseId}-visible`}
+          checked={Boolean(visible)}
+          onChange={setVisible}
+        />
+      ) : null}
       {setSpacing ? (
         <SliderRow label={`${label} spacing (3D)`} id={spacingId}>
           <Slider
@@ -126,12 +136,11 @@ function PointLayerRows({ layer, baseId }) {
           id={`${baseId}-point-size`}
           value={pointRadius}
           setValue={setPointRadius}
-          // 0 hides the centroids without affecting the meshes.
-          min={0.0}
+          min={MIN_POINT_RADIUS}
           max={20.0}
           step={0.1}
-          valueLabelFormat={v => (v <= 0 ? 'hidden' : v.toFixed(1))}
-          ariaLabel={`${label} point size (0 hides the centroids)`}
+          valueLabelFormat={v => v.toFixed(1)}
+          ariaLabel={`${label} point size`}
         />
       ) : null}
     </>

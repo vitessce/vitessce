@@ -7,6 +7,7 @@ import {
   DEFAULT_NG_PROPS,
   sanitizeNgCameraState,
 } from './data-hook-ng-utils.js';
+import { getPointsShader } from './shader-utils.js';
 
 describe('getSegmentationCentroidSources', () => {
   const ngLocations = url => ({
@@ -84,6 +85,51 @@ describe('getCentroidShaderParams', () => {
     expect(params.obsColorEncoding).toBe('geneSelection');
     expect(params.featureValueColormap).toBe('plasma');
     expect(params.featureValueColormapRange).toEqual([0, 1]);
+    // Non-obsSet encodings keep showing only the selected features.
+    expect(params.featureFilterMode).toBe('featureSelection');
+  });
+
+  it('draws unselected obsSet centroids unless "Hide unselected" is on, as for meshes', () => {
+    const shown = getCentroidShaderParams({}, {
+      obsColorEncoding: 'cellSetSelection', spatialLayerOpacityUnselected: 0.25,
+    });
+    expect(shown.featureFilterMode).toBe(null);
+    expect(shown.spatialLayerOpacityUnselected).toBe(1.0);
+    // Unset unselected opacity behaves like the meshes (shown, grey).
+    expect(getCentroidShaderParams({}, { obsColorEncoding: 'cellSetSelection' })
+      .featureFilterMode).toBe(null);
+
+    const hidden = getCentroidShaderParams({}, {
+      obsColorEncoding: 'cellSetSelection', spatialLayerOpacityUnselected: 0,
+    });
+    expect(hidden.featureFilterMode).toBe('featureSelection');
+    expect(hidden.spatialLayerOpacityUnselected).toBe(undefined);
+  });
+
+  it('yields a shader that keeps (grey) or discards unselected obsSet centroids', () => {
+    const obsSetRules = [{ prop: 'phenotype', codes: [3], color: [255, 0, 0] }];
+    const shaderFor = spatialLayerOpacityUnselected => getPointsShader({
+      theme: 'dark',
+      ...getCentroidShaderParams({}, {
+        obsColorEncoding: 'cellSetSelection', spatialLayerOpacityUnselected,
+      }),
+      obsSetRules,
+    });
+    const shown = shaderFor(0.25);
+    expect(shown).not.toContain('discard');
+    // Unselected: default dark-theme grey [50, 50, 50], full opacity.
+    expect(shown).toContain('isSelected ? 1.0000 : 1.0000');
+    expect(shaderFor(0)).toContain('if (!isSelected) { discard; }');
+    // Empty selection: all grey vs. all hidden.
+    const emptyFor = v => getPointsShader({
+      theme: 'dark',
+      ...getCentroidShaderParams({}, {
+        obsColorEncoding: 'cellSetSelection', spatialLayerOpacityUnselected: v,
+      }),
+      obsSetRules: [],
+    });
+    expect(emptyFor(0.25)).not.toContain('discard');
+    expect(emptyFor(0)).toBe('void main() { discard; }');
   });
 });
 

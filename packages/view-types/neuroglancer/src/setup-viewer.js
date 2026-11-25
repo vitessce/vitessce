@@ -6,8 +6,6 @@
 // Repeated here so this module stays safe if it is ever imported first elsewhere;
 // otherwise it is a no-op since ES modules evaluate only once.
 import 'neuroglancer/unstable/util/polyfills.js';
-// Side-effect import: registers mainline Neuroglancer's frontend layer types
-// (image, segmentation, annotation, ...), datasources, and kvstores.
 import 'neuroglancer';
 // Side-effect import: registers volume chunk format handlers (raw, compressed_segmentation).
 // Normally pulled in by mainline's ui/minimal_viewer.js, which we do not use.

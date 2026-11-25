@@ -362,6 +362,7 @@ export const CoordinationType = {
   SPATIAL_BOUNDS_VISIBLE: 'spatialBoundsVisible', // annotationBounds' visibility in  Neuroglancer View
   SPATIAL_SCALE_BAR_VISIBLE: 'spatialScaleBarVisible',
   SPATIAL_BACKGROUND_THEME: 'spatialBackgroundTheme',
+  SPATIAL_CENTROIDS_VISIBLE: 'spatialCentroidsVisible',
   // For clipping plane sliders
   SPATIAL_SLICE_X: 'spatialSliceX',
   SPATIAL_SLICE_Y: 'spatialSliceY',

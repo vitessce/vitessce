@@ -442,7 +442,13 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     spatialSegmentationStrokeWidth,
     spatialPointStrokeWidth,
     spatialPointRadius,
+    spatialLayerOpacityUnselected,
   } = channelCoordination || {};
+  // obsSet coloring follows the meshes: with "Hide unselected" (unselected
+  // opacity 0) unselected centroids are hidden, otherwise they are drawn in
+  // the default (grey) color.
+  const showUnselectedObsSetCentroids = obsColorEncoding === 'cellSetSelection'
+    && spatialLayerOpacityUnselected !== 0;
   return {
     spatialLayerOpacity: (spatialLayerOpacity ?? 1.0) * (spatialChannelOpacity ?? 1.0),
     // Segmentation channels use 'spatialChannelColor' for a static color,
@@ -456,8 +462,9 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
     obsSetColor,
     obsSetSelection,
     additionalObsSets,
-    // Only show the centroids of the selected obsSets.
-    featureFilterMode: 'featureSelection',
+    // Otherwise, only show the centroids of the selected obsSets / features.
+    featureFilterMode: showUnselectedObsSetCentroids ? null : 'featureSelection',
+    spatialLayerOpacityUnselected: showUnselectedObsSetCentroids ? 1.0 : undefined,
     // Gear menu value (spatialPointStrokeWidth) first, as for point layers;
     // spatialSegmentationStrokeWidth is kept as a fallback for existing configs.
     pointMarkerBorderWidth: spatialPointStrokeWidth
@@ -658,11 +665,11 @@ export function useNeuroglancerViewerState(
             shader,
             name,
             // Both layer and channel visibility must be true, as for the segmentation layer.
-            // A centroid point size of 0 (gear menu) hides only the centroids:
+            // A hide centroid checkbox (gear menu) hides only the centroids:
             // the layer is made invisible, so NG also stops loading its chunks.
             visible: Boolean(layerCoordination?.spatialLayerVisible
               && channelCoordination?.spatialChannelVisible
-              && (channelCoordination?.spatialPointRadius ?? 1) > 0),
+              && (channelCoordination?.spatialCentroidsVisible ?? true)),
             // Coordination value (gear menu) > file option > 1.0, as for point layers.
             projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
               MIN_ANNOTATION_SPACING,

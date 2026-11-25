@@ -148,6 +148,8 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'spatialPointProjectionSpacing',
             'spatialPointStrokeWidth',
             'spatialPointRadius',
+            'spatialCentroidsVisible',
+            'spatialLayerOpacityUnselected',
           ]);
           const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
           // The obsSets tree is needed to map selected sets onto annotation properties.

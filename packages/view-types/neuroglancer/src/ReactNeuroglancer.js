@@ -21,7 +21,7 @@ import React from 'react';
 // (core-js) before any neuroglancer class with a [Symbol.dispose]() method is
 // defined. Safari lacks native Symbol.dispose; without this, those methods get
 // keyed as "undefined" and calls throw "n[Symbol.dispose] is not a function".
-
+// eslint-disable-next-line import/no-unresolved
 import 'neuroglancer/unstable/util/polyfills.js';
 
 import { AnnotationUserLayer } from 'neuroglancer/unstable/layer/annotation/index.js';
@@ -1118,9 +1118,13 @@ export default class Neuroglancer extends React.Component {
 
     const segmentsChanged = [...allSegLayerNames].some(segIdsChangedForLayer);
     const nextSegIds = nextSegLayers.flatMap(l => l.segments ?? []);
-
+    const prevSegIds = prevSegLayers.flatMap(l => l.segments ?? []);
+    // Apply N -> 0 transitions too (zoomed past the mesh-load threshold, panned
+    // into an empty area, or an empty selection); only skip 0 -> 0 seeding.
     // allowEmptySegments: the detail view must be able to clear to zero meshes.
-    if (segmentsChanged && (nextSegIds.length > 0 || this.props.allowEmptySegments)) {
+    if (segmentsChanged && (
+      nextSegIds.length > 0 || prevSegIds.length > 0 || this.props.allowEmptySegments
+    )) {
       this.preserveDimensions(() => {
         // restore only the layers to avoid clobbering pose/rotation/zoom.
         this.viewer.state.restoreState({ layers: nextLayers });
