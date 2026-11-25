@@ -23,14 +23,62 @@ export const UNCOMPRESSED_TRANSFER_SYNTAXES = [
 
 // The codec .wasm files are fetched at runtime rather than bundled,
 // like parquet-wasm, since bundlers handle .wasm inconsistently.
-// Versions must match the pnpm-workspace.yaml catalog.
-// TODO: host these on cdn.vitessce.io by adding the packages to scripts/sync-cdn.mjs.
-export const WASM_URLS = {
-  charls: 'https://cdn.jsdelivr.net/npm/@cornerstonejs/codec-charls@1.2.7/dist/charlswasm_decode.wasm',
-  libjpegturbo: 'https://cdn.jsdelivr.net/npm/@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8/dist/libjpegturbowasm_decode.wasm',
-  openjpeg: 'https://cdn.jsdelivr.net/npm/@cornerstonejs/codec-openjpeg@1.3.6/dist/openjpegwasm_decode.wasm',
-  openjph: 'https://cdn.jsdelivr.net/npm/@cornerstonejs/codec-openjph@2.4.11/dist/openjphjs.wasm',
+// Each file is fetched from jsDelivr, falling back to the copy that
+// scripts/sync-cdn.mjs mirrors to cdn.vitessce.io if jsDelivr fails.
+// Versions must match the pnpm-workspace.yaml catalog and scripts/sync-cdn.mjs.
+const WASM_CDN_ORIGINS = [
+  'https://cdn.jsdelivr.net/npm/',
+  'https://cdn.vitessce.io/',
+];
+const WASM_PATHS = {
+  charls: '@cornerstonejs/codec-charls@1.2.7/dist/charlswasm_decode.wasm',
+  libjpegturbo: '@cornerstonejs/codec-libjpeg-turbo-8bit@1.2.8/dist/libjpegturbowasm_decode.wasm',
+  openjpeg: '@cornerstonejs/codec-openjpeg@1.3.6/dist/openjpegwasm_decode.wasm',
+  openjph: '@cornerstonejs/codec-openjph@2.4.11/dist/openjphjs.wasm',
 };
+
+/**
+ * The URLs of each codec .wasm file, in the order they are tried.
+ * @type {Record<keyof typeof WASM_PATHS, string[]>}
+ */
+export const WASM_URLS = /** @type {any} */ (Object.fromEntries(
+  Object.entries(WASM_PATHS).map(
+    ([name, path]) => [name, WASM_CDN_ORIGINS.map(origin => `${origin}${path}`)],
+  ),
+));
+
+/**
+ * Fetch a .wasm file.
+ * @param {string} url
+ * @returns {Promise<ArrayBuffer>}
+ */
+async function fetchWasm(url) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`${res.status} from ${url}`);
+  }
+  return res.arrayBuffer();
+}
+
+/**
+ * Fetch the first URL that responds successfully.
+ * Each URL is only tried after the previous one fails.
+ * @param {string[]} urls
+ * @param {string[]} [errors] Messages of the URLs that already failed.
+ * @returns {Promise<ArrayBuffer>}
+ */
+async function fetchFirstAvailable(urls, errors = []) {
+  const [url, ...remainingUrls] = urls;
+  if (!url) {
+    throw new Error(`Image codec failed to load: ${errors.join('; ')}`);
+  }
+  try {
+    return await fetchWasm(url);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return fetchFirstAvailable(remainingUrls, [...errors, message]);
+  }
+}
 
 const wasmModules = new Map();
 
@@ -42,12 +90,7 @@ const wasmModules = new Map();
 function loadWasmModule(name, importFactory) {
   let wasmModule = wasmModules.get(name);
   if (!wasmModule) {
-    const wasmBinary = fetch(WASM_URLS[name]).then((res) => {
-      if (!res.ok) {
-        throw new Error(`Image codec failed to load: ${res.status} from ${res.url}`);
-      }
-      return res.arrayBuffer();
-    });
+    const wasmBinary = fetchFirstAvailable(WASM_URLS[name]);
     wasmModule = Promise.all([importFactory(), wasmBinary])
       .then(([{ default: factory }, binary]) => factory({ wasmBinary: binary }));
     // Allow a failed load to be retried.
