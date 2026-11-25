@@ -29,7 +29,6 @@ import {
   nodeInsertChild,
   filterNode,
   treeInitialize,
-  initializeCellSetColor,
 
   isEqualOrPrefix,
   tryRenamePath,
@@ -49,6 +48,7 @@ import {
 } from '@vitessce/sets-utils';
 import { capitalize } from '@vitessce/utils';
 import SetsManager from './SetsManager.js';
+import ObsSetsManagerOptions from './ObsSetsManagerOptions.js';
 
 // TODO(monorepo): import package.json
 // import packageJson from '../../../package.json';
@@ -89,12 +89,14 @@ export function ObsSetsManagerSubscriber(props) {
     obsSetColor,
     additionalObsSets,
     obsColorEncoding,
+    obsSetColormap,
   }, {
     setObsSetSelection,
     setObsColorEncoding,
     setObsSetColor,
     setObsSetExpansion,
     setAdditionalObsSets,
+    setObsSetColormap,
   }] = useCoordination(COMPONENT_COORDINATION_TYPES[ViewType.OBS_SETS], coordinationScopes);
 
   const title = titleOverride || `${capitalize(obsType)} Sets`;
@@ -495,13 +497,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onUnion = useCallback(() => {
     const newSet = treeToUnion(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Union ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
-    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
@@ -509,13 +511,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onIntersection = useCallback(() => {
     const newSet = treeToIntersection(mergedObsSets, obsSetSelection);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Intersection ',
     );
-  }, [additionalObsSets, obsSetColor, obsSetSelection, mergedObsSets,
-    setAdditionalObsSets, setObsColorEncoding, setObsSetColor, setObsSetSelection,
+  }, [additionalObsSets, obsSetSelection, mergedObsSets,
+    setAdditionalObsSets, setObsColorEncoding, setObsSetSelection,
   ]);
 
   // The user wants to create a new node corresponding to
@@ -523,13 +525,13 @@ export function ObsSetsManagerSubscriber(props) {
   const onComplement = useCallback(() => {
     const newSet = treeToComplement(mergedObsSets, obsSetSelection, allCellIds);
     setObsSelection(
-      newSet, additionalObsSets, obsSetColor,
-      setObsSetSelection, setAdditionalObsSets, setObsSetColor,
+      newSet, additionalObsSets,
+      setObsSetSelection, setAdditionalObsSets,
       setObsColorEncoding,
       'Complement ',
     );
-  }, [additionalObsSets, allCellIds, obsSetColor, obsSetSelection,
-    mergedObsSets, setAdditionalObsSets, setObsColorEncoding, setObsSetColor,
+  }, [additionalObsSets, allCellIds, obsSetSelection,
+    mergedObsSets, setAdditionalObsSets, setObsColorEncoding,
     setObsSetSelection,
   ]);
 
@@ -548,14 +550,15 @@ export function ObsSetsManagerSubscriber(props) {
         ],
       });
       // Automatically initialize set colors for the imported sets.
-      const importAutoSetColors = initializeCellSetColor(treeToImport, obsSetColor);
-      setObsSetColor([
-        ...obsSetColor,
-        ...importAutoSetColors,
-      ]);
+      // const importAutoSetColors = initializeCellSetColor(treeToImport, obsSetColor);
+      // setObsSetColor([
+      //   ...obsSetColor,
+      //   ...importAutoSetColors,
+      // ]);
+      // No action needed — imported nodes without explicit colors will be
+      // colored live via the obsSetColormap fallback.
     }
-  }, [additionalObsSets, obsSetColor, mergedObsSets, setAdditionalObsSets,
-    setObsSetColor,
+  }, [additionalObsSets, mergedObsSets, setAdditionalObsSets,
   ]);
 
   // The user wants to download a particular hierarchy to a JSON file.
@@ -598,6 +601,7 @@ export function ObsSetsManagerSubscriber(props) {
       levelSelection={checkedLevel}
       setSelection={obsSetSelection}
       setExpansion={obsSetExpansion}
+      obsSetColormap={obsSetColormap}
       hasColorEncoding={obsColorEncoding === 'cellSetSelection'}
       draggable
       datatype={SETS_DATATYPE_OBS}
@@ -624,11 +628,11 @@ export function ObsSetsManagerSubscriber(props) {
       hasCheckedSetsToComplement={obsSetSelection?.length > 0}
       theme={theme}
     />
-  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetExpansion, obsSetSelection,
-    cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement, onCreateLevelZeroNode,
+  ), [additionalObsSets, obsColorEncoding, obsSetColor, obsSetColormap, obsSetExpansion,
+    obsSetSelection, cellSets, checkedLevel, onCheckLevel, onCheckNode, onComplement,
     onDropNode, onExpandNode, onExportLevelZeroNodeJSON, onExportLevelZeroNodeTabular,
     onExportSetJSON, onImportTree, onIntersection, onNodeCheckNewName, onNodeRemove, onNodeSetColor,
-    onNodeSetName, onNodeView, onUnion, setWarning, theme,
+    onNodeSetName, onNodeView, onUnion, setWarning, theme, onCreateLevelZeroNode,
   ]);
 
 
@@ -644,6 +648,12 @@ export function ObsSetsManagerSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      options={(
+        <ObsSetsManagerOptions
+          obsSetColormap={obsSetColormap}
+          setObsSetColormap={setObsSetColormap}
+        />
+        )}
     >
       {manager}
     </TitleInfo>

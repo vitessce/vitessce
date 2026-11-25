@@ -1,6 +1,5 @@
 import {
   tryUpgradeTreeToLatestSchema,
-  initializeCellSetColor,
   nodeToSet,
   lazyTreeToMembershipMap,
 } from '@vitessce/sets-utils';
@@ -34,8 +33,9 @@ export default class ObsSetsJsonLoader extends JsonLoader {
       // Create a list of set paths to initally select.
       const newAutoSetSelections = tree[0].children
         .map(node => ([newAutoSetSelectionParentName, node.name]));
-      // Create a list of cell set objects with color mappings.
-      const newAutoSetColors = initializeCellSetColor(upgradedData, []);
+      // Colors are resolved live from obsSetColormap for nodes without an
+      // explicit override, so no default colors need to be baked in here.
+      const newAutoSetColors = [];
       coordinationValues.obsSetSelection = newAutoSetSelections;
       coordinationValues.obsSetColor = newAutoSetColors;
 

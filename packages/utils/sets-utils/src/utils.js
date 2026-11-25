@@ -1,6 +1,6 @@
 import tinycolor from 'tinycolor2';
 import { isEqual } from 'lodash-es';
-import { PALETTE } from '@vitessce/utils';
+// import { PALETTE } from '@vitessce/utils';
 import {
   SETS_DATATYPE_OBS,
   HIERARCHICAL_SCHEMAS,
@@ -93,7 +93,7 @@ export function getNextNumberedNodeName(nodes, prefix, suffix) {
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
  */
-export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', suffix = '') {
+export function setObsSelection(cellSelection, additionalCellSets, setCellSetSelection, setAdditionalCellSets, setCellColorEncoding, prefix = 'Selection ', suffix = '') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
 
   const selectionsLevelZeroNode = additionalCellSets?.tree.find(
@@ -107,9 +107,7 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
 
   const nextName = getNextNumberedNodeName(selectionsLevelZeroNode?.children, prefix, suffix);
 
-  let colorIndex = 0;
   if (selectionsLevelZeroNode) {
-    colorIndex = selectionsLevelZeroNode.children.length;
     selectionsLevelZeroNode.children.push({
       name: nextName,
       set: cellSelection.map(d => [d, null]),
@@ -127,13 +125,13 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
   }
   setAdditionalCellSets(nextAdditionalCellSets);
   const nextPath = ['My Selections', nextName];
-  setCellSetColor([
-    ...(cellSetColor || []),
-    {
-      path: nextPath,
-      color: PALETTE[colorIndex % PALETTE.length],
-    },
-  ]);
+  // setCellSetColor([
+  //   ...(cellSetColor || []),
+  //   {
+  //     path: nextPath,
+  //     color: PALETTE[colorIndex % PALETTE.length],
+  //   },
+  // ]);
   setCellSetSelection([nextPath]);
   setCellColorEncoding('cellSetSelection');
 }
