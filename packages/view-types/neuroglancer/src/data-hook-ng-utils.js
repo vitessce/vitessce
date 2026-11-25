@@ -662,8 +662,7 @@ export function useNeuroglancerViewerState(
             // the layer is made invisible, so NG also stops loading its chunks.
             visible: Boolean(layerCoordination?.spatialLayerVisible
               && channelCoordination?.spatialChannelVisible
-              && (channelCoordination?.spatialCentroidsVisible ?? true)
-              && (channelCoordination?.spatialPointRadius ?? 1) > 0),
+              && (channelCoordination?.spatialCentroidsVisible ?? true)),
             // Coordination value (gear menu) > file option > 1.0, as for point layers.
             projectionAnnotationSpacing: Math.min(MAX_ANNOTATION_SPACING, Math.max(
               MIN_ANNOTATION_SPACING,
