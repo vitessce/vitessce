@@ -446,8 +446,7 @@ export function getCentroidShaderParams(layerCoordination, channelCoordination) 
   } = channelCoordination || {};
   // obsSet coloring follows the meshes: with "Hide unselected" (unselected
   // opacity 0) unselected centroids are hidden, otherwise they are drawn in
-  // the default (grey) color. NG can't fade individual meshes, so unselected
-  // centroids keep the full opacity too.
+  // the default (grey) color.
   const showUnselectedObsSetCentroids = obsColorEncoding === 'cellSetSelection'
     && spatialLayerOpacityUnselected !== 0;
   return {
