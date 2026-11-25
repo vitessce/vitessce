@@ -11,7 +11,7 @@
   within the rendering cycling using requestAnimationFrame()
 */
 
-
+/* eslint-disable import/no-unresolved */
 /* eslint-disable max-len, consistent-return, react/destructuring-assignment,  class-methods-use-this, no-restricted-syntax, no-continue, no-unused-vars, react/forbid-prop-types, no-dupe-keys */
 import React from 'react';
 /* global BigInt */
@@ -23,14 +23,12 @@ import React from 'react';
 // keyed as "undefined" and calls throw "n[Symbol.dispose] is not a function".
 
 import 'neuroglancer/unstable/util/polyfills.js';
-/* eslint-disable import/no-unresolved */
+
 import { AnnotationUserLayer } from 'neuroglancer/unstable/layer/annotation/index.js';
 import { getObjectColor } from 'neuroglancer/unstable/segmentation_display_state/frontend.js';
 import { SegmentationUserLayer } from 'neuroglancer/unstable/layer/segmentation/index.js';
 import { serializeColor } from 'neuroglancer/unstable/util/color.js';
 import { urlSafeParse } from 'neuroglancer/unstable/util/json.js';
-/* eslint-disable max-len */
-/* eslint-enable import/no-unresolved */
 import { setupViewer } from './setup-viewer.js';
 
 import { diffCameraState, applyQuat, GREY_HEX } from './utils.js';

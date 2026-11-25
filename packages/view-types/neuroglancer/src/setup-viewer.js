@@ -1,10 +1,13 @@
+/* eslint-disable import/no-unresolved */
 // eslint-plugin-import's node resolver does not support package.json "exports",
 // which mainline neuroglancer uses for its `neuroglancer/unstable/*` subpaths.
-/* eslint-disable import/no-unresolved */
+// Defensive: ReactNeuroglancer.js already imports the polyfills before any other
+// neuroglancer module (that import is the one that matters, see the comment there).
+// Repeated here so this module stays safe if it is ever imported first elsewhere;
+// otherwise it is a no-op since ES modules evaluate only once.
+import 'neuroglancer/unstable/util/polyfills.js';
 // Side-effect import: registers mainline Neuroglancer's frontend layer types
 // (image, segmentation, annotation, ...), datasources, and kvstores.
-// // Must precede all other neuroglancer imports to avoid Safari error (see ReactNeuroglancer.js).
-import 'neuroglancer/unstable/util/polyfills.js';
 import 'neuroglancer';
 // Side-effect import: registers volume chunk format handlers (raw, compressed_segmentation).
 // Normally pulled in by mainline's ui/minimal_viewer.js, which we do not use.
@@ -17,7 +20,6 @@ import {
   bindDefaultCopyHandler,
   bindDefaultPasteHandler,
 } from 'neuroglancer/unstable/ui/default_clipboard_handling.js';
-/* eslint-enable import/no-unresolved */
 
 /**
  * Create a Neuroglancer viewer embedded in `target`.
