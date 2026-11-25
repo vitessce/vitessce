@@ -290,6 +290,7 @@ export function NeuroglancerSubscriber(props) {
       CoordinationType.SPATIAL_POINT_PROJECTION_SPACING,
       CoordinationType.SPATIAL_POINT_STROKE_WIDTH,
       CoordinationType.SPATIAL_POINT_RADIUS,
+      CoordinationType.SPATIAL_CENTROIDS_VISIBLE,
     ],
     coordinationScopes,
     coordinationScopesBy,
@@ -1760,6 +1761,15 @@ export function NeuroglancerSubscriber(props) {
         setStrokeWidth: setters.setSpatialPointStrokeWidth,
         pointRadius: values.spatialPointRadius ?? DEFAULT_POINT_MARKER_SIZE / 2,
         setPointRadius: setters.setSpatialPointRadius,
+        visible: (values.spatialCentroidsVisible ?? true)
+         && (values.spatialPointRadius ?? 1) > 0,
+        setVisible: setters.setSpatialCentroidsVisible ? (v) => {
+        setters.setSpatialCentroidsVisible(v);
+         // Showing centroids hidden by a point size of 0: restore the default size.
+         if (v && (values.spatialPointRadius ?? 1) <= 0) {
+           setters.setSpatialPointRadius?.(DEFAULT_POINT_MARKER_SIZE / 2);
+         }
+       } : undefined,
         showMarkerControls: true,
       };
     }),
