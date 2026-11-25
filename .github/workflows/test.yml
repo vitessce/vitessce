@@ -96,7 +96,10 @@ jobs:
         env:
           # ESLint results do not vary by OS, so only lint on one matrix leg
           # (Windows runner minutes bill at a higher rate than Linux).
-          SKIP_LINT: ${{ matrix.os == 'ubuntu-latest' && '' || '1' }}
+          # Note: the empty string is falsy in GitHub Actions expressions,
+          # so `cond && '' || '1'` would always evaluate to '1'.
+          # The condition is therefore written so that the truthy branch is '1'.
+          SKIP_LINT: ${{ matrix.os != 'ubuntu-latest' && '1' || '' }}
       - run: pnpm run bundle:ci
       - run: pnpm run build-json-schema
       - run: pnpm run publint

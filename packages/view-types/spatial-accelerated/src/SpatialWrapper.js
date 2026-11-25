@@ -8,12 +8,9 @@ import { VolumeView } from './VolumeView.js';
 import { VolumeInfoPanel } from './VolumeInfoPanel.js';
 import { DEFAULT_VOLUME_CAMERA, CAMERA_FAR } from './camera-snapshot.js';
 
-// Vitessce themes with a white background (see muiTheme in @vitessce/vit-s).
-const LIGHT_THEMES = ['light', 'light2'];
-
 export function SpatialWrapper(props) {
   const {
-    spatialRenderingMode, theme, spatialCameraSnapshot, uuid,
+    spatialRenderingMode, spatialBackgroundTheme, spatialCameraSnapshot, uuid,
   } = props;
   // Options for figures, read from the view's props in the view config, since
   // SpatialSubscriber only passes on the props it knows.
@@ -55,9 +52,10 @@ export function SpatialWrapper(props) {
           height: '100%',
           padding: 0,
           margin: 0,
-          // Shows through where the volume is transparent. Unset in the dark
-          // theme, which keeps the dark background of the view.
-          backgroundColor: LIGHT_THEMES.includes(theme) ? 'white' : undefined,
+          // Shows through where the volume is transparent.
+          // Follows the view's "Light background" option (the spatialBackgroundTheme
+          // coordination value), independent of the overall Vitessce theme.
+          backgroundColor: spatialBackgroundTheme === 'light' ? 'white' : 'black',
         }}
         camera={{
           fov: 50,

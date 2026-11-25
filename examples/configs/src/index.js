@@ -43,6 +43,10 @@ import { visiumSpatialViewer } from './view-configs/visium-spatial-viewer.js';
 import { blinOop2019, blinOop2019Zip, blinSideBySide2019 } from './view-configs/spatial-beta/blin.js';
 import { codexOop2023 } from './view-configs/spatial-beta/codex.js';
 import { visiumImageOop2023 } from './view-configs/spatial-beta/visium-image.js';
+import { niftiCtAbdomen, niftiMni152 } from './view-configs/radiology/nifti.js';
+import { dicomwebNlstCt, dicomwebJpegLsCt } from './view-configs/radiology/dicomweb.js';
+import { dicomNlstCt, dicomJpeg2000Mr, dicomJpegLosslessCt } from './view-configs/radiology/dicom.js';
+import { syntheaBrainMri, syntheaBrainMriComparison } from './view-configs/radiology/synthea.js';
 import { visiumSpotsOop2023 } from './view-configs/spatial-beta/visium-spots.js';
 import { codeluppiOop2018 } from './view-configs/spatial-beta/codeluppi.js';
 import { kpmp2023 } from './view-configs/spatial-beta/kpmp.js';
@@ -122,9 +126,13 @@ import { neuroglancerMacosko } from './view-configs/3d-maps/neuroglancer-macosko
 import { neuroglancerKiemenTissueClasses } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class.js';
 import { testCubeNeuroglancer } from './view-configs/3d-maps/neuroglancer-cube.js';
 import { neuroglancerTwoPointsLayers } from './view-configs/3d-maps/neuroglancer-multiple-points-layer.js';
+import { neuroglancerMisGzmb } from './view-configs/3d-maps/neuroglancer-mis-gzmb.js';
+import { neuroglancerInvGzmb } from './view-configs/3d-maps/neuroglancer-inv-gzmb.js';
 import { neuroglancerWashuKidney } from './view-configs/3d-maps/neuroglancer-washu-kidney.js';
 import { neuroglancerKiemenPanin } from './view-configs/3d-maps/neuroglancer-kiemen-panin.js';
+import { neuroglancerMetastatic } from './view-configs/3d-maps/neuroglancer-metastatic.js';
 import { neuroglancerKiemenTissueClassesDetailed } from './view-configs/3d-maps/neuroglancer-kiemen-tissue-class-detailed.js';
+import { neuroglancerSkin } from './view-configs/3d-maps/neuroglancer-skin.js';
 // Nature Methods figures
 import { citeSeq } from './view-configs/paper-figures/cite-seq.js';
 import { codex } from './view-configs/paper-figures/codex.js';
@@ -222,6 +230,15 @@ export const configs = {
   'blin-2019-3': blinSideBySide2019,
   'codex-2023': codexOop2023,
   'visium-2023-image-only': visiumImageOop2023,
+  'nifti-ct-abdomen': niftiCtAbdomen,
+  'nifti-mni152': niftiMni152,
+  'dicomweb-nlst-ct': dicomwebNlstCt,
+  'dicom-nlst-ct': dicomNlstCt,
+  'dicomweb-jpegls-ct': dicomwebJpegLsCt,
+  'dicom-jpeg2000-mr': dicomJpeg2000Mr,
+  'dicom-jpeg-lossless-ct': dicomJpegLosslessCt,
+  'synthea-brain-mri': syntheaBrainMri,
+  'synthea-brain-mri-comparison': syntheaBrainMriComparison,
   'visium-2023': visiumSpotsOop2023,
   'codeluppi-2018-2': codeluppiOop2018,
   'kpmp-2023': kpmp2023,
@@ -256,6 +273,7 @@ export const configs = {
   'neuroglancer-merfish': neuroglancerMerfish,
   'neuroglancer-two-layers': neuroglancerTwoLayers,
   'neuroglancer-sorger': neuroglancerSorger,
+  'neuroglancer-skin': neuroglancerSkin,
   'neuroglancer-invasive': neuroglancerInvasive,
   'neuroglancer-mis-cell-only': neuroglancerMisCellOnly,
   'neuroglancer-interscellar': neuroglancerInterscellar,
@@ -264,8 +282,11 @@ export const configs = {
   'neuroglancer-kiemen-tissue-classes': neuroglancerKiemenTissueClasses,
   'neuroglancer-cube': testCubeNeuroglancer,
   'neuroglancer-two-point-layers': neuroglancerTwoPointsLayers,
+  'neuroglancer-mis-gzmb': neuroglancerMisGzmb,
+  'neuroglancer-inv-gzmb': neuroglancerInvGzmb,
   'neuroglancer-washu-kidney': neuroglancerWashuKidney,
   'neuroglancer-kiemen-panin': neuroglancerKiemenPanin,
+  'neuroglancer-metastatic': neuroglancerMetastatic,
   'neuroglancer-kiemen-detailed': neuroglancerKiemenTissueClassesDetailed,
   // Spatial Accelerated
   's-a-lsp1': saLsp1,

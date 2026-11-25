@@ -63,3 +63,28 @@ export const vapi = {
   ft,
   ct,
 };
+
+/**
+ * Make a config that shows one radiology image
+ * in spatialBeta and layerControllerBeta views.
+ * @param {string} name The config and dataset name.
+ * @param {object} file The file definition.
+ * @returns {object} The view config.
+ */
+export function makeRadiologyConfig(name, file) {
+  return {
+    version: '1.0.16',
+    name,
+    datasets: [{ uid: 'volume', name, files: [file] }],
+    initStrategy: 'auto',
+    coordinationSpace: {},
+    layout: [
+      {
+        component: 'spatialBeta', x: 0, y: 0, w: 8, h: 12,
+      },
+      {
+        component: 'layerControllerBeta', x: 8, y: 0, w: 4, h: 12,
+      },
+    ],
+  };
+}

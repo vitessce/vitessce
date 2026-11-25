@@ -37,6 +37,10 @@ export function customIsEqualForCellColors(prevDeps, nextDeps) {
   if (curriedShallowDiff('csvLoaded')) {
     forceUpdate = true;
   }
+  // A layer gained or lost its meshes (see meshLayerScopesKey).
+  if (curriedShallowDiff('meshLayerScopesKey')) {
+    forceUpdate = true;
+  }
 
   // Segmentation sets data.
   if (['segmentationLayerScopes', 'segmentationChannelScopesByLayer'].some(curriedShallowDiff)) {
@@ -94,7 +98,7 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
   const curriedShallowDiffByChannelCoordination = (depName, layerScope, channelScope) => shallowDiffByChannelCoordination(prevDeps, nextDeps, depName, layerScope, channelScope);
   const curriedShallowDiffByChannelCoordinationWithKeys = (depName, layerScope, channelScope, keys) => shallowDiffByChannelCoordinationWithKeys(prevDeps, nextDeps, depName, layerScope, channelScope, keys);
 
-  if (['theme', 'showAxisLines', 'viewerDimensionsOverride'].some(curriedShallowDiff)) {
+  if (['theme', 'showAxisLines', 'viewerDimensionsOverride', 'obsSetColumnsByName'].some(curriedShallowDiff)) {
     forceUpdate = true;
   }
 
@@ -141,9 +145,14 @@ export function customIsEqualForInitialViewerState(prevDeps, nextDeps) {
             'obsSetSelection',
             'additionalObsSets',
             'spatialSegmentationStrokeWidth',
+            'spatialPointProjectionSpacing',
+            'spatialPointStrokeWidth',
+            'spatialPointRadius',
           ]);
           const opacityChanged = Math.abs(getOpacity(prevDeps) - getOpacity(nextDeps)) >= 0.05;
-          if (keysChanged || opacityChanged) {
+          // The obsSets tree is needed to map selected sets onto annotation properties.
+          const setsChanged = curriedShallowDiffByChannel('obsSegmentationsSetsData', layerScope, channelScope);
+          if (keysChanged || opacityChanged || setsChanged) {
             forceUpdate = true;
           }
         }
