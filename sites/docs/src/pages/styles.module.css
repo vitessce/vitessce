@@ -508,8 +508,27 @@
 .filterBar {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
+}
+
+.axisSelect {
+ background: var(--vit-bg-card);
+ border: 1px solid var(--vit-border-light);
+ border-radius: 6px;
+ padding: 0.35rem 0.6rem;
+ font-size: 0.85rem;
+ font-weight: 600;
+ color: var(--vit-text-primary);
+ cursor: pointer;
+ margin-right: 0.25rem;
+}
+
+.axisSelect:hover,
+.axisSelect:focus {
+ border-color: var(--ifm-color-primary);
+ outline: none;
 }
 
 .filterButton {
