@@ -86,6 +86,7 @@ export function EmbeddingScatterplotSubscriber(props) {
     circleScaleFactor = 0.8,
     // Passed down from the ancestor <Vitessce/> or <VitS/> component.
     areAnnotationsEditable,
+    helpViews,
   } = props;
 
   const viewUid = viewUidFromProps ?? uuid;
@@ -662,6 +663,8 @@ export function EmbeddingScatterplotSubscriber(props) {
       isReady={isReady && !isSelectionPending}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.SCATTERPLOT}
       options={(
         <ScatterplotOptions
           observationsLabel={observationsLabel}

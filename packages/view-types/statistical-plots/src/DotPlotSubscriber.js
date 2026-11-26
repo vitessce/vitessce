@@ -34,6 +34,7 @@ export function DotPlotSubscriber(props) {
     title = 'Dot Plot',
     transpose = true,
     helpText = ViewHelpMapping.DOT_PLOT,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -174,6 +175,8 @@ export function DotPlotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.DOT_PLOT}
       options={(
         <CellSetExpressionPlotOptions
           featureValueTransform={featureValueTransform}

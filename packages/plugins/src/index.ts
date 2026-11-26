@@ -101,3 +101,24 @@ export class PluginAsyncFunction {
     this.asyncFunction = asyncFunction;
   }
 }
+
+/**
+ * Associates a Vitessce view-type name with a React component that will be
+ * rendered inside the help panel when the user clicks the help button on a
+ * view whose type matches viewType.
+ *
+ * @example
+ * const pluginHelpViews = [
+ *   new PluginHelpView('spatialBeta', MyHelpComponent),
+ * ];
+ */
+export class PluginHelpView {
+  viewType: string;
+
+  component: ComponentType;
+
+  constructor(viewType: string, component: ComponentType) {
+    this.viewType = viewType;
+    this.component = component;
+  }
+}

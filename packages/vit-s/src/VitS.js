@@ -111,6 +111,7 @@ export function VitS(props) {
     debugMode = DEFAULT_DEBUG_MODE,
     logLevel = DEFAULT_LOG_LEVEL,
     areAnnotationsEditable = true,
+    helpViews: helpViewsProp,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -126,6 +127,7 @@ export function VitS(props) {
     () => (coordinationTypesProp || []),
     [coordinationTypesProp],
   );
+  const helpViews = useMemo(() => (helpViewsProp || []), [helpViewsProp]);
 
   // Set error handling-related globals.
   useLayoutEffect(() => {
@@ -362,6 +364,7 @@ export function VitS(props) {
                     stores={mergedStores}
                     queryClient={queryClient}
                     areAnnotationsEditable={areAnnotationsEditable}
+                    helpViews={helpViews}
                   >
                     {children}
                   </VitessceGrid>

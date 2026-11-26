@@ -29,6 +29,7 @@ export function CellSetCompositionBarPlotSubscriber(props) {
     removeGridComponent,
     theme,
     helpText = ViewHelpMapping.OBS_SET_COMPOSITION_BAR_PLOT,
+    helpViews,
   } = props;
 
   const { classes } = useStyles();
@@ -132,6 +133,8 @@ export function CellSetCompositionBarPlotSubscriber(props) {
       isReady={isReady}
       helpText={helpText}
       errors={errors}
+      helpViews={helpViews}
+      componentType={ViewType.OBS_SET_COMPOSITION_BAR_PLOT}
     >
       <div ref={containerRef} className={classes.vegaContainer}>
         {obsSetStats ? (

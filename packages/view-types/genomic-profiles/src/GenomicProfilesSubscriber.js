@@ -82,6 +82,7 @@ export function GenomicProfilesSubscriber(props) {
     title = 'Genomic Profiles',
     showGeneAnnotations = true,
     helpText = ViewHelpMapping.GENOMIC_PROFILES,
+    helpViews,
   } = props;
 
   // eslint-disable-next-line no-unused-vars
@@ -288,6 +289,8 @@ export function GenomicProfilesSubscriber(props) {
         urls={urls}
         helpText={helpText}
         errors={errors}
+        helpViews={helpViews}
+        componentType={ViewType.GENOMIC_PROFILES}
       >
         <div className={classes.higlassLazyWrapper} ref={containerRef}>
           <HiglassGlobalStyles classes={classes} />

@@ -65,6 +65,7 @@ export function LayerControllerSubscriber(props) {
     cameraPresets,
     helpText = ViewHelpMapping.LAYER_CONTROLLER_BETA,
     showViewerOptions = false,
+    helpViews,
   } = props;
 
   const loaders = useLoaders();
@@ -388,6 +389,8 @@ export function LayerControllerSubscriber(props) {
       isReady={isReady}
       errors={errors}
       helpText={helpText}
+      helpViews={helpViews}
+      componentType={ViewType.LAYER_CONTROLLER_BETA}
     >
       <LayerController
         theme={theme}
