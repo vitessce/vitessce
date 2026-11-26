@@ -92,6 +92,7 @@ export function getNextNumberedNodeName(nodes, prefix, suffix) {
  * @param {object[]} additionalCellSets The previous array of user-defined cell sets.
  * @param {function} setCellSetSelection The setter function for cell set selections.
  * @param {function} setAdditionalCellSets The setter function for user-defined cell sets.
+ * @returns {string[]} The path of the newly-created set.
  */
 export function setObsSelection(cellSelection, additionalCellSets, cellSetColor, setCellSetSelection, setAdditionalCellSets, setCellSetColor, setCellColorEncoding, prefix = 'Selection ', suffix = '') {
   const CELL_SELECTIONS_LEVEL_ZERO_NAME = 'My Selections';
@@ -136,6 +137,9 @@ export function setObsSelection(cellSelection, additionalCellSets, cellSetColor,
   ]);
   setCellSetSelection([nextPath]);
   setCellColorEncoding('cellSetSelection');
+  // Returned so that the caller can reference the new set,
+  // for example to add it to the filtering criteria.
+  return nextPath;
 }
 
 export function mergeObsSets(cellSets, additionalCellSets) {

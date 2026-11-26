@@ -82,6 +82,46 @@ export const useStyles = makeStyles()(theme => ({
     fontSize: '12px',
     color: theme.palette.primaryForegroundD15,
   },
+  nodeSizeLabelFilterExcluded: {
+    textDecoration: 'line-through',
+    opacity: 0.5,
+  },
+  filterCheckboxWrapper: {
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    lineHeight: 0,
+  },
+  filterCheckbox: {
+    cursor: 'pointer',
+    appearance: 'none',
+    boxSizing: 'border-box',
+    width: '13px',
+    height: '13px',
+    // Important needed due to Jupyter Notebook conflicting styles
+    padding: '0 !important',
+    margin: '0 6px 0 3px',
+    border: `2px solid ${theme.palette.primaryForegroundL10}`,
+    /* A circle, so that the filter checkbox is distinguishable from the
+       (rounded square) selection checkbox rendered next to it. */
+    borderRadius: '50%',
+    backgroundColor: 'transparent',
+    position: 'relative',
+    top: '-1px',
+    float: 'none',
+    '&:checked': {
+      backgroundColor: theme.palette.primaryForegroundL10,
+    },
+    '&:indeterminate': {
+      /* A ring, for the state in which only some of the descendant sets
+         meet the filtering criteria. */
+      backgroundColor: theme.palette.primaryForegroundL10,
+      backgroundClip: 'content-box',
+      padding: '2px !important',
+    },
+  },
+  filterCheckboxInactive: {
+    opacity: 0.45,
+  },
   levelButtonsContainer: {
     height: '20px',
     width: '100%',
@@ -126,6 +166,19 @@ export const useStyles = makeStyles()(theme => ({
     verticalAlign: 'top',
     fontSize: '14px',
     cursor: 'pointer',
+    /* To accomodate the filter checkbox, the selection checkbox,
+       and the node menu button. */
+    maxWidth: 'calc(100% - 68px)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  titleButtonFilterExcluded: {
+    /* Sets which do not meet the filtering criteria are still rendered here,
+       since this control view is where the criteria are edited, but they are
+       struck through to indicate that they cannot be selected. */
+    textDecoration: 'line-through',
+    opacity: 0.5,
+    cursor: 'not-allowed',
   },
   titleButtonWithInput: {
     padding: 0,
@@ -242,8 +295,9 @@ export function SetsManagerTreeGlobalStyles(props) {
         },
         '.rc-tree-treenode .rc-tree-node-content-wrapper > span .title-button': {
           position: 'relative',
-          /* To accomodate the checkbox and node menu button. */
-          maxWidth: 'calc(100% - 45px)',
+          /* To accomodate the filter checkbox, the selection checkbox,
+             and the node menu button. */
+          maxWidth: 'calc(100% - 68px)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
         },
@@ -312,6 +366,13 @@ export function SetsManagerTreeGlobalStyles(props) {
           borderLeft: '0',
           transform: 'scale(1)',
           content: "' '",
+        },
+        /* The selection checkbox is disabled for any set which does not meet
+           the current filtering criteria, since the selection must not be a
+           superset of the filter. */
+        '.rc-tree-treenode span.rc-tree-checkbox.rc-tree-checkbox-disabled': {
+          cursor: 'not-allowed',
+          opacity: '0.35',
         },
         '.rc-tree:not(.rc-tree-show-line) .rc-treenode .rc-tree-switcher-noop': {
           background: 'none',
